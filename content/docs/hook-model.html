@@ -17,11 +17,8 @@ wiring the runtime executes), <code>adapters</code> (provider config paths), and
 <code>source</code>, plus the same category/description/why/side-effect record;</li>
 <li><code>editorAdapters</code> and <code>ompAdapters</code> — where editor and OMP integrations
 attach;</li>
-<li><code>maintainedIn</code> — the canonical source path of the registry itself, which
-the installer uses to recognize the source root it must rewrite;</li>
-<li><code>generatedDocs</code> — where the rendered hook documentation lives
-(<code>~/.shared-hooks/HOOKS.md</code> after installation);</li>
-<li><code>version</code>, <code>updatedAt</code>, <code>notes</code>.</li>
+<li><code>maintainedIn</code> — the canonical structured registry source rewritten by the installer;</li>
+<li><code>version</code>, <code>updatedAt</code>, and <code>notes</code> — catalogue identity and operator context.</li>
 </ul>
 <p><code>catalogChecksum</code> is the SHA-256 of the registry JSON with the checksum
 field itself removed (sorted keys, canonical separators). It is recomputed
@@ -69,8 +66,8 @@ declares <code>kind</code>, <code>title</code>, <code>registryPath</code> (a <co
 registries and shows every entry with its word count, its <code>expires_at</code>
 expiry, and whether the target it justifies still exists — expired or
 missing-target entries are the ones to renew or remove.</p>
-<h2>Generated documentation</h2>
-<p><code>tama-cli docs</code> renders the full per-hook documentation from the registry
-plus the archived source tree; the installed runtime keeps the same render
-at <code>~/.shared-hooks/HOOKS.md</code>. <code>tama-cli list</code>, <code>show &lt;hook-id&gt;</code>, and
-<code>validate</code> are the terse forms (<a href="cli.md">cli</a>).</p>
+<h2>Catalogue access</h2>
+<p>The full catalogue remains structured in <code>shared-hooks/registry.json</code>.
+Use <code>tama list --json</code>, <code>tama show &lt;hook-id&gt; --json</code>, and
+<code>tama validate --json</code> for machine-readable inspection. The website explains
+the catalogue contract without generating a second Markdown registry.</p>

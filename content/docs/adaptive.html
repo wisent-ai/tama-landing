@@ -1,0 +1,23 @@
+<h1>Adaptive enforcement</h1>
+<p>Tama observes hook outcomes, learns only from structurally complete runs and causally identified owner corrections, and may automatically weaken only an etiquette hook from <code>enforce</code> to <code>warn</code>. It never disables a hook and never edits hook source.</p>
+<h2>Safety invariants</h2>
+<ul>
+<li>Integrity hooks always enforce. Failure history, frustration, model output, runtime state, and repair output cannot move them into warning mode.</li>
+<li>Advisory hooks never block. Only etiquette hooks may enter <code>warn</code>, and the automatic ceiling is warning, never off.</li>
+<li>A hook-process failure is infrastructure failure, not a hook verdict. Tier policy decides whether that failure blocks, warns, or is ignored.</li>
+<li>Repair remains proposal-only. Applying source or installing the adaptive runner requires owner consent supplied outside the agent session.</li>
+</ul>
+<h2>Threshold-free state machine</h2>
+<p>Each hook starts in <code>observing</code>. A complete failed run closed by a real pass establishes the recovered baseline. A later complete, non-singleton failure run is a new record only when it strictly exceeds that hook's baseline. A source-verifiable etiquette hook then moves from enforcement to warning.</p>
+<p>There are no strike counts, time windows, percentiles, expiry timers, or owner-tuned thresholds. Cold start cannot weaken a hook. A warned hook returns to enforcement only after its verified source digest changes and the new source completes a real successful run; time passing changes nothing.</p>
+<h2>Facts before projections</h2>
+<p>Every transition appends and synchronizes an immutable fact before publishing disposable per-hook projections. Missing or corrupt projections rebuild from the journal. A missing, corrupt, incomplete, or unwritable fact journal fails toward enforcement and reports persistence failure; it never authorizes warning mode.</p>
+<h2>Causal owner feedback</h2>
+<p>Blocked decisions are grouped by session and interaction episode. On the next owner prompt, Tama considers only the most recent episode group from that session. A direct correction of that blocked action may record a source-bound contested-block fact. General frustration, an ambiguous complaint, a missing session identity, or model disagreement is recommendation evidence only.</p>
+<h2>Telemetry transport</h2>
+<p>Each runner invocation owns one immutable telemetry segment, synchronizes it, and atomically publishes it closed. Transcript Lake validates frame count, source digest, and payload digest; masks and publishes deterministic output; commits its cursor; and only then writes a digest-bound acknowledgement. Tama may reclaim a source segment only after validating that acknowledgement. Lake failure leaves source segments intact and never changes enforcement.</p>
+<h2>Repair and migration</h2>
+<p>Blocks add real payloads to the replay corpus. Explicit corrections label false positives; uncontested blocks remain unlabeled. A repair candidate needs labeled cases and becomes only a proposal after required blocks still block, confirmed false positives pass, and the hook executes successfully.</p>
+<p>Runtime state belongs under <code>~/.hooks-adaptive/</code> or <code>HOOKS_ADAPTIVE_STATE</code>, never in the repository. Legacy overrides, provenance, and fixed-threshold artifacts are quarantined instead of imported as authority. Every migration therefore cold-starts in enforcement and earns a new baseline from complete runs.</p>
+<h2>Failure posture</h2>
+<p>Runner failure remains fail-closed. Telemetry failure cannot change a verdict. Persistence failure cannot authorize a weaker mode. Unverifiable source identity prevents automatic warning and recovery. Losing observability or adaptive state never turns a safety hook off.</p>

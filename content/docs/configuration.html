@@ -22,15 +22,13 @@ provisioning profiles, channels) are maintainer-only and tabled in
 <p>Never repair <code>installed.json</code>, <code>current</code>, or the emergency manifest by hand
 as a normal procedure (<a href="operations.md">operations</a>).</p>
 <h2>Managed per-user files</h2>
-<p>Installation writes hook entrypoints only to documented per-user locations
-(<a href="hook-releases.md">hook-releases</a>): <code>~/.shared-hooks</code> (including the
-rewritten <code>registry.json</code> and generated <code>HOOKS.md</code>), <code>~/.claude/hooks</code> and
-<code>~/.claude/settings.json</code>, <code>~/.codex/hooks</code> and <code>~/.codex/hooks.json</code>,
-<code>~/.local/bin/tama-agent</code>, the <code>pre-commit</code>/<code>pre-push</code> dispatchers at the
-user-global Git hooks path (<code>git config --global core.hooksPath</code>, default
-<code>~/.config/git/hooks</code>, originals preserved as <code>&lt;name&gt;.before-tama</code>), and
-approved <code>.githooks</code> files in matching project checkouts. The OMP adapter
-<code>~/.shared-hooks/omp-shared-hooks.js</code> is registered through
+<p>Installation writes hook entrypoints only to documented per-user locations:
+<code>~/.shared-hooks</code> for the structured registry and OMP adapter,
+<code>~/.claude/hooks</code> and <code>~/.claude/settings.json</code>,
+<code>~/.codex/hooks</code> and <code>~/.codex/hooks.json</code>,
+<code>~/.local/bin/tama-agent</code>, the user-global Git dispatchers, and approved
+project <code>.githooks</code> entrypoints. Existing Git hooks are preserved as
+<code>&lt;name&gt;.before-tama</code>. The OMP adapter is registered through
 <code>omp config set extensions</code>.</p>
 <h2>Script and runtime environment variables</h2>
 <p>Honored by the bundled installer (<code>install_hook_release.py</code>), the emergency

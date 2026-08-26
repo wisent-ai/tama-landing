@@ -29,6 +29,8 @@
   {"route":"configuration","source":"docs/configuration.md","content":"content/docs/configuration.html","category":"Reference"},
   {"route":"enforcement-control","source":"docs/enforcement-control.md","content":"content/docs/enforcement-control.html","category":"Reference"},
   {"route":"hook-model","source":"docs/hook-model.md","content":"content/docs/hook-model.html","category":"Reference"},
+  {"route":"adaptive","source":"docs/ADAPTIVE.md","content":"content/docs/adaptive.html","category":"Reference"},
+  {"route":"hook-management","source":"docs/HOOK-MANAGEMENT.md","content":"content/docs/hook-management.html","category":"Reference"},
   {"route":"hook-releases","source":"docs/hook-releases.md","content":"content/docs/hook-releases.html","category":"Reference"},
   {"route":"integrations","source":"docs/integrations.md","content":"content/docs/integrations.html","category":"Reference"},
   {"route":"operations","source":"docs/operations.md","content":"content/docs/operations.html","category":"Reference"},
