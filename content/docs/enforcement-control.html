@@ -1,0 +1,93 @@
+<h1>Enforcement control</h1>
+<p>Tama has exactly two enforcement mutations, and they point in opposite
+directions on purpose. Enabling is narrow: one hook, or all hooks, in one
+live session, applied by that session's own supervisor. Disabling is global:
+one confirmed emergency action that bypasses every managed dispatcher on the
+machine and leaves durable evidence until re-enable succeeds. There is no
+per-session disable — agent-session controls never weaken policy, and
+disabling enforcement remains an operator-owned action outside the session
+(<a href="core-contracts.md">core-contracts</a>).</p>
+<h2>Session records</h2>
+<p>Supervised runtimes publish one file per live session under
+<code>~/Library/Application Support/Tama/session-control/</code> (directory mode
+<code>0700</code>), schema <code>ai.wisent.tama.session-control.v2</code>. A record carries
+<code>agentId</code>, <code>sessionId</code>, a 64-hex <code>controlKey</code>, <code>pid</code>, <code>cwd</code>, <code>livenessMode</code>
+(<code>process</code> — the pid must be alive — or <code>heartbeat</code> — <code>updatedAt</code> within
+<code>heartbeatTTLSeconds</code>, clamped to 5–3600), <code>globallyDisabled</code>,
+<code>disabledHookIds</code>, <code>enabledHookIds</code>, the session's <code>capability</code> (issuer,
+nonce, release and checksum binding, lifetime, expiry, remaining uses, and
+per-tool grants), <code>runtime</code> status (<code>installedReleaseId</code>, <code>loadedReleaseId</code>,
+<code>catalogChecksum</code>, registered/loaded hook counts, unknown hook ids,
+<code>reloadRequired</code>, <code>reloadPending</code>, <code>registryLoadError</code>), and
+<code>semanticRuntime</code> — the sequence of recent events with each <code>decision</code>, the
+<code>blockedHookId</code>, and the <code>reason</code> string. Tama only reads these records;
+invalid, legacy-v1, or stale ones are ignored.</p>
+<h2>Session-scoped enable</h2>
+<p>The desktop writes a private request file
+<code>&lt;controlKey&gt;.&lt;requestId&gt;.request.json</code> (mode <code>0600</code>) into the same
+directory — operation <code>set-hook</code> with <code>hookId</code> and <code>enabled: true</code>, or
+<code>enable-all</code> — and polls for the matching
+<code>&lt;controlKey&gt;.&lt;requestId&gt;.response.json</code> for up to 10 seconds. The
+supervisor validates the envelope against the exact session identity tuple,
+applies the override atomically, and answers with the authoritative session
+state; rejection, malformed identity, session exit, or timeout is an
+actionable failure, never optimistic success. Retrying the same enable is
+idempotent.</p>
+<p>Enablement semantics follow <code>globallyDisabled</code>:</p>
+<ul>
+<li>normally, a hook is enabled unless its id is in <code>disabledHookIds</code>;</li>
+<li>during a global emergency disable, <code>enabledHookIds</code> is the session's
+explicit allowlist — the only hooks that run.</li>
+</ul>
+<p><code>enable-all</code> first persists an override bound to the installed release and
+catalog checksum, then schedules one runtime reload after the active agent
+turn settles; concurrent reload requests coalesce, and a failure restores
+the preceding override state. The <strong>Session</strong> screen shows the pending state
+until the transition completes, and offers <strong>Enable all hooks</strong> whenever a
+session lags the installed release.</p>
+<p>Inside an OMP session, the bundled adapter
+(<code>~/.shared-hooks/omp-shared-hooks.js</code>) exposes the same control plane as
+session tools: <code>tama_hook_runtime_status</code>, <code>tama_set_session_hook</code>,
+<code>tama_enable_all_session_hooks</code>, <code>tama_request_session_capability</code>, and
+<code>tama_reload_hook_runtime</code>. Session hook disablement is prohibited there
+too.</p>
+<h2>Global emergency disable</h2>
+<p>The bundled <code>emergency_disable_hooks</code> script is the switch; the desktop runs
+it from <strong>Posture</strong> (confirmed as <em>Disable every Tama hook on this machine</em>)
+and re-runs it with <code>TAMA_EMERGENCY_ACTION=enable</code> for re-enable. Disable:</p>
+<ol>
+<li>pauses every supervised session through
+<code>agent-session-supervisor.py control pause --require-all</code>; an exit trap
+resumes them after success, failure, or interruption;</li>
+<li>reinstalls the session controllers (<code>--session-control-only</code>) so session
+visibility survives the bypass;</li>
+<li>backs up <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> into
+<code>emergency-backup/</code> and empties their <code>hooks</code> maps;</li>
+<li>moves entrypoints aside to <code>&lt;name&gt;.tama-disabled</code>: the OMP agent hooks
+directory and every Git hook source the installed registry declares;</li>
+<li>stops the editor watcher (<code>~/.shared-hooks/editor-hooks.pid</code>, then the
+<code>com.wisent.editor-hooks.plist</code> LaunchAgent);</li>
+<li>records everything once in <code>emergency-backup/manifest.json</code> and writes
+<code>hook-emergency-state.json</code> (schema
+<code>ai.wisent.tama.hook-emergency-state.v1</code>, <code>disabled: true</code>,
+<code>changedAt</code>).</li>
+</ol>
+<p>Repeating disable is idempotent (<code>Tama hooks are already disabled.</code>). The
+desktop treats the machine as disabled only when both the manifest and the
+disabled state file exist, and after the script returns it re-reads that
+durable state — a switch that did not persist is reported as a failure, not
+claimed as success.</p>
+<h2>Re-enable</h2>
+<p>Enable refuses to run without the emergency manifest and a valid bundled
+release. It performs the full transactional installation of
+<a href="hook-releases.md">hook-releases</a> with <code>--emergency-manifest</code>, which
+restores every moved entrypoint from the manifest, regenerates provider
+configs from the emergency backups, re-bootstraps the editor LaunchAgent,
+and only then removes the emergency state and manifest. A failed enable
+preserves the recovery evidence and does not claim the enabled state.</p>
+<p><strong>Settings → Deactivate</strong> is the composed teardown: it runs the same global
+disable and then unregisters the privileged daemon, System Extension, and
+network filter independently, so one failure does not skip later cleanup
+(<a href="desktop.md">desktop</a>). Restoration evidence under
+<code>~/Library/Application Support/Tama</code> is deliberately preserved
+(<a href="operations.md">operations</a>).</p>

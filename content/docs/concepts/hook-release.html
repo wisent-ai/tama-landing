@@ -1,0 +1,94 @@
+<h1>Hook release</h1>
+<p>What exactly is the unit of hook-policy deployment on a machine? A hook
+release: an immutable, content-addressed directory tree carrying the
+registry, every approved hook source, the sealed Rust backend, and a
+manifest whose <code>releaseId</code> is the SHA-256 digest of the tree itself. Nothing
+smaller deploys — no single hook, no patch — and nothing mutates in place.</p>
+<h2>What it is</h2>
+<p>A directory with this shape (<a href="../hook-releases.md#the-release-tree">hook-releases</a>):</p>
+<pre><code class="language-text">release.json          # seal manifest, ai.wisent.tama.hook-release.v1
+package.json          # hook package identity (@wisent/tama)
+shared-hooks/         # registry.json, hook scripts, session supervisor,
+                      # universal runtime, OMP adapter, Node preflight
+claude-hooks/         # provider-specific entrypoints
+codex-hooks/
+repo-githooks/&lt;project&gt;/
+external-hooks/       # approved sources packaged from outside the managed roots
+external-sources.json # sourcePrefix -&gt; releasePath mappings
+bin/tama-cli          # sealed Rust CLI (the desktop backend)
+bin/tama-mcp-server   # sealed MCP server
+</code></pre>
+<p>The identity is the content: <code>releaseId</code> in <code>release.json</code> is the tree
+digest defined in <a href="seal.md">concepts/seal</a>. The release sealed on
+2026-08-24 in this checkout digests to
+<code>35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7</code> — the
+value every capture in the <a href="../walkthrough-verify-release.md">walkthroughs</a>
+shows.</p>
+<h2>Who declares it</h2>
+<p>Hook policy is authored outside this repository, in the hook source tree
+<code>Scripts/build-app.sh</code> selects with <code>TAMA_HOOK_ROOT</code> (default: the <code>tama</code>
+checkout beside this repository — the tree whose generated documentation is
+titled the Hooks Rotator catalog). The build stages the four hook
+directories, compiles <code>tama-cli</code> and <code>tama-mcp-server</code> from that tree's
+<code>rust/</code> workspace, packages external sources, prunes generator files and
+bytecode, and seals (<a href="../scripts.md#build-appsh">scripts</a>). The desktop
+release then <em>carries</em> the hook release; the two have separate identities
+and version policies (<a href="../releases.md#product-and-hook-identities">releases</a>).</p>
+<h2>Who installs it</h2>
+<p>Only an explicit operator action, through <code>install_hook_release.py</code>
+(<a href="../scripts.md#install_hook_releasepy">scripts</a>). Installation is:</p>
+<ul>
+<li><strong>gated</strong> — bundled digest, then installed digest, refusing verbatim at
+either (<a href="seal.md#who-enforces-it">concepts/seal</a>);</li>
+<li><strong>content-addressed</strong> — the tree lands at
+<code>~/Library/Application Support/Tama/hooks-runtime/releases/&lt;release-id&gt;</code>
+with a <code>current</code> symlink replaced atomically;</li>
+<li><strong>rewritten</strong> — every registry path is mapped from the canonical source
+root and home to the target home, Node-based hook commands are pinned to a
+validated Node.js 20+ executable with the version-guard preflight, and
+<code>catalogChecksum</code> is recomputed;</li>
+<li><strong>transactional</strong> — every touched file is backed up and restored on
+failure, and obsolete files are deleted only under the managed roots.</li>
+</ul>
+<p>The full write set is in <a href="../hook-releases.md#installation">hook-releases</a>.</p>
+<h2>Who observes it</h2>
+<ul>
+<li><code>installed.json</code> (schema <code>ai.wisent.tama.installed-hook-release.v1</code>)
+records the installed identity, managed files, and pinned Node.</li>
+<li>Every live session record carries <code>runtime.installedReleaseId</code>,
+<code>runtime.loadedReleaseId</code>, and <code>runtime.catalogChecksum</code> — what the
+session actually loaded, not what should have been loaded.</li>
+<li><a href="../desktop/posture.md">Posture</a> compares bundled vs installed vs loaded;
+<a href="../walkthrough-runtime-status.md">walkthrough-runtime-status</a> is the
+command-line version.</li>
+<li><code>verify_installed_releases.py</code> digests every installed tree against its
+directory name — no manifest needed, because the name is the claim.</li>
+</ul>
+<h2>Where it lives</h2>
+<p>| Location | Copy |
+|---|---|
+| <code>Tama.app/Contents/Resources/hooks-release/</code> | The bundled release, sealed at build time; authoritative for the catalog at runtime |
+| <code>~/Library/Application Support/Tama/hooks-runtime/releases/&lt;id&gt;/</code> | Content-addressed installed copies; old ones are retained |
+| <code>~/Library/Application Support/Tama/hooks-runtime/current</code> | Atomic symlink to the active release |
+| <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, <code>~/.local/bin/tama-agent</code>, Git hook paths | The installed entrypoints generated <em>from</em> the release |</p>
+<h2>Commands</h2>
+<pre><code class="language-bash">python3 Scripts/verify_hook_release.py                       # bundled tree vs its seal
+python3 Scripts/report_hook_release_integrity.py             # same, with residue attribution
+python3 Scripts/verify_installed_releases.py                 # every installed tree vs its name
+Tama.app/Contents/Resources/hooks-release/bin/tama-cli list  # what the release declares
+</code></pre>
+<h2>Not to be confused with</h2>
+<ul>
+<li><strong>The product release.</strong> <code>Tama-&lt;version&gt;-macOS-&lt;arch&gt;.zip</code> is the signed
+desktop artifact; it <em>contains</em> one hook release. Upgrading the app can
+ship the same hook release, and a new hook release requires a new app
+artifact — hooks never update in place (<a href="../releases.md">releases</a>).</li>
+<li><strong>The installed runtime.</strong> <code>~/.shared-hooks</code> and its siblings are
+<em>generated from</em> a release (paths rewritten, Node pinned); they are not the
+release and are not content-addressed. The release copy under
+<code>hooks-runtime/releases/</code> is the verifiable original.</li>
+<li><strong>The registry.</strong> <code>shared-hooks/registry.json</code> is one file inside the
+release — the declaration of what the release enforces
+(<a href="registry.md">concepts/registry</a>); the release is the deployable unit
+that carries it.</li>
+</ul>

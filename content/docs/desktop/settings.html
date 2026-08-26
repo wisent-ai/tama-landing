@@ -1,0 +1,63 @@
+<h1>Settings screen</h1>
+<p>The local installation and the build behind it: install the runtime,
+register the privileged backend, and — the screen's one destructive owner —
+deactivate everything. Installation is a decision an operator makes once;
+it lives here rather than beside the posture verdicts.</p>
+<h2>Header</h2>
+<p>Title <code>Settings</code>; scope <code>inspection mode</code> when signed out; freshness is the
+product version. Actions: with control, <code>Reveal release</code> (opens the bundled
+release in Finder); without, <code>Sign in for controls</code>.</p>
+<h2>Local enforcement</h2>
+<p>Detail sentence, verbatim: <code>The verified runtime under Application Support, and the privileged macOS components that gate processes and network traffic.</code> Trailing state: <code>bypassed</code> / <code>active</code>. Fields: <code>Installed release</code>
+(<code>Not installed by Tama</code> before an install), <code>Privileged backend</code> (the
+macOS-reported status, toned by the shared mapping — <code>Enabled</code> success,
+<code>Not registered</code> neutral, failures and unavailability danger, everything
+else warning), and, when an install recorded them, <code>Node version</code> and
+<code>Node executable</code> (<code>Not recorded</code>).</p>
+<p>Buttons appear only while applicable:</p>
+<ul>
+<li><code>Install local runtime</code> — only without an installed release, enabled only
+while the bundled catalog validates and no mutation is running. Reports
+<code>Installing the integrity-checked hook runtime…</code> then
+<code>Installed hook release &lt;id&gt;.</code></li>
+<li><code>Register privileged backend</code>, <code>Approval settings</code>, <code>Full Disk Access</code> —
+only while the backend is not <code>Enabled</code>. Registration reports
+<code>Registering the privileged macOS policy backend…</code> and returns macOS's own
+status sentence, including <code>Restart required to finish System Extension activation</code> (<a href="../runbook.md#the-privileged-backend-is-not-enabled">runbook</a>).</li>
+<li><code>Deactivate</code> (destructive) — while a release is installed or the backend
+is anything but <code>Not registered</code>; it opens the decision dialog below.</li>
+</ul>
+<p>The standing footnote: <code>macOS asks for approval of Tama's daemon, System Extension, network filter and Full Disk Access where each is required. Registration is per machine and survives updates.</code></p>
+<h2>Inspection mode</h2>
+<p>Signed out, the section states its own boundary — <code>The sealed catalog and declared plan remain available. Install and deactivate controls appear when the managed Tama runtime is available.</code>, trailing <code>controls unavailable</code> —
+and lists exactly what <code>Signing in adds</code>: live session capability, grants
+and decisions; per-session hook enablement; repository violation scan and
+repair; the local justification registries; runtime installation and the
+privileged backend.</p>
+<h2>Build</h2>
+<p><code>What this application is, and which hook release it carries.</code>, trailing
+the channel. Fields: Version, Source revision (with <code> (dirty source)</code>
+appended when build provenance says so), Bundled hook release
+(<code>Not recorded</code> in unsealed development builds), Hook source revision (same
+dirty suffix, warning tone), Target (<code>&lt;platform&gt; · &lt;architecture&gt;</code>), Built.
+The two identities are deliberately separate
+(<a href="../releases.md">releases</a>).</p>
+<h2>Deactivate local policy enforcement on this machine</h2>
+<p>The confirmed dialog states the entire price, verbatim:</p>
+<ol>
+<li><code>Every managed hook dispatcher is disabled, so &lt;n&gt; blocking policies stops refusing unsafe work.</code></li>
+<li><code>Tama unregisters its privileged daemon, System Extension and network filter. macOS may require a restart to finish removal.</code></li>
+<li><code>Supervised sessions that are running keep running without enforcement. Stop them first if that matters.</code></li>
+</ol>
+<p>Reason code <code>hook-emergency-state.v1 disabled=true; SMAppService unregister</code>; the listing names the four things touched —
+<code>~/Library/Application Support/Tama/hook-emergency-state.json</code>,
+<code>~/Library/Application Support/Tama/emergency-backup/manifest.json</code>,
+<code>ai.wisent.tama.system-policy</code>, <code>ai.wisent.tama.network-filter</code> — and the
+footnote: <code>recovery files are preserved; reinstalling verifies the bundled release before restoring dispatchers</code>. Actions: destructive <code>Deactivate everything</code>, primary <code>Keep enforcement</code>.</p>
+<p>Deactivation is the emergency disable <em>plus</em> independent unregistration of
+the daemon, System Extension, and network filter
+(<a href="../concepts/emergency-disable.md#not-to-be-confused-with">concepts/emergency-disable</a>);
+it reports <code>Deactivating the local policy setup…</code> then <code>Managed dispatchers disabled. Privileged backend: &lt;status&gt;.</code>, and component failures aggregate
+as <code>Tama could not fully deactivate local policy components: &lt;message&gt;</code> —
+each component is attempted independently, so fix the named one and
+deactivate again.</p>

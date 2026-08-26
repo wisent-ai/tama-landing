@@ -1,0 +1,23 @@
+<h1>Examples</h1>
+<p>Runnable, commented shell scripts, one bounded CLI outcome each. Every
+script states whether it reads or mutates before its first command; mutation
+scripts require explicit environment inputs before they act. The command
+surface is documented in <a href="../docs/cli.md">docs/cli.md</a>; the two integrity
+scripts are executed end-to-end with pasted output in the walkthroughs.</p>
+<p>Read-only scripts assume the sealed <code>tama</code> CLI on PATH
+(<code>getting-started/install-cli.sh</code> links it from an installed
+<code>Tama.app</code>); the integrity scripts run from a checkout and default to the
+release inside <code>.build/Tama.app</code>.</p>
+<p>| Script | Reads or mutates | Outcome |
+|---|---|---|
+| <code>getting-started/install-cli.sh</code> | mutates (one symlink) | Link the bundled <code>tama-cli</code> onto PATH as <code>tama</code>; refuses to replace unrelated entries |
+| <code>getting-started/status.sh</code> | reads | Catalog validation counts and every live supervised session |
+| <code>integrity/verify-release-seal.sh</code> | reads | A release tree digested against its recorded <code>releaseId</code>, with drift attribution (<a href="../docs/walkthrough-verify-release.md">walkthrough</a>) |
+| <code>integrity/runtime-status.sh</code> | reads | Live sessions plus every installed release verified against its content-addressed name (<a href="../docs/walkthrough-runtime-status.md">walkthrough</a>) |
+| <code>core/hooks-list.sh</code> | reads | The hook catalog, then one exact hook |
+| <code>core/provider-coverage.sh</code> | reads | Registry-declared provider coverage from the loopback backend |
+| <code>core/scan-repository.sh</code> | reads | First rule violation per file in one owned repository |
+| <code>core/clean-repository.sh</code> | mutates (working tree, external provider) | Headless-agent repair with a final independent rescan |
+| <code>operations/mcp-config.sh</code> | reads | The exact MCP server fragment for this release |
+| <code>operations/install-user-git-hooks.sh</code> | mutates (Git hooks path and config) | Reviewed install plan, then the user-global Git dispatchers |
+| <code>recovery/adaptive-status.sh</code> | reads (creates empty state dirs on first run) | Adaptive layer status, drift, and queued repairs |</p>

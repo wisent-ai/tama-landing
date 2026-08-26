@@ -1,0 +1,65 @@
+<h1>Posture</h1>
+<p>What single answer does Tama give to &quot;is this machine enforcing the policy
+it claims to enforce&quot;? Posture: the joined comparison of three release
+identities plus the live enforcement signals, ordered by severity. It is a
+derived judgment, not a stored state — nothing on disk says &quot;posture&quot;;
+every element of it is readable independently.</p>
+<h2>What it is</h2>
+<p>The comparison of three identities that are equal exactly when nothing
+drifted:</p>
+<p>| Identity | Source | Meaning |
+|---|---|---|
+| Bundled | <code>tama-build.json</code> → <code>hookRelease.releaseId</code> | What the signed app carries |
+| Installed | <code>hooks-runtime/installed.json</code> → <code>releaseId</code> | What the last successful install wrote |
+| Loaded | session record → <code>runtime.loadedReleaseId</code> | What a live session actually executes |</p>
+<p>plus the enforcement signals around them: catalog validation, managed
+dispatchers (the <a href="emergency-disable.md">emergency-disable</a> state), the
+privileged backend status, live session count, and per-session hook runtime
+state (<code>Loaded</code> / <code>Reload required</code> / <code>Reload scheduled</code> / <code>Load failed</code>).
+Installed and loaded identities that disagree are exactly the drift the
+screen exists to surface.</p>
+<h2>Who computes it</h2>
+<p>The desktop's <code>AppModel</code>, continuously: it polls session records once per
+second while an authorized control surface is open, reads <code>installed.json</code>
+and the emergency state through <code>HookEmergencySwitch</code>, and asks macOS for
+the privileged backend status. Two composed judgments matter:</p>
+<ul>
+<li><strong>setup-ready session</strong> — a live session whose loaded release equals the
+installed release, whose registered hook count equals its loaded count
+with no unknown ids, no pending reload, no registry load error, and whose
+system policy reports kernel-gated mode;</li>
+<li><strong>setup complete</strong> — bundled catalog valid, runtime installed, hooks not
+globally disabled, privileged backend <code>Enabled</code>, and at least one
+setup-ready session (<a href="../desktop/setup.md">desktop/setup</a>).</li>
+</ul>
+<h2>Who displays it</h2>
+<p>The <strong>Posture</strong> screen is the headline surface
+(<a href="../desktop/posture.md">desktop/posture</a>): identity fields (<code>Bundled release</code>, <code>Installed release</code>, <code>Loaded release</code>, <code>Catalog checksum</code>, Node
+version/executable), catalog counters, structural validation, the most
+recent blocking decision across sessions, and the two opposing actions —
+<code>Disable all hooks</code> behind its confirmed dialog, <code>Re-enable all hooks</code> when
+bypassed. Unauthorized inspection shows <code>Not inspected</code> for the installed
+and loaded fields rather than pretending to know; no live session shows
+<code>No live session</code>; a runtime that reported no checksum shows <code>Not reported by a live session</code>.</p>
+<h2>Reading it from a terminal</h2>
+<p>The same comparison, one identity at a time — executed end-to-end in
+<a href="../walkthrough-runtime-status.md">walkthrough-runtime-status</a>:</p>
+<pre><code class="language-bash">python3 - &lt;&lt;'PY'   # bundled
+import json; print(json.load(open(&quot;Tama.app/Contents/Resources/tama-build.json&quot;))[&quot;hookRelease&quot;][&quot;releaseId&quot;])
+PY
+cat ~/Library/Application\ Support/Tama/hooks-runtime/installed.json   # installed
+tama-cli sessions --json                                               # loaded, per session
+</code></pre>
+<h2>Not to be confused with</h2>
+<ul>
+<li><strong>Validation.</strong> Structural validation judges the bundled catalog snapshot
+in isolation (duplicate ids, event-less hooks, unmappable sources);
+posture judges the <em>relationship</em> between bundle, installation, and live
+sessions. A valid catalog with a stale loaded release is bad posture.</li>
+<li><strong>The system policy status.</strong> <code>Enabled</code> / <code>Requires administrator approval</code> / <code>Not registered</code> is macOS's answer about the privileged
+backend (<a href="../desktop/settings.md">desktop/settings</a>); it is one input to
+posture, not the judgment.</li>
+<li><strong>Coverage.</strong> <a href="../desktop/coverage.md">Coverage</a> is registry-declared
+provider wiring — what <em>should</em> dispatch; posture is what <em>is</em> loaded and
+deciding right now.</li>
+</ul>

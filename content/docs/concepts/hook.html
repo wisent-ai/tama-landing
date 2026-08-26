@@ -1,0 +1,95 @@
+<h1>Hook</h1>
+<p>What is the atom of Tama policy? A hook: one approved command bound to one
+or more agent events, with a human record of what it does, why it exists,
+and what it touches. Hooks are approved and shipped as a set — one
+<a href="hook-release.md">hook release</a> — never individually.</p>
+<h2>What it is</h2>
+<p>One <code>catalog.agentHooks[]</code> entry in the <a href="registry.md">registry</a>. The sealed
+release of 2026-08-24 declares 54 of them; each carries exactly these
+fields (read from the sealed registry):</p>
+<p>| Field | Meaning |
+|---|---|
+| <code>id</code> | Stable identity, e.g. <code>block-inline-execution</code> |
+| <code>command</code> | The exact command the runtime executes (Node commands are pinned at install time) |
+| <code>source</code> | The hook's source file; empty for hooks compiled into the sealed Rust backend |
+| <code>occurrences[]</code> | Every event binding: <code>event</code>, <code>blocking</code>, <code>timeout</code>, <code>statusMessage</code> |
+| <code>category</code> | Policy area, e.g. <code>git safety</code>, <code>credential safety</code> |
+| <code>status</code> | Lifecycle state (<code>active</code>) |
+| <code>description</code>, <code>why</code>, <code>sideEffects</code> | The human record |
+| <code>aliases</code> | Alternate ids the runtime accepts |</p>
+<p>A binding with <code>blocking: true</code> can refuse the action; <code>timeout</code> is its
+execution budget in seconds; <code>statusMessage</code> is what the agent surface shows
+while it runs. Hooks read a JSON payload on stdin and fail closed: a
+blocking hook exits non-zero or returns a deny decision when its invariant
+is violated. One real hook, from the sealed CLI:</p>
+<pre><code class="language-console">$ tama-cli show block-inline-execution
+block-inline-execution
+source: shared-hooks/block_inline_execution.sh
+command: ~/.shared-hooks/block_inline_execution.sh
+does: Blocks throwaway inline programs across shell, Eval, notebook/REPL, browser-run, debugger-evaluate, hub-start, and mounted-device payloads.
+why: Executable logic belongs in checked-in, reusable, reviewable files rather than transient tool payloads.
+events:
+  - pre_tool_use:bash blocking=true
+  - pre_tool_use:browser blocking=true
+  - pre_tool_use:debug blocking=true
+  - pre_tool_use:eval blocking=true
+  - pre_tool_use:hub blocking=true
+  - pre_tool_use:mcp__node_repl_js blocking=true
+  - pre_tool_use:node_repl blocking=true
+  - pre_tool_use:notebook blocking=true
+  - pre_tool_use:write blocking=true
+</code></pre>
+<p>An unknown id answers <code>not found: &lt;id&gt;</code> and exits <code>1</code>.</p>
+<h2>Events</h2>
+<p>Event names are <code>&lt;phase&gt;[:&lt;tool&gt;]</code>: <code>pre_tool_use:bash</code>,
+<code>pre_tool_use:write</code>, <code>post_tool_use:bash</code>, <code>user_prompt_submit</code>,
+<code>session_start:compact</code>, <code>stop</code>. The sealed registry wires 24 event names in
+its <code>events</code> map. <code>stop</code> hooks gate whether an agent may end its turn;
+<code>pre_tool_use:*</code> hooks gate a single tool call. Which provider actually
+dispatches which event is the <a href="../desktop/coverage.md">Coverage</a> question —
+declared mappings, not live evidence.</p>
+<h2>Kinds of hooks</h2>
+<ul>
+<li><strong>Agent hooks</strong> — the 54 <code>agentHooks[]</code> above, dispatched by the session
+runtime.</li>
+<li><strong>Git hooks</strong> — 6 <code>gitHooks[]</code> entries installed as <code>pre-commit</code>/<code>pre-push</code>
+dispatchers at the user-global Git hooks path and approved per-repository
+<code>.githooks</code> files (<a href="../hook-releases.md#installation">hook-releases</a>).</li>
+<li><strong>Sealed-backend hooks</strong> — catalog entries whose logic is compiled into
+the Rust binaries and therefore have no mappable script path; <code>tama-cli validate</code> reports one warning per such hook (<code>WARN &lt;id&gt;: source path could not be mapped from command</code>), which is expected, not drift
+(<a href="../cli.md#read-only-commands">cli</a>).</li>
+<li><strong>Justification-gated hooks</strong> — type <code>requires_justification</code>: instead of
+blocking outright they demand a recorded justification in a local registry
+file (<a href="../hook-model.md#justification-gated-hooks">hook-model</a>,
+<a href="../desktop/justifications.md">Justifications</a>). The current sealed
+catalog contains none; the mechanism ships regardless.</li>
+</ul>
+<h2>Lifecycle and control</h2>
+<p>A hook exists in a session in one of three effective states, and the
+mutations are deliberately asymmetric
+(<a href="../enforcement-control.md">enforcement-control</a>):</p>
+<ul>
+<li><strong>enabled</strong> — the normal state: registered in the loaded release and not
+in the session's <code>disabledHookIds</code>;</li>
+<li><strong>disabled in one session</strong> — only the session's own supervisor ever does
+this; Tama cannot (<a href="session-enable.md">concepts/session-enable</a>);</li>
+<li><strong>globally bypassed</strong> — the machine-wide emergency state, where only a
+session's explicit <code>enabledHookIds</code> allowlist runs
+(<a href="emergency-disable.md">concepts/emergency-disable</a>).</li>
+</ul>
+<p>Tama's only per-hook mutation is <em>enable</em>, in one live session. There is no
+per-hook uninstall: removing a hook means shipping a new release without it.</p>
+<h2>Not to be confused with</h2>
+<ul>
+<li><strong>An event.</strong> One hook binds to many events with independent blocking
+flags and timeouts; &quot;the hook fired&quot; is meaningless without naming the
+binding.</li>
+<li><strong>A Git hook dispatcher.</strong> The installed <code>pre-commit</code>/<code>pre-push</code> files are
+generated dispatchers that chain repository hooks, archived hooks, and a
+preserved <code>&lt;name&gt;.before-tama</code> backup; the catalog <code>gitHooks[]</code> entries
+are the approved sources they dispatch to.</li>
+<li><strong>A provider config entry.</strong> <code>~/.claude/settings.json</code> and
+<code>~/.codex/hooks.json</code> route events to the runtime; deleting a route does
+not unregister the hook — the emergency switch empties those maps <em>and</em>
+moves entrypoints aside precisely because both layers exist.</li>
+</ul>

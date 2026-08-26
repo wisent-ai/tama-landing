@@ -1,0 +1,76 @@
+<h1>Hook model</h1>
+<p>What exactly is a hook, and where is it declared? A hook is one approved
+policy command bound to one or more agent events, described by a registry
+that ships sealed inside every release. This page is the registry model;
+sealing and installation are in <a href="hook-releases.md">hook-releases</a>, and the
+runtime controls are in <a href="enforcement-control.md">enforcement-control</a>.</p>
+<h2>The registry</h2>
+<p><code>shared-hooks/registry.json</code> at the release root is the single declaration.
+Its top-level fields are <code>version</code>, <code>generatedAt</code>, <code>generatedFrom</code>,
+<code>managedBy</code>, <code>releaseId</code>, <code>catalogChecksum</code>, <code>events</code> (the per-event hook
+wiring the runtime executes), <code>adapters</code> (provider config paths), and
+<code>catalog</code> — the human-auditable record.</p>
+<p><code>catalog</code> carries:</p>
+<ul>
+<li><code>agentHooks[]</code> — the approved agent-facing hooks (below);</li>
+<li><code>gitHooks[]</code> — repository Git hooks: <code>id</code>, <code>event</code>, <code>scope</code>, <code>hooksPath</code>,
+<code>source</code>, plus the same category/description/why/side-effect record;</li>
+<li><code>editorAdapters</code> and <code>ompAdapters</code> — where editor and OMP integrations
+attach;</li>
+<li><code>maintainedIn</code> — the canonical source path of the registry itself, which
+the installer uses to recognize the source root it must rewrite;</li>
+<li><code>generatedDocs</code> — where the rendered hook documentation lives
+(<code>~/.shared-hooks/HOOKS.md</code> after installation);</li>
+<li><code>version</code>, <code>updatedAt</code>, <code>notes</code>.</li>
+</ul>
+<p><code>catalogChecksum</code> is the SHA-256 of the registry JSON with the checksum
+field itself removed (sorted keys, canonical separators). It is recomputed
+by the installer after path rewriting, and every session record carries it,
+so the desktop can compare the bundle, the installed runtime, and the live
+session by checksum rather than by trust.</p>
+<h2>One agent hook</h2>
+<p>Each <code>agentHooks[]</code> entry declares:</p>
+<p>| Field | Meaning |
+|---|---|
+| <code>id</code> | Stable hook identity, e.g. <code>block-inline-execution</code> |
+| <code>command</code> | The exact command the runtime executes |
+| <code>source</code> | The hook's source file inside the release |
+| <code>occurrences[]</code> | Every event binding: <code>event</code>, <code>blocking</code>, <code>timeout</code>, <code>statusMessage</code> |
+| <code>category</code> | Policy area, e.g. <code>git safety</code>, <code>credential safety</code>, <code>edit safety</code> |
+| <code>status</code> | Lifecycle state (<code>active</code>) |
+| <code>description</code>, <code>why</code>, <code>sideEffects</code> | What it does, the justification for it, and what it touches |
+| <code>aliases</code> | Alternate ids the runtime accepts |</p>
+<p>Events are names like <code>pre_tool_use:bash</code>, <code>pre_tool_use:write</code>,
+<code>user_prompt_submit</code>, or <code>stop</code>. A binding with <code>blocking: true</code> can refuse
+the action; its <code>timeout</code> is the hook's execution budget in seconds and
+<code>statusMessage</code> is what the agent surface shows while it runs. Hooks read a
+JSON payload from stdin and fail closed: a blocking hook exits non-zero or
+returns a deny decision when its invariant is violated.</p>
+<h2>The desktop's catalog snapshot</h2>
+<p>The app does not parse the registry directly. At build time,
+<code>Scripts/export-catalog.mjs</code> renders it into <code>tama-catalog.json</code> inside the
+app resources: <code>version</code>, <code>generatedAt</code>, <code>hooks[]</code>, <code>orphanSources[]</code>
+(source files no hook references), and <code>repoGitHooks[]</code> (<code>project</code>, <code>event</code>,
+<code>sourcePath</code>). Each snapshot hook carries <code>id</code>, <code>type</code>, <code>command</code>,
+<code>sourcePath</code>, <code>category</code>, <code>status</code>, <code>description</code>, <code>why</code>, <code>sideEffects</code>,
+<code>events[]</code>, and <code>justificationRequirements[]</code>.</p>
+<p>On every load the app validates the snapshot structurally: duplicate hook
+ids and hooks with no events are errors; a hook whose source path cannot be
+mapped from its command is a warning. The result — ok flag, errors,
+warnings, hook count, orphan-source count — is what <strong>Posture</strong> shows as
+<em>Structural validation</em>, with the standing warning that the bundled snapshot
+check does not run high-entropy or live runtime drift checks.</p>
+<h2>Justification-gated hooks</h2>
+<p>A hook of type <code>requires_justification</code> names one or more local
+justification registries instead of blocking outright. Each requirement
+declares <code>kind</code>, <code>title</code>, <code>registryPath</code> (a <code>~</code>-relative JSON file),
+<code>field</code> (the justification text field), <code>minimumWords</code>, and optionally
+<code>directUserQuoteField</code>. The desktop's <strong>Justifications</strong> screen reads those
+registries and shows every entry with its word count, its <code>expires_at</code>
+expiry, and whether the target it justifies still exists — expired or
+missing-target entries are the ones to renew or remove.</p>
+<h2>Generated documentation</h2>
+<p><code>tama-cli docs</code> renders the full per-hook documentation from the registry
+plus the archived source tree; the installed runtime keeps the same render
+at <code>~/.shared-hooks/HOOKS.md</code>. <code>tama-cli list</code>, <code>show &lt;hook-id&gt;</code>, and
+<code>validate</code> are the terse forms (<a href="cli.md">cli</a>).</p>

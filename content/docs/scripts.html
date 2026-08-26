@@ -1,0 +1,162 @@
+<h1>Scripts reference</h1>
+<p>Every executable under <code>Scripts/</code>, with its arguments, environment, output,
+and exit behavior. Three of them ship inside the app bundle and run on
+operator machines (<code>install_hook_release.py</code>, <code>emergency_disable_hooks</code>, and
+the sealed release they act on); the rest are maintainer tools that run only
+in a checkout. The sealed CLI itself is documented in <a href="cli.md">cli</a>; the
+integrity model these scripts implement is <a href="concepts/seal.md">concepts/seal</a>.</p>
+<h2>Bundled on operator machines</h2>
+<h3>install_hook_release.py</h3>
+<p>The transactional installer. The desktop bundles it at
+<code>Tama.app/Contents/Resources/install_hook_release.py</code> and runs it for every
+runtime install; <code>emergency_disable_hooks</code> runs it for session controllers
+and re-enable. Wire format: one JSON result object on stdout on success; on
+any failure, one line on stderr —
+<code>Tama hook release installation failed: &lt;reason&gt;</code> — and exit <code>1</code>.</p>
+<pre><code>install_hook_release.py --release &lt;dir&gt; --home &lt;dir&gt;
+                        [--emergency-manifest &lt;file&gt;] [--session-control-only]
+</code></pre>
+<p>| Argument | Meaning |
+|---|---|
+| <code>--release</code> (required) | The sealed release root to install; must contain <code>release.json</code> with schema <code>ai.wisent.tama.hook-release.v1</code> |
+| <code>--home</code> (required) | The target home directory; every managed write resolves against it |
+| <code>--emergency-manifest</code> | The <code>emergency-backup/manifest.json</code> written by a global disable; restores every entrypoint it names |
+| <code>--session-control-only</code> | Install hook sources and provider session controllers without Git dispatchers or entrypoint restoration |</p>
+<p>Without <code>--session-control-only</code>, <code>--emergency-manifest</code> is required: the
+refusal is <code>Full hook installation requires an emergency manifest</code>. The full
+gate order and write set are in <a href="hook-releases.md">hook-releases</a>; every
+refusal sentence is in the <a href="runbook.md">runbook</a>. Environment: <code>TAMA_OMP</code>
+overrides the <code>omp</code> executable used to register the OMP adapter.</p>
+<p>The success object has keys <code>installed</code> (the new <code>installed.json</code> content),
+<code>previous</code>, <code>managedSourceFiles</code>, <code>restoredEntrypoints</code>, and
+<code>sessionControlOnly</code>.</p>
+<h3>emergency_disable_hooks</h3>
+<p>The global kill switch, bundled at
+<code>Tama.app/Contents/Resources/emergency_disable_hooks</code>. No positional
+arguments; everything is environment:</p>
+<p>| Variable | Default | Effect |
+|---|---|---|
+| <code>TAMA_EMERGENCY_ACTION</code> | <code>disable</code> | <code>disable</code> or <code>enable</code>; anything else prints <code>Unsupported Tama emergency action: &lt;value&gt;</code> and exits <code>2</code> |
+| <code>TAMA_HOME</code> | <code>$HOME</code> | Target home |
+| <code>TAMA_SKIP_SESSION_RESTART</code> | <code>0</code> | <code>1</code> skips the supervised-session pause/resume |
+| <code>TAMA_HOOK_RELEASE_ROOT</code> | bundled <code>hooks-release</code> (falls back to <code>.build/Tama.app/...</code> in a checkout) | Release root |
+| <code>TAMA_HOOK_INSTALLER</code> | sibling <code>install_hook_release.py</code> | Installer override |
+| <code>TAMA_SESSION_SUPERVISOR</code> | <code>$TAMA_HOOK_RELEASE_ROOT/shared-hooks/agent-session-supervisor.py</code> | Supervisor override; if missing (and sessions are not skipped) the script prints <code>Tama session supervisor is missing: &lt;path&gt;</code> and exits <code>66</code> |</p>
+<p>Disable ends with <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code>; a repeat prints <code>Tama hooks are already disabled.</code> and exits <code>0</code>. Enable ends with <code>Enabled approved hook release &lt;first-12-of-id&gt;. Supervised agent sessions will resume without an editor restart.</code>; enable without a manifest fails with <code>Tama has no emergency backup manifest to restore.</code>. The step-by-step behavior is in
+<a href="enforcement-control.md">enforcement-control</a> and
+<a href="concepts/emergency-disable.md">concepts/emergency-disable</a>.</p>
+<h2>Read-only integrity reporters</h2>
+<p>All three reuse the installer's own <code>tree_digest</code>, so what they verify is by
+construction what the installer enforces. All are read-only and documented
+end-to-end in <a href="walkthrough-verify-release.md">walkthrough-verify-release</a>
+and <a href="walkthrough-runtime-status.md">walkthrough-runtime-status</a>; runnable
+wrappers live in <a href="../examples/integrity/"><code>../examples/integrity/</code></a>.</p>
+<h3>verify_hook_release.py</h3>
+<pre><code>verify_hook_release.py [release-root]
+</code></pre>
+<p>Default root: <code>.build/Tama.app/Contents/Resources/hooks-release</code> relative to
+the checkout. Prints <code>release root:</code>, <code>recorded releaseId:</code>, <code>actual tree digest:</code>, <code>sealed at:</code>, <code>source dirty:</code>, then <code>result: intact</code> or
+<code>result: DRIFTED</code> followed by <code>written after the seal:</code> and one
+timestamp-plus-path line per file newer than <code>sealedAt</code>. When nothing is
+newer, it prints <code>no file is newer than the seal -- the drift is a permission change, a deletion, or a file whose timestamp was preserved on copy.</code> A
+missing root prints <code>absent -- nothing to verify</code>. Exit is always <code>0</code> — the
+verdict is the text, not the status.</p>
+<h3>verify_installed_releases.py</h3>
+<pre><code>verify_installed_releases.py
+</code></pre>
+<p>No arguments; <code>TAMA_HOME</code> selects the home, <code>TAMA_HOOK_RELEASE_ROOT</code> the
+bundled release to check the second gate against. Digests every tree under
+<code>hooks-runtime/releases/</code> against its directory name (<code>intact</code> /
+<code>DRIFTED</code>, with <code> &lt;- current</code> on the live one), then answers which of the two
+identically worded installer failures an emergency enable would hit: <code>second gate: install would copy a fresh tree, so it cannot fail</code> or <code>second gate: DRIFTED -- install would refuse</code>. With no releases directory it prints
+<code>nothing installed</code>. Exit <code>0</code>.</p>
+<h3>report_hook_release_integrity.py</h3>
+<pre><code>report_hook_release_integrity.py [release-root]
+</code></pre>
+<p>Default root: a sibling <code>hooks-release</code> (when bundled), else the checkout's
+<code>.build</code> release. Prints <code>root:</code>, <code>sealed:</code>, <code>actual:</code>, and <code>verdict: intact</code>
+or <code>verdict: MISMATCH</code>; on mismatch it additionally lists <code>covered by the digest but never installed:</code> (build residue such as <code>.pyc</code> files and the
+pruned generator files) and <code>written after sealedAt &lt;time&gt;:</code>. A missing
+manifest prints <code>no release manifest at &lt;path&gt;</code> and exits <code>1</code>; otherwise exit
+<code>0</code>.</p>
+<h2>Build and release (maintainer-only)</h2>
+<h3>build-app.sh</h3>
+<p>Builds, signs, and installs the app bundle from a checkout: Swift release
+build, the two system-policy binaries and the Network Extension, the sealed
+Rust <code>tama-cli</code> and <code>tama-mcp-server</code> (built with <code>cargo</code> from the hook
+source tree's <code>rust/</code> workspace), the catalog snapshot
+(<code>export-catalog.mjs</code>), the staged hook release sealed by
+<code>seal_hook_release.py</code>, and <code>tama-build.json</code>. No arguments; the environment
+variables (<code>TAMA_HOOK_ROOT</code>, <code>TAMA_RELEASE_VERSION</code>, <code>TAMA_BUILD_CHANNEL</code>,
+<code>WISENT_CODESIGN_IDENTITY</code>, provisioning profiles, <code>TAMA_NODE</code>,
+<code>TAMA_CARGO</code>, <code>TAMA_INSTALL_APP_PATH</code>, <code>TAMA_INSTALL_AFTER_BUILD</code>,
+<code>WISENT_RESTART_AFTER_BUILD</code>, …) are tabled in
+<a href="operations.md#configuration">operations</a>. It requires Node.js 20+, a
+resolvable codesigning identity, and a Git checkout for both the desktop and
+hook source trees. Output ends with <code>Built &lt;path&gt;</code> and, unless
+<code>TAMA_INSTALL_AFTER_BUILD=no</code>, <code>Installed &lt;path&gt;</code>.</p>
+<h3>seal_hook_release.py</h3>
+<pre><code>seal_hook_release.py &lt;release-root&gt;
+seal_hook_release.py --digest-file &lt;artifact&gt;
+</code></pre>
+<p>First form: prunes <code>__pycache__</code>/<code>.pyc</code>, packages external hook sources into
+<code>external-hooks/</code> with an <code>external-sources.json</code> mapping (schema
+<code>ai.wisent.tama.external-hook-sources.v1</code>, refusing when an external source
+is missing: <code>External hook source is missing: &lt;path&gt;</code>), computes the tree
+digest, and writes <code>release.json</code> with the digest as <code>releaseId</code>; prints the
+id. <code>TAMA_HOOK_SOURCE_DIRTY</code> and <code>TAMA_HOOK_SOURCE_REVISION</code> populate
+provenance. Second form: prints the SHA-256 of one file (used for artifact
+<code>.digest</code> sidecars); a missing file exits with <code>artifact not found: &lt;path&gt;</code>.
+Wrong usage exits with <code>usage: seal_hook_release.py &lt;release-root&gt;</code>. The
+digest definition is in <a href="concepts/seal.md">concepts/seal</a>.</p>
+<h3>export-catalog.mjs</h3>
+<pre><code>export-catalog.mjs &lt;tama-root&gt; &lt;output-path&gt;
+</code></pre>
+<p>Renders the desktop's catalog snapshot by running the Rust CLI
+(<code>tama-cli list --root &lt;tama-root&gt; --json</code>; override the binary with
+<code>TAMA_CLI</code>) and normalizing defaults (<code>category</code> → <code>Uncategorized</code>, <code>status</code>
+→ <code>unknown</code>, missing event <code>timeout</code> → <code>0</code>). Missing arguments throw
+<code>usage: export-catalog.mjs &lt;tama-root&gt; &lt;output-path&gt;</code>.</p>
+<h3>stage_live_hook_release.py</h3>
+<p>No arguments. Copies the installed runtime (<code>hooks-runtime/current</code>) to
+<code>.work/inline-hook-release</code>, strips its <code>release.json</code>, and replaces
+<code>shared-hooks/</code> with the tree from <code>TAMA_HOOK_SOURCE_ROOT</code> (default: the
+<code>tama</code> checkout beside this repository); prints the staged path. A developer
+seam for iterating on hook sources against a real runtime layout.</p>
+<h3>package-release.sh</h3>
+<p>No arguments. Packages the immutable release candidate for the exact signed
+<code>v&lt;SemVer&gt;</code> tag at <code>HEAD</code> (<code>TAMA_RELEASE_TAG</code> disambiguates). It refuses,
+each with its own printed sentence, on: a missing <code>Package.resolved</code>,
+multiple release tags at <code>HEAD</code>, a tag that is not <code>v&lt;SemVer&gt;</code>, invalid
+SemVer, a dirty desktop or hook checkout, a tag that does not resolve to
+<code>HEAD</code>, a missing or still-<code>Unreleased</code> <code>CHANGELOG.md</code> section, missing
+signing/provisioning/notary variables, dirty build provenance, mismatched
+component versions, and any pre-existing artifact output (<code>Refusing to overwrite immutable release output: &lt;path&gt;</code>). It then builds with
+<code>--timestamp</code> signing, notarizes and staples, and writes
+<code>Tama-&lt;version&gt;-macOS-&lt;arch&gt;.zip</code> plus <code>.digest</code> and <code>.provenance.json</code>
+(schema <code>ai.wisent.tama.release-provenance</code>) under
+<code>.build/releases/&lt;version&gt;/</code>. Channels: a pre-release version packages as
+<code>preview</code>, otherwise <code>stable</code>. Details: <a href="releases.md">releases</a>.</p>
+<h3>publish-release.sh</h3>
+<p>No arguments; same tag resolution as packaging (<code>Publication requires the exact signed v&lt;SemVer&gt; release tag at HEAD.</code>). Verifies the packaged
+artifact, digest, provenance, and qualification sidecars for that version and
+publishes them to the immutable GitHub release; a pre-release version
+publishes as a GitHub prerelease and never becomes <code>latest</code>. The publication
+contract is in <a href="releases.md#release-process">releases</a>.</p>
+<h3>import-brand-icon.sh</h3>
+<pre><code>import-brand-icon.sh PRODUCT OUTPUT.icns
+</code></pre>
+<p>Fetches the canonical app icon from the asset resolver named by
+<code>WISENT_GROUND_TRUTH_API</code> (unset: <code>WISENT_GROUND_TRUTH_API must point to the canonical asset resolver.</code>, exit <code>64</code>), renders the iconset with <code>sips</code>, and
+writes the <code>.icns</code>. Requires <code>curl</code>, <code>sips</code>, <code>iconutil</code> (missing tool: exit
+<code>69</code>).</p>
+<h3>wisent-restart-app</h3>
+<pre><code>wisent-restart-app [--if-running] [--timeout SECONDS] APP.app
+</code></pre>
+<p>Terminates the running app identified by the bundle's
+<code>CFBundleIdentifier</code> through LaunchServices, waits up to <code>--timeout</code> (default
+15 s), and relaunches the supplied bundle in the background. <code>--if-running</code>
+skips a stopped app (<code>Not running; skipped &lt;bundle&gt; (&lt;id&gt;)</code>). Exit codes:
+<code>64</code> usage, <code>66</code> missing bundle or <code>Info.plist</code>, <code>65</code> empty bundle id, <code>75</code>
+termination or launch timeout. Success prints <code>Restarted &lt;bundle&gt; (&lt;id&gt;)</code>.
+<code>build-app.sh</code> runs it automatically after installing a development build.</p>

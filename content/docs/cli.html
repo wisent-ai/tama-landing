@@ -1,0 +1,76 @@
+<h1>CLI</h1>
+<p>This page documents the sealed Rust CLI the desktop release bundles at
+<code>Tama.app/Contents/Resources/hooks-release/bin/tama-cli</code>, built and signed
+by <code>Scripts/build-app.sh</code> from the same hook source tree as the release
+itself, so the binary the app runs is the one the build sealed. Its usage
+line reads <code>tama &lt;command&gt;</code>. Runnable, commented examples for the public
+outcomes live in <a href="../examples/"><code>../examples/</code></a>; the contract behind each
+command is in <a href="core-contracts.md">core-contracts</a>.</p>
+<h2>Read-only commands</h2>
+<p>| Command | Answer |
+|---|---|
+| <code>list [--json]</code> | Every catalog hook: id, source path, events |
+| <code>show &lt;hook-id&gt; [--json]</code> | One hook in full |
+| <code>validate [--json]</code> | Catalog/source-archive validation: hook and orphan-source counts, one warning per unmappable source path |
+| <code>docs [--out &lt;path&gt;]</code> | The rendered per-hook documentation (<a href="hook-model.md">hook-model</a>) |
+| <code>install-plan [--json]</code> | Runtime scopes and target paths, per level: agent/app, editor, MCP, user-global Git, repo/project Git, OS-level |
+| <code>mcp-config</code> | The MCP server config snippet naming the bundled <code>tama-mcp-server</code> |
+| <code>sessions [--json] [--home &lt;path&gt;]</code> | Every live agent session and its hook state |
+| <code>verify</code> | Catalog validation plus hook block fixtures |</p>
+<h2>Mutating commands</h2>
+<p><code>install</code> writes the user-global Git dispatchers (<code>pre-commit</code>, <code>pre-push</code>)
+into the resolved hooks path and reports it; <code>--set-git-config</code> additionally
+writes the Git configuration. Without the flag, Git config is untouched and
+the output states <code>git global config updated: false</code>.</p>
+<h2>Repository scans and cleanup</h2>
+<pre><code>tama find-violations (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-owner&gt; | --me)
+                     [...] [--json] [--hook &lt;path&gt;] [--clone-dir &lt;dir&gt;]
+</code></pre>
+<p>Replays the real bundled pre-write hook against every enumerated file and
+reports the first violation per file; it never modifies scanned
+repositories. Targets are repeatable and combinable: one repository, every
+Git checkout under a tree, every GitHub repository of an owner (via the <code>gh</code>
+CLI, shallow-cloning missing checkouts into <code>--clone-dir</code>), or <code>--me</code> for
+the authenticated user plus their orgs. Command-gating hooks stay out of
+scope by design — they gate shell commands, not file content.</p>
+<pre><code>tama clean (same targets) [--model codex|kimi] [--max-rounds &lt;n&gt;]
+           [--skip &lt;fragment&gt;] [--note &lt;text&gt;] [--dry-run] [--json]
+</code></pre>
+<p>Scans, then spawns one headless model agent per repository per round to fix
+violations, re-scanning after each round until clean or out of rounds. The
+agent edits with hooks active, rounds that game the rules are rejected and
+fed back, generated files are never handed to the agent, <code>--dry-run</code> prints
+the brief without spawning anything, and <code>TAMA_CLEAN_DISABLED=1</code> disables
+the command entirely. The desktop's <strong>Violations</strong> screen drives the same
+engine and adds its own repository-ownership and confirmation gates
+(<a href="desktop.md">desktop</a>).</p>
+<h2>The desktop backend</h2>
+<p><code>serve [--port N]</code> runs the loopback HTTP backend the desktop spawns as
+<code>tama-cli serve --port 0 --root &lt;release&gt;</code>: it binds <code>127.0.0.1</code>, prints one
+ready line <code>{&quot;ready&quot;:true,&quot;port&quot;:N}</code>, then serves <code>/v1</code> until killed.</p>
+<p>| Endpoint | Method | Body | Answer |
+|---|---|---|---|
+| <code>/v1/coverage</code> | GET | — | Registry-declared provider/event/hook mappings |
+| <code>/v1/install-plan</code> | GET | — | <code>archiveRoot</code> plus per-level scope targets |
+| <code>/v1/mcp-config</code> | GET | — | The MCP snippet |
+| <code>/v1/violations/scan</code> | POST | <code>{&quot;repo&quot;: &lt;path&gt;}</code> | NDJSON stream; result status 0 = clean report, 1 = report with violations |
+| <code>/v1/violations/clean</code> | POST | <code>{&quot;repo&quot;: &lt;path&gt;}</code> | NDJSON stream; result status 0 = cleanup summary |</p>
+<p>Stream events are <code>{&quot;type&quot;:&quot;log&quot;,&quot;stream&quot;:&quot;stdout&quot;|&quot;stderr&quot;,&quot;chunk&quot;:…}</code> and
+exactly one <code>{&quot;type&quot;:&quot;result&quot;,&quot;status&quot;:…,&quot;json&quot;:…}</code>; a non-2xx response
+carries <code>{&quot;error&quot;:&quot;&lt;one sentence&gt;&quot;}</code>.</p>
+<h2>Adaptive layer doctor</h2>
+<p><code>adaptive &lt;command&gt;</code> inspects and repairs the adaptive hook layer:</p>
+<ul>
+<li><code>status</code> — per-hook tier, mode, projected state, telemetry transport;</li>
+<li><code>drift</code> — live hook scripts vs repository archive content hashes;</li>
+<li><code>queue</code> — queued repair requests;</li>
+<li><code>repair &lt;hook-id&gt; [--patch-file &lt;path&gt;]</code> — draft and validate a repair
+proposal;</li>
+<li><code>apply &lt;proposal-dir&gt;</code> — apply a validated proposal (owner consent
+required);</li>
+<li><code>install</code> / <code>uninstall</code> — manage the legacy-runner shim (owner consent
+required);</li>
+<li><code>claude-config</code> — print the Claude settings routing fragment.</li>
+</ul>
+<p>The runnable example with its safety notes is
+<a href="../examples/recovery/adaptive-status.sh"><code>../examples/recovery/adaptive-status.sh</code></a>.</p>

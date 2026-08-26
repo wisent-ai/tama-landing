@@ -1,0 +1,93 @@
+<h1>Testing and qualification contract</h1>
+<h2>Current status</h2>
+<p>The testing stage is <strong>incomplete</strong>. The repository has four deterministic Swift tests,
+but no supported preview, current clean-device onboarding evidence, canonical-example
+execution record, signed release build result, upgrade/rollback pair, or controlled
+credentialed/device/destructive suite. No test or validation command was executed while
+creating this document.</p>
+<p>A source test pass alone must never be reported as full Tama verification.</p>
+<h2>Existing deterministic tests</h2>
+<p>| Test | Observable contract defended | Plausible defect detected | Current execution status |
+|---|---|---|---|
+| <code>JustificationRegistryTests.loadsFileAndTestRequirementsSeparately</code> | File and test justification requirements load as distinct target kinds with existence/word/expiry state | Requirement kinds collapse or target state is misreported | Not executed in current work |
+| <code>SessionControlClientTests.discoversAndControlsMultipleProviders</code> | Multiple provider session records are discovered and one scoped override is written/read with expected identity | One provider hides another or override scope/serialization is corrupted | Not executed in current work |
+| <code>ViolationsClientTests.parsesAggregateScanReport</code> | Aggregate repository, skipped-file, error, and rule-group JSON decodes into visible report totals | Valid scanner output is rejected or totals/groups are lost | Not executed in current work |
+| <code>ViolationsClientTests.parsesCleanReportWithoutViolations</code> | A valid zero-violation report is represented as clean | Empty successful reports are treated as unreadable or non-clean | Not executed in current work |</p>
+<p>These tests use temporary local state and do not prove the signed app, real hook runtime,
+privileged backend, process boundary, cleanup provider, or public UI.</p>
+<h2>CLI example coverage and required evidence</h2>
+<p>The files under <code>examples/</code> are executable command examples, not prose runbooks and not
+test evidence. Each script exposes one bounded CLI outcome and states mutation or provider
+risk before the command.</p>
+<p>| CLI contract | Command example | Required proof | Current evidence |
+|---|---|---|---|
+| Bundled CLI discovery | <code>examples/getting-started/install-cli.sh</code> | Creates or idempotently retains the matching link to the bundled <code>bin/tama-cli</code>, refuses unrelated entries, and reports missing PATH configuration | Not executed in current work |
+| Catalog health and live sessions | <code>examples/getting-started/status.sh</code> | Stable human output and valid JSON from <code>validate</code> and <code>sessions</code>, with an explicit <code>--home</code> scope | Executed read-only against the 2026-08-24 source build |
+| Release seal verification | <code>examples/integrity/verify-release-seal.sh</code> | Intact release digests to its recorded <code>releaseId</code>; drift names the files written after the seal | Executed with pasted output in <a href="walkthrough-verify-release.md">walkthrough-verify-release</a> |
+| Installed runtime status | <code>examples/integrity/runtime-status.sh</code> | Live sessions listed; every installed tree digested against its content-addressed name; second-gate verdict stated | Executed with pasted output in <a href="walkthrough-runtime-status.md">walkthrough-runtime-status</a> |
+| Hook listing and exact hook inspection | <code>examples/core/hooks-list.sh</code> | Human and JSON output agree on ID, source, command, and events | Executed read-only against the 2026-08-24 source build |
+| Provider coverage | <code>examples/core/provider-coverage.sh</code> | Complete registry-declared hook/event mappings from the loopback backend without claiming live evidence | Executed read-only against the 2026-08-24 source build |
+| Repository read-only scan | <code>examples/core/scan-repository.sh</code> | Existing owned repository; clean and violation reports; tree unchanged; bounded error | Executed read-only against a throwaway repository |
+| Provider-backed cleanup and final rescan | <code>examples/core/clean-repository.sh</code> | Recoverable repository, bounded agent execution, preserved Git identity, final independent scan | Missing; credentialed provider qualification required |
+| User-global Git dispatcher installation | <code>examples/operations/install-user-git-hooks.sh</code> | Reviewed plan, exact target writes, Git config result, post-install validation | Missing; controlled mutation qualification required |
+| MCP configuration | <code>examples/operations/mcp-config.sh</code> | Emitted server command resolves to the selected release | Executed read-only against the 2026-08-24 source build |
+| Adaptive recovery triage | <code>examples/recovery/adaptive-status.sh</code> | Status, drift, and queue stay read-only beyond first-run state directories; repair/apply stay explicit | Executed read-only against a scratch home |</p>
+<h2>Required suites</h2>
+<h3>Swift contract suite</h3>
+<p>Command, after explicit human test approval:</p>
+<pre><code class="language-bash">swift test
+</code></pre>
+<p>Scope: deterministic package tests under <code>Tests/TamaDesktopTests</code>. Side effects: SwiftPM
+resolution/cache and build artifacts under <code>.build</code>. This suite proves only the four tabled
+contracts.</p>
+<h3>Signed build contract</h3>
+<p>Command, after explicit approval and with dedicated release credentials:</p>
+<pre><code class="language-bash">TAMA_INSTALL_AFTER_BUILD=no \
+WISENT_CODESIGN_IDENTITY='&lt;dedicated identity&gt;' \
+WISENT_APP_PROVISIONING_PROFILE='&lt;app profile path&gt;' \
+WISENT_NETWORK_FILTER_PROVISIONING_PROFILE='&lt;network profile path&gt;' \
+sh Scripts/build-app.sh
+</code></pre>
+<p>Scope: app, daemon, System Extension, bundled hook release, manifests, code signing, and
+resource layout. Side effects: writes <code>.build/Tama.app</code>; it must not install into
+<code>~/Applications</code>. Qualification additionally inspects signature, entitlements, embedded
+versions, dependency revisions, hook provenance, and release resource isolation.
+Qualification must exercise a supported Node executable and confirm that missing or older Node is rejected before build output is replaced. Runtime-install qualification must separately confirm pre-mutation rejection, symlink-resolved canonical executable pinning in both registry command surfaces, one sealed preload path under <code>hooks-runtime/current</code> shared by installed commands and supervised semantic dispatch, post-install downgrade rejection before target loading, matching <code>installed.json.nodeExecutable</code> and <code>installed.json.nodeVersion</code> provenance, the same values in the Posture release identity and Settings local enforcement, and literal handling of paths containing spaces, apostrophes, dollar signs, and backticks.</p>
+<h3>Safe local canonical examples</h3>
+<p>Execute every example labeled read-only from its declared clean state using the signed
+candidate. Record exact product/source/example/hook identities, expected state shape,
+representative failure, and cleanup. File counts or process exit alone are insufficient.</p>
+<h3>Clean-device onboarding and core E2E</h3>
+<p>Use a dedicated Apple-silicon macOS 14+ qualification Mac with no Tama state or credential.
+Exercise welcome, Wisent sign-in, explicit runtime install, explicit backend registration,
+macOS approval, one real supervisor, session status, scoped override, reload, and normal
+cleanup. This suite changes Keychain, Application Support, per-user hook entrypoints,
+ServiceManagement, SystemExtensions, NetworkExtension preferences, and Full Disk Access.</p>
+<h3>Controlled recovery, provider, and release suites</h3>
+<p>Separately authorize and execute emergency disable/re-enable, cleanup-agent success/outage/
+timeout/cancellation with process-tree termination and partial-edit recovery, integrity
+corruption/recovery, deactivate/uninstall, notarized publication including post-packaging
+and pre-upload signature, staple, and Gatekeeper rejection paths, exact upgrade, and
+compatible rollback. Use disposable repositories/accounts, dedicated Apple/GitHub
+credentials, bounded waits, and exact cleanup. Never target personal or production state.</p>
+<h2>Isolation, determinism, and credential control</h2>
+<ul>
+<li>Unit suites own temporary directories and must leave no global Tama state.</li>
+<li>Device suites start from a recorded clean snapshot and use one named release candidate.</li>
+<li>Provider/destructive suites require explicit operator approval for their exact account,
+repository, device, and time window.</li>
+<li>Credentials enter through Keychain, protected profile files, or provider authentication;
+never command arguments, fixtures, logs, screenshots, or evidence.</li>
+<li>Retry occurs only after a classified result proves it is safe. No flaky-test retry policy.</li>
+<li>Cleanup failure fails the suite and remains visible.</li>
+<li>Two Tama versions never share a live Application Support directory concurrently.</li>
+</ul>
+<h2>Evidence record</h2>
+<p>Every executed suite records: suite/example name, exact Git tag and source revision,
+artifact digest, hook release ID, platform/architecture, start/end time, controlled
+identity label, precondition snapshot, expected observable contract, bounded redacted
+result, failure path exercised, cleanup result, and operator approval reference. Release
+notes link these records without embedding secrets or personal data.</p>
+<p>Testing is complete only when every row above has direct current evidence, all canonical
+examples have honest final status, suites are deterministic/isolated/diagnosable, and the
+signed published bytes complete clean-device onboarding plus recovery.</p>

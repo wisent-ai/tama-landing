@@ -1,0 +1,58 @@
+<h1>Setup and the first-use journey</h1>
+<p>How does a fresh install become a machine whose setup Tama calls complete?
+There is no separate setup gate: since the change titled <em>Keep Tama
+navigation available during setup</em>, an authorized operator gets the full
+window immediately, and guided first use runs alongside as a quiet journey.
+The end-to-end operator path is <a href="../quick-start.md">quick-start</a>; every
+prerequisite and failure is in <a href="../onboarding.md">onboarding</a>.</p>
+<h2>The completion evidence</h2>
+<p>Setup is a judgment over live evidence, not a wizard's last button. Tama
+calls setup complete only while <em>all</em> of the following hold:</p>
+<ul>
+<li>the bundled catalog's structural validation passes;</li>
+<li>a hook release is installed (<code>installed.json</code> records its id);</li>
+<li>hooks are not globally disabled;</li>
+<li>the privileged backend reports exactly <code>Enabled</code>;</li>
+<li>at least one live session is <strong>setup-ready</strong>.</li>
+</ul>
+<p>A setup-ready session is one whose record proves the policy is really
+running: installed and loaded release ids both equal the recorded installed
+release, no registry load error, no required or pending reload, a nonzero
+registered hook count equal to the loaded count, no unknown hook ids, not
+globally disabled, no per-session disables, and a system policy that is
+ready, error-free, and in <code>kernel-gated</code> mode. This is the same judgment
+<a href="posture.md">Posture</a> renders field by field
+(<a href="../concepts/posture.md">concepts/posture</a>).</p>
+<p>The actions that produce the evidence live on their own screens:
+<a href="settings.md">Settings</a> installs the runtime and registers the privileged
+backend; <a href="session.md">Session</a> shows the live session that completes the
+picture, with <code>Refresh sessions</code> on demand.</p>
+<h2>The signed journey</h2>
+<p>First use is driven by a signed journey definition, <code>first-use</code> version
+<code>2026-08-04.2</code>, bundled as <code>tama-first-use.json</code> and fetched through the
+Stado integration transport (token from the <code>TAMA_STADO_INTEGRATION_TOKEN</code>
+environment key; the bundled copy is the fallback). Progress persists in
+user defaults under the <code>tama.onboarding.v1</code> namespace. Four screens, in
+order:</p>
+<p>| Screen | Kind | Completion |
+|---|---|---|
+| <code>promise</code> — <code>Know what every agent is allowed to do</code> | promise | continue |
+| <code>control_model</code> — <code>Policy first, mutations explicit</code> | explanation | continue |
+| <code>setup_handoff</code> — <code>Reach one matching supervised session</code> | setup handoff | fact <code>visible_matching_setup = true</code> |
+| <code>first_success</code> — <code>Observe one supervised session</code> | first success | fact <code>supervised_session_observed = true</code> |</p>
+<p>While the journey loads, the window shows <code>Loading Tama…</code>. While the
+journey waits at <code>first_success</code>, a quiet strip at the foot of the window —
+not an alert, because waiting for the first supervised session is not a
+fault — shows the screen's own words: <code>Observe one supervised session</code> /
+<code>Open a real agent session. Tama completes this guide only after the control plane reports that session under the installed policy.</code> The journey
+completes only when a live session actually appears.</p>
+<h2>What gets recorded, and how to reset it</h2>
+<p><code>tama.hasCompletedSetup</code> is recorded in the app's defaults when the journey
+records the verified setup handoff; on a machine that already completed
+setup, the journey is reconciled forward instead of replayed. Failures are
+explicit, never silent: <code>Tama could not load its signed first-use journey. &lt;error&gt;</code> (surfaced under <code>Onboarding is unavailable</code>), <code>Tama could not reconcile the existing setup. &lt;error&gt;</code>, and <code>Tama could not record the verified setup handoff. &lt;error&gt;</code>.</p>
+<p>To repeat guided first use without changing any enforcement state:</p>
+<pre><code class="language-bash">defaults delete ai.wisent.tama.desktop tama.hasCompletedSetup
+</code></pre>
+<p>Deleting the defaults key replays the journey; it does not uninstall,
+disable, or reinstall anything (<a href="../onboarding.md#reset">onboarding</a>).</p>

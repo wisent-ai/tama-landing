@@ -1,0 +1,103 @@
+<h1>Architecture</h1>
+<p>What does Tama own, what does it deliberately not own, and how does a policy
+decision travel from a sealed release to a refused tool call? This page is
+the structural map; per-noun depth lives in <a href="concepts/hook.md">concepts/</a>
+and the operational contracts in <a href="core-contracts.md">core-contracts</a>.</p>
+<h2>The three planes</h2>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph declare [Declaration]
+        HR[hook source tree\nHooks Rotator] --&gt; B[build-app.sh\nseal_hook_release.py]
+        B --&gt; REL[sealed hook release\nin signed Tama.app]
+    end
+    subgraph enforce [Enforcement]
+        REL --&gt;|explicit install| RT[installed runtime\n~/.shared-hooks + hooks-runtime/]
+        RT --&gt; SUP[session supervisor]
+        SUP --&gt; REC[session records\nsession-control/]
+    end
+    subgraph verify [Verification and control]
+        REL --&gt; APP[Tama desktop]
+        REC --&gt; APP
+        APP --&gt;|enable requests| SUP
+        APP --&gt;|emergency switch| RT
+    end
+</code></pre>
+<ul>
+<li><strong>Declaration</strong> happens outside this repository: hook policy is authored
+in the hook source tree, and the build seals it into a content-addressed
+<a href="concepts/hook-release.md">hook release</a> inside the signed app.</li>
+<li><strong>Enforcement</strong> happens in the user's home: an explicit install generates
+the runtime, and each supervised session's supervisor executes hooks and
+publishes a record of what it decided.</li>
+<li><strong>Verification and control</strong> is the desktop plus the sealed CLI: compare
+identities, read decisions, and mutate through exactly two doors —
+<a href="concepts/session-enable.md">session-scoped enable</a> and
+<a href="concepts/emergency-disable.md">global emergency disable</a>.</li>
+</ul>
+<h2>What Tama owns</h2>
+<p>Everything under <code>~/Library/Application Support/Tama</code>
+(<a href="configuration.md#state-tama-owns">configuration</a>): installed releases,
+the <code>current</code> symlink, <code>installed.json</code>, the emergency state and backup,
+and the session-control directory. Plus the managed per-user entrypoints the
+installer generates and records in <code>installed.json.sourceFiles</code> — the
+installer refuses to delete anything outside those roots
+(<code>Refusing to remove an obsolete path outside managed roots: &lt;path&gt;</code>).</p>
+<h2>What Tama does not own</h2>
+<ul>
+<li><strong>Hook authorship and approval.</strong> The catalog is read-only in the app;
+the bundle is authoritative for it at runtime. Changing policy means
+shipping a new sealed release, never editing an installed one.</li>
+<li><strong>Session records.</strong> Supervisors write them; Tama only reads. Invalid,
+legacy-v1, or stale records are ignored, and discovery is read-only when
+the directory does not exist (<a href="core-contracts.md#session-discovery">core-contracts</a>).</li>
+<li><strong>Credentials.</strong> Wisent authentication lives in the macOS Keychain via
+Wisent Auth; capabilities live only inside supervisor-owned session
+records (<a href="concepts/capability.md">concepts/capability</a>).</li>
+<li><strong>Repositories.</strong> The violation scanner is read-only; cleanup edits only a
+selected working tree the operator owns and confirms, and never touches
+<code>HEAD</code>, branch refs, commits, or pushes
+(<a href="desktop/violations.md">desktop/violations</a>).</li>
+<li><strong>Fleet anything.</strong> One Mac, one home, one operator. Nothing here talks to
+a fleet control plane.</li>
+</ul>
+<h2>How data flows</h2>
+<ol>
+<li><strong>Build time.</strong> <code>build-app.sh</code> stages hook sources, compiles the sealed
+Rust <code>tama-cli</code>/<code>tama-mcp-server</code> from the same tree, renders
+<code>tama-catalog.json</code> via <code>tama-cli list --json</code>, seals the release
+(digest → <code>releaseId</code>), and embeds the seal in <code>tama-build.json</code>
+(<a href="scripts.md#build-and-release-maintainer-only">scripts</a>).</li>
+<li><strong>Install time.</strong> <code>install_hook_release.py</code> verifies the seal twice,
+rewrites the <a href="concepts/registry.md">registry</a> for the target home, pins
+Node commands to a validated executable plus version-guard preflight, and
+writes every entrypoint transactionally
+(<a href="hook-releases.md#installation">hook-releases</a>).</li>
+<li><strong>Session time.</strong> An agent launches through <code>tama-agent</code> (or a provider
+config routes events to the runtime); the supervisor loads the installed
+registry, executes hooks per event, and publishes its session record —
+identity, hook counts, capability, recent decisions — under
+<code>session-control/</code>.</li>
+<li><strong>Observation time.</strong> The desktop polls records once per second while
+authorized; the sealed CLI answers the same from <code>sessions</code>; the
+loopback backend serves catalog-derived reads
+(<a href="cli.md#the-desktop-backend">cli</a>).</li>
+<li><strong>Control time.</strong> Enables travel as private request files the supervisor
+validates (<a href="concepts/session-enable.md">concepts/session-enable</a>);
+disable is the operator-owned global switch
+(<a href="concepts/emergency-disable.md">concepts/emergency-disable</a>).</li>
+</ol>
+<h2>Trust boundaries</h2>
+<p>| Boundary | Mechanism |
+|---|---|
+| Hook tree ↔ everything downstream | Content-addressed <a href="concepts/seal.md">seal</a>, enforced before and after copy |
+| App ↔ operator | Wisent role (<code>owner</code>/<code>admin</code>/<code>member</code>) constructs the mutation-capable model; confirmation dialogs and macOS approvals gate each mutation |
+| Tama ↔ session | The 64-hex <code>controlKey</code> names the session's private request channel; the supervisor validates every envelope and applies overrides itself |
+| Session ↔ machine | The privileged daemon (<code>ai.wisent.tama.system-policy</code>) and Network Extension (<code>ai.wisent.tama.network-filter</code>) enforce kernel-gated process and socket policy; approval-pending is a distinct state, never success |
+| Desktop ↔ sealed logic | Catalog reads, install plans, scans, and cleanup go through one loopback child (<code>tama-cli serve --port 0 --root &lt;release&gt;</code>) on <code>127.0.0.1</code> — the binary the app runs is the one the build sealed |
+| Runtime ↔ Node.js | The installer canonicalizes and pins one Node ≥ 20 executable into every Node-based command with a preflight guard; the generated launcher fails closed (exit 66) when either moves |</p>
+<h2>Failure posture</h2>
+<p>Fail closed, roll back, keep evidence. The installer is transactional with
+explicit rollback of files, symlink, and OMP registration; the emergency
+switch records its manifest before relying on it and re-reads durable state
+after acting; session mutations report rejection, timeout, and session exit
+as failures rather than assuming success; and every refusal is one sentence
+that exists in a source file — the <a href="runbook.md">runbook</a> indexes them.</p>

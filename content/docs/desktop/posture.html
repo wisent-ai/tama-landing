@@ -1,0 +1,51 @@
+<h1>Posture screen</h1>
+<p>The headline screen: is this machine enforcing the policy it claims, and
+what was the last thing policy refused? Posture joins the three release
+identities with the live enforcement signals and hosts the machine's most
+destructive action. The underlying judgment is
+<a href="../concepts/posture.md">concepts/posture</a>.</p>
+<h2>Header</h2>
+<p>Title <code>Posture</code>; freshness reads <code>reading now</code>, <code>not read yet</code>, or
+<code>read &lt;time&gt;</code>. Actions: <code>Reveal release</code> (opens the bundled release in
+Finder), <code>Re-enable all hooks</code> (only while bypassed), and <code>Disable all hooks</code> (destructive, behind the dialog below).</p>
+<h2>Signals and counters</h2>
+<p>Severity-ordered signal rows: Catalog, Local enforcement, Bundled release,
+Managed dispatchers, Local runtime, Privileged backend, Live sessions, Hook
+runtime. Hook-runtime tone comes from the shared mapping: <code>Load failed</code>
+(registry load error), <code>Reload scheduled</code>, <code>Reload required</code>, else <code>Loaded</code>;
+loaded-vs-registered count mismatch warns. Counters: <code>Catalog hooks</code>,
+<code>Blocking</code>, <code>Categories</code>, <code>Orphan sources</code>.</p>
+<h2>Release identity</h2>
+<p>The drift detector, one field per identity
+(<a href="../walkthrough-runtime-status.md#4-the-identities-the-desktop-compares">walkthrough-runtime-status</a>):
+Product version, Source revision (with <code>(dirty source)</code> appended when build
+provenance says so), Target, <code>Bundled release</code>, <code>Installed release</code>,
+<code>Loaded release</code>, <code>Catalog checksum</code>, <code>Generated at</code>, <code>Built</code>, and — when an
+install recorded one — <code>Node version</code> and <code>Node executable</code>. The honest
+placeholders are exact: without control the installed and loaded fields read
+<code>Not inspected</code>; with control but no installation, <code>Not installed by Tama</code>;
+with no live session, <code>No live session</code>; a runtime that reported no checksum
+reads <code>Not reported by a live session</code>. Installed and loaded identities that
+disagree take the drift warning tone — that disagreement is the screen's
+reason to exist.</p>
+<h2>Validation</h2>
+<p>The bundled snapshot's structural validation: ok flag, errors, warnings,
+hook and orphan-source counts — with the standing caveat <code>Bundled snapshot only: high-entropy and live runtime drift checks are not run in Tama.</code>
+(<a href="../hook-model.md#the-desktops-catalog-snapshot">hook-model</a>). Alert panels
+surface <code>Catalog re-read failed</code>, <code>Catalog validation failed</code>, <code>All hooks are disabled</code>, and <code>Session control unavailable</code> states.</p>
+<h2>The last blocking decision</h2>
+<p>The most recent non-allow event across every live session — its hook id and
+verbatim <code>reason</code> — pulled from the session records' <code>semanticRuntime</code>.
+This is the answer to &quot;why did my agent stop&quot;, one click before the
+<a href="session.md">Session</a> screen's full decision table.</p>
+<h2>Disable every Tama hook on this machine</h2>
+<p>The confirmed dialog states the entire price, verbatim
+(<a href="../concepts/emergency-disable.md#what-it-costs">concepts/emergency-disable</a>):
+the three body lines about dispatcher bypass, blocking hooks ceasing to
+refuse, and surviving per-session overrides; reason code
+<code>hook-emergency-state.v1 disabled=true</code>; the listing of every blocking hook
+id; the footnote <code>recovery files are preserved under Application Support/Tama/emergency-backup</code>; and three actions — <code>Read the blocking decision</code> (jumps to <a href="session.md">Session</a> when a blocking decision exists),
+destructive <code>Disable all hooks</code>, primary <code>Keep policy active</code>. After the
+switch runs, the app re-reads durable state; a switch that did not persist
+reports <code>Tama could not persist the emergency hook state.</code> rather than
+claiming success.</p>

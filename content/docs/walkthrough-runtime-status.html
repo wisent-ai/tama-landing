@@ -1,0 +1,91 @@
+<h1>Walkthrough: inspect runtime status</h1>
+<p>What is installed, what is loaded, and what would an emergency re-enable hit?
+Three read-only answers: the sessions the runtime is supervising right now,
+the integrity of every installed release tree, and the second integrity gate
+an install would pass through. Every command below was executed on
+2026-08-24 against the release sealed as <code>35204a12…</code> and a scratch home
+(<code>TAMA_HOME</code>/<code>--home</code> overrides), so nothing operator-owned was touched;
+outputs are pasted verbatim with the home abbreviated to <code>~</code> and scratch
+directories to <code>$H</code>. The desktop shows the same facts on
+<a href="desktop/posture.md">Posture</a> and <a href="desktop/session.md">Session</a>.</p>
+<h2>1. Live sessions, from the sealed CLI</h2>
+<p><code>tama-cli sessions</code> reads the session-control records under
+<code>&lt;home&gt;/Library/Application Support/Tama/session-control/</code> — the same files
+the desktop polls (<a href="enforcement-control.md#session-records">enforcement-control</a>).
+Against a home with no records it prints nothing and exits <code>0</code>; <code>--json</code>
+makes the empty answer explicit:</p>
+<pre><code class="language-console">$ tama-cli sessions --home &quot;$H&quot;
+$ tama-cli sessions --json --home &quot;$H&quot;
+[]
+</code></pre>
+<p>Against the real home of a machine with live supervised sessions, each line
+is agent id, session id, and hook state — <code>loaded/registered</code> counts for a
+normally enforcing session, or the explicit allowlist during a global
+disable (excerpt of a longer capture):</p>
+<pre><code class="language-console">$ tama-cli sessions
+omp	ReadBatch13	61/61
+omp	ReadBatch05	61/61
+kimi	session_d62b	?/?
+omp	DeepJeden	allowlist: empty
+</code></pre>
+<p>Read <code>61/61</code> as &quot;61 hooks loaded of 61 registered&quot; — the equality
+<a href="desktop/posture.md">Posture</a> and setup require. <code>allowlist: empty</code> is a
+session running while hooks are globally disabled: its <code>enabledHookIds</code>
+allowlist is the only thing that would run, and it is empty
+(<a href="concepts/session-enable.md">concepts/session-enable</a>). <code>?/?</code> is a session
+whose runtime has not reported hook counts.</p>
+<h2>2. Every installed release, verified against its own name</h2>
+<p>Installed releases are content-addressed: the directory name <em>is</em> the
+claimed digest, so verification needs no manifest
+(<a href="hook-releases.md#installation">hook-releases</a>). On a home where Tama has
+never installed anything:</p>
+<pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/verify_installed_releases.py
+releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: False
+nothing installed
+</code></pre>
+<p>Simulate an installed runtime by copying the sealed release to its
+content-addressed landing path and pointing <code>current</code> at it — exactly the
+layout <code>install_hook_release.py</code> produces:</p>
+<pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/verify_installed_releases.py
+releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: True
+current: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
+  35204a128363 intact &lt;- current
+drifted: none
+
+bundled release: ~/Documents/CodingProjects/Wisent/tama-desktop/.build/Tama.app/Contents/Resources/hooks-release exists: True
+bundled digest: 35204a128363
+second gate: intact
+</code></pre>
+<p>Two answers in one report. The top half digests every tree under
+<code>releases/</code> against its directory name and marks the <code>current</code> one. The
+bottom half answers the question that matters mid-incident: the emergency
+enable path re-installs the bundled release, and its <em>second</em> integrity gate
+checks <code>releases/&lt;bundled-id&gt;</code> — present and intact here, so an enable
+cannot fail on it.</p>
+<h2>3. The state an enable would refuse</h2>
+<p>Change one permission bit inside the installed copy and re-read:</p>
+<pre><code class="language-console">$ chmod 700 &quot;$H/Library/Application Support/Tama/hooks-runtime/releases/35204a…/shared-hooks/registry.json&quot;
+$ TAMA_HOME=&quot;$H&quot; python3 Scripts/verify_installed_releases.py
+releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: True
+current: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
+  35204a128363 DRIFTED &lt;- current
+drifted: ['35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7']
+
+bundled release: ~/Documents/CodingProjects/Wisent/tama-desktop/.build/Tama.app/Contents/Resources/hooks-release exists: True
+bundled digest: 35204a128363
+second gate: DRIFTED -- install would refuse
+</code></pre>
+<p>This is the state behind <code>Installed Tama hook release failed its integrity check</code> — the second of the two identically worded installer failures, the
+one that is invisible until an operator is already mid-incident
+(<a href="runbook.md#installed-tama-hook-release-failed-its-integrity-check">runbook</a>).
+The installer's own recovery is automatic for the common case: a
+pre-existing copy that no longer digests to its directory name is deleted
+and recopied from the bundle before the gate is re-checked
+(<a href="hook-releases.md#installation">hook-releases</a>).</p>
+<h2>4. The identities the desktop compares</h2>
+<p><code>installed.json</code> beside <code>releases/</code> records what the last successful install
+wrote — release id, catalog checksum, versions, managed files, pinned Node —
+and each live session record carries the release id and checksum its runtime
+actually loaded. <a href="desktop/posture.md">Posture</a> calls the machine healthy
+only when bundled, installed, and loaded identities agree; this walkthrough
+is the command-line version of that comparison, one identity at a time.</p>

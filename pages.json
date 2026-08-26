@@ -1,0 +1,46 @@
+[
+  {"route":"what-is-tama","source":"docs/what-is-tama.md","content":"content/docs/what-is-tama.html","category":"Start here"},
+  {"route":"quick-start","source":"docs/quick-start.md","content":"content/docs/quick-start.html","category":"Start here"},
+  {"route":"onboarding","source":"docs/onboarding.md","content":"content/docs/onboarding.html","category":"Start here"},
+
+  {"route":"concepts/hook","source":"docs/concepts/hook.md","content":"content/docs/concepts/hook.html","category":"Concepts"},
+  {"route":"concepts/hook-release","source":"docs/concepts/hook-release.md","content":"content/docs/concepts/hook-release.html","category":"Concepts"},
+  {"route":"concepts/registry","source":"docs/concepts/registry.md","content":"content/docs/concepts/registry.html","category":"Concepts"},
+  {"route":"concepts/seal","source":"docs/concepts/seal.md","content":"content/docs/concepts/seal.html","category":"Concepts"},
+  {"route":"concepts/posture","source":"docs/concepts/posture.md","content":"content/docs/concepts/posture.html","category":"Concepts"},
+  {"route":"concepts/capability","source":"docs/concepts/capability.md","content":"content/docs/concepts/capability.html","category":"Concepts"},
+  {"route":"concepts/session-enable","source":"docs/concepts/session-enable.md","content":"content/docs/concepts/session-enable.html","category":"Concepts"},
+  {"route":"concepts/emergency-disable","source":"docs/concepts/emergency-disable.md","content":"content/docs/concepts/emergency-disable.html","category":"Concepts"},
+
+  {"route":"desktop","source":"docs/desktop.md","content":"content/docs/desktop.html","category":"Desktop app"},
+  {"route":"desktop/setup","source":"docs/desktop/setup.md","content":"content/docs/desktop/setup.html","category":"Desktop app"},
+  {"route":"desktop/posture","source":"docs/desktop/posture.md","content":"content/docs/desktop/posture.html","category":"Desktop app"},
+  {"route":"desktop/hooks","source":"docs/desktop/hooks.md","content":"content/docs/desktop/hooks.html","category":"Desktop app"},
+  {"route":"desktop/session","source":"docs/desktop/session.md","content":"content/docs/desktop/session.html","category":"Desktop app"},
+  {"route":"desktop/violations","source":"docs/desktop/violations.md","content":"content/docs/desktop/violations.html","category":"Desktop app"},
+  {"route":"desktop/justifications","source":"docs/desktop/justifications.md","content":"content/docs/desktop/justifications.html","category":"Desktop app"},
+  {"route":"desktop/coverage","source":"docs/desktop/coverage.md","content":"content/docs/desktop/coverage.html","category":"Desktop app"},
+  {"route":"desktop/install-plan","source":"docs/desktop/install-plan.md","content":"content/docs/desktop/install-plan.html","category":"Desktop app"},
+  {"route":"desktop/settings","source":"docs/desktop/settings.md","content":"content/docs/desktop/settings.html","category":"Desktop app"},
+
+  {"route":"architecture","source":"docs/architecture.md","content":"content/docs/architecture.html","category":"Reference"},
+  {"route":"core-contracts","source":"docs/core-contracts.md","content":"content/docs/core-contracts.html","category":"Reference"},
+  {"route":"cli","source":"docs/cli.md","content":"content/docs/cli.html","category":"Reference"},
+  {"route":"configuration","source":"docs/configuration.md","content":"content/docs/configuration.html","category":"Reference"},
+  {"route":"enforcement-control","source":"docs/enforcement-control.md","content":"content/docs/enforcement-control.html","category":"Reference"},
+  {"route":"hook-model","source":"docs/hook-model.md","content":"content/docs/hook-model.html","category":"Reference"},
+  {"route":"hook-releases","source":"docs/hook-releases.md","content":"content/docs/hook-releases.html","category":"Reference"},
+  {"route":"integrations","source":"docs/integrations.md","content":"content/docs/integrations.html","category":"Reference"},
+  {"route":"operations","source":"docs/operations.md","content":"content/docs/operations.html","category":"Reference"},
+  {"route":"releases","source":"docs/releases.md","content":"content/docs/releases.html","category":"Reference"},
+  {"route":"runbook","source":"docs/runbook.md","content":"content/docs/runbook.html","category":"Reference"},
+  {"route":"scripts","source":"docs/scripts.md","content":"content/docs/scripts.html","category":"Reference"},
+  {"route":"testing","source":"docs/testing.md","content":"content/docs/testing.html","category":"Reference"},
+
+  {"route":"walkthrough-runtime-status","source":"docs/walkthrough-runtime-status.md","content":"content/docs/walkthrough-runtime-status.html","category":"Walkthroughs"},
+  {"route":"walkthrough-verify-release","source":"docs/walkthrough-verify-release.md","content":"content/docs/walkthrough-verify-release.html","category":"Walkthroughs"},
+  {"route":"examples","source":"examples/README.md","content":"content/docs/examples.html","category":"Walkthroughs"},
+
+  {"route":"security","source":"SECURITY.md","content":"content/docs/security.html","category":"Project"},
+  {"route":"changelog","source":"CHANGELOG.md","content":"content/docs/changelog.html","category":"Project"}
+]

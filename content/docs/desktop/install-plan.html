@@ -1,0 +1,37 @@
+<h1>Install plan screen</h1>
+<p>Where an install would write, scope by scope, and the MCP snippet that goes
+with it — so an operator approving a privileged install can see which files
+it would touch first. The plan is read-only: the screen states target paths
+and performs none of the changes. The command behind it is the sealed CLI's
+<code>install-plan</code> (<a href="../cli.md#read-only-commands">cli</a>), served as a plain GET
+of <code>/v1/install-plan</code> on the loopback backend.</p>
+<h2>Header and signals</h2>
+<p>Title <code>Install plan</code>; scope <code>planned changes</code> once a plan is loaded;
+freshness reads <code>reading now</code>, <code>read &lt;time&gt;</code>, or <code>not read yet</code>; the one
+action is <code>Re-read plan</code>. The signal strip states <code>Archive root</code> (the
+release the plan derives from), <code>Scopes</code>, and <code>Active by archive alone</code> —
+<code>Some</code> / <code>None</code>, where <code>None</code> is the healthy state: nothing in this product
+activates just because the archive exists.</p>
+<h2>Levels</h2>
+<p>One section per scope level, ordered agent/app → editor → MCP →
+user-global Git → repo/project Git → OS-level. Each shows the level name,
+its first note as the detail, and a trailing <code>active</code> or <code>needs a runtime</code>.
+Fields are the plan's own keys with camel case humanized into labels
+(<code>codexSettings</code> reads as CODEX SETTINGS); a target the plan reports as
+null renders <code>Not configured</code> — omitting the row would hide the fact.
+Against the release sealed on 2026-08-24 the plan reports, among others:
+<code>user-global Git hooks: ~/.config/git/hooks</code>, <code>repo/project Git hooks: git config core.hooksPath .githooks</code>, and <code>OS-level policy: outside Tama</code>.</p>
+<h2>MCP server</h2>
+<p><code>Paste this into a client configuration to expose the bundled Tama tools.</code>
+The snippet is the backend's <code>/v1/mcp-config</code> answer — the same JSON
+<code>tama-cli mcp-config</code> prints, naming the bundled <code>tama-mcp-server</code> — read
+lazily alongside the plan. Loading reads <code>Reading the MCP snippet</code>; a
+failure shows <code>MCP snippet could not be read</code> with the sentence.</p>
+<h2>States</h2>
+<p>Before any read: <code>No plan has been read yet</code> — <code>The plan is derived from the bundled release and your home directory. Nothing is written to read it.</code> — with a <code>Read the plan</code> action. A failed read shows <code>Install plan could not be read</code> with the error verbatim and Retry; a plan document
+without an <code>archiveRoot</code> string and <code>levels</code> object is refused as
+malformed rather than partially rendered.</p>
+<p>The mutation this plan previews — the transactional install itself — is
+documented in <a href="../hook-releases.md#installation">hook-releases</a>; the
+user-global Git dispatcher install has a runnable example at
+<a href="../../examples/operations/install-user-git-hooks.sh"><code>../../examples/operations/install-user-git-hooks.sh</code></a>.</p>

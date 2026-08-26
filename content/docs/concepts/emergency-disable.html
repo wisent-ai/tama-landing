@@ -1,0 +1,77 @@
+<h1>Emergency disable</h1>
+<p>When a hook blocks work that genuinely must proceed, what is the recovery —
+and what does it cost? One confirmed, operator-owned action that bypasses
+every Tama-managed dispatcher on the machine, records exactly what it moved,
+and stays visible until a verified re-enable restores everything. It is
+deliberately the only way to weaken policy: sessions can
+<a href="session-enable.md">enable</a>, only operators can disable, and only globally
+(<a href="../enforcement-control.md">enforcement-control</a>).</p>
+<h2>What it is</h2>
+<p><code>emergency_disable_hooks</code>, a bundled POSIX script the desktop runs from
+<strong>Posture</strong> and re-runs with <code>TAMA_EMERGENCY_ACTION=enable</code> for re-enable
+(<a href="../scripts.md#emergency_disable_hooks">scripts</a>). Disable, in order:</p>
+<ol>
+<li>pauses every supervised session
+(<code>agent-session-supervisor.py control pause --require-all</code>); an exit trap
+resumes them after success, failure, or interruption;</li>
+<li>reinstalls the session controllers
+(<code>install_hook_release.py --session-control-only</code>) so session visibility
+survives the bypass;</li>
+<li>backs up <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> into
+<code>emergency-backup/</code> and empties their <code>hooks</code> maps;</li>
+<li>moves entrypoints aside to <code>&lt;name&gt;.tama-disabled</code>: the OMP agent hooks
+directory and every Git hook source the installed
+<a href="registry.md">registry</a> declares;</li>
+<li>stops the editor watcher (the <code>~/.shared-hooks/editor-hooks.pid</code> process,
+then the <code>com.wisent.editor-hooks.plist</code> LaunchAgent);</li>
+<li>writes <code>emergency-backup/manifest.json</code> once and
+<code>hook-emergency-state.json</code>
+(<code>ai.wisent.tama.hook-emergency-state.v1</code>, <code>disabled: true</code>, <code>changedAt</code>).</li>
+</ol>
+<p>Success prints <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code>; repeating it prints <code>Tama hooks are already disabled.</code> and changes nothing.</p>
+<h2>What it costs</h2>
+<p>The desktop's confirmation states the price before the button exists —
+title <code>Disable every Tama hook on this machine</code>, then verbatim:</p>
+<ul>
+<li><code>Agent, editor and Git dispatchers will bypass all &lt;N&gt; policies until the approved release is verified and reinstalled.</code></li>
+<li><code>&lt;N&gt; blocking hooks will stop refusing unsafe work, including in sessions that are running right now.</code></li>
+<li><code>Supervised sessions keep running. Their per-session overrides survive, and Tama restores them when the release is reinstalled.</code></li>
+</ul>
+<p>with reason code <code>hook-emergency-state.v1 disabled=true</code>, the full listing
+of blocking hook ids, the footnote <code>recovery files are preserved under Application Support/Tama/emergency-backup</code>, and three actions: <code>Read the blocking decision</code> (jumps to <a href="../desktop/session.md">Session</a>),
+destructive <code>Disable all hooks</code>, primary <code>Keep policy active</code>.</p>
+<h2>How state is judged</h2>
+<p>Tama treats the machine as disabled only when <strong>both</strong> the manifest and the
+state file exist, and it re-reads that durable state after the script
+returns — <code>Tama could not persist the emergency hook state.</code> is a failure,
+never claimed success. During the bypass, a session's
+<code>enabledHookIds</code> allowlist is the only policy that runs
+(<a href="session-enable.md#semantics-under-global-disable">session-enable</a>).</p>
+<h2>Re-enable</h2>
+<p>Enable refuses without evidence: no manifest answers <code>Tama has no emergency backup manifest to restore.</code>, and the bundled release must pass its
+<a href="seal.md">seal</a> gates. It performs the full transactional installation with
+<code>--emergency-manifest</code> — restoring every moved entrypoint, regenerating
+provider configs from the backups, re-bootstrapping the editor LaunchAgent —
+and only then removes the state file and manifest, printing <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> A failed enable preserves the recovery evidence.</p>
+<h2>Where it lives</h2>
+<p>| Path | Content |
+|---|---|
+| <code>~/Library/Application Support/Tama/hook-emergency-state.json</code> | The durable disabled flag |
+| <code>~/Library/Application Support/Tama/emergency-backup/manifest.json</code> | <code>configs</code> emptied, <code>moved</code> entrypoint pairs, <code>editorWatcherStopped</code> — written once |
+| <code>~/Library/Application Support/Tama/emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code> | Original provider configs, restored on enable |</p>
+<p>The desktop wrapper (<code>HookEmergencySwitch</code>) bounds the script: 300 s
+runtime, 64 KiB output, SIGTERM→SIGKILL escalation, with its own verbatim
+failures (<code>The local policy command exceeded its bounded runtime and was terminated. Inspect local policy state before retrying.</code>, <code>The Tama bundle does not contain the emergency hook controller.</code>, …) listed in the
+<a href="../runbook.md#the-emergency-switch-refuses">runbook</a>.</p>
+<h2>Not to be confused with</h2>
+<ul>
+<li><strong>Deactivate.</strong> <strong>Settings → Deactivate everything</strong> runs this same global
+disable <em>and then</em> unregisters the privileged daemon, System Extension,
+and network filter independently (<a href="../desktop/settings.md">desktop/settings</a>).
+Emergency disable alone leaves the privileged backend registered.</li>
+<li><strong>A per-session disable.</strong> Does not exist, anywhere in the product
+(<a href="../core-contracts.md#safety-and-authorization">core-contracts</a>).</li>
+<li><strong>Uninstalling.</strong> The bypass moves entrypoints aside and empties config
+maps; every byte needed to restore enforcement stays on disk, deliberately
+(<a href="../operations.md#reset-and-uninstall">operations</a>).</li>
+</ul>

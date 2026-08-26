@@ -1,0 +1,84 @@
+<h1>Session-scoped enable</h1>
+<p>How does Tama change what runs in a live agent session — and why can it only
+ever make policy stronger there? Through one narrow mutation: enable a hook,
+or every hook, in exactly one session, applied not by Tama but by that
+session's own supervisor. There is no per-session disable, by contract
+(<a href="../core-contracts.md#session-override">core-contracts</a>).</p>
+<h2>What it is</h2>
+<p>A private file-based request/response exchange in
+<code>~/Library/Application Support/Tama/session-control/</code> (directory mode
+<code>0700</code>, files <code>0600</code>). Tama writes
+<code>&lt;controlKey&gt;.&lt;requestId&gt;.request.json</code> and polls every 0.05 s, for at most
+10 s, for the matching <code>&lt;controlKey&gt;.&lt;requestId&gt;.response.json</code>. The request
+carries <code>schema</code> (<code>ai.wisent.tama.session-control.v2</code>), <code>sessionId</code>,
+<code>controlKey</code>, <code>requestId</code> (UUID), <code>confirmed: true</code>, <code>operation</code>, and for
+<code>set-hook</code> the <code>hookId</code> with <code>enabled: true</code>. The response carries <code>schema</code>,
+<code>requestId</code>, <code>ok</code>, <code>error</code>, and <code>state</code> — the authoritative session record
+after the change.</p>
+<p>Two operations exist:</p>
+<ul>
+<li><code>set-hook</code> — enable one registered hook id in this session;</li>
+<li><code>enable-all</code> — enable every registered hook and schedule one runtime
+reload after the active agent turn settles; concurrent reloads coalesce,
+and a failure restores the preceding override state.</li>
+</ul>
+<p>Retrying the same enable is idempotent.</p>
+<h2>Who applies it</h2>
+<p>The session's own supervisor — never Tama. The supervisor validates the
+envelope against the exact identity tuple in its session record
+(<a href="../enforcement-control.md#session-records">enforcement-control</a>): the
+<code>controlKey</code> is a 64-hex secret, the <code>agentId</code> must start with an ASCII
+letter and be 1–32 characters, and the record must be live (<code>process</code> mode:
+the pid answers <code>kill(pid, 0)</code>; <code>heartbeat</code> mode: <code>updatedAt</code> within
+<code>heartbeatTTLSeconds</code>, clamped to 5–3600, default 900). It applies the
+override atomically as <code>&lt;controlKey&gt;.override.json</code> and answers with the
+resulting state.</p>
+<h2>What can refuse it</h2>
+<p>Every failure is actionable, never optimistic — the exact sentences, from
+<code>SessionControlClient</code>:</p>
+<p>| Failure | Sentence |
+|---|---|
+| Malformed session identity | <code>Tama rejected an invalid agent session control endpoint.</code> |
+| Unparseable response | <code>The agent runtime returned an invalid session-control response.</code> |
+| Only v1 records on disk | <code>Tama found only legacy v1 session records. Reinstall the verified bundled runtime, then stop or resume the affected agent session to publish v2 state.</code> |
+| Supervisor said no | <code>The agent runtime rejected the session-control request: &lt;reason&gt;</code> |
+| 10 s deadline passed | <code>The agent runtime did not acknowledge the session-control request before the deadline.</code> |
+| Session exited mid-request | <code>The agent session ended before the session-control request completed.</code> |</p>
+<h2>Semantics under global disable</h2>
+<p>Enablement is interpreted against <code>globallyDisabled</code>
+(<a href="../enforcement-control.md#session-scoped-enable">enforcement-control</a>):</p>
+<ul>
+<li>normally, a hook runs unless its id is in <code>disabledHookIds</code>;</li>
+<li>during a <a href="emergency-disable.md">global emergency disable</a>,
+<code>enabledHookIds</code> is the session's explicit allowlist — the only hooks that
+run. <code>tama-cli sessions</code> prints exactly this (<code>allowlist: empty</code> for a
+bypassed session with nothing re-enabled;
+<a href="../walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</li>
+</ul>
+<h2>Where it surfaces</h2>
+<ul>
+<li>The <strong>Session</strong> screen's only mutations are <em>enable one hook here</em> and
+<strong>Enable all hooks</strong> (offered whenever a session lags the installed
+release); the screen states it can never disable a hook or issue, extend,
+or revoke a capability (<a href="../desktop/session.md">desktop/session</a>).</li>
+<li>The <strong>Hooks</strong> inspector offers the same single-hook enable in the selected
+session (<a href="../desktop/hooks.md">desktop/hooks</a>).</li>
+<li>Inside an OMP session, the bundled adapter exposes the same plane as
+session tools: <code>tama_set_session_hook</code>,
+<code>tama_enable_all_session_hooks</code>, <code>tama_hook_runtime_status</code>,
+<code>tama_request_session_capability</code>, <code>tama_reload_hook_runtime</code> — and
+states that session hook disablement is prohibited.</li>
+</ul>
+<h2>Not to be confused with</h2>
+<ul>
+<li><strong>Disabling.</strong> The opposite direction exists only as the machine-global,
+operator-confirmed <a href="emergency-disable.md">emergency disable</a>. Agent-facing
+controls never weaken policy.</li>
+<li><strong>A capability.</strong> Enabling changes <em>which hooks run</em>; a
+<a href="capability.md">capability</a> grants <em>what the session may do</em> under the
+hooks that run. They travel in the same session record and are otherwise
+independent.</li>
+<li><strong>Installing.</strong> Enable-all binds its override to the installed release and
+checksum, but it does not install anything; a session running an older
+release needs the reload that enable-all schedules, not a new install.</li>
+</ul>

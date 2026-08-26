@@ -1,0 +1,40 @@
+<h1>Coverage screen</h1>
+<p>Which runtime carries which hook, as the registry declares it. The screen
+answers &quot;is Codex actually covered on this machine&quot; without a terminal —
+and is explicit that these are declared mappings, not live execution
+evidence, because the data says so in every row: the rail footer reads
+<code>Evidence</code> / <code>Registry-declared mappings, not live execution</code>, and each
+provider's own evidence sentence — captured live from the sealed release —
+is <code>Registry-declared mappings; not live execution evidence.</code></p>
+<h2>Where the data comes from</h2>
+<p>A plain GET of <code>/v1/coverage</code> on the loopback backend
+(<a href="../cli.md#the-desktop-backend">cli</a>), read on first visit and re-read
+only on demand — coverage is registry content, so polling it would imply it
+changes. Against the release sealed on 2026-08-24, the <code>claude</code> provider
+reports adapter <code>~/.claude/settings.json</code>, 95 declared mappings, 57 hooks,
+9 events. A failed read shows <code>Coverage could not be read</code> with the error
+sentence and Retry.</p>
+<h2>Header, facets, counters</h2>
+<p>Title <code>Coverage</code>; scope is the selected provider; freshness reads
+<code>reading now</code>, <code>read &lt;time&gt;</code>, or <code>not read yet</code>; the one action is <code>Re-read coverage</code>. The <code>Provider</code> facet lists <code>Every provider</code> (total mappings) and
+each provider with its mapping count — warning-toned when it maps nothing.
+Counters: <code>Providers</code> (declared in this release), <code>Mappings</code> (event to
+runtime pairs), <code>Hooks covered</code> (distinct policies reachable), <code>Without mappings</code> (providers nothing runs through; warns when nonzero).</p>
+<h2>States and table</h2>
+<p>Empty registry: <code>The registry declares no coverage</code> — <code>No runtime in this release claims any catalogued event.</code> A provider with no mappings:
+<code>&lt;provider&gt; maps no hook</code>, with the registry's own note when it declares
+one, else <code>The registry lists the provider and declares no event mapping for it, so nothing runs through it.</code>, and a <code>Show every provider</code> action.
+Loading reads <code>Reading declared provider coverage</code>. The table is HOOK,
+EVENT, RUNTIME EVENT, PROVIDER.</p>
+<h2>Inspector</h2>
+<p>Selecting a provider (or any of its rows) shows: badges for the coverage
+kind (<code>declared</code>) and <code>No mappings</code> when uncovered; fields <code>Declared mappings</code>, <code>Hooks</code>, <code>Events</code>, <code>Adapter path</code> (<code>No adapter declared</code>), and
+<code>Live coverage required</code> — <code>yes</code> / <code>no</code> / <code>not declared</code>, the release's own
+statement of whether it demands live coverage evidence for this provider.
+Below, the evidence sentence and any registry note, verbatim. Unselected:
+<code>Choose a provider to read its adapter path, whether the release demands live coverage evidence for it, and what the registry says its coverage is based on.</code> The boundary is stated on the screen: it can <em>List declared
+event to runtime mappings</em> and <em>Name the adapter file each provider reads</em>;
+it never can <em>Prove a hook ran in that runtime</em> or <em>Edit an adapter
+configuration</em>.</p>
+<p>Coverage is what <em>should</em> dispatch; what is loaded and deciding right now is
+<a href="posture.md">Posture</a> (<a href="../concepts/posture.md#not-to-be-confused-with">concepts/posture</a>).</p>

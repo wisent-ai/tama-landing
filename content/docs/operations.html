@@ -1,0 +1,77 @@
+<h1>Tama operational model</h1>
+<h2>Ownership and trust boundaries</h2>
+<p>| Resource | Authority | Writer | Retention and removal |
+|---|---|---|---|
+| Signed <code>Tama.app</code> | Published release artifact | Release operator | Replace only through an explicit upgrade; remove with the app |
+| Bundled catalog | Signed app bundle | Release build | Immutable for the life of that app version |
+| Installed hook release | <code>~/Library/Application Support/Tama/hooks-runtime/releases/&lt;release-id&gt;</code> | Tama installer | Retained while referenced by <code>current</code> or <code>installed.json</code>; remove during uninstall |
+| Current hook release | <code>hooks-runtime/current</code> symlink | Tama installer transaction | Atomically replaced; previous ID recorded in <code>installed.json</code> |
+| Emergency state | <code>hook-emergency-state.json</code> and <code>emergency-backup/</code> | Emergency controller | Removed only after successful re-enable or explicit uninstall |
+| Session records | <code>session-control/*.session.json</code> | Agent supervisor | Stale records are ignored and removed; directory mode <code>0700</code> |
+| Session overrides | <code>session-control/*.override.json</code> | Agent supervisor after a validated Tama request | Atomic files, mode <code>0600</code>; removed during reset/uninstall |
+| Session-control requests | <code>session-control/*.request.json</code> and matching response | Tama and agent supervisor | Private, single-use exchange; both sides remove completed or abandoned files |
+| Wisent session | macOS Keychain | Wisent Auth | Removed by sign-out or Keychain administration |
+| Privileged daemon and filter preferences | macOS ServiceManagement and NetworkExtension | Explicit setup action | Removed by the uninstall procedure |</p>
+<p>No log, cache, or UI snapshot is authoritative policy state. Hook catalog checksum and release ID are the evidence used to compare the signed bundle, installed release, and live runtime.</p>
+<h2>Configuration</h2>
+<p>Tama has no required environment variables for a supported binary installation. Maintainer-only overrides are:</p>
+<p>| Variable | Purpose | Safety rule |
+|---|---|---|
+| <code>TAMA_HOOK_ROOT</code> | Select the hook source during a maintainer build | The path is not retained; runtime source override is compiled out of distributed builds |
+| <code>TAMA_INSTALL_APP_PATH</code> | Select developer installation destination | Must not be used by the release workflow |
+| <code>TAMA_NODE</code> | Select Node.js for maintainer catalog export or a debug runtime | Build and debug entrypoints reject versions older than Node.js 20; the runtime override is compiled out of distributed builds |
+| <code>TAMA_RELEASE_TAG</code> | Select the exact signed tag for packaging and publication | Optional when one release tag identifies <code>HEAD</code>; required to disambiguate multiple release tags on the same source commit, and rejected unless it resolves exactly to <code>HEAD</code> |
+| <code>WISENT_CODESIGN_IDENTITY</code> | Select signing identity | Release credentials stay separate from runtime identity |
+| <code>WISENT_APP_PROVISIONING_PROFILE</code> | App provisioning profile | Release operator only |
+| <code>WISENT_NETWORK_FILTER_PROVISIONING_PROFILE</code> | Network Extension profile | Release operator only |
+| <code>WISENT_NOTARY_PROFILE</code> | Keychain profile used by Apple notarytool | Required for every published preview or stable release; never available at runtime |
+| <code>TAMA_TEST_IDENTITY</code> | Automated UI-test identity seam | Prohibited in distributed artifacts and ordinary use |</p>
+<p>Unknown UI configuration is rejected by construction: setup choices are explicit actions rather than free-form settings. Integration-specific configuration is documented in <code>integrations.md</code>.</p>
+<h2>Permissions</h2>
+<ul>
+<li>Ordinary catalog inspection requires only read access to the app bundle and the user's Application Support directory.</li>
+<li>Installing the per-user runtime writes to <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, <code>~/.local/bin</code>, Git hook locations recorded by the catalog, and <code>~/Library/Application Support/Tama</code>.</li>
+<li>Registering the policy backend requests macOS approval for a privileged daemon, System Extension, Network Extension configuration, and Full Disk Access where required.</li>
+<li>Repository scan is read-only. Cleanup requires write access to the selected working tree and launches the explicitly selected local agent.</li>
+<li>Tama never requires an administrator credential for catalog inspection or per-user session override files.</li>
+</ul>
+<h2>Observability</h2>
+<p>The <strong>Posture</strong> and <strong>Session</strong> screens expose:</p>
+<ul>
+<li>desktop product version and source revision;</li>
+<li>bundled and installed hook release IDs, plus the validated Node version and executable recorded by the installed runtime;</li>
+<li>catalog checksum and registered/loaded hook counts;</li>
+<li>daemon and kernel-policy readiness;</li>
+<li>active agent identity, session ID, project path, and liveness mode;</li>
+<li>semantic event sequence and the register of recent decisions, including the reason string of the last blocking decision;</li>
+<li>unknown hooks, reload requirement or scheduled reload, and backend diagnostics;</li>
+<li>the capability a session holds: lifetime, expiry, remaining uses, and every tool grant;</li>
+<li>violation scan totals, skipped files, and per-file errors on <strong>Violations</strong>;</li>
+<li>registry-declared provider coverage on <strong>Coverage</strong>, and scope target paths on <strong>Install plan</strong>.</li>
+</ul>
+<p>Diagnostics must identify remediation without including access tokens, raw external payloads, or repository file contents beyond paths and rule messages.</p>
+<h2>Failure and recovery</h2>
+<ul>
+<li><strong>Catalog unavailable:</strong> the signed bundle is incomplete. Reinstall the same immutable app artifact and verify its digest.</li>
+<li><strong>Runtime integrity failure:</strong> installation stops before changing the active symlink. Reinstall from the signed app; do not edit files inside a release directory.</li>
+<li><strong>Partial runtime installation:</strong> the transaction restores original files and previous <code>current</code> symlink.</li>
+<li><strong>Backend approval pending:</strong> open the displayed macOS settings destination, approve the component, then refresh status.</li>
+<li><strong>Agent session unavailable:</strong> the operation does not write an override. Restart the supervised session and select its new session record.</li>
+<li><strong>Emergency disable partially fails:</strong> sessions are resumed by the exit trap; preserve <code>emergency-backup</code> and retry re-enable from the same app version.</li>
+<li><strong>Violation dependency unavailable:</strong> scanning or cleanup fails independently; catalog inspection and session control remain available.</li>
+</ul>
+<p>Never repair <code>installed.json</code>, <code>current</code>, or emergency manifests manually as a normal recovery procedure.</p>
+<h2>Backup and restore</h2>
+<p>Before an upgrade that changes stored-state schemas, back up <code>~/Library/Application Support/Tama</code>. Version <code>0.2.0</code> preserves prior hook-release identity and reads existing v2 session state. It deliberately ignores legacy v1 session records and overrides because their <code>provider</code> identity cannot satisfy the v2 <code>agentId</code> contract; reinstall the verified bundled runtime, then stop or resume affected sessions to republish v2 state.</p>
+<p>To restore after a failed compatible upgrade:</p>
+<ol>
+<li>Quit Tama and stop supervised sessions.</li>
+<li>Restore the Application Support backup.</li>
+<li>Restore the exact prior signed <code>Tama.app</code> artifact and verify its digest.</li>
+<li>Open Tama, confirm the product and hook release IDs, then resume agent sessions.</li>
+</ol>
+<p>Do not run two Tama versions against the same Application Support directory concurrently.</p>
+<h2>Reset and uninstall</h2>
+<p>A reset removes Tama-owned welcome or stopped-session override state without unregistering privileged components or deleting unrelated agent configuration. <strong>Deactivate local setup</strong> disables managed dispatchers and unregisters the daemon and Network Extension while deliberately preserving restoration evidence. Full removal then signs out, removes the app, confirms no Tama process or dispatcher remains active, and archives or removes dormant files named by the installed manifest.</p>
+<p>Use the versioned procedure in <code>onboarding.md</code>; do not delete managed hook files blindly because existing non-Tama settings and dispatchers may need restoration.</p>
+<p>Public CLI operations are demonstrated as runnable, commented shell scripts in <a href="../examples/"><code>../examples/</code></a>; mutation examples require explicit environment inputs before they act.</p>

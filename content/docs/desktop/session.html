@@ -1,0 +1,79 @@
+<h1>Session screen</h1>
+<p>What is one supervised agent session actually allowed to do right now? The
+capability document, the tool grants, the loaded release, the liveness
+contract, and every recent decision — for the one session selected in the
+rail. This is also the only screen that mutates a session, and both of its
+mutations point in the enabling direction
+(<a href="../concepts/session-enable.md">concepts/session-enable</a>).</p>
+<h2>Header and rail</h2>
+<p>Title <code>Session</code>; scope counts live sessions; freshness reads
+<code>updated &lt;time&gt;</code> from the selected record. Actions: <code>Refresh sessions</code>
+(secondary) and — only while the selected session does not already have
+every catalogued hook enabled — the primary <code>Enable all hooks</code>. The facet
+rail lists every live session as <code>&lt;agent&gt; · &lt;project directory&gt;</code> with its
+loaded-hook count and runtime tone; the rail footer names the control
+channel: <code>Application Support/Tama/session-control</code>. Records are polled once
+per second while an authorized operator is signed in; the button re-reads on
+demand.</p>
+<h2>Faults</h2>
+<p>Each alert is a distinct failure with its own verbatim title:</p>
+<ul>
+<li><code>Session control unavailable</code> — discovery itself failed; the detail is the
+error sentence, including <code>Tama found only legacy v1 session records. Reinstall the verified bundled runtime, then stop or resume the affected agent session to publish v2 state.</code>
+(<a href="../runbook.md">runbook</a>).</li>
+<li><code>System policy error</code> — the session record carries a policy error;
+actions are <code>Approval settings</code> and, when the record names a support URL,
+<code>Platform support</code>.</li>
+<li><code>Hook registry failed to load</code> — the runtime's own registry load error,
+verbatim.</li>
+<li><code>The runtime is serving a stale registry</code> — <code>reloadRequired</code> with no
+pending reload; the detail states both identities: <code>This session loaded release &lt;loaded&gt; and the installed release is &lt;installed&gt;. Enabling every hook reloads the registry in place.</code> — with an inline <code>Enable all hooks</code>
+action (<a href="../runbook.md#installed-and-loaded-releases-disagree">runbook</a>).</li>
+<li><code>The runtime holds overrides for hooks this build does not declare</code> — the
+unknown hook ids, listed.</li>
+</ul>
+<p>With no live session and no error: <code>No supervised session is running</code>, with
+the exact expectation — <code>Tama refuses to start an agent unless the platform has a ready kernel-enforcement backend. Open or resume a supported coding-agent session, and it appears here within a second.</code></p>
+<h2>Hook state per session</h2>
+<p>One table across every live session before any is selected: SESSION,
+GLOBAL STATE (<code>Enabled</code> / <code>Disabled</code>), LOADED, and ALLOWLIST — <code>empty</code> or
+the explicit ids during a global disable, otherwise
+<code>all (no overrides)</code> / <code>all (&lt;n&gt; disabled)</code>. This is the desktop's rendering
+of the same facts <code>tama-cli sessions</code> prints
+(<a href="../walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</p>
+<h2>Counters</h2>
+<p><code>Registered</code> (hooks the runtime knows), <code>Loaded</code> (hooks the runtime can
+run; warns when it differs from registered), <code>Overrides</code> (allowlisted in
+this session during a global disable, suppressed otherwise; warns when
+nonzero), <code>Decisions</code> (semantic events recorded).</p>
+<h2>Session capability</h2>
+<p>The signed authorisation the session holds for privileged tool use
+(<a href="../concepts/capability.md">concepts/capability</a>): Lifetime, Expires at
+(<code>Not bounded by time</code>), Remaining uses (<code>Not bounded by count</code>, warning at
+one or fewer), Issued by, Schema version, Nonce, Release, Catalog checksum.
+Without one: <code>No capability has been issued to this session. Every privileged tool call is decided by the standing policy alone.</code> The grants
+table (TOOL / ACTIONS) states the empty cases exactly: <code>No capability, so no grants.</code> and <code>The capability carries no tool grants; it authorises nothing by itself.</code></p>
+<h2>Runtime and decisions</h2>
+<p>The Runtime box shows Loaded release, Installed release, Catalog checksum,
+and Liveness — <code>heartbeat, &lt;ttl&gt;s TTL</code> or <code>process &lt;pid&gt;</code>, the two modes the
+supervisor publishes. During a global disable it adds: <code>Hooks are globally disabled on this machine. This session runs only the policies in its allowlist.</code> Recent decisions is the register of what policy actually
+decided, newest first — WHEN, EVENT, HOOK, DECISION (blocking decisions get
+the danger chip; the trailing count is blocks) — with the most recent
+blocking <code>reason</code> printed verbatim below the table. The same reason headlines
+<a href="posture.md#the-last-blocking-decision">Posture</a>.</p>
+<h2>Mutations</h2>
+<p><code>Enable all hooks</code> reports <code>Enabling every registered hook in session &lt;id&gt;…</code> then <code>&lt;n&gt; hooks enabled in &lt;agent&gt; session &lt;id&gt;.</code>; the single-hook
+enable lives on <a href="hooks.md">Hooks</a> and reports <code>&lt;hook-id&gt; is enabled in &lt;agent&gt; session &lt;id&gt;.</code> Both travel as private request files the session's
+own supervisor validates and applies; rejection
+(<code>The agent runtime rejected the session-control request: &lt;reason&gt;</code>),
+timeout (<code>The agent runtime did not acknowledge the session-control request before the deadline.</code>), and session exit (<code>The agent session ended before the session-control request completed.</code>) are reported failures, never
+assumed success.</p>
+<h2>Inspector</h2>
+<p>Selected: Project, Control key (first 12 of 64), Updated at, Policy mode,
+Policy backend, Backend capabilities (<code>None reported</code> when empty); badges
+<code>Kernel-gated</code> / <code>Backend not ready</code> / <code>Not configured</code> plus the capability
+lifetime. The screen states its own boundary on the screen: it can <em>Enable a
+hook in one live session</em> and <em>Enable every registered hook and reload that
+session</em>; it never can <em>Disable a hook for one session</em>, <em>Issue, extend or
+revoke a capability</em>, or <em>Read the agent's transcript or tool arguments</em>.
+Unselected, it states the ownership rule: <code>Session records are written by the supervised runtime into Application Support and removed when the process ends. Tama reads them; it never creates one.</code></p>

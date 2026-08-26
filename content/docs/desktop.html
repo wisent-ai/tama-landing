@@ -1,0 +1,80 @@
+<h1>Desktop application</h1>
+<p>The SwiftUI app is the canonical human interface: one window, one sidebar of
+destinations grouped by the decision the operator came to make, one screen
+at a time. Authorization removes destinations instead of rewriting them — a
+signed-out or under-privileged operator sees fewer rows, never dead ones.</p>
+<h2>Authorization tiers</h2>
+<ul>
+<li><strong>No credential.</strong> Welcome, sign-in guidance, and the explicit read-only
+inspector: the bundled catalog, its validation, and the declared install
+plan. No session monitoring starts and nothing is mutated.</li>
+<li><strong>Authenticated with an accepted role.</strong> A current <code>owner</code>, <code>admin</code>, or
+<code>member</code> role in the selected Wisent organization constructs the
+mutation-capable model; unknown or absent roles are denied. Explicit
+confirmation and macOS approval still gate each mutation.</li>
+</ul>
+<p>There is no separate setup gate: navigation is available during setup, and
+guided first use runs alongside as a signed journey that records
+<code>tama.hasCompletedSetup</code> only against visible evidence
+(<a href="desktop/setup.md">desktop/setup</a>). Setup is considered complete only
+while the evidence still holds: valid bundled catalog, installed runtime,
+hooks not globally disabled, privileged backend <code>Enabled</code>, and at least one
+live session whose installed and loaded release identities match, with
+equal nonzero hook counts, under kernel-gated system policy.</p>
+<h2>Destinations</h2>
+<p>| Group | Screen | What is settled there | Control required |
+|---|---|---|---|
+| Policy | <a href="desktop/posture.md">Posture</a> | Release identity, validation, last blocking decision, emergency disable | no |
+| Policy | <a href="desktop/hooks.md">Hooks</a> | The sealed catalog, per-hook detail, reveal source | no |
+| Policy | <a href="desktop/session.md">Session</a> | Live sessions, capability, decisions, session-scoped enable | yes |
+| Repair | <a href="desktop/violations.md">Violations</a> | Read-only repository scan, confirmed cleanup | yes |
+| Repair | <a href="desktop/justifications.md">Justifications</a> | Local justification registries and their expiry | yes |
+| System | <a href="desktop/coverage.md">Coverage</a> | Registry-declared provider/event mappings | no |
+| System | <a href="desktop/install-plan.md">Install plan</a> | Where an install would write, per scope level | no |
+| System | <a href="desktop/settings.md">Settings</a> | Local enforcement state, backend approvals, deactivate, build identity | no |</p>
+<p><strong>Posture</strong> is the headline screen: the desktop product version and source
+revision, the hook release the build carries, the release the installed
+runtime records, and the release each live runtime loaded — plus the most
+recent blocking decision across sessions with its hook id and reason. The
+destructive <em>Disable all hooks</em> action lives here behind a confirmation
+that states exactly what stops working
+(<a href="enforcement-control.md">enforcement-control</a>).</p>
+<p><strong>Session</strong> polls live session records once per second while authorized. It
+shows each session's runtime status, capability and grants, and every recent
+semantic decision. Its only mutations are <em>Enable a hook in one live
+session</em> and <em>Enable every registered hook and reload that session</em>; the
+screen itself states that it can never disable a hook or issue, extend, or
+revoke a capability.</p>
+<p><strong>Violations</strong> scans the repository chosen in the sidebar's <em>Repository in
+view</em> — an existing local Git checkout owned by the current user; anything
+else is refused before the scanner runs. Scan is read-only and stoppable;
+<em>Repair</em> is a separate confirmed action that lists what a headless agent
+would edit and rescans afterwards (<a href="onboarding.md">onboarding</a>).</p>
+<p><strong>Settings</strong> shows local enforcement (runtime installed/bypassed, the
+privileged backend status with <em>Approval settings</em> and <em>Full Disk Access</em>
+shortcuts) and the build identity, and owns the confirmed
+<em>Deactivate everything</em> teardown.</p>
+<h2>The loopback backend</h2>
+<p>Reads that belong to the sealed CLI — coverage, install plan, MCP snippet,
+violation scan and cleanup — go through one child process the app spawns
+lazily: <code>tama-cli serve --port 0 --root &lt;bundled release&gt;</code>, which binds
+<code>127.0.0.1</code> on an ephemeral port, prints a single ready line
+<code>{&quot;ready&quot;:true,&quot;port&quot;:N}</code>, and serves <code>/v1</code> HTTP endpoints until the app
+kills it on quit. Reads are plain GETs (<code>/v1/coverage</code>, <code>/v1/install-plan</code>,
+<code>/v1/mcp-config</code>); long-running jobs POST and stream NDJSON
+(<code>/v1/violations/scan</code>, <code>/v1/violations/clean</code>), where <code>log</code> events carry
+the job's own output and one <code>result</code> event carries the exit status and
+document. A non-2xx answer is the backend's own refusal sentence in an
+<code>{&quot;error&quot;: &quot;…&quot;}</code> envelope, surfaced verbatim. The full command surface is
+<a href="cli.md">cli</a>.</p>
+<h2>Privileged backend</h2>
+<p><strong>Register privileged backend</strong> (in <a href="desktop/settings.md">Settings</a>)
+registers the <code>ai.wisent.tama.system-policy</code> daemon through
+ServiceManagement and activates the <code>ai.wisent.tama.network-filter</code> System
+Extension with a socket-filter configuration. Status is reported as macOS
+sees it — <code>Enabled</code>,
+<code>Requires administrator approval</code>, <code>Network filter requires approval</code>,
+<code>Not registered</code>, explicit partial-setup states, or a restart-required
+message — and approval-pending is never treated as success. Deactivation
+attempts filter removal, daemon unregistration, and extension deactivation
+independently and reports every failure together.</p>

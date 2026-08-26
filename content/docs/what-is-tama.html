@@ -1,0 +1,84 @@
+<h1>What is Tama</h1>
+<p>What is Tama, and what is the mental model for reading everything else in
+these docs? Tama is the local control surface for coding-agent policy hooks
+on one Mac: a sealed catalog of approved hooks, a per-user runtime that
+enforces them in live agent sessions, and one desktop application that can
+prove which policy is loaded and recover when a hook blocks necessary work.
+The whole product is three moving parts — a release that declares, a runtime
+that enforces, and an operator surface that verifies and overrides.</p>
+<h2>The sealed release declares</h2>
+<p>Hook policy is authored outside this repository, in a hook source tree the
+build selects with <code>TAMA_HOOK_ROOT</code> (its generated documentation is titled
+the Hooks Rotator catalog). <code>Scripts/build-app.sh</code> copies that tree's
+<code>shared-hooks/</code>, <code>claude-hooks/</code>, <code>codex-hooks/</code>, and <code>repo-githooks/</code>
+directories into the app bundle, compiles the sealed Rust backend
+(<code>bin/tama-cli</code>, <code>bin/tama-mcp-server</code>), and seals the result: a SHA-256
+digest over every file's path, permission bits, and bytes becomes the
+<code>releaseId</code> in <code>release.json</code>. From then on the release is content-addressed
+— a rewritten byte or a changed permission bit changes the identity, and the
+installer refuses to install anything whose tree no longer digests to its
+recorded id.</p>
+<p>Inside the release, <code>shared-hooks/registry.json</code> is the declaration: every
+hook's id, command, source file, the events it fires on, whether each event
+blocks, its timeout, and the human record of what it does, why it exists,
+and what side effects it has. The registry model is in
+<a href="hook-model.md">hook-model</a>; sealing and installation are in
+<a href="hook-releases.md">hook-releases</a>.</p>
+<h2>The installed runtime enforces</h2>
+<p>An explicit operator action installs the bundled release into the user's
+home: the release tree lands content-addressed under
+<code>~/Library/Application Support/Tama/hooks-runtime/releases/&lt;release-id&gt;</code>
+with a <code>current</code> symlink, and the hook entrypoints land in
+<code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, <code>~/.local/bin</code>, and
+the user-global Git hooks path. Installation is transactional — original
+files are backed up and restored on failure — and never removes a file
+outside those managed roots.</p>
+<p>Each supervised agent session then publishes a session record: which release
+it loaded, how many hooks are registered and loaded, its recent allow/block
+decisions, and the capability it holds. Tama reads those records; it never
+writes one. The whole enforcement path fails closed: the runtime pins a
+validated Node.js executable into every Node-based hook command and preloads
+a version guard before any hook script runs.</p>
+<h2>The operator verifies and controls</h2>
+<p>The Tama desktop app is the human surface (<a href="desktop.md">desktop</a>). It
+compares three identities — the release sealed into the signed app, the
+release recorded by <code>installed.json</code>, and the release each live session
+actually loaded — and calls setup complete only when they match. Its two
+mutations point in opposite directions by design
+(<a href="enforcement-control.md">enforcement-control</a>):</p>
+<ul>
+<li><strong>Session-scoped enable.</strong> Tama can enable a hook, or every hook, in
+exactly one live session, through a private request the session's own
+supervisor validates and applies. It can never disable a hook per session.</li>
+<li><strong>Global emergency disable.</strong> One confirmed, operator-owned action bypasses
+every Tama-managed dispatcher on the machine, records what it moved aside,
+and stays visible until re-enable verifies the bundled release and
+restores everything transactionally.</li>
+</ul>
+<h2>What Tama is not</h2>
+<p>Tama does not author or approve hooks — the catalog is read-only and the app
+bundle is authoritative for it at runtime. It does not manage fleets, does
+not install policy silently, and does not commit or push repository changes:
+the violation scanner is read-only and the agent-assisted cleanup edits only
+a selected working tree the operator confirms. Credentials stay in the macOS
+Keychain through Wisent Auth; Tama never serializes tokens into its own
+state. The boundaries are stated in the <a href="../README.md">README</a> and the
+contracts in <a href="core-contracts.md">core-contracts</a>.</p>
+<h2>The first three commands</h2>
+<p>The desktop release seals its own CLI at
+<code>Tama.app/Contents/Resources/hooks-release/bin/tama-cli</code>
+(<a href="cli.md">cli</a>):</p>
+<pre><code class="language-bash">tama-cli list
+</code></pre>
+<p>Every hook in the sealed catalog: id, source path, and the events it fires
+on.</p>
+<pre><code class="language-bash">tama-cli validate
+</code></pre>
+<p>Structural validation of the catalog and source archive: hook and
+orphan-source counts, plus a warning for every hook whose source path cannot
+be mapped from its command.</p>
+<pre><code class="language-bash">tama-cli sessions
+</code></pre>
+<p>Every live supervised agent session and its hook state — which agent, which
+session, and how many hooks are enabled. The end-to-end path is
+<a href="quick-start.md">quick-start</a>.</p>

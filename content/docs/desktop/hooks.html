@@ -1,0 +1,49 @@
+<h1>Hooks screen</h1>
+<p>The approved catalog and the per-hook decision that goes with it: what a
+policy does, why it exists, which events it gates, and whether the live
+session in front of you has it enabled. Three zones — facets, table,
+inspector. The catalog itself is read-only here; the sealed registry model
+is <a href="../hook-model.md">hook-model</a>.</p>
+<h2>Header</h2>
+<p>Title <code>Hooks</code>; scope <code>session &lt;first-8&gt;</code> when a live session is selected on
+<a href="session.md">Session</a>; freshness counts policies. One action: <code>Reveal source</code>, enabled only when the selected hook has an archived source path.
+The toolbar search prompt is <code>Search hook id, category, event or description</code>, and it matches exactly those four fields.</p>
+<h2>Facets</h2>
+<ul>
+<li><strong>Enforcement</strong> — <code>All hooks</code>, <code>Blocking</code> (warning tone while any exist),
+<code>Non-blocking</code>.</li>
+<li><strong>Category</strong> — ranked by count descending, then alphabetically; counts are
+measured inside the current enforcement scope, so the number beside a
+category is the number of rows selecting it produces.</li>
+<li><strong>In this session</strong> — only with a live session: <code>Enabled here</code> /
+<code>Not enabled here</code> (warning tone when anything is not enabled).</li>
+</ul>
+<p>The rail footer <code>Selection</code> reads <code>&lt;visible&gt; of &lt;total&gt;</code>.</p>
+<h2>Centre</h2>
+<p><code>Catalog re-read failed</code> (banner over a stale-but-present catalog) and
+<code>Catalog unavailable</code> (no catalog at all) carry the loader's error sentence
+verbatim, with Retry. Loading reads <code>Reading the approved hook catalog</code>.
+The empty states are exact: <code>This build carries no hooks</code> — <code>The sealed catalog declares no policies. Rebuild Tama against a tama release that does.</code> — and <code>No hook matches this selection</code> with a <code>Clear filters</code>
+action. The table is HOOK, CATEGORY, EVENTS (count), FLAG; the
+<code>Blocking</code> / <code>Advisory</code> chip marks the minority, so when most of the catalog
+blocks, the pill moves to the advisory rows.</p>
+<h2>Inspector</h2>
+<p>Eyebrow is the category, title the hook id, badges the status (capitalized;
+success only for <code>active</code>) plus <code>Blocking</code>. Sections: <em>What it does</em>, <em>Why
+it exists</em>, <em>Side effects</em> — the registry's own prose — then EVENTS with a
+per-event <code>Blocking</code> chip and <code>&lt;timeout&gt;s</code>, then <code>Source</code> (<code>No archived source path</code> for sealed-backend hooks) and <code>Command</code>. Unselected: <code>Choose a policy to read what it does, why it exists, which events it runs on, and whether the live session has it enabled.</code></p>
+<h2>The one mutation</h2>
+<p>With a live session, the inspector adds <code>In &lt;agent&gt; session</code>:
+<code>Enabled</code> / <code>Not enabled</code>, and — only when not enabled — the primary
+<code>Enable in this session</code>. Enabling restores policy, so it needs no dialog;
+the disabling direction does not exist per hook by design
+(<a href="../core-contracts.md">core-contracts</a>). The note under the button states
+persistence exactly:</p>
+<ul>
+<li>normally: <code>The override is stored for this agent session and restored when the same session is resumed.</code></li>
+<li>during a global disable: <code>All hooks are globally disabled. Enabling writes an allowlist entry for this agent session only.</code></li>
+</ul>
+<p>The mutation reports <code>Enabling &lt;hook-id&gt; in session &lt;id&gt;…</code> then
+<code>&lt;hook-id&gt; is enabled in &lt;agent&gt; session &lt;id&gt;.</code>, over the same validated
+request channel as <a href="session.md#mutations">Session</a>
+(<a href="../concepts/session-enable.md">concepts/session-enable</a>).</p>

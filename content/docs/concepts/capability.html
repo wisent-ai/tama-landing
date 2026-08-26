@@ -1,0 +1,68 @@
+<h1>Capability</h1>
+<p>What authorizes a supervised session to do something its hooks would
+otherwise refuse? A capability: a bounded, session-bound grant record that
+the session's runtime holds and Tama can only read. Tama displays
+capabilities; it never issues, extends, or revokes one — the
+<a href="../desktop/session.md">Session</a> screen says so on the screen itself.</p>
+<h2>What it is</h2>
+<p>The optional <code>capability</code> object inside a session record
+(<code>ai.wisent.tama.session-control.v2</code>), decoded by the desktop as
+<code>SessionCapability</code>:</p>
+<p>| Field | Meaning |
+|---|---|
+| <code>schemaVersion</code> | Capability schema version |
+| <code>issuedBy</code> | The issuer identity |
+| <code>nonce</code> | Uniqueness token for this grant |
+| <code>sessionId</code>, <code>controlKey</code> | The exact session the grant is bound to |
+| <code>releaseId</code>, <code>catalogChecksum</code> | The policy identity the grant was issued against |
+| <code>lifetime</code> | The declared lifetime class |
+| <code>expiresAt</code> | Expiry timestamp, when bounded by time |
+| <code>remainingUses</code> | Use budget, when bounded by count |
+| <code>grants[]</code> | Per-tool entries: <code>tool</code> plus optional <code>actions[]</code> |</p>
+<p>A grant without <code>actions</code> means every action of that tool — the Session
+screen renders it as <code>every action</code> in the TOOL/ACTIONS table.</p>
+<h2>Who requests it</h2>
+<p>The session, from inside itself. In an OMP session the bundled adapter
+(<code>~/.shared-hooks/omp-shared-hooks.js</code>) exposes
+<code>tama_request_session_capability</code>, described in its own tool text as
+authorizing &quot;exact tool/action grants for one invocation, a stated
+expiration, or the current OMP session&quot;. The request is part of the hook
+runtime's control plane, not of Tama: the supervisor and its policy decide
+whether a grant is issued, and the resulting capability appears in the next
+session record Tama polls.</p>
+<h2>Who observes it</h2>
+<ul>
+<li>The <strong>Session</strong> screen shows the capability of the selected session —
+Lifetime, Expires at, Remaining uses, Issued by, Schema version, Nonce,
+Release, Catalog checksum — with warning tones on identity mismatch, and
+the grants table below (<a href="../desktop/session.md">desktop/session</a>). A
+session without a capability shows an explicit no-capability message
+rather than an empty table.</li>
+<li><code>tama-cli sessions --json</code> includes the capability in each session's
+record (<a href="../cli.md#read-only-commands">cli</a>).</li>
+<li>The release/checksum binding is what makes a stale capability visible: a
+grant issued against one <a href="hook-release.md">hook release</a> does not silently
+carry over to another.</li>
+</ul>
+<h2>Where it lives</h2>
+<p>Only inside the supervisor-owned session record under
+<code>~/Library/Application Support/Tama/session-control/</code>. It disappears with
+the session; nothing durable under Tama's state directory records grants,
+and Tama's own state never holds a credential
+(<a href="../what-is-tama.md#what-tama-is-not">what-is-tama</a>).</p>
+<h2>Not to be confused with</h2>
+<ul>
+<li><strong>A session-scoped enable.</strong> Enabling changes which hooks run
+(<a href="session-enable.md">session-enable</a>); a capability is an allowance the
+running hooks consult. The Session screen mutates the former and only
+displays the latter.</li>
+<li><strong>A Wisent role.</strong> <code>owner</code>/<code>admin</code>/<code>member</code> authorize the <em>operator</em> to
+use Tama's mutating screens (<a href="../desktop.md#authorization-tiers">desktop</a>);
+a capability authorizes the <em>agent session</em> under policy. Different
+subjects, different issuers, different lifetimes.</li>
+<li><strong>A justification.</strong> Justification-gated hooks demand a recorded human
+reason in a local registry file
+(<a href="../hook-model.md#justification-gated-hooks">hook-model</a>); a capability
+is a machine-validated grant with nonce, expiry, and use budget. Both are
+evidence, but only the capability is bound to a control key.</li>
+</ul>

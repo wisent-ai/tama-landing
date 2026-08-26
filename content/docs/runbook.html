@@ -1,0 +1,159 @@
+<h1>Runbook</h1>
+<p>Something refused — which sentence are you holding, what does it mean, and
+what do you check next? Every heading below is an exact string from this
+repository's sources or a state you can reproduce; each entry says where the
+sentence comes from, what it is really telling you, and the first read-only
+command to run. Attribution tooling is in
+<a href="scripts.md#read-only-integrity-reporters">scripts</a>; the executed evidence
+for the integrity entries is in the two walkthroughs.</p>
+<h2><code>Bundled Tama hook release failed its integrity check</code></h2>
+<p>Raised by <code>install_hook_release.py</code> before any write, whenever the release
+tree no longer digests to its recorded <code>releaseId</code>
+(<a href="concepts/seal.md#who-enforces-it">concepts/seal</a>). You meet it during a
+runtime install, an emergency disable (which installs session controllers),
+or a re-enable. The message names no file on purpose — it is a gate, not a
+report.</p>
+<p>First command:</p>
+<pre><code class="language-bash">python3 Scripts/report_hook_release_integrity.py &lt;release-root&gt;
+</code></pre>
+<p>It prints the sealed and actual digests and two attribution lists: files the
+digest covers but the installer never installs (build residue such as
+Python bytecode — drift, but innocent), and files written after <code>sealedAt</code>
+(the suspects). A mismatch with <em>no</em> newer file is a permission change or a
+deletion — the digest covers mode bits
+(<a href="walkthrough-verify-release.md#4-drift-a-permission-bit-and-catch-that-too">walkthrough-verify-release</a>).
+Never repair a release tree in place: reinstall the same verified app
+artifact (<a href="operations.md#failure-and-recovery">operations</a>).</p>
+<h2><code>Installed Tama hook release failed its integrity check</code></h2>
+<p>The second, identically worded gate: after the content-addressed copy to
+<code>hooks-runtime/releases/&lt;id&gt;</code>, that tree must digest to <code>&lt;id&gt;</code>. The
+installer already deleted and recopied a stale pre-existing tree before
+checking, so meeting this sentence means the <em>fresh copy</em> failed — a
+filesystem-level problem (full disk, interference mid-copy), not stale
+state.</p>
+<p>First command:</p>
+<pre><code class="language-bash">python3 Scripts/verify_installed_releases.py
+</code></pre>
+<p>It digests every installed tree against its directory name, marks <code>current</code>,
+and answers which of the two identically worded failures an emergency
+enable would hit (<code>second gate: intact</code> / <code>second gate: DRIFTED -- install would refuse</code>). Executed with both answers in
+<a href="walkthrough-runtime-status.md#3-the-state-an-enable-would-refuse">walkthrough-runtime-status</a>.</p>
+<h2>Installed and loaded releases disagree</h2>
+<p>Not an error string — a Posture reading: <code>Installed release</code> and <code>Loaded release</code> differ, or the Session screen warns <code>The runtime is serving a stale registry</code>. A live session keeps executing the release it loaded at
+start; installing a new one does not restart anybody
+(<a href="concepts/posture.md">concepts/posture</a>).</p>
+<p>First command:</p>
+<pre><code class="language-bash">tama-cli sessions
+</code></pre>
+<p>A lagging session shows a loaded count against a different registered
+count, or an old release id in <code>--json</code>. The repair is the session-scoped
+<strong>Enable all hooks</strong>, which binds an override to the installed release and
+checksum and schedules one runtime reload after the active turn settles
+(<a href="concepts/session-enable.md">concepts/session-enable</a>). The Session screen
+shows the pending state until the transition completes; rejection, timeout
+(<code>The agent runtime did not acknowledge the session-control request before the deadline.</code>), or session exit (<code>The agent session ended before the session-control request completed.</code>) is a reported failure, never assumed
+success.</p>
+<h2><code>Tama found only legacy v1 session records. Reinstall the verified bundled runtime, then stop or resume the affected agent session to publish v2 state.</code></h2>
+<p>From <code>SessionControlClient</code> when discovery finds no live v2 record but a v1
+record exists. v1 records cannot satisfy the v2 <code>agentId</code> contract and are
+deliberately not migrated (<a href="operations.md#backup-and-restore">operations</a>).
+Do what the sentence says, in that order — the reinstall updates the
+supervisor, the stop/resume republishes state.</p>
+<h2>Global-disable states</h2>
+<p>The durable state machine has exactly three observable configurations under
+<code>~/Library/Application Support/Tama</code>:</p>
+<p>| <code>emergency-backup/manifest.json</code> | <code>hook-emergency-state.json</code> | Meaning |
+|---|---|---|
+| absent | absent | Enforcing (or never installed) |
+| present | present, <code>disabled: true</code> | Globally disabled; Tama shows the machine as bypassed |
+| one without the other | — | Interrupted transition: treat as disabled and run re-enable, which restores from the manifest and removes both |</p>
+<p>The script's own sentences: a repeat disable prints <code>Tama hooks are already disabled.</code>; enable without evidence refuses with <code>Tama has no emergency backup manifest to restore.</code>; success prints <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code> or <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> The desktop trusts only re-read durable state: <code>Tama could not persist the emergency hook state.</code> means the switch did not stick.
+During the bypass, <code>tama-cli sessions</code> prints each session's explicit
+allowlist (<code>allowlist: empty</code> when nothing was re-enabled)
+(<a href="walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</p>
+<h2>The installer refuses</h2>
+<p>Each sentence from <code>install_hook_release.py</code>, surfaced verbatim behind
+<code>Tama hook release installation failed: &lt;reason&gt;</code> (exit 1):</p>
+<p>| Sentence | Meaning |
+|---|---|
+| <code>Unsupported Tama hook release manifest</code> | <code>release.json</code> schema is not <code>ai.wisent.tama.hook-release.v1</code> |
+| <code>Node.js 20 or newer is required; found &lt;versions&gt;</code> | Node exists on the search path but every candidate is too old |
+| <code>Node.js 20 or newer is required on PATH, /opt/homebrew/bin, /usr/local/bin, or ~/.local/bin</code> | No usable Node anywhere on the documented search path |
+| <code>Hook registry does not identify its canonical source root</code> / <code>…its canonical home</code> | The registry's <code>maintainedIn</code>/<code>adapters.codex.path</code> self-references are malformed; path rewriting would be unsafe (<a href="concepts/registry.md#who-declares-it">concepts/registry</a>) |
+| <code>Unsupported external hook source manifest</code> | <code>external-sources.json</code> schema mismatch |
+| <code>Approved hook source is missing: &lt;id&gt;: &lt;path&gt;</code> | A catalog hook's source resolves to nothing inside the release |
+| <code>Approved hook release is missing the Node.js runtime preflight</code> / <code>…the Tama session supervisor</code> / <code>…the universal Tama runtime</code> / <code>…the OMP Tama adapter</code> | A load-bearing runtime file is absent from the release |
+| <code>Full hook installation requires an emergency manifest</code> | Full install invoked without <code>--emergency-manifest</code> (only the emergency path performs full installs) |
+| <code>Approved repository hook is missing: &lt;path&gt;</code> | The manifest names a moved <code>.githooks</code> entry with no approved replacement in the release |
+| <code>Refusing to remove an obsolete path outside managed roots: &lt;path&gt;</code> | A previous install recorded a source file outside <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, or the managed launchers — the installer aborts rather than delete it |
+| <code>Tama runtime current path is not a symlink: &lt;path&gt;</code> | Something replaced <code>hooks-runtime/current</code> with a real file or directory; remove it manually, nothing else repairs this |
+| <code>Both active and disabled hook entrypoints exist: &lt;path&gt;</code> | An entrypoint and its <code>.tama-disabled</code> sibling both exist; a previous transition was interrupted — decide which is current and remove the other |
+| <code>Missing disabled hook entrypoint: &lt;path&gt;</code> | The manifest promises a <code>.tama-disabled</code> file that is gone |
+| <code>Could not read OMP extensions</code> / <code>Could not register OMP hook adapter</code> | The <code>omp config</code> round-trip failed; the transaction rolls back, including a half-applied extensions change |</p>
+<p>Every failure rolls the transaction back: originals restored, <code>current</code>
+re-pointed, the OMP extensions change reverted
+(<a href="hook-releases.md#installation">hook-releases</a>).</p>
+<h2>The emergency switch refuses</h2>
+<p>From the desktop wrapper (<code>HookEmergencySwitch</code>), each verbatim:</p>
+<ul>
+<li><code>The Tama bundle does not contain the emergency hook controller.</code> — the
+bundled script is missing; the app bundle is incomplete, reinstall the
+verified artifact.</li>
+<li><code>The Tama bundle does not contain the agent session-controller installer.</code>
+/ <code>The Tama bundle does not contain an approved hook release for agent session control.</code> — same class, for the installer and release.</li>
+<li><code>The local policy command exceeded its bounded runtime and was terminated. Inspect local policy state before retrying.</code> — the 300 s bound
+fired; the process tree got SIGTERM then SIGKILL. Check the global-disable
+state table above before retrying.</li>
+<li><code>The local policy command exceeded Tama's bounded output limit. Inspect local policy state before retrying.</code> — more than 64 KiB of output; same
+inspection.</li>
+<li><code>Tama could not read bounded local policy output: &lt;reason&gt;</code> — the output
+pipe failed; the command's own result is unknown, inspect state.</li>
+<li><code>Tama could not update the installed hook configuration.</code> — the script
+exited non-zero without printing anything.</li>
+</ul>
+<p>From the script itself: <code>Unsupported Tama emergency action: &lt;value&gt;</code> (exit
+2), <code>Tama session supervisor is missing: &lt;path&gt;</code> (exit 66), <code>Tama could not resume one or more supervised agent sessions.</code> (the exit trap's resume
+failed — sessions may still be paused; resume them via the supervisor).</p>
+<h2><code>verify</code> fails inside the desktop release</h2>
+<pre><code class="language-console">$ tama-cli verify
+tama-require-live-runtime not found next to this binary
+</code></pre>
+<p>Captured against the sealed release of 2026-08-24, exit 1: the fixture
+runner that <code>verify</code> needs is not shipped in the desktop's release. Catalog
+validation without fixtures is <code>tama-cli validate</code>; hook-behavior fixtures
+run in the hook source tree, not from the app bundle.</p>
+<h2>The backend refuses a repository</h2>
+<p>The Violations surface validates before anything runs, each sentence from
+<code>ViolationsClient</code>:</p>
+<ul>
+<li><code>Enter a repository path first.</code></li>
+<li><code>Choose an existing absolute Git repository directory: &lt;path&gt;</code> — not
+absolute, not a directory, or no <code>.git</code>.</li>
+<li><code>Tama refuses to mutate a repository not owned by the current user: &lt;path&gt;</code> — UID mismatch; scanning and cleanup are owner-only.</li>
+<li><code>Codex is unavailable. Install and authenticate Codex before confirming cleanup.</code> — repair needs the local headless agent; scan does not.</li>
+<li><code>The clean command was cancelled. Partial working-tree edits remain visible; inspect them and complete a read-only scan before retrying.</code></li>
+</ul>
+<p>The loopback backend's own refusals arrive verbatim in <code>{&quot;error&quot;: &quot;…&quot;}</code>
+envelopes — captured live: <code>{&quot;error&quot;:&quot;unknown endpoint: GET /v1/nope&quot;}</code>
+(404), <code>{&quot;error&quot;:&quot;repo not found: /nonexistent&quot;}</code> (400)
+(<a href="cli.md#the-desktop-backend">cli</a>). A backend that cannot start reports
+<code>The Tama backend did not start.</code> (with stderr detail when there is any) or
+<code>The Tama backend is missing from this build at &lt;path&gt;. Rebuild with Scripts/build-app.sh.</code></p>
+<h2>The privileged backend is not <code>Enabled</code></h2>
+<p>Statuses are macOS's answers, mapped verbatim by
+<code>SystemPolicyServiceManager</code>: <code>Requires administrator approval</code>,
+<code>Network filter requires approval</code>, <code>Not registered</code>,
+<code>Partial setup: daemon enabled; System Extension not installed</code>,
+<code>Partial setup: &lt;daemon-status&gt;; network policy remains configured</code>,
+<code>System Extension status unavailable: &lt;error&gt;</code>, and
+<code>Restart required to finish System Extension activation</code>. Approval-pending
+is never treated as success. The repair is in <strong>Settings</strong>: <code>Register privileged backend</code>, then the macOS <code>Approval settings</code> and <code>Full Disk Access</code> shortcuts (<a href="desktop/settings.md">desktop/settings</a>). Deactivation
+failures aggregate as <code>Tama could not fully deactivate local policy components: &lt;message&gt;</code> — each component is attempted independently, so fix
+the named one and deactivate again.</p>
+<h2>The generated launcher refuses (exit 66)</h2>
+<p><code>~/.local/bin/tama-agent</code> fails closed before starting a session:
+<code>Tama Node.js runtime preflight is missing: &lt;path&gt;</code>, <code>Tama requires its validated Node.js executable: &lt;path&gt;</code>, <code>Tama session supervisor is missing: &lt;path&gt;</code>, or <code>Tama requires Python 3 for the universal session runtime.</code> The
+first two mean the installed runtime under <code>hooks-runtime/current</code> moved or
+a pinned Node was removed — reinstall the runtime rather than editing the
+launcher; the pinning contract is in
+<a href="hook-releases.md#installation">hook-releases</a>.</p>

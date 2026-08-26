@@ -1,0 +1,57 @@
+<h1>Violations screen</h1>
+<p>Findings in the repository under repair, and the one irreversible verb.
+Scan is read-only and replays the release's real pre-write hook; <em>Repair</em>
+hands the working tree to one headless external agent behind a confirmed
+dialog and trusts only the final rescan. The engine is the sealed CLI's
+<code>find-violations</code> / <code>clean</code> (<a href="../cli.md#repository-scans-and-cleanup">cli</a>),
+reached through the loopback backend's streaming endpoints.</p>
+<h2>Scope, header, refusals</h2>
+<p>The repository is scope, not a destination: the sidebar's <code>REPOSITORY IN VIEW</code> picker (<code>Choose a repository</code>; the clear button's help reads <code>Clear the repository scope</code>) names the tree every count on this screen describes.
+Title <code>Violations</code>; scope is the repository's directory name; freshness
+reads <code>not scanned</code>, <code>no repository selected</code>, <code>scanning now</code>,
+<code>scan failed</code>, or <code>&lt;n&gt; files scanned</code>. Actions: <code>Scan</code> / <code>Stop scan</code> and,
+once findings exist, <code>Repair</code> / <code>Stop repair</code>.</p>
+<p>Validation runs before anything else, each refusal verbatim:</p>
+<ul>
+<li><code>Enter a repository path first.</code></li>
+<li><code>Choose an existing absolute Git repository directory: &lt;path&gt;</code> — not
+absolute, not a directory, or no <code>.git</code>.</li>
+<li><code>Tama refuses to mutate a repository not owned by the current user: &lt;path&gt;</code> — UID mismatch.</li>
+<li><code>Codex is unavailable. Install and authenticate Codex before confirming cleanup.</code> — repair needs the local headless agent; scan does not.</li>
+</ul>
+<h2>Facets and counters</h2>
+<p><code>Rule</code> ranks rules by how many files they hit — the order an operator
+repairs them in — under <code>Every rule</code>; <code>Repository</code> appears only when the
+report covers more than one. Counters: <code>Violations</code> (findings across the
+scanned repositories), <code>Files scanned</code>, <code>Skipped</code> (binary or oversized
+inputs), <code>Scan errors</code> (files the scanner could not read). Per-repository
+enumeration failures surface as <code>The scanner could not enumerate &lt;owner/repo&gt;</code> with the error verbatim.</p>
+<h2>Centre states</h2>
+<p>No scope: <code>No repository is in view</code> — <code>Choose a Git repository you own in the sidebar. Tama enumerates it with the approved pre-write rules and reads nothing outside it.</code> Scanning: <code>Scanning &lt;path&gt;</code> — <code>Every tracked file is checked against the pre-write rules this build declares. Nothing is written.</code> Unscanned: <code>This repository has not been scanned</code>. Clean:
+<code>No violation in this working tree</code> — <code>Every scanned file satisfies the pre-write rules this build declares.</code> Over-filtered: <code>No finding matches this selection</code> with <code>Clear filters</code>. A scan that failed keeps the previous
+report on screen — <code>Scan failed</code> with the sentence and <code>Scan again</code> — and a
+failed repair reports <code>Repair did not finish clean</code>.</p>
+<p>The findings table is PATH, RULE, HOOK. The inspector shows the selected
+finding under the badge <code>Refused on write</code>: the hook's own message verbatim,
+then Hook and Repository. Unselected, it states the screen's boundary: it
+can <em>Enumerate a repository you own</em> and <em>Ask one headless agent to edit the
+working tree</em>; it never can <em>Commit, push, or move a branch ref</em>, <em>Touch a
+repository owned by another user</em>, or <em>Repair without a final rescan</em>.</p>
+<h2>The repair decision</h2>
+<p><code>Let a headless agent edit &lt;n&gt; files in this working tree</code>, with four lines
+stated verbatim:</p>
+<ol>
+<li><code>One external model agent per repository edits &lt;path&gt; until the findings are gone or its bounded rounds are spent. The provider is external to Tama.</code></li>
+<li><code>Tama requests working-tree edits only. It rejects a changed HEAD, a changed checked-out branch and changed local branch refs, and it never commits or pushes.</code></li>
+<li><code>A final rescan always runs, and the reported result is that rescan rather than the agent's own claim.</code></li>
+<li><code>Review git status, branch refs, remote state and the final diff afterwards.</code></li>
+</ol>
+<p>Reason code <code>&lt;n&gt; violations in &lt;m&gt; repositories</code>; the listing is every file
+the findings name; footnote: <code>the agent runs with Codex; Tama refuses to start the repair when Codex is absent</code>. Actions: <code>Cancel</code>, destructive
+<code>Repair with a headless agent</code>, primary <code>Read the findings first</code>.</p>
+<h2>While a repair runs</h2>
+<p>The clean bar reports in the command's own place: <code>A headless agent is editing the working tree in &lt;path&gt;.</code>, on stop <code>Stopping the repair. Partial edits are preserved and rescanned.</code>, then <code>Rescanning the working tree before reporting the result.</code> A cancelled clean is a reported failure:
+<code>The clean command was cancelled. Partial working-tree edits remain visible; inspect them and complete a read-only scan before retrying.</code> A cleanup that
+prints no summary reports <code>The cleanup finished without printing a summary.</code> Scan results with exit status 0 and 1 are both valid reports
+(clean, and with violations); anything else is the backend's own refusal
+sentence, surfaced verbatim (<a href="../runbook.md#the-backend-refuses-a-repository">runbook</a>).</p>

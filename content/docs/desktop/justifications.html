@@ -1,0 +1,56 @@
+<h1>Justifications screen</h1>
+<p>The register of recorded exceptions, and whether each one still holds.
+Justification-gated hooks (<code>type: requires_justification</code>) demand a recorded
+human reason in a local registry file instead of blocking outright
+(<a href="../hook-model.md#justification-gated-hooks">hook-model</a>); this screen
+reads those registries and judges every record against its requirement.
+Nothing here is red unless a registry cannot be read at all: an incomplete
+record is amber — evidence to finish, not an outage to fix.</p>
+<p>The current sealed catalog declares no <code>requires_justification</code> hooks, so
+on a stock install the screen shows its own empty state; the mechanism
+ships regardless (<a href="../concepts/hook.md#kinds-of-hooks">concepts/hook</a>).</p>
+<h2>Header and facets</h2>
+<p>Title <code>Justifications</code>; scope is the requirement kind; freshness counts
+records. Search prompt: <code>Search path or justification</code> (matches target,
+justification text, and the recorded quote). Facets: <code>Registry</code> (one per
+declared registry, danger-toned when unreadable; shown only with more than
+one) and <code>Verdict</code> — <code>Every record</code>, <code>Holds</code>, <code>Incomplete</code>. The rail footer
+<code>Registry</code> shows the registry path or <code>No registry declared</code>.</p>
+<h2>Where records come from</h2>
+<p>Each <code>requires_justification</code> hook declares a registry path under the home
+directory (<code>~</code> and <code>~/</code> resolve; absolute paths pass through). The registry
+must be a JSON object keyed by target — otherwise the load fails with
+<code>Justification registry must contain a JSON object: &lt;path&gt;</code> and the screen
+shows <code>Registry unreadable</code> with that sentence and the path. Per entry, Tama
+reads the requirement's field as the justification (word count is a
+whitespace split), <code>expires_at</code> as an ISO 8601 timestamp, the declared
+direct-user-quote field when the requirement names one, and whether the
+target path exists on disk. Tama only reads: it never writes, extends, or
+deletes a record, and it never reads the target file's contents.</p>
+<h2>Counters and states</h2>
+<p><code>Records</code>, <code>Holding</code> (satisfy the contract), <code>Incomplete</code> (missing evidence
+or expired), <code>Minimum words</code> (required in the requirement's field). Empty
+states, verbatim: <code>This build declares no justification hooks</code> — <code>No catalogued policy has type requires_justification, so there is no registry to read.</code>; <code>This registry holds no records</code> — <code>The registry exists and records no exception yet. Entries appear as hooks write them.</code> (or, when
+unreadable, <code>Tama could not read the registry, so it can list nothing from it.</code>); <code>No record matches this selection</code> with <code>Clear filters</code>. Loading
+reads <code>Reading the justification registries</code>.</p>
+<h2>The verdict</h2>
+<p>Checked in order; the first failure names the verdict:</p>
+<p>| Verdict | Condition | Holds |
+|---|---|---|
+| <code>Target missing</code> | the target path no longer exists | no |
+| <code>Expired</code> | <code>expires_at</code> is in the past | no |
+| <code>No user quote</code> | the requirement names a quote field and no non-blank quote is recorded | no |
+| <code>Quote not embedded</code> | the recorded quote is not contained in the justification text | no |
+| <code>Too short</code> | word count below the requirement's minimum | no |
+| <code>Holds</code> | everything above passes | yes |</p>
+<p>The table is TARGET, WORDS (<code>&lt;count&gt;/&lt;minimum&gt;</code>), EXPIRES (<code>—</code> when
+unbounded), VERDICT — the chip marks the minority verdict, so a registry
+where every record holds gets no chips at all.</p>
+<h2>Inspector</h2>
+<p>Eyebrow is the requirement title, title the target's file name, badge the
+verdict. Fields: Target, Target file (<code>Present on disk</code> / <code>Missing on disk</code>), Kind, Field, and <code>Expires</code> / <code>Expired</code> with the timestamp. Below,
+the justification exactly as written under the field's own name (<code>No value recorded for &lt;field&gt;.</code> when empty) and, when the requirement demands one,
+<code>DIRECT USER REQUEST</code>. Unselected, the screen states its boundary: it can
+<em>Read the registries declared by requires_justification hooks</em> and <em>Report
+which records satisfy their contract</em>; it never can <em>Write, extend or delete
+a justification</em> or <em>Read the target file's contents</em>.</p>

@@ -1,0 +1,82 @@
+<h1>Seal and integrity</h1>
+<p>What makes a Tama hook release tamper-evident, and which checks actually
+stand between a modified tree and a running session? One digest definition,
+computed in one place, enforced at three moments.</p>
+<h2>What it is</h2>
+<p>The seal is a SHA-256 digest over every file in the release tree except
+<code>release.json</code>, in sorted path order. Per file, three length-framed values
+enter the hash: the relative POSIX path, the permission bits
+(<code>mode &amp; 0o777</code>, 4 bytes big-endian), and the raw bytes. The definition
+lives in exactly two places that must agree by construction:
+<code>Scripts/seal_hook_release.py::tree_digest</code> (writer) and
+<code>install_hook_release.py::tree_digest</code> (enforcer); the three read-only
+reporters import the installer's copy rather than restating the rule
+(<a href="../scripts.md#read-only-integrity-reporters">scripts</a>).</p>
+<p>Consequences that follow directly from the definition:</p>
+<ul>
+<li>a one-byte rewrite changes the identity
+(<a href="../walkthrough-verify-release.md#3-drift-one-byte-and-catch-it">walkthrough</a>);</li>
+<li>a <code>chmod</code> with identical bytes changes the identity
+(<a href="../walkthrough-verify-release.md#4-drift-a-permission-bit-and-catch-that-too">walkthrough</a>);</li>
+<li>adding or deleting any file changes the identity;</li>
+<li>editing <code>release.json</code> itself does not — the manifest is the claim, the
+tree is the evidence.</li>
+</ul>
+<h2>Who declares it</h2>
+<p><code>Scripts/seal_hook_release.py</code>, run once by <code>Scripts/build-app.sh</code> after the
+release tree is staged and pruned. The digest becomes <code>releaseId</code> in
+<code>release.json</code> (schema <code>ai.wisent.tama.hook-release.v1</code>), beside
+<code>packageVersion</code>, <code>catalogVersion</code>, <code>catalogUpdatedAt</code>, <code>sourceDirty</code>,
+<code>sourceRevision</code>, and <code>sealedAt</code>. Sealing is the last write: anything that
+touches the tree afterwards is drift, which is why the build prunes Python
+bytecode and generator files <em>before</em> sealing
+(<a href="../hook-releases.md#sealing">hook-releases</a>).</p>
+<h2>Who enforces it</h2>
+<p>Three gates, all inside <code>install_hook_release.py</code>:</p>
+<p>| Moment | Check | Refusal |
+|---|---|---|
+| Before any write | Bundled tree digests to its recorded <code>releaseId</code> | <code>Bundled Tama hook release failed its integrity check</code> |
+| After content-addressed copy | <code>releases/&lt;id&gt;</code> digests to <code>&lt;id&gt;</code>; a stale pre-existing copy is deleted and recopied first | <code>Installed Tama hook release failed its integrity check</code> |
+| Before the manifest is trusted | <code>release.json</code> schema equals <code>ai.wisent.tama.hook-release.v1</code> | <code>Unsupported Tama hook release manifest</code> |</p>
+<p>Both integrity refusals surface verbatim wherever the installer runs: the
+desktop's runtime install, the emergency disable's session-controller
+reinstall, and the emergency re-enable
+(<a href="../runbook.md#bundled-tama-hook-release-failed-its-integrity-check">runbook</a>).</p>
+<h2>Who reports it</h2>
+<p>The refusals are deliberately terse — they name no file. Attribution is the
+job of the read-only reporters:
+<code>verify_hook_release.py</code> (recorded vs actual digest, files written after
+<code>sealedAt</code>), <code>report_hook_release_integrity.py</code> (adds the
+covered-but-never-installed residue list), and
+<code>verify_installed_releases.py</code> (every installed tree against its directory
+name, plus which of the two identically worded failures an emergency enable
+would hit). All three executed with real output in
+<a href="../walkthrough-verify-release.md">walkthrough-verify-release</a> and
+<a href="../walkthrough-runtime-status.md">walkthrough-runtime-status</a>.</p>
+<h2>Where it lives</h2>
+<p>| Location | Role |
+|---|---|
+| <code>&lt;release&gt;/release.json</code> → <code>releaseId</code> | The sealed claim |
+| <code>Tama.app/Contents/Resources/tama-build.json</code> → <code>hookRelease</code> | The same object embedded in build provenance, so the app displays its bundled identity without reopening the release |
+| <code>hooks-runtime/releases/&lt;release-id&gt;/</code> | Content-addressed installed copy: the directory name is the claim |
+| <code>hooks-runtime/installed.json</code> → <code>releaseId</code>, <code>catalogChecksum</code> | What the last successful install recorded |
+| Session records → <code>runtime.loadedReleaseId</code>, <code>runtime.catalogChecksum</code> | What each live session actually loaded |</p>
+<p><code>catalogChecksum</code> is a second, narrower integrity value: the SHA-256 of the
+rewritten registry JSON with the checksum field removed, recomputed by the
+installer after path rewriting — it travels into every session record so the
+desktop compares catalogs by checksum rather than by trust
+(<a href="registry.md">concepts/registry</a>).</p>
+<h2>Not to be confused with</h2>
+<ul>
+<li><strong>Code signing.</strong> The macOS signature authenticates the app bundle and its
+binaries; the seal authenticates the <em>hook tree</em> independently of Apple's
+formats, including after it is copied out of the bundle into
+<code>hooks-runtime/</code>. A release passes both or it does not install.</li>
+<li><strong>The artifact digest.</strong> <code>Tama-&lt;version&gt;-macOS-&lt;arch&gt;.zip.digest</code> is the
+SHA-256 of the distribution zip (<a href="../releases.md#release-artifact">releases</a>);
+the seal is the identity of the hook tree inside it. <code>seal_hook_release.py --digest-file</code> computes the former with the same tool, but they answer
+different questions.</li>
+<li><strong>The product version.</strong> Versions are claims in mutable metadata; the seal
+is content. Two trees with the same <code>packageVersion</code> and one changed bit
+have different <code>releaseId</code>s (<a href="../releases.md#product-and-hook-identities">releases</a>).</li>
+</ul>

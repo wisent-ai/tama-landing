@@ -1,0 +1,138 @@
+<h1>Onboarding</h1>
+<h2>Intended first outcome</h2>
+<p>A new Wisent developer verifies and opens an exact Tama release, signs in, inspects the bundled policy without changing the machine, explicitly installs local enforcement, and sees one supervised agent session reported as kernel-gated with matching hook release identity.</p>
+<h2>Prerequisites</h2>
+<p>Required for every supported installation:</p>
+<ul>
+<li>Apple-silicon Mac running macOS 14 or newer; check with <code>uname -m</code> and <code>sw_vers -productVersion</code>;</li>
+<li>a Wisent account with a current <code>owner</code>, <code>admin</code>, or <code>member</code> role in the selected organization; unknown or absent roles cannot open controls;</li>
+<li>access to the private <code>wisent-ai/tama-desktop</code> GitHub releases;</li>
+<li>at least 500 MB free local storage; check with <code>df -h &quot;$HOME&quot;</code>.</li>
+</ul>
+<p>Required for local enforcement or repository scan/cleanup:</p>
+<ul>
+<li>Node.js 20 or newer available on <code>PATH</code>, <code>/opt/homebrew/bin</code>, <code>/usr/local/bin</code>, or <code>~/.local/bin</code>.</li>
+</ul>
+<p>Required only for local enforcement:</p>
+<ul>
+<li>Python 3 available at <code>/usr/bin/python3</code>;</li>
+<li>permission to approve Login Items, a System Extension, Network filtering, and Full Disk Access in macOS settings.</li>
+</ul>
+<p>Required only for agent-assisted cleanup:</p>
+<ul>
+<li>an installed and authenticated local <code>codex</code> agent;</li>
+<li>a working <code>git</code> CLI so Tama can reject HEAD, checked-out branch, or local branch-ref mutation;</li>
+<li>a cleanly recoverable repository working tree owned by the current user.</li>
+</ul>
+<p>The release supplies the app, hook catalog, hook runtime, violations CLI, daemon, and Network Extension. A source checkout is never a prerequisite for a supported installation.</p>
+<h2>Install an exact release</h2>
+<p>No supported preview is currently published. Once a preview is marked supported in its release notes:</p>
+<ol>
+<li>
+<p>Download the exact zip, digest file, provenance JSON, and release notes from <code>https://github.com/wisent-ai/tama-desktop/releases/tag/v&lt;SemVer&gt;</code>.</p>
+</li>
+<li>
+<p>Confirm the provenance <code>productVersion</code>, <code>sourceRevision</code>, <code>platform</code>, and <code>architecture</code> match the release and this Mac.</p>
+</li>
+<li>
+<p>In the download directory run:</p>
+<pre><code class="language-bash">shasum -a 256 -c Tama-&lt;version&gt;-macOS-arm64.zip.digest
+</code></pre>
+<p>Expected output:</p>
+<pre><code class="language-text">Tama-&lt;version&gt;-macOS-arm64.zip: OK
+</code></pre>
+</li>
+<li>
+<p>Expand the zip and move <code>Tama.app</code> to <code>~/Applications/Tama.app</code>. Elevated privileges are not required.</p>
+</li>
+<li>
+<p>Open the app through Finder. Confirm any Gatekeeper prompt names Tama and the expected Wisent signing identity.</p>
+</li>
+</ol>
+<p>Installation does not register services or modify agent configuration.</p>
+<h2>Sign-in and setup</h2>
+<p>Tama opens Wisent authentication directly. The read-only bundled-policy inspector remains an explicit toolbar choice and uses an isolated catalog model that does not read installed-policy, backend, session, or repository state.</p>
+<p>Enter the Wisent account email and request a one-time code, or use an enabled delegated provider. Credentials and refresh tokens are stored by Wisent Auth in the macOS Keychain. Tama does not store them in Application Support. A successful Wisent Auth state is the sole source of authentication truth; Tama does not duplicate it in preferences.</p>
+<p>After authentication, the full control interface opens immediately — there is no separate setup gate — and the signed first-use journey records <code>tama.hasCompletedSetup</code> only against visible setup evidence (<a href="desktop/setup.md">desktop/setup</a>). Runtime installation, privileged backend registration, macOS approvals, and live-session verification remain separate explicit actions. If identity is unavailable, the read-only inspector remains usable. All runtime, service, session-control, emergency, and repository workflows remain behind authentication and their explicit mutation boundaries.</p>
+<h2>First successful workflow</h2>
+<p>Starting state:</p>
+<ul>
+<li>Tama is installed and signed in;</li>
+<li>no Tama runtime is installed;</li>
+<li>no Tama daemon or Network Extension is registered;</li>
+<li>no supervised agent is running.</li>
+<li>Node.js 20 or newer and <code>/usr/bin/python3</code> are available in the documented locations.</li>
+</ul>
+<p>Steps:</p>
+<ol>
+<li>Open <strong>Settings → Local enforcement</strong> and confirm the starting state: <code>Installed release</code> reads <code>Not installed by Tama</code> and <code>Privileged backend</code> reads <code>Not registered</code>.</li>
+<li>Select <strong>Install local runtime</strong> (enabled only while the bundled catalog validates). After release-integrity validation and before any managed write, Tama resolves Node from the documented locations, rejects versions older than 20, canonicalizes the executable through symlinks, and pins it into every Node-based installed hook command and the generated supervisor launcher. Each installed hook and supervised semantic dispatch preloads the sealed version guard before its target script. Tama also checks the Python installer prerequisite before launch. The mutation bar reports <code>Installing the integrity-checked hook runtime…</code> then <code>Installed hook release &lt;id&gt;.</code></li>
+<li>If managed hooks are globally disabled, <strong>Posture → Re-enable all hooks</strong> verifies the bundled release, restores every managed dispatcher, and reports <code>Every managed hook dispatcher is active again.</code></li>
+<li>Select <strong>Register privileged backend</strong> in Settings. Approve the daemon/System Extension and Network filter in macOS settings via <strong>Approval settings</strong>, and grant Full Disk Access only to the named Tama component via <strong>Full Disk Access</strong>.</li>
+<li>Start or resume one supported supervised coding-agent session using its normal launcher, then select <strong>Refresh sessions</strong> on <strong>Session</strong>.</li>
+<li>Confirm the setup evidence shows:
+<ul>
+<li>bundled policy valid;</li>
+<li>local runtime installed and enabled;</li>
+<li>privileged backend enabled;</li>
+<li>installed and loaded release identities match;</li>
+<li>loaded hook count equals the nonzero registered hook count;</li>
+<li>no disabled or unknown hook IDs, registry error, pending reload, or reload requirement;</li>
+<li>system policy is <strong>Kernel-gated</strong>.</li>
+</ul>
+</li>
+<li>The first-use journey records the verified setup handoff (<code>tama.hasCompletedSetup</code>) once exactly that evidence is visible; there is no separate confirmation button, and nothing else records it.</li>
+</ol>
+<p>The control interface opens on <strong>Posture</strong>, the default destination. That visible, matching setup evidence is the first successful product outcome. An acknowledgement, successful login, install exit code, or partial backend registration is not sufficient.</p>
+<h2>Machine onboarding</h2>
+<p>Tama does not expose an unattended setup or mutation API. Automation may read the
+published provenance and hook-release manifests, but a human must verify the artifact,
+sign in, confirm runtime installation, and approve every privileged macOS component.
+After that setup, supervised agents use versioned capability records in
+<code>ai.wisent.tama.session-control.v2</code>; each record is bound to a session, control key,
+catalog checksum, release ID, lifetime, and remaining-use limit. Missing or expired
+capability records fail closed and do not trigger setup automatically.</p>
+<h2>Optional repository scan</h2>
+<p>Choose the repository in <strong>Repository in view</strong> in the sidebar header — a directory owned by the current user — then open <strong>Violations</strong> and select <strong>Scan</strong>. The scan is read-only. Select <strong>Stop scan</strong> to cancel its bounded process tree without changing the repository. Success is a report with file counts and either explicit rule violations or zero violations. Scanner errors and skipped files remain visible, and the rule rail counts how many files each rule hit.</p>
+<p><strong>Repair</strong> is separate and mutating, and it opens a decision dialog that lists every file a headless agent would edit. Back up or commit unrelated work first, read that list, and review the resulting working-tree diff, HEAD, checked-out branch, local branch refs, and remote state yourself. Tama does not request commits or pushes and rejects detected local history/ref mutation; the credentialed provider remains an external boundary.</p>
+<h2>Common failures</h2>
+<p>| Failure | Meaning | Corrective action |
+|---|---|---|
+| Unsupported macOS or architecture | No supported kernel backend exists | Stop; use an Apple-silicon Mac with macOS 14+ |
+| Digest mismatch | Download is incomplete or not the immutable release | Delete it and download all files again from the exact tag |
+| Sign-in unavailable | Identity configuration, network, or account issue | Preserve existing Keychain state; retry later or contact the repository maintainers with the classified error |
+| Python or supported Node missing | Local runtime/violations dependency unavailable; installation has not mutated managed state | Install the required runtime, then retry the explicit action; catalog inspection remains available |
+| Backend requires approval | macOS has not authorized the component | Use Tama's settings buttons, approve the exact component, then refresh status |
+| Backend removal partial or restart required | One privileged component remains configured or macOS deferred System Extension removal | Stop sessions, restart if requested, reopen Tama, and repeat <strong>Settings → Deactivate</strong> until status is <code>Not registered</code> |
+| Full Disk Access missing | Endpoint Security cannot inspect required paths | Grant access only to the named Tama component and restart the affected session |
+| Runtime integrity failure | Bundled or installed hook tree does not match its digest | Reinstall the same verified app artifact; do not edit release directories |
+| No active agent sessions | No compatible supervisor record is live, or only a legacy v1 record exists | Install the verified bundled runtime, start or resume a supported session so it publishes v2 state, then refresh |
+| Reload required | Session still has an older runtime loaded | If a reload is scheduled, let the active turn settle and refresh; otherwise stop and resume the session after confirming installed release identity |
+| Repository path rejected | Path is absent, unsafe, or inaccessible | Select an existing repository owned by the current user |
+| Scanner dependency unavailable | Bundled CLI or required local agent is missing | Reinstall the verified app; unrelated core workflows continue |</p>
+<p>Errors should say whether retry is safe and name the next action. Preserve only bounded diagnostics and never attach tokens, Keychain records, repository contents, or production logs to an ordinary issue.</p>
+<h2>Reset</h2>
+<p>To repeat guided setup without uninstalling or changing the current enforcement state:</p>
+<pre><code class="language-bash">defaults delete ai.wisent.tama.desktop tama.hasCompletedSetup
+</code></pre>
+<p>Sign out from Tama to remove its Wisent session through the normal application flow. Stop supervised sessions before resetting or removing session overrides; never delete live control files while a supervisor can rewrite them.</p>
+<h2>Uninstall</h2>
+<ol>
+<li>Stop all supervised agent sessions.</li>
+<li>In <strong>Settings</strong>, choose <strong>Deactivate</strong> and confirm the decision dialog.</li>
+<li>Confirm <strong>Posture</strong> shows the disabled-hooks alert and the privileged backend reports <strong>Not registered</strong>. If macOS still shows an approval item, complete its removal in System Settings before continuing.</li>
+<li>Sign out and quit Tama.</li>
+<li>Remove <code>~/Applications/Tama.app</code>.</li>
+<li>Preserve <code>~/Library/Application Support/Tama</code> until rollback or incident recovery is no longer needed. It contains disabled-state and restoration evidence, not an active background service.</li>
+<li>After confirming no managed dispatcher, supervisor, daemon, or Network Extension is active, the authorized operator may archive and remove Tama Application Support and dormant Tama-owned source files named by <code>hooks-runtime/installed.json</code>.</li>
+</ol>
+<h2>Next steps</h2>
+<p>After first success:</p>
+<ul>
+<li>start with the read-only commands in <a href="../examples/getting-started/status.sh"><code>../examples/getting-started/status.sh</code></a>, then choose only the script matching the intended operation;</li>
+<li>inspect hook purpose and side effects in <strong>Hooks</strong>;</li>
+<li>review expiring justification records;</li>
+<li>scan a repository read-only;</li>
+<li>learn emergency recovery before starting critical agent work;</li>
+<li>read <code>operations.md</code> before changing versions or diagnosing partial installation.</li>
+</ul>

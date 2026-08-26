@@ -1,0 +1,32 @@
+<h1>Security policy</h1>
+<h2>Reporting</h2>
+<p>Report vulnerabilities through the private GitHub Security Advisory channel for <a href="https://github.com/wisent-ai/tama-desktop/security/advisories/new"><code>wisent-ai/tama-desktop</code></a>.</p>
+<p>Do not place credentials, one-time codes, access or refresh tokens, capability grants, control keys, Apple identities, provisioning profiles, private repository paths or contents, production logs, or exploit details in a public or ordinary issue.</p>
+<p>Include:</p>
+<ul>
+<li>affected Tama product version, source revision, and hook release ID;</li>
+<li>affected interface and operating-system version;</li>
+<li>prerequisites and required privilege;</li>
+<li>observed impact;</li>
+<li>a minimal reproduction without real secrets or private source;</li>
+<li>whether the issue is actively exploitable;</li>
+<li>containment already applied;</li>
+<li>whether emergency disable completed successfully.</li>
+</ul>
+<h2>Response ownership</h2>
+<p>Repository maintainers triage the report and coordinate with the owners named in <code>docs/integrations.md</code>. Identity revocation, Apple platform approval, device isolation, repository recovery, and organization access remain owned by their authorized operators.</p>
+<h2>Supported versions</h2>
+<p>No stable release is currently published. Security fixes apply to the current development line until a preview or stable release declares a supported-version window in <code>docs/releases.md</code> and its release notes.</p>
+<h2>Security boundaries</h2>
+<ul>
+<li>The unauthenticated inspector reads only the signed bundled catalog/build identity and does not start session monitoring or expose mutation controls.</li>
+<li>Policy-changing UI requires Wisent identity and explicit user intent.</li>
+<li>Identity tokens stay in the macOS Keychain or trusted runtime memory.</li>
+<li>Hook releases are content-addressed and verified before installation.</li>
+<li>Session overrides bind to one accepted agent/session/control-key tuple and use atomic mode-<code>0600</code> files.</li>
+<li>Privileged macOS components require operating-system approval; unsupported platforms cannot claim kernel enforcement.</li>
+<li>Repository scans are read-only; cleanup is separately confirmed, bounded, and never commits or pushes. Leaving the authenticated control surface cancels active scan or cleanup process trees without deleting partial working-tree edits.</li>
+<li>External session files, repository contents, CLI output, identity responses, and provider responses are untrusted input.</li>
+<li>Emergency disable and transactional rollback preserve evidence needed for recovery.</li>
+</ul>
+<p>Never weaken these boundaries to simplify onboarding, development, testing, or integration setup.</p>

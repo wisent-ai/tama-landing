@@ -1,0 +1,101 @@
+<h1>Hook releases</h1>
+<p>How does an approved hook tree become the runtime a session loads, and how
+does Tama know nobody changed it in between? Through one identity: a hook
+release is a directory whose name and manifest are the SHA-256 digest of its
+own contents, checked when it is sealed, checked before it is installed, and
+checked again after it lands. Hook policy evolves separately from the
+desktop app, so the two have separate identities — the product version
+policy is in <a href="releases.md">releases</a>.</p>
+<h2>The release tree</h2>
+<p><code>Scripts/build-app.sh</code> stages the release into
+<code>Tama.app/Contents/Resources/hooks-release</code> from the hook source tree
+selected by <code>TAMA_HOOK_ROOT</code>:</p>
+<p>| Member | Content |
+|---|---|
+| <code>release.json</code> | The seal manifest (below) |
+| <code>shared-hooks/</code> | The registry, hook scripts, session supervisor, universal runtime, OMP adapter, Node preflight |
+| <code>claude-hooks/</code>, <code>codex-hooks/</code> | Provider-specific hook entrypoints |
+| <code>repo-githooks/&lt;project&gt;/</code> | Approved per-repository Git hooks |
+| <code>external-hooks/</code> + <code>external-sources.json</code> | Approved hook sources that live outside the managed roots, packaged in with <code>sourcePrefix</code> → <code>releasePath</code> mappings (schema <code>ai.wisent.tama.external-hook-sources.v1</code>) |
+| <code>bin/tama-cli</code>, <code>bin/tama-mcp-server</code> | The sealed, signed Rust backend and MCP server |
+| <code>package.json</code> | The hook package version |</p>
+<p>Generator files (<code>generate-configs.mjs</code>, <code>providers.json</code>,
+<code>run-one-session-hook.js</code>) and Python bytecode are pruned before sealing.</p>
+<h2>Sealing</h2>
+<p><code>Scripts/seal_hook_release.py</code> computes the tree digest: every file except
+<code>release.json</code>, in sorted path order, hashing each file's relative path, its
+permission bits, and its bytes, each length-framed. A <code>chmod</code> therefore
+drifts a release exactly as a rewrite does. The digest becomes <code>releaseId</code>
+in <code>release.json</code>, schema <code>ai.wisent.tama.hook-release.v1</code>, together with
+<code>packageVersion</code>, <code>catalogVersion</code>, <code>catalogUpdatedAt</code>, <code>sourceDirty</code>,
+<code>sourceRevision</code> (the hook source Git commit), and <code>sealedAt</code>. The build
+manifest <code>tama-build.json</code> embeds the same object, so the app can display
+its bundled hook identity without reopening the release.</p>
+<h2>Installation</h2>
+<p><code>Scripts/install_hook_release.py</code> (bundled in the app resources, run by the
+desktop's explicit install action) takes <code>--release</code>, <code>--home</code>, and either
+<code>--session-control-only</code> or <code>--emergency-manifest</code>. It passes two integrity
+gates and refuses at either:</p>
+<ol>
+<li><strong>Bundled gate.</strong> The release tree must digest to its recorded
+<code>releaseId</code> — otherwise <code>Bundled Tama hook release failed its integrity check</code>.</li>
+<li><strong>Installed gate.</strong> The release is copied content-addressed to
+<code>~/Library/Application Support/Tama/hooks-runtime/releases/&lt;release-id&gt;</code>;
+a pre-existing copy that no longer digests to its directory name is
+deleted and recopied, and a copy that still fails afterwards aborts with
+<code>Installed Tama hook release failed its integrity check</code>.</li>
+</ol>
+<p>Before any managed write it resolves Node.js from <code>PATH</code>,
+<code>/opt/homebrew/bin</code>, <code>/usr/local/bin</code>, or <code>~/.local/bin</code>, requires major
+version 20 or newer, canonicalizes the executable through symlinks, and
+pins it into every Node-based hook command with
+<code>shared-hooks/node-runtime-preflight.cjs</code> preloaded. It rewrites every
+registry path from the canonical source root and home (identified by the
+registry's own <code>maintainedIn</code> and adapter paths) to the target home, stamps
+the registry with the <code>releaseId</code>, and recomputes <code>catalogChecksum</code>.</p>
+<p>The write set is transactional — every touched file is backed up first and
+restored on failure:</p>
+<ul>
+<li><code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code> — hook sources and
+the rewritten <code>registry.json</code>;</li>
+<li><code>~/.claude/settings.json</code>, <code>~/.codex/hooks.json</code> — regenerated provider
+configs, mode <code>0600</code>;</li>
+<li><code>~/.local/bin/tama-agent</code> — the generated supervisor launcher, exporting
+the pinned Node executable and preflight;</li>
+<li><code>pre-commit</code> and <code>pre-push</code> dispatchers at the user-global Git hooks path
+(<code>git config --global core.hooksPath</code>, defaulting to
+<code>~/.config/git/hooks</code>), each running the repository's own
+<code>.githooks/&lt;name&gt;</code>, else the archived per-repository hook from
+<code>hooks-runtime/current</code>, then any preserved <code>&lt;name&gt;.before-tama</code> backup;</li>
+<li>approved <code>repo-githooks</code> into each matching project's <code>.githooks/</code>.</li>
+</ul>
+<p>The <code>hooks-runtime/current</code> symlink is replaced atomically only inside the
+transaction; on failure the previous symlink and every original file come
+back, and an OMP extensions change (registering
+<code>~/.shared-hooks/omp-shared-hooks.js</code> via <code>omp config set extensions</code>) is
+reverted. Obsolete files from the previous install are deleted only when
+they sit under the managed roots — anything else aborts the install.</p>
+<p>Success writes <code>hooks-runtime/installed.json</code>, schema
+<code>ai.wisent.tama.installed-hook-release.v1</code>: <code>releaseId</code>, <code>catalogChecksum</code>,
+<code>packageVersion</code>, <code>catalogVersion</code>, <code>catalogUpdatedAt</code>, <code>installedAt</code>,
+<code>previousReleaseId</code>, <code>sourceFiles</code> (every managed path), <code>nodeExecutable</code>,
+and <code>nodeVersion</code>. That file is what the desktop reads as the installed
+identity.</p>
+<h2>Verifying a release by hand</h2>
+<p>Three read-only maintainer scripts answer <em>which file drifted</em>, not just
+that one did:</p>
+<ul>
+<li><code>Scripts/verify_hook_release.py [root]</code> — recomputes the bundled tree
+digest, prints recorded vs actual, and lists every file written after
+<code>sealedAt</code>;</li>
+<li><code>Scripts/verify_installed_releases.py</code> — digests every tree under
+<code>hooks-runtime/releases/</code> against its directory name, marks the <code>current</code>
+one, and reports which of the two identically worded install failures an
+emergency enable would hit;</li>
+<li><code>Scripts/report_hook_release_integrity.py [root]</code> — on mismatch, also
+lists files the digest covers that the installer never installs (build
+residue such as bytecode).</li>
+</ul>
+<p>Never edit files inside a release directory; the recovery for integrity
+failure is reinstalling the same verified app artifact
+(<a href="operations.md">operations</a>).</p>
