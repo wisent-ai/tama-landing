@@ -1,0 +1,13 @@
+<h1><code>tama clean</code></h1>
+<p>Scans target repositories, delegates actionable violations to one headless model agent per repository and round, rejects rule-gaming, and re-scans until clean or the round limit is reached.</p>
+<h2>Invocation</h2>
+<pre><code>tama clean (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-owner&gt; | --me) [...]
+           [--model codex|kimi] [--max-rounds &lt;n&gt;] [--skip &lt;fragment&gt;]
+           [--note &lt;text&gt;] [--dry-run] [--json] [--hook &lt;path&gt;] [--clone-dir &lt;dir&gt;]
+</code></pre>
+<p>Target, hook, clone, and JSON options match <a href="../find-violations/">find-violations</a>. The default model is <code>codex</code> and the default maximum is three rounds. <code>--skip</code> is repeatable, <code>--note</code> adds an operator instruction, and <code>--dry-run</code> prints the agent brief without spawning an agent.</p>
+<h2>Output and state</h2>
+<p>A live run lets the selected agent edit each repository, journals rounds and final state, and uses a per-repository lock. Text output reports <code>CLEAN</code>, remaining findings, or <code>LOCKED (another clean in progress)</code>; JSON returns results and discovery problems. Unresolved, locked, or discovery-problem results exit <code>1</code>.</p>
+<h2>Refusals and failures</h2>
+<p><code>TAMA_CLEAN_DISABLED=1</code> writes <code>tama clean is disabled (TAMA_CLEAN_DISABLED=1)</code>, performs no cleanup, and exits <code>0</code>. Unsupported models, a <code>--max-rounds</code> value below 1 or not a number, missing targets or option values, and unknown arguments print usage and exit <code>2</code>. Missing hook, repo, and tree paths use the same exact <code>... not found: &lt;path&gt;</code> refusals as the scanner. Rule-gaming rounds are rejected and fed into the next round rather than accepted as clean.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

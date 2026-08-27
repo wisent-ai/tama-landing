@@ -1,0 +1,15 @@
+<h1><code>tama show</code></h1>
+<p>Looks up one hook by its exact catalog id and reports its source, command, description, rationale, and event bindings.</p>
+<h2>Invocation</h2>
+<pre><code>tama show &lt;hook-id&gt; [--json]
+</code></pre>
+<p><code>&lt;hook-id&gt;</code> is required and must match a catalog hook id. <code>--json</code> prints the full structured hook entry; otherwise Tama prints human-readable fields and one <code>blocking=</code> line per event.</p>
+<h2>Output and state</h2>
+<p>The command writes one hook and does not modify the catalog, hook files, or runtime state. A successful lookup exits <code>0</code>.</p>
+<h2>Refusals and failures</h2>
+<ul>
+<li>Missing <code>&lt;hook-id&gt;</code>: Tama prints the top-level usage text and exits <code>2</code>.</li>
+<li>Unknown id: Tama writes <code>not found: &lt;hook-id&gt;</code> and exits <code>1</code>.</li>
+<li>Unreadable or invalid catalog input: Tama writes the underlying error and exits <code>1</code>.</li>
+</ul>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

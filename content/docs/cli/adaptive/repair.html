@@ -1,0 +1,18 @@
+<h1><code>tama adaptive repair</code></h1>
+<p>Drafts or accepts a candidate hook script, validates it against the hook's evidence corpus, and stages a repair proposal without changing the live hook.</p>
+<h2>Invocation</h2>
+<pre><code>tama adaptive repair &lt;hook-id&gt; [--patch-file &lt;path&gt;]
+</code></pre>
+<p><code>&lt;hook-id&gt;</code> is required. <code>--patch-file</code> validates an operator-supplied candidate; without it, Tama asks the local <code>claude</code> CLI to draft one.</p>
+<h2>Output and state</h2>
+<p>Tama prints a JSON report. A valid candidate is copied into a timestamped proposal directory with <code>proposed.diff</code>, <code>report.json</code>, and a summary; the live and archived hook files remain unchanged. The report's <code>ok</code> controls exit status: true exits <code>0</code>, false exits <code>1</code>.</p>
+<h2>Refusals and failures</h2>
+<ul>
+<li>Missing hook id, an id beginning with <code>--</code>, or <code>--patch-file</code> without a value prints adaptive usage and exits <code>2</code>.</li>
+<li>Unknown or unmapped hook: <code>unknown hook or no script path: &lt;hook-id&gt;</code>.</li>
+<li>Missing candidate: <code>patch file not found: &lt;path&gt;</code>.</li>
+<li>When drafting is disabled: <code>LLM drafting disabled (HOOKS_ADAPTIVE_NO_LLM); pass --patch-file</code>.</li>
+<li>Unavailable local Claude: <code>local claude CLI unavailable; pass --patch-file</code>; empty or unsuccessful output: <code>claude draft did not produce content</code>.</li>
+<li>A failed corpus check reports <code>validation did not pass; artifacts left in &lt;tmp-dir&gt;</code>.</li>
+</ul>
+<p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>

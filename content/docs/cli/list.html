@@ -1,0 +1,11 @@
+<h1><code>tama list</code></h1>
+<p>Lists every hook in the sealed catalog, either as a compact tab-separated inventory or as the complete catalog JSON document.</p>
+<h2>Invocation</h2>
+<pre><code>tama list [--json]
+</code></pre>
+<p>The command takes no positional input. <code>--json</code> selects the structured catalog document; without it, each line contains the hook id, archived source path (or <code>-</code>), and comma-separated events.</p>
+<h2>Output and state</h2>
+<p>Text mode writes one row per hook. JSON mode writes the catalog version, generation time, hooks, orphan sources, adapters, and repository Git hooks. The command is read-only and exits <code>0</code> after producing the inventory.</p>
+<h2>Refusals and failures</h2>
+<p>If the catalog or registry cannot be read or parsed, Tama writes the underlying error to stderr and exits <code>1</code>. There are no command-specific policy refusals.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

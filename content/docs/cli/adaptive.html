@@ -1,0 +1,22 @@
+<h1><code>tama adaptive</code></h1>
+<p>Opens the public adaptive-layer doctor command group for inspecting state, detecting drift, drafting repairs, and managing the legacy runner shim.</p>
+<h2>Invocation</h2>
+<pre><code>tama adaptive &lt;command&gt; [...]
+</code></pre>
+<p><code>&lt;command&gt;</code> is required and must be one of the linked leaf commands below.</p>
+<h2>Command tree</h2>
+<ul>
+<li><a href="status/"><code>tama adaptive status</code></a></li>
+<li><a href="drift/"><code>tama adaptive drift</code></a></li>
+<li><a href="queue/"><code>tama adaptive queue</code></a></li>
+<li><a href="repair/"><code>tama adaptive repair</code></a></li>
+<li><a href="apply/"><code>tama adaptive apply</code></a></li>
+<li><a href="install/"><code>tama adaptive install</code></a></li>
+<li><a href="uninstall/"><code>tama adaptive uninstall</code></a></li>
+<li><a href="claude-config/"><code>tama adaptive claude-config</code></a></li>
+</ul>
+<h2>Output and state</h2>
+<p>The group itself performs no action. Read-only leaves inspect state or print configuration; repair stages proposal artifacts; apply and shim management can change live hook files.</p>
+<h2>Refusals and failures</h2>
+<p>A missing or unknown leaf prints the adaptive usage text beginning <code>adaptive doctor &lt;command&gt;</code> and exits <code>2</code>. Leaf errors are prefixed <code>doctor: </code> and exit <code>1</code> unless the leaf documents a more specific refusal.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

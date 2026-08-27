@@ -3,6 +3,7 @@ import { dirname, join, posix } from 'node:path';
 
 const root = new URL('../', import.meta.url).pathname;
 const pages = JSON.parse(readFileSync(join(root, 'pages.json'), 'utf8'));
+const pageRoutes = new Set(pages.map((page) => page.route));
 const dist = join(root, 'dist');
 const origin = 'https://tama.wisent.com';
 
@@ -49,11 +50,17 @@ const githubUrl = (target) => {
   return `https://github.com/wisent-ai/tama-desktop/${isFile ? 'blob' : 'tree'}/main/${clean}`;
 };
 
-const rewriteLinks = (html, source) => html.replace(/href="([^"]+)"/g, (match, href) => {
+const rewriteLinks = (html, source, pageRoute) => html.replace(/href="([^"]+)"/g, (match, href) => {
   if (/^(?:https?:|mailto:|#)/.test(href)) return match;
   const hashIndex = href.indexOf('#');
   const rawTarget = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
   const hash = hashIndex >= 0 ? href.slice(hashIndex) : '';
+  const routeCandidates = [
+    posix.normalize(posix.join(pageRoute, rawTarget)),
+    posix.normalize(rawTarget),
+  ].map((route) => route.replace(/^\/|\/$/g, ''));
+  const pageTarget = routeCandidates.find((route) => pageRoutes.has(route));
+  if (pageTarget) return `href="/docs/${pageTarget}/${hash}"`;
   const target = posix.normalize(posix.join(posix.dirname(source), rawTarget));
   const docsRoute = routeForSource(target);
   if (docsRoute) return `href="${docsRoute}${hash}"`;
@@ -81,7 +88,7 @@ const records = pages.map((page) => {
   const withoutTitle = original.replace(titleMatch[0], '');
   const firstParagraph = withoutTitle.match(/<p>([\s\S]*?)<\/p>/)?.[1] ?? '';
   const description = htmlText(firstParagraph).replace(/\s+/g, ' ');
-  const linked = rewriteLinks(withoutTitle, page.source);
+  const linked = rewriteLinks(withoutTitle, page.source, page.route);
   const content = addHeadingIds(linked);
   const headings = [...content.matchAll(/<h2 id="([^"]+)">[\s\S]*?<\/h2>/g)].map((match) => ({
     id: match[1],

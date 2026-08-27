@@ -1,0 +1,14 @@
+<h1><code>tama help</code></h1>
+<p>Prints the sealed public top-level command summary.</p>
+<h2>Invocation</h2>
+<pre><code>tama help
+tama --help
+tama -h
+tama
+</code></pre>
+<p>The named command, both flag forms, and an invocation with no command select the same help path. It takes no required input or public options.</p>
+<h2>Output and state</h2>
+<p>Tama writes usage beginning <code>tama &lt;command&gt;</code> and the public command list to stderr, performs no product action, and exits <code>0</code>.</p>
+<h2>Refusals and failures</h2>
+<p>The help path has no command-specific refusal. Any other unknown top-level command also prints the same usage, but exits <code>2</code> instead of <code>0</code>.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

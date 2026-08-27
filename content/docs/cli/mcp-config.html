@@ -1,0 +1,11 @@
+<h1><code>tama mcp-config</code></h1>
+<p>Prints the MCP client configuration fragment for Tama's native MCP server.</p>
+<h2>Invocation</h2>
+<pre><code>tama mcp-config
+</code></pre>
+<p>The command takes no required input or public options.</p>
+<h2>Output and state</h2>
+<p>Stdout receives a JSON document with <code>mcpServers.tama.command</code> and an empty <code>args</code> array. The command points at <code>tama-mcp-server</code> beside the running CLI when that file exists, otherwise at the bare command name <code>tama-mcp-server</code>. It never writes client configuration.</p>
+<h2>Refusals and failures</h2>
+<p>There are no command-specific policy refusals. The bare-name fallback is valid output rather than a missing-server error; actual server discovery occurs when the client starts that command.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

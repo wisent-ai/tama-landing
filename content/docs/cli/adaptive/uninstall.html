@@ -1,0 +1,16 @@
+<h1><code>tama adaptive uninstall</code></h1>
+<p>Restores the newest timestamped legacy-runner backup over the currently installed adaptive shim.</p>
+<h2>Invocation</h2>
+<pre><code>tama adaptive uninstall
+</code></pre>
+<p>The command takes no positional input or public options. The sealed dispatcher does not read <code>DEVICE_HOOK_EDIT_APPROVED</code> for uninstall; possession of a usable backup is its operational prerequisite.</p>
+<h2>Output and state</h2>
+<p>Tama finds the newest <code>run-hook.mjs.*</code> entry under the adaptive backup directory and copies it to <code>~/.shared-hooks/run-hook.mjs</code>. Success prints <code>restored &lt;target&gt; from &lt;backup-name&gt;</code> and exits <code>0</code>.</p>
+<h2>Refusals and failures</h2>
+<ul>
+<li>No backup directory: <code>no backup dir at &lt;path&gt;</code>.</li>
+<li>No matching backup: <code>no runner backups under &lt;path&gt;</code>.</li>
+<li>Copy failure: <code>cannot restore runner backup</code>.</li>
+</ul>
+<p>Each refusal exits <code>1</code> and leaves the current runner in place.</p>
+<p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>

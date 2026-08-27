@@ -1,0 +1,11 @@
+<h1><code>tama adaptive status</code></h1>
+<p>Reports adaptive autonomy policy, per-hook effective state, source identity, and telemetry transport status.</p>
+<h2>Invocation</h2>
+<pre><code>tama adaptive status
+</code></pre>
+<p>The command takes no required input or public options.</p>
+<h2>Output and state</h2>
+<p>The first line reports automatic ceiling, lexical-frustration behavior, explicit-correction behavior, and repair autonomy. Each sorted hook line includes tier, mode, phase, recovered baseline, open-run length, source verification, and whether a contested block was observed. The final <code>telemetry=</code> JSON reports open, ready, acknowledged, valid-ready, reclaimable, and legacy segments. The command is read-only and exits <code>0</code>.</p>
+<h2>Refusals and failures</h2>
+<p>There are no command-specific policy refusals. Failures while loading or projecting adaptive state are written with the <code>doctor: </code> prefix and exit <code>1</code>.</p>
+<p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>
