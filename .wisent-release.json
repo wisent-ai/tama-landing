@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "product": "tama-landing",
+  "releases": true,
+  "version_source": {
+    "kind": "json",
+    "path": "package.json",
+    "pointer": "/version"
+  },
+  "platforms": {
+    "web": {
+      "runner_platform": "darwin-arm64",
+      "quality": [
+        {
+          "name": "web-quality",
+          "argv": [
+            "stado",
+            "web",
+            "quality",
+            "--root",
+            "dist"
+          ]
+        }
+      ],
+      "build": {
+        "argv": [
+          "stado",
+          "web",
+          "build",
+          "--root",
+          "dist"
+        ]
+      },
+      "stage": {
+        "dist/tama-landing-web.tar.gz": "tama-landing-web.tar.gz",
+        "dist/tama-landing-web.tar.gz.sha256": "tama-landing-web.tar.gz.sha256",
+        "dist/SOURCE_REVISION": "SOURCE_REVISION"
+      },
+      "secret_env": {}
+    }
+  },
+  "promotion": {
+    "channels": [
+      "candidate",
+      "stable"
+    ],
+    "reconcile": false
+  }
+}
