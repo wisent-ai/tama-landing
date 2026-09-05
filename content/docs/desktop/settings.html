@@ -1,12 +1,30 @@
 <h1>Settings screen</h1>
-<p>The local installation and the build behind it: install the runtime,
-register the privileged backend, and — the screen's one destructive owner —
-deactivate everything. Installation is a decision an operator makes once;
-it lives here rather than beside the posture verdicts.</p>
+<p>The local policy store, installation, and build behind Tama: import an
+existing inactive bundle, install the runtime, register the privileged backend,
+and — the screen's one destructive owner — deactivate everything. Import and
+activation remain separate operations.</p>
 <h2>Header</h2>
 <p>Title <code>Settings</code>; scope <code>inspection mode</code> when signed out; freshness is the
 product version. Actions: with control, <code>Reveal release</code> (opens the bundled
 release in Finder); without, <code>Sign in for controls</code>.</p>
+<h2>Policy bundles</h2>
+<p><strong>Import policy bundle</strong> selects a self-contained Tama policy
+bundle or sealed release directory containing
+<code>shared-hooks/registry.json</code>. The native app
+sends the path to <code>POST /v1/policy-bundles/import</code>; Tama core parses,
+validates every registered source, verifies <code>release.json</code> when a
+sealed release is selected, and transactionally copies the bundle. Swift does
+not parse files or invoke an import command.</p>
+<p>The screen shows imported, unchanged, removed, conflicting, rejected, and
+ignored results. Every conflict and rejection stays visible. The default writes
+nothing when stored content differs; <strong>Replace these reviewed bundle
+files</strong> retries explicitly, but untracked and locally changed stored
+files remain refused. Retained sources show canonical path, SHA-256 identity,
+hook count, file count, and <code>inactive</code> state.</p>
+<p>Import installs and enables zero hooks. It does not modify the bundled or
+active release, <code>~/.shared-hooks</code>, agent configuration, Git
+configuration, or the source directory. An identical repeat is
+<code>unchanged</code>. Skipping import leaves Tama empty and usable.</p>
 <h2>Local enforcement</h2>
 <p>Detail sentence, verbatim: <code>The verified runtime under Application Support, and the privileged macOS components that gate processes and network traffic.</code> Trailing state: <code>bypassed</code> / <code>active</code>. Fields: <code>Installed release</code>
 (<code>Not installed by Tama</code> before an install), <code>Privileged backend</code> (the

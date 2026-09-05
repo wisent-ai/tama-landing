@@ -11,6 +11,8 @@ provisioning profiles, channels) are maintainer-only and tabled in
 <p>Everything under <code>~/Library/Application Support/Tama</code>:</p>
 <p>| Path | Content |
 |---|---|
+| <code>policy-bundles/index.json</code> | Imported inactive bundle identities: source path and digest, retained files and hashes (<code>ai.wisent.tama.policy-bundles.v1</code>) |
+| <code>policy-bundles/bundles/&lt;source-key&gt;/</code> | Editable byte-for-byte policy files adopted from one source; never an active runtime by import alone |
 | <code>hooks-runtime/releases/&lt;release-id&gt;/</code> | Content-addressed installed hook releases |
 | <code>hooks-runtime/current</code> | Symlink to the active release, replaced atomically |
 | <code>hooks-runtime/installed.json</code> | Installed identity: release id, checksum, versions, managed files, pinned Node (<code>ai.wisent.tama.installed-hook-release.v1</code>) |
@@ -19,8 +21,10 @@ provisioning profiles, channels) are maintainer-only and tabled in
 | <code>emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code> | Original provider configs, restored on re-enable |
 | <code>session-control/*.session.json</code> | Supervisor-owned live session records (<code>ai.wisent.tama.session-control.v2</code>) |
 | <code>session-control/*.override.json</code>, <code>*.request.json</code>, <code>*.response.json</code> | Session overrides and the private request/response exchange |</p>
-<p>Never repair <code>installed.json</code>, <code>current</code>, or the emergency manifest by hand
-as a normal procedure (<a href="operations.md">operations</a>).</p>
+<p>Never repair <code>installed.json</code>, <code>current</code>, or the emergency
+manifest by hand as a normal procedure. Policy bundle files are intentionally
+editable, but a locally changed imported file causes the next replacement to
+conflict rather than overwrite it (<a href="operations.md">operations</a>).</p>
 <h2>Managed per-user files</h2>
 <p>Installation writes hook entrypoints only to documented per-user locations:
 <code>~/.shared-hooks</code> for the structured registry and OMP adapter,

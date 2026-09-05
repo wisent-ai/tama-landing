@@ -14,6 +14,8 @@ entrypoints are intentionally not part of the public surface.</p>
 <li><a href="cli/verify/"><code>tama verify</code></a> — run the bundled native release harness.</li>
 <li><a href="cli/mcp-config/"><code>tama mcp-config</code></a> — print the MCP server fragment.</li>
 <li><a href="cli/sessions/"><code>tama sessions [--json] [--home &lt;path&gt;]</code></a> — inspect live session records.</li>
+<li><code>tama policy import --source &lt;dir&gt; [--replace] [--json] [--home &lt;path&gt;]</code> — validate and persist an existing policy bundle without installing or enabling it.</li>
+<li><code>tama policy list [--json] [--home &lt;path&gt;]</code> — list retained inactive bundle identities.</li>
 </ul>
 <h2>Installation and repository operations</h2>
 <ul>
@@ -35,6 +37,28 @@ adaptive-layer command group. Its leaves are:</p>
 <li><a href="cli/adaptive/uninstall/"><code>tama adaptive uninstall</code></a> — restore the newest runner backup.</li>
 <li><a href="cli/adaptive/claude-config/"><code>tama adaptive claude-config</code></a> — print Claude event routing.</li>
 </ul>
+<h2>Existing policy bundles</h2>
+<p>A supported self-contained policy bundle or sealed release contains
+<code>shared-hooks/registry.json</code> and regular, non-symlink files under
+<code>shared-hooks/</code>, <code>claude-hooks/</code>,
+<code>codex-hooks/</code>, <code>repo-githooks/</code>,
+<code>adaptive/</code>, <code>external-hooks/</code>, and <code>bin/</code>,
+plus supported root metadata such as <code>release.json</code> and
+<code>external-sources.json</code>. Other top-level paths are reported in
+<code>ignoredPaths</code>.</p>
+<p>The complete registry and every registered source are validated before the
+editable store changes. A sealed release must also match its
+<code>release.json</code> tree identity. Results report imported, unchanged,
+removed, conflicting, and rejected counts. Repeating an identical source is unchanged;
+differing content conflicts unless explicit replacement is safe. Untracked and
+locally changed stored files remain conflicts even with
+<code>--replace</code>.</p>
+<p>Every imported bundle is <code>inactive</code>: zero hooks are installed or
+enabled, and the command does not change the current release,
+<code>~/.shared-hooks</code>, agent settings, or Git configuration.
+<code>policy list</code> returns canonical source paths, SHA-256 identities,
+timestamps, hook counts, file counts, and retained bundle paths without
+printing policy contents.</p>
 <h2>Exit and refusal contract</h2>
 <p>Successful commands exit <code>0</code>. Usage errors exit <code>2</code>.
 Operational failures and findings that fail the command's contract exit
