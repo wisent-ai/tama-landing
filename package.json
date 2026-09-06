@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "tama-landing": "./src/cli.mjs"
+  },
   "scripts": {
-    "build": "node scripts/build.mjs"
+    "build": "node src/cli.mjs build"
   },
   "engines": {
     "node": ">=20"
