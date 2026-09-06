@@ -15,14 +15,19 @@ carries <code>schema</code> (<code>ai.wisent.tama.session-control.v2</code>), <c
 <code>set-hook</code> the <code>hookId</code> with <code>enabled: true</code>. The response carries <code>schema</code>,
 <code>requestId</code>, <code>ok</code>, <code>error</code>, and <code>state</code> — the authoritative session record
 after the change.</p>
-<p>Two operations exist:</p>
+<p>Two operations exist, but they are not interchangeable:</p>
 <ul>
-<li><code>set-hook</code> — enable one registered hook id in this session;</li>
-<li><code>enable-all</code> — enable every registered hook and schedule one runtime
-reload after the active agent turn settles; concurrent reloads coalesce,
-and a failure restores the preceding override state.</li>
+<li><code>set-hook</code> — enable one registered hook id in this session. During a
+global emergency disable, the preflight and write must observe the same
+nonempty emergency <code>changedAt</code> generation;</li>
+<li><code>enable-all</code> — outside a global emergency disable, enable every registered
+hook and schedule one runtime reload after the active agent turn settles.
+Concurrent reloads coalesce, and a failure restores the preceding override
+state. While the global emergency disable remains active, this operation is
+refused with <code>global-emergency-disable-active</code>.</li>
 </ul>
-<p>Retrying the same enable is idempotent.</p>
+<p>Retrying the same single-hook enable in the same emergency generation is
+idempotent.</p>
 <h2>Who applies it</h2>
 <p>The session's own supervisor — never Tama. The supervisor validates the
 envelope against the exact identity tuple in its session record
@@ -34,41 +39,78 @@ the pid answers <code>kill(pid, 0)</code>; <code>heartbeat</code> mode: <code>up
 override atomically as <code>&lt;controlKey&gt;.override.json</code> and answers with the
 resulting state.</p>
 <h2>What can refuse it</h2>
-<p>Every failure is actionable, never optimistic — the exact sentences, from
-<code>SessionControlClient</code>:</p>
-<p>| Failure | Sentence |
+<p>Every failure is actionable, never optimistic. The public refusal states
+include:</p>
+<p>| Failure | Sentence or reason |
 |---|---|
 | Malformed session identity | <code>Tama rejected an invalid agent session control endpoint.</code> |
 | Unparseable response | <code>The agent runtime returned an invalid session-control response.</code> |
 | Only v1 records on disk | <code>Tama found only legacy v1 session records. Reinstall the verified bundled runtime, then stop or resume the affected agent session to publish v2 state.</code> |
 | Supervisor said no | <code>The agent runtime rejected the session-control request: &lt;reason&gt;</code> |
 | 10 s deadline passed | <code>The agent runtime did not acknowledge the session-control request before the deadline.</code> |
-| Session exited mid-request | <code>The agent session ended before the session-control request completed.</code> |</p>
+| Session exited mid-request | <code>The agent session ended before the session-control request completed.</code> |
+| Disabled state has no usable generation | <code>global-emergency-state-missing-generation</code> |
+| Emergency state changes during one-hook activation | <code>emergency-state-changed-during-activation</code> |
+| Enable-all requested during global disable | <code>global-emergency-disable-active</code> |</p>
 <h2>Semantics under global disable</h2>
 <p>Enablement is interpreted against <code>globallyDisabled</code>
 (<a href="../enforcement-control.md#session-scoped-enable">enforcement-control</a>):</p>
 <ul>
 <li>normally, a hook runs unless its id is in <code>disabledHookIds</code>;</li>
 <li>during a <a href="emergency-disable.md">global emergency disable</a>,
-<code>enabledHookIds</code> is the session's explicit allowlist — the only hooks that
-run. <code>tama-cli sessions</code> prints exactly this (<code>allowlist: empty</code> for a
-bypassed session with nothing re-enabled;
-<a href="../walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</li>
+<code>enabledHookIds</code> is the session's explicit allowlist, but only when the
+override's <code>emergencyChangedAt</code> exactly equals the active emergency state's
+nonempty <code>changedAt</code>. Those are the only hooks that run.</li>
 </ul>
+<p>The supervisor persists that generation binding beside the allowlist and in
+the OMP session's retained override entry. Reloading or resuming the same
+session preserves the exact enable while the emergency generation is
+unchanged. A fresh global disable creates a new generation: legacy overrides
+with no binding and stale overrides from an earlier generation contribute no
+enabled hooks or capability. <code>tama-cli sessions</code> and the desktop therefore
+render the supervisor's already-sanitized <code>enabledHookIds</code>, not an old
+allowlist copied from disk.</p>
 <h2>Where it surfaces</h2>
 <ul>
-<li>The <strong>Session</strong> screen's only mutations are <em>enable one hook here</em> and
-<strong>Enable all hooks</strong> (offered whenever a session lags the installed
-release); the screen states it can never disable a hook or issue, extend,
-or revoke a capability (<a href="../desktop/session.md">desktop/session</a>).</li>
-<li>The <strong>Hooks</strong> inspector offers the same single-hook enable in the selected
-session (<a href="../desktop/hooks.md">desktop/hooks</a>).</li>
+<li>The <strong>Session</strong> screen renders the live record and can request one-hook or
+enable-all mutations. Enable-all remains a normal-state reload operation and
+reports the supervisor's refusal during a global emergency disable
+(<a href="../desktop/session.md">desktop/session</a>).</li>
+<li>The <strong>Hooks</strong> inspector calculates <em>Enabled</em> from
+<code>enabledHookIds</code> when the selected session is globally disabled, and from
+<code>disabledHookIds</code> otherwise. Its single-hook action uses the same
+generation-bound control path (<a href="../desktop/hooks.md">desktop/hooks</a>).</li>
 <li>Inside an OMP session, the bundled adapter exposes the same plane as
 session tools: <code>tama_set_session_hook</code>,
 <code>tama_enable_all_session_hooks</code>, <code>tama_hook_runtime_status</code>,
 <code>tama_request_session_capability</code>, <code>tama_reload_hook_runtime</code> — and
 states that session hook disablement is prohibited.</li>
 </ul>
+<h2>Completion hooks enabled through this control</h2>
+<p>Installed prompt text can tell an agent to keep working, but prose does not
+execute the completion contract. A completion rule runs only when its
+registered Stop hook is enabled and the runtime dispatches that event. For
+the repaired completion contract, <code>block-stop-with-open-work</code> deterministically
+replays the latest successful tracker snapshot and subsequent successful
+tracker calls, then blocks while any item remains pending or in progress.
+<code>check-open-items-with-model</code> independently sends the real user messages,
+bounded current-turn tool evidence, and proposed final response to Tama's
+existing objective reviewer.</p>
+<p>The reviewer must block for even one executable unfinished item or one task
+error without later evidence of repair. It passes completed work, a requested
+read-only/direct answer, work the user explicitly stopped or restricted, and
+work whose only remainder is genuinely external and unavailable. It does not
+treat a heading, a success claim, or the proposed final response as proof.</p>
+<p>The reviewer keeps the existing settings: credentials are read through
+Skarbiec from <code>tama-objective-authority-model-router</code> and
+<code>agent:wisent-app</code>; Brama defaults to
+<code>https://brama.wisent.com/v1/chat/completions</code> with model route
+<code>-best</code>, agent identity <code>wisent-app</code>, temperature <code>0</code>,
+<code>max_tokens: 160</code>, a 3-second connect timeout, and a 25-second total
+timeout. Missing transcript or credentials, transport/HTTP failure, and an
+invalid verdict are not silent permission: the hook prints
+<code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code> and exits
+<code>70</code>.</p>
 <h2>Not to be confused with</h2>
 <ul>
 <li><strong>Disabling.</strong> The opposite direction exists only as the machine-global,
@@ -78,7 +120,8 @@ controls never weaken policy.</li>
 <a href="capability.md">capability</a> grants <em>what the session may do</em> under the
 hooks that run. They travel in the same session record and are otherwise
 independent.</li>
-<li><strong>Installing.</strong> Enable-all binds its override to the installed release and
-checksum, but it does not install anything; a session running an older
-release needs the reload that enable-all schedules, not a new install.</li>
+<li><strong>Installing.</strong> Outside global emergency disable, enable-all binds its
+override to the installed release and checksum, but it does not install
+anything; a session running an older release needs the reload that enable-all
+schedules, not a new install.</li>
 </ul>

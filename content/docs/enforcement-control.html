@@ -14,7 +14,8 @@ disabling enforcement remains an operator-owned action outside the session
 <code>agentId</code>, <code>sessionId</code>, a 64-hex <code>controlKey</code>, <code>pid</code>, <code>cwd</code>, <code>livenessMode</code>
 (<code>process</code> — the pid must be alive — or <code>heartbeat</code> — <code>updatedAt</code> within
 <code>heartbeatTTLSeconds</code>, clamped to 5–3600), <code>globallyDisabled</code>,
-<code>disabledHookIds</code>, <code>enabledHookIds</code>, the session's <code>capability</code> (issuer,
+<code>disabledHookIds</code>, <code>enabledHookIds</code>, the override's
+<code>emergencyChangedAt</code> generation binding, the session's <code>capability</code> (issuer,
 nonce, release and checksum binding, lifetime, expiry, remaining uses, and
 per-tool grants), <code>runtime</code> status (<code>installedReleaseId</code>, <code>loadedReleaseId</code>,
 <code>catalogChecksum</code>, registered/loaded hook counts, unknown hook ids,
@@ -29,28 +30,61 @@ directory — operation <code>set-hook</code> with <code>hookId</code> and <code
 <code>enable-all</code> — and polls for the matching
 <code>&lt;controlKey&gt;.&lt;requestId&gt;.response.json</code> for up to 10 seconds. The
 supervisor validates the envelope against the exact session identity tuple,
-applies the override atomically, and answers with the authoritative session
-state; rejection, malformed identity, session exit, or timeout is an
-actionable failure, never optimistic success. Retrying the same enable is
-idempotent.</p>
+applies accepted state atomically, and answers with the authoritative session
+record; rejection, malformed identity, session exit, or timeout is an
+actionable failure, never optimistic success.</p>
 <p>Enablement semantics follow <code>globallyDisabled</code>:</p>
 <ul>
 <li>normally, a hook is enabled unless its id is in <code>disabledHookIds</code>;</li>
-<li>during a global emergency disable, <code>enabledHookIds</code> is the session's
-explicit allowlist — the only hooks that run.</li>
+<li>during a global emergency disable, one-hook enable may add the id to
+<code>enabledHookIds</code> only when its preflight and persisted override are bound to
+the active emergency state's exact, nonempty <code>changedAt</code>. The session record
+publishes that binding as <code>emergencyChangedAt</code>.</li>
 </ul>
-<p><code>enable-all</code> first persists an override bound to the installed release and
-catalog checksum, then schedules one runtime reload after the active agent
-turn settles; concurrent reload requests coalesce, and a failure restores
-the preceding override state. The <strong>Session</strong> screen shows the pending state
-until the transition completes, and offers <strong>Enable all hooks</strong> whenever a
-session lags the installed release.</p>
-<p>Inside an OMP session, the bundled adapter
-(<code>~/.shared-hooks/omp-shared-hooks.js</code>) exposes the same control plane as
+<p>The one-hook allowlist and generation binding are retained in the private
+override and OMP session history, so they survive a reload or resume of that
+same session while the emergency generation is unchanged. A fresh global
+disable changes <code>changedAt</code> and invalidates prior or legacy allowlists and
+capabilities. The supervisor clears them before publishing state; neither the
+desktop nor <code>tama-cli sessions</code> treats a stale id as enabled.</p>
+<p><code>enable-all</code> is different. Outside emergency disable it binds an override to
+the installed release and catalog checksum and schedules one runtime reload
+after the active agent turn settles; concurrent requests coalesce, and reload
+failure restores the preceding override. While global emergency disable is
+active, enable-all is refused with
+<code>global-emergency-disable-active</code>; it cannot turn the emergency allowlist
+into every hook.</p>
+<p>The <strong>Session</strong> screen and <strong>Hooks</strong> inspector use the same live facts:
+when <code>globallyDisabled</code> is true, per-hook <em>Enabled</em> means membership in
+the generation-validated <code>enabledHookIds</code>; otherwise it means absence from
+<code>disabledHookIds</code>. A rejected mutation remains a visible failure rather
+than changing the displayed status optimistically.</p>
+<p>Inside an OMP session, the bundled adapter exposes the same control plane as
 session tools: <code>tama_hook_runtime_status</code>, <code>tama_set_session_hook</code>,
 <code>tama_enable_all_session_hooks</code>, <code>tama_request_session_capability</code>, and
 <code>tama_reload_hook_runtime</code>. Session hook disablement is prohibited there
 too.</p>
+<h2>Completion enforcement</h2>
+<p>Prompt text and installed instructions describe expected conduct; they do not
+execute a Stop rule. Execution comes from the enabled registered hook commands
+dispatched by the runtime. <code>block-stop-with-open-work</code> deterministically
+reconstructs the latest successful tracker state and blocks any pending or
+in-progress item. <code>check-open-items-with-model</code> separately reviews the real
+user contract, bounded current-turn tool evidence, and proposed final response
+through Tama's existing objective reviewer. It blocks for even one executable
+unfinished item or unresolved task error, while accepting completed and
+read-only work, user-stopped or user-restricted work, and a genuinely external
+unavailable prerequisite.</p>
+<p>The reviewer obtains its bearer and signing identity through Skarbiec items
+<code>tama-objective-authority-model-router</code> and <code>agent:wisent-app</code>, then
+calls Brama at the configured HTTPS endpoint (default
+<code>https://brama.wisent.com/v1/chat/completions</code>) with route <code>-best</code>,
+agent id <code>wisent-app</code>, temperature <code>0</code>, <code>max_tokens: 160</code>,
+a 3-second connect timeout, and a 25-second total timeout. Missing transcript
+or credentials, client/transport/HTTP failure, or an invalid reviewer response
+prints
+<code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code> and exits
+<code>70</code>; unavailable review is never reported as successful completion.</p>
 <h2>Global emergency disable</h2>
 <p>The bundled <code>emergency_disable_hooks</code> script is the switch; the desktop runs
 it from <strong>Posture</strong> (confirmed as <em>Disable every Tama hook on this machine</em>)

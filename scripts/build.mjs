@@ -36,8 +36,12 @@ const routeForSource = (source) => {
   if (source === 'CHANGELOG.md') return '/docs/changelog/';
   if (source === 'SECURITY.md') return '/docs/security/';
   if (source === 'examples/README.md') return '/docs/examples/';
-  if (source.startsWith('docs/') && source.endsWith('.md')) {
-    return `/docs/${source.slice(5, -3)}/`;
+  const prefix = source.startsWith('content/docs/')
+    ? 'content/docs/'
+    : source.startsWith('docs/') ? 'docs/' : null;
+  const extension = source.endsWith('.html') ? '.html' : source.endsWith('.md') ? '.md' : null;
+  if (prefix && extension) {
+    return `/docs/${source.slice(prefix.length, -extension.length)}/`;
   }
   return null;
 };
