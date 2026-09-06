@@ -86,6 +86,21 @@ session tools: <code>tama_set_session_hook</code>,
 <code>tama_request_session_capability</code>, <code>tama_reload_hook_runtime</code> — and
 states that session hook disablement is prohibited.</li>
 </ul>
+<h2>Reload support and refusals</h2>
+<p>The deferred reload tool requires OMP to expose <code>ctx.requestReload</code>.
+When that API is unavailable, it returns
+<code>OMP does not expose deferred runtime reload requests</code>; the runtime
+keeps <code>reloadPending: false</code> and continues using the previously loaded
+release. Installing a new release does not repair that missing API or make
+the running session use the new code.</p>
+<p>The existing <code>/tama_reload_hook_runtime</code> slash command uses OMP's
+command-handler <code>ctx.reload()</code> instead. Run it in the same session to
+reload without restarting the process; it does not enable every hook or lift
+the global emergency disable. Then read <code>tama_hook_runtime_status</code>:
+the installed and loaded release ids and checksums must match, and each
+requested hook must be present in the effective enabled ids. A queued request,
+successful installation, or unchanged process id alone does not prove that
+the new rules are running.</p>
 <h2>Completion hooks enabled through this control</h2>
 <p>Installed prompt text can tell an agent to keep working, but prose does not
 execute the completion contract. A completion rule runs only when its

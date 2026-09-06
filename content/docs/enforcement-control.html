@@ -64,6 +64,13 @@ session tools: <code>tama_hook_runtime_status</code>, <code>tama_set_session_hoo
 <code>tama_enable_all_session_hooks</code>, <code>tama_request_session_capability</code>, and
 <code>tama_reload_hook_runtime</code>. Session hook disablement is prohibited there
 too.</p>
+<p>Deferred reload requires OMP's <code>ctx.requestReload</code> API. If the tool
+returns <code>OMP does not expose deferred runtime reload requests</code>, no reload
+was scheduled and the session still uses its old release. The existing
+<code>/tama_reload_hook_runtime</code> slash command reloads that same session through
+the command-handler API without restarting the process or enabling every hook.
+Compare both release ids and checksums in the subsequent runtime status before
+treating an installation as active.</p>
 <h2>Completion enforcement</h2>
 <p>Prompt text and installed instructions describe expected conduct; they do not
 execute a Stop rule. Execution comes from the enabled registered hook commands
