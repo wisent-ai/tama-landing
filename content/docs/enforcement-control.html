@@ -92,6 +92,22 @@ or credentials, client/transport/HTTP failure, or an invalid reviewer response
 prints
 <code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code> and exits
 <code>70</code>; unavailable review is never reported as successful completion.</p>
+<p>Both model hooks invoke <code>stado secrets get &lt;item&gt; --field &lt;field&gt;</code>
+with an explicit <code>STADO_CREDENTIALS_ADMIN_URL</code>,
+<code>STADO_CREDENTIALS_ADMIN_CONSUMER</code>, and
+<code>STADO_CREDENTIALS_ADMIN_TOKEN_FILE</code> binding. The consumer is
+<code>tama-objective-authority-model-router-client</code>, with its own
+<code>~/.stado/tama-objective-authority-model-router-client-skarbiec-token</code>;
+it does not inherit the operator's credential-store identity. The URL comes
+from <code>TAMA_OBJECTIVE_AUTHORITY_SKARBIEC_URL</code>, defaulting to
+<code>http://127.0.0.1:8787</code>. The workload <code>WC_SKARBIEC_*</code> variables
+do not select the credential CLI's administration binding.</p>
+<p>An activation failure records the process outcome before its captured
+diagnostic: <code>could not start command</code>, <code>timed out after &lt;N&gt;ms</code>,
+signal termination, or the exit code. A failed credential read names the
+exact item, field, endpoint and consumer, followed by Stado's own error;
+no field value is included. A timeout is not reported as an unexplained
+<code>exit null</code>.</p>
 <h2>Global emergency disable</h2>
 <p>The bundled <code>emergency_disable_hooks</code> script is the switch; the desktop runs
 it from <strong>Posture</strong> (confirmed as <em>Disable every Tama hook on this machine</em>)
