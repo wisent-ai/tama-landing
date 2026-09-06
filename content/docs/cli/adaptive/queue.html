@@ -1,0 +1,11 @@
+<h1><code>tama adaptive queue</code></h1>
+<p>Lists repair proposals recorded in closed adaptive telemetry segments.</p>
+<h2>Invocation</h2>
+<pre><code>tama adaptive queue
+</code></pre>
+<p>The command takes no required input or public options.</p>
+<h2>Output and state</h2>
+<p>An empty queue prints exactly <code>repair queue empty</code>. Otherwise each repair-proposal event is printed with its ISO-8601 timestamp, hook id, repair kind, and evidence path; missing values render as <code>unknown-time</code>, <code>?</code>, or <code>-</code>. The command does not acknowledge, remove, or apply queue entries and exits <code>0</code>.</p>
+<h2>Refusals and failures</h2>
+<p>There are no command-specific policy refusals. An unreadable or invalid closed telemetry segment is reported with the <code>doctor: </code> prefix and exits <code>1</code>.</p>
+<p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>

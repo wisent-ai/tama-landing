@@ -1,0 +1,11 @@
+<h1><code>tama adaptive claude-config</code></h1>
+<p>Prints the Claude settings fragment that routes mapped Claude lifecycle and tool events through the shared legacy runner.</p>
+<h2>Invocation</h2>
+<pre><code>tama adaptive claude-config
+</code></pre>
+<p>The command takes no required input or public options.</p>
+<h2>Output and state</h2>
+<p>Stdout receives a JSON object with a <code>hooks</code> map. Registry events that have Claude mappings become <code>Stop</code>, <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PostToolUse</code>, or <code>SessionStart</code> entries, with matchers where required and commands of the form <code>node ~/.shared-hooks/run-hook.mjs &lt;event&gt;</code>. The command prints only; it does not write Claude settings.</p>
+<h2>Refusals and failures</h2>
+<p>Unmapped registry events are omitted, not treated as errors. There are no command-specific policy refusals; adaptive state or registry failures are written with the <code>doctor: </code> prefix and exit <code>1</code>.</p>
+<p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>

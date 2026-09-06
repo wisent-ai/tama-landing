@@ -1,0 +1,16 @@
+<h1><code>tama adaptive install</code></h1>
+<p>Replaces the legacy shared-hook runner with a native Tama adaptive-runner shim after preserving a timestamped backup.</p>
+<h2>Invocation</h2>
+<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive install
+</code></pre>
+<p>The command takes no positional input or public options. Owner consent must set <code>DEVICE_HOOK_EDIT_APPROVED=1</code> outside the agent session.</p>
+<h2>Output and state</h2>
+<p>Tama backs up <code>~/.shared-hooks/run-hook.mjs</code>, writes a shell shim that invokes this CLI's hidden adaptive runner, and verifies that the shim returns a passing decision. Success prints the installed path and backup path and exits <code>0</code>.</p>
+<h2>Refusals and failures</h2>
+<ul>
+<li>Missing consent: <code>refusing to install: owner consent is missing.</code> followed by the exact export instruction, exit <code>1</code>.</li>
+<li>Missing runner: <code>legacy runner not found at &lt;path&gt;</code>.</li>
+<li>Backup or write failures: <code>cannot create backup dir &lt;path&gt;</code>, <code>cannot back up legacy runner</code>, or <code>cannot write shim</code>.</li>
+<li>Verification failure: <code>shim verification did not pass (&lt;reason&gt;); original runner restored from &lt;path&gt;</code>. Tama restores the backup before exiting <code>1</code>.</li>
+</ul>
+<p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>

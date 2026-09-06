@@ -1,0 +1,11 @@
+<h1><code>tama verify</code></h1>
+<p>Runs the native release verification harness bundled next to the Tama CLI.</p>
+<h2>Invocation</h2>
+<pre><code>tama verify
+</code></pre>
+<p>The command has no required input or public options. It resolves <code>tama-require-live-runtime</code> beside the running CLI and starts it with the selected Tama root as its working directory.</p>
+<h2>Output and state</h2>
+<p>The verification harness owns its output and performs catalog validation plus live hook block fixtures. Tama exits with the harness exit code; a signal or spawn failure maps to exit <code>1</code>.</p>
+<h2>Refusals and failures</h2>
+<p>If the native harness is not installed next to the CLI, Tama writes exactly <code>tama-require-live-runtime not found next to this binary</code> and exits <code>1</code>. The command has no fallback to the removed Node CLI.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

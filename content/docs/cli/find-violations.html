@@ -1,0 +1,12 @@
+<h1><code>tama find-violations</code></h1>
+<p>Replays the real shared pre-write hook against files in one or more repositories and reports the first content-rule violation per file without modifying the repositories.</p>
+<h2>Invocation</h2>
+<pre><code>tama find-violations (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-user-or-org&gt; | --me) [...]
+                     [--json] [--hook &lt;path&gt;] [--clone-dir &lt;dir&gt;]
+</code></pre>
+<p>Targets are repeatable and combinable. <code>--repo</code> names one directory; <code>--tree</code> discovers Git checkouts; <code>--owner</code> uses <code>gh</code> and shallow-clones missing repositories; <code>--me</code> selects the authenticated user and their organizations. <code>--hook</code> overrides the replayed hook, <code>--clone-dir</code> changes the clone cache, and <code>--json</code> selects structured reports.</p>
+<h2>Output and state</h2>
+<p>Text mode groups findings by rule and ends with repository, violation, and discovery-problem totals. JSON returns <code>repos</code>, <code>problems</code>, and <code>totals</code>. Exit <code>0</code> means no violations or problems; any violation or discovery problem exits <code>1</code>. Command-gating rules are out of scope because they inspect shell commands rather than file content.</p>
+<h2>Refusals and failures</h2>
+<p>Missing targets, empty or missing option values, and unknown arguments print usage and exit <code>2</code>. Missing paths produce exactly <code>hook not found: &lt;path&gt;</code>, <code>repo not found: &lt;path&gt;</code>, or <code>tree not found: &lt;path&gt;</code> and exit <code>2</code>. When discovery yields no repositories, Tama writes <code>no repositories found</code>; it exits <code>1</code> if discovery also reported a problem, otherwise <code>0</code>.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

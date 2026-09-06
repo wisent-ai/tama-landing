@@ -1,0 +1,11 @@
+<h1><code>tama validate</code></h1>
+<p>Validates the sealed hook catalog, its source archive, justification metadata, secrets posture, and material runtime-install drift.</p>
+<h2>Invocation</h2>
+<pre><code>tama validate [--json]
+</code></pre>
+<p>The command takes no positional input. <code>--json</code> prints <code>ok</code>, <code>errors</code>, <code>warnings</code>, <code>hookCount</code>, and <code>orphanSourceCount</code>. Text mode prints counts, <code>WARN</code> lines to stdout, and <code>ERROR</code> lines to stderr.</p>
+<h2>Output and state</h2>
+<p>Validation is read-only. It exits <code>0</code> only when the error list is empty and exits <code>1</code> when validation finds an error.</p>
+<h2>Refusals and failures</h2>
+<p>Errors include duplicate hook ids, missing source files or event bindings, invalid justification requirements, high-entropy tokens in managed validation files, and material runtime-install drift. An unmappable source path and acknowledged or otherwise non-material drift are warnings, not refusals. File or JSON failures are written as underlying errors and exit <code>1</code>.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

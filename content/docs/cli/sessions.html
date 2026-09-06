@@ -1,0 +1,11 @@
+<h1><code>tama sessions</code></h1>
+<p>Reports every recorded live agent session and the hook state projected into its session-control record.</p>
+<h2>Invocation</h2>
+<pre><code>tama sessions [--json] [--home &lt;path&gt;]
+</code></pre>
+<p><code>--home</code> selects the home containing <code>Library/Application Support/Tama/session-control</code>; otherwise Tama uses <code>HOME</code>. <code>--json</code> prints the full session array.</p>
+<h2>Output and state</h2>
+<p>Text mode prints agent id, the first 12 characters of session id, and either loaded/registered hook counts or the effective allowlist when hooks are globally disabled. JSON includes status, working directory, counts, enabled and disabled ids, and update time. The command only reads session records.</p>
+<h2>Refusals and failures</h2>
+<p>A missing or unreadable control directory produces an empty result and exit <code>0</code>. An invalid individual JSON file is retained as a row with <code>parseError: true</code>; an unreadable file becomes <code>readError: true</code>. These records are surfaced rather than causing a command-wide refusal.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

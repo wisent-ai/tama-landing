@@ -1,0 +1,18 @@
+<h1><code>tama adaptive apply</code></h1>
+<p>Applies one previously validated adaptive repair proposal to the live hook and, when mapped, its archived source.</p>
+<h2>Invocation</h2>
+<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;
+</code></pre>
+<p><code>&lt;proposal-dir&gt;</code> is required and must contain the proposal's <code>report.json</code> and candidate file. Owner consent must set <code>DEVICE_HOOK_EDIT_APPROVED=1</code> outside the agent session.</p>
+<h2>Output and state</h2>
+<p>Tama backs up the current live script, copies the proposed file over the live script and mapped archive source, records a telemetry warning, then prints <code>applied &lt;hook-id&gt;; backup at &lt;path&gt;</code>. Success exits <code>0</code>.</p>
+<h2>Refusals and failures</h2>
+<ul>
+<li>Missing proposal directory prints adaptive usage and exits <code>2</code>.</li>
+<li>Missing owner consent: <code>refusing to modify live hooks: DEVICE_HOOK_EDIT_APPROVED is not set.</code>, then the consent-flow URL, exit <code>1</code>.</li>
+<li>Missing report: <code>no report.json in &lt;proposal-dir&gt;</code>.</li>
+<li>Invalid report JSON: <code>unreadable report.json: SyntaxError: Unexpected token in JSON</code>.</li>
+<li>Unresolvable live or candidate path: <code>missing live path or proposed file for &lt;hook-id&gt;</code>.</li>
+</ul>
+<p>Filesystem failures are prefixed <code>doctor: </code> and exit <code>1</code>.</p>
+<p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>

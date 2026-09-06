@@ -1,0 +1,12 @@
+<h1><code>tama install</code></h1>
+<p>Installs Tama-managed user-global Git dispatchers for <code>pre-commit</code> and <code>pre-push</code>, preserving a pre-existing unmanaged hook once as <code>.before-tama</code>.</p>
+<h2>Invocation</h2>
+<pre><code>tama install [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;]
+             [--set-git-config] [--no-git-config] [--json]
+</code></pre>
+<p><code>--git-hooks-path</code> chooses the dispatcher directory. Otherwise Tama uses global <code>core.hooksPath</code>, falling back to <code>~/.config/git/hooks</code>. <code>--home</code> controls home expansion and the Git configuration environment. <code>--set-git-config</code> writes global <code>core.hooksPath</code>; <code>--no-git-config</code> wins when both flags are present. <code>--json</code> selects structured output.</p>
+<h2>Output and state</h2>
+<p>Tama creates the hooks directory, writes executable managed dispatchers, and may create <code>pre-commit.before-tama</code> and <code>pre-push.before-tama</code>. Output names the resolved hooks path, both installed targets and whether Git global configuration changed.</p>
+<h2>Refusals and failures</h2>
+<p>Filesystem and process errors are written to stderr and exit <code>1</code>. When requested Git configuration returns nonzero, Tama reports Git's stderr, or exactly <code>git config failed</code> when Git produced no message. Without <code>--set-git-config</code>, the command deliberately leaves Git configuration untouched.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

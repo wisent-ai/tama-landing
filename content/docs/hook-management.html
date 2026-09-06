@@ -1,0 +1,46 @@
+<h1>Hook management</h1>
+<p>Tama stores hook source and structured configuration, exposes the CLI and MCP catalogue, and carries the runtime paths that enforce approved policy. The repository is never runtime state: logs, transcripts, credentials, shell profiles, local settings, caches, and machine-specific state stay outside it.</p>
+<h2>Source of truth</h2>
+<ol>
+<li><code>shared-hooks/registry.json</code> declares hook ids, events, commands, blocking status, runtime placement, and provider adapters.</li>
+<li><code>shared-hooks/catalog-metadata.json</code> carries durable category, lifecycle, purpose, rationale, and side-effect metadata.</li>
+<li><code>tama-core</code> reads those structured sources for the Rust CLI, MCP server, desktop catalogue snapshot, and product checks.</li>
+</ol>
+<p>Do not duplicate a hook description in a command or prose file. Update the structured catalogue, then inspect it through <code>tama list --json</code>, <code>tama show &lt;hook-id&gt; --json</code>, or the matching MCP tools.</p>
+<h2>Repository layout</h2>
+<ul>
+<li><code>shared-hooks/</code>, <code>codex-hooks/</code>, and <code>claude-hooks/</code> contain archived hook source and the shared registry.</li>
+<li><code>repo-githooks/</code> contains project Git entrypoints.</li>
+<li><code>rust/crates/tama-core/</code> is the catalogue and validation library.</li>
+<li><code>rust/crates/tama-cli/</code> is the supported CLI implementation; <code>rust/crates/tama-mcp-server/</code> exposes catalogue operations.</li>
+<li><code>rust/crates/tama-adaptive/</code> owns the runner, symbolic policy, immutable telemetry, feedback bridge, and repair doctor.</li>
+<li><code>adaptive/policy.json</code> is the frozen symbolic tier and autonomy policy.</li>
+</ul>
+<h2>Catalogue commands</h2>
+<pre><code>tama list
+tama list --json
+tama show block-git-hook-bypass
+tama show block-git-hook-bypass --json
+tama validate --json
+tama install-plan --json</code></pre>
+<p>The install plan separates agent runtime adapters, editor coverage, the MCP server, user-global Git dispatchers, repository Git entrypoints, and operating-system policy. An installed surface proves only its declared scope; Tama does not infer native Kimi, arbitrary editor-save, or device-wide coverage.</p>
+<h2>Installation and repository cleanup</h2>
+<p><code>tama install</code> writes the user-global <code>pre-commit</code> and <code>pre-push</code> dispatchers only. It preserves existing hooks and changes global Git configuration only when explicitly requested. It does not activate every agent, editor, MCP, or operating-system integration.</p>
+<p><code>tama find-violations</code> scans tracked and untracked-but-not-ignored repository files through the real pre-write policy without changing them. <code>tama clean</code> gives the structured report to a bounded model worker and rescans under the same hooks; generated lock and registry files stay outside that repair loop.</p>
+<h2>MCP tools</h2>
+<ul>
+<li><code>list_hooks</code> lists structured catalogue entries.</li>
+<li><code>show_hook</code> returns one hook and its event bindings.</li>
+<li><code>read_hook_source</code> reads the archived source for one hook.</li>
+<li><code>validate_hooks</code> checks catalogue consistency.</li>
+<li><code>find_violations</code> returns the same structured repository report as the CLI.</li>
+</ul>
+<h2>Changing a hook</h2>
+<ol>
+<li>Place source under the owning archive directory.</li>
+<li>Update the registry and catalogue metadata with identity, event, command, timeout, blocking mode, category, purpose, rationale, and side effects.</li>
+<li>Exercise the real runtime path that claims enforcement. Synthetic payload replay, mocks, and dry-run-only evidence do not prove live blocking.</li>
+<li>Keep commits limited to hook source, structured catalogue/configuration, and applicable product checks. Exclude runtime state, credentials, logs, profiles, and caches.</li>
+</ol>
+<h2>Security rules</h2>
+<p>Never commit settings, environment files, shell profiles, logs, transcripts, credentials, private keys, session cookies, or Keychain exports. Hook archives may contain forbidden patterns by design, so any bypass for the Tama source repository must be explicit and scoped.</p>

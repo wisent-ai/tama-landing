@@ -50,6 +50,40 @@
 </li>
 </ol>
 <p>Installation does not register services or modify agent configuration.</p>
+<h2>Optional existing-policy import</h2>
+<p>The first screen offers <strong>Choose bundle</strong> and
+<strong>Skip</strong>. Choose an existing self-contained Tama policy bundle or
+sealed release directory with a regular
+<code>shared-hooks/registry.json</code>. The same operation is
+available later in <strong>Settings → Policy bundles</strong> and from the CLI:</p>
+<pre><code class="language-bash">tama onboarding --policy-bundle /absolute/path/to/bundle
+tama policy import --source /absolute/path/to/bundle
+tama policy list --json
+</code></pre>
+<p>The accepted self-contained policy bundle or sealed release contains a regular
+<code>shared-hooks/registry.json</code> and regular, non-symlink files under
+<code>shared-hooks/</code>, <code>claude-hooks/</code>,
+<code>codex-hooks/</code>, <code>repo-githooks/</code>,
+<code>adaptive/</code>, <code>external-hooks/</code>, and <code>bin/</code>,
+plus supported root metadata such as <code>release.json</code> and
+<code>external-sources.json</code>. Other top-level paths appear in
+<code>ignoredPaths</code>; they are not silently accepted as policy.
+The complete registry and every registered source are checked before mutation,
+and a sealed release must match its <code>release.json</code> tree identity.
+Invalid JSON, missing sources, seal mismatches, symlinks, and special files
+reject the bundle without partial writes.</p>
+<p>Source path and ordered file content form a stable SHA-256 identity.
+Repeating identical content is unchanged. A differing stored bundle reports the
+complete conflict list and writes nothing unless replacement is explicitly
+requested. Replacement still protects untracked and locally changed stored
+files.</p>
+<p>Successful import writes an editable bundle plus
+<code>index.json</code> under
+<code>~/Library/Application Support/Tama/policy-bundles</code>. The index keeps
+the source path, digest, time, hooks, files, modes, and per-file hashes.
+Imported means inactive: the operation installs and enables zero hooks and does
+not touch the active release, runtime, agent adapters, Git configuration, or
+source directory. <strong>Skip</strong> leaves an empty, usable Tama.</p>
 <h2>Sign-in and setup</h2>
 <p>Tama opens Wisent authentication directly. The read-only bundled-policy inspector remains an explicit toolbar choice and uses an isolated catalog model that does not read installed-policy, backend, session, or repository state.</p>
 <p>Enter the Wisent account email and request a one-time code, or use an enabled delegated provider. Credentials and refresh tokens are stored by Wisent Auth in the macOS Keychain. Tama does not store them in Application Support. A successful Wisent Auth state is the sole source of authentication truth; Tama does not duplicate it in preferences.</p>
@@ -85,9 +119,11 @@
 </ol>
 <p>The control interface opens on <strong>Posture</strong>, the default destination. That visible, matching setup evidence is the first successful product outcome. An acknowledgement, successful login, install exit code, or partial backend registration is not sufficient.</p>
 <h2>Machine onboarding</h2>
-<p>Tama does not expose an unattended setup or mutation API. Automation may read the
-published provenance and hook-release manifests, but a human must verify the artifact,
-sign in, confirm runtime installation, and approve every privileged macOS component.
+<p>Tama does not expose an unattended enforcement-setup API. Its loopback API
+can adopt an inactive policy bundle, but cannot install or enable that bundle.
+Automation may read published provenance and hook-release manifests, while a
+human must verify the artifact, sign in, confirm runtime installation, and
+approve every privileged macOS component.
 After that setup, supervised agents use versioned capability records in
 <code>ai.wisent.tama.session-control.v2</code>; each record is bound to a session, control key,
 catalog checksum, release ID, lifetime, and remaining-use limit. Missing or expired

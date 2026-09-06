@@ -1,0 +1,11 @@
+<h1><code>tama install-plan</code></h1>
+<p>Shows the archive root and the target paths for every enforcement level without installing anything.</p>
+<h2>Invocation</h2>
+<pre><code>tama install-plan [--json] [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;]
+</code></pre>
+<p><code>--git-hooks-path</code> supplies the user-global Git target shown in the plan. <code>--home</code> resolves home-relative agent, editor, and Git paths. Without either option, Tama uses the configured global <code>core.hooksPath</code> and <code>HOME</code>. <code>--json</code> selects the structured level plan.</p>
+<h2>Output and state</h2>
+<p>Text mode reports agent/app, editor, MCP, user-global Git, repository Git, and OS-level posture. JSON mode returns <code>archiveRoot</code> and the six level records. The command does not create directories, write configuration, or activate hooks.</p>
+<h2>Refusals and failures</h2>
+<p>There are no command-specific refusals. A missing global Git configuration is represented as <code>not configured</code>; Kimi's missing native adapter and OS-level policy are reported as unsupported or outside Tama rather than treated as command failures.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>
