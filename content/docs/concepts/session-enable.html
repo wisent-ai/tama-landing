@@ -52,15 +52,19 @@ include:</p>
 | Disabled state has no usable generation | <code>global-emergency-state-missing-generation</code> |
 | Emergency state changes during one-hook activation | <code>emergency-state-changed-during-activation</code> |
 | Enable-all requested during global disable | <code>global-emergency-disable-active</code> |</p>
-<h2>Semantics under global disable</h2>
-<p>Enablement is interpreted against <code>globallyDisabled</code>
-(<a href="../enforcement-control.md#session-scoped-enable">enforcement-control</a>):</p>
+<h2>Composition with machine enforcement</h2>
+<p>Session enablement is additive to the machine policy
+(<a href="../enforcement-control.md#the-three-machine-states">enforcement-control</a>):</p>
 <ul>
-<li>normally, a hook runs unless its id is in <code>disabledHookIds</code>;</li>
-<li>during a <a href="emergency-disable.md">global emergency disable</a>,
-<code>enabledHookIds</code> is the session's explicit allowlist, but only when the
-override's <code>emergencyChangedAt</code> exactly equals the active emergency state's
-nonempty <code>changedAt</code>. Those are the only hooks that run.</li>
+<li>in all-hooks mode, every registered hook already runs;</li>
+<li>in selected-hooks mode, a hook runs when its id is in the machine
+selection or this session's <code>enabledHookIds</code>. A session cannot remove an
+id from the machine selection;</li>
+<li>during a <a href="emergency-disable.md">global emergency disable</a>, the
+machine selection is bypassed. <code>enabledHookIds</code> is the session's explicit
+allowlist, but only when the override's <code>emergencyChangedAt</code> exactly equals
+the active emergency state's nonempty <code>changedAt</code>. Those are the only hooks
+that run.</li>
 </ul>
 <p>The supervisor persists that generation binding beside the allowlist and in
 the OMP session's retained override entry. Reloading or resuming the same
@@ -70,6 +74,13 @@ with no binding and stale overrides from an earlier generation contribute no
 enabled hooks or capability. <code>tama-cli sessions</code> and the desktop therefore
 render the supervisor's already-sanitized <code>enabledHookIds</code>, not an old
 allowlist copied from disk.</p>
+<h2>Runtime status</h2>
+<p>The session record and <code>tama_hook_runtime_status</code> publish
+<code>enforcementMode</code> (<code>all</code> or <code>only</code>) and
+<code>machineEnabledHookIds</code>, the validated, sorted registered ids selected by
+the durable machine state. These sit beside <code>enabledHookIds</code>, which remains
+the session's additive state. Under emergency disable, the machine ids stay
+visible as retained configuration but do not run.</p>
 <h2>Where it surfaces</h2>
 <ul>
 <li>The <strong>Session</strong> screen renders the live record and can request one-hook or

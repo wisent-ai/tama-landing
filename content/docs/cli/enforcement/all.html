@@ -1,0 +1,12 @@
+<h1><code>tama enforcement all</code></h1>
+<p>Restores the all-hooks machine baseline without changing the separate emergency switch.</p>
+<h2>Invocation</h2>
+<pre><code>tama enforcement all
+</code></pre>
+<p>The command takes no positional input or public options.</p>
+<h2>Output and state</h2>
+<p>Success begins <code>Machine enforcement selection cleared; all &lt;N&gt; installed hooks are selected.</code> Tama atomically writes <code>hook-enforcement.json</code> with mode <code>0600</code>, <code>mode: "all"</code>, an empty <code>enabled</code> array, the transition time, and the immediately preceding effective mode and ids in <code>previous</code>.</p>
+<p>If emergency disable is active, all-hooks mode is retained but remains bypassed until re-enable succeeds. The emergency state is not changed by this command.</p>
+<h2>Refusals and failures</h2>
+<p>The command has no hook-id refusal. A registry or write failure prints <code>enforcement: &lt;OS/core error&gt;</code> to stderr, exits <code>1</code>, and does not claim that the machine selection changed.</p>
+<p>Return to the <a href="../../">complete CLI command tree</a>.</p>

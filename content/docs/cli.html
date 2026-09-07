@@ -2,8 +2,8 @@
 <p>Tama Desktop bundles a sealed native Rust CLI at
 <code>Tama.app/Contents/Resources/hooks-release/bin/tama-cli</code>. Its public
 usage starts with <code>tama &lt;command&gt;</code>. This index links every public
-top-level command and every public adaptive leaf; hidden runner and bridge
-entrypoints are intentionally not part of the public surface.</p>
+top-level command and command leaf; hidden runner and bridge entrypoints are
+intentionally not part of the public surface.</p>
 <h2>Catalog and release inspection</h2>
 <ul>
 <li><a href="cli/help/"><code>tama help</code></a> — print the sealed public command summary.</li>
@@ -16,6 +16,12 @@ entrypoints are intentionally not part of the public surface.</p>
 <li><a href="cli/sessions/"><code>tama sessions [--json] [--home &lt;path&gt;]</code></a> — inspect live session records.</li>
 <li><code>tama policy import --source &lt;dir&gt; [--replace] [--json] [--home &lt;path&gt;]</code> — validate and persist an existing policy bundle without installing or enabling it.</li>
 <li><code>tama policy list [--json] [--home &lt;path&gt;]</code> — list retained inactive bundle identities.</li>
+</ul>
+<h2>Machine enforcement</h2>
+<ul>
+<li><a href="cli/enforcement/status/"><code>tama enforcement status [--json]</code></a> — read the durable machine selection.</li>
+<li><a href="cli/enforcement/only/"><code>tama enforcement only &lt;hook-id&gt;...</code></a> — enforce only selected hooks machine-wide.</li>
+<li><a href="cli/enforcement/all/"><code>tama enforcement all</code></a> — restore the all-hooks machine baseline.</li>
 </ul>
 <h2>Installation and repository operations</h2>
 <ul>

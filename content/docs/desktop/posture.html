@@ -9,10 +9,13 @@ destructive action. The underlying judgment is
 <code>read &lt;time&gt;</code>. Actions: <code>Reveal release</code> (opens the bundled release in
 Finder), <code>Re-enable all hooks</code> (only while bypassed), and <code>Disable all hooks</code> (destructive, behind the dialog below).</p>
 <h2>Signals and counters</h2>
-<p>Severity-ordered signal rows: Catalog, Local enforcement, Bundled release,
-Managed dispatchers, Local runtime, Privileged backend, Live sessions, Hook
-runtime. Hook-runtime tone comes from the shared mapping: <code>Load failed</code>
-(registry load error), <code>Reload scheduled</code>, <code>Reload required</code>, else <code>Loaded</code>;
+<p>Beside <code>Policy protection</code>, the <code>Machine selection</code> signal reads
+<code>All hooks</code>, <code>Only N selected</code>, or <code>Not read</code>. It takes danger tone
+while emergency disable bypasses the retained selection. The remaining
+severity-ordered rows cover Catalog, Bundled release, Managed dispatchers,
+Local runtime, Privileged backend, Live sessions, and Hook runtime.
+Hook-runtime tone comes from the shared mapping: <code>Load failed</code> (registry
+load error), <code>Reload scheduled</code>, <code>Reload required</code>, else <code>Loaded</code>;
 loaded-vs-registered count mismatch warns. Counters: <code>Catalog hooks</code>,
 <code>Blocking</code>, <code>Categories</code>, <code>Orphan sources</code>.</p>
 <h2>Release identity</h2>

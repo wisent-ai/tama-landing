@@ -1,12 +1,24 @@
 <h1>Enforcement control</h1>
-<p>Tama has exactly two enforcement mutations, and they point in opposite
-directions on purpose. Enabling is narrow: one hook, or all hooks, in one
-live session, applied by that session's own supervisor. Disabling is global:
-one confirmed emergency action that bypasses every managed dispatcher on the
-machine and leaves durable evidence until re-enable succeeds. There is no
-per-session disable — agent-session controls never weaken policy, and
-disabling enforcement remains an operator-owned action outside the session
+<p>Tama has three machine enforcement states, and their ownership is explicit.
+The normal baseline runs every registered hook. An operator can narrow that
+baseline to a durable machine-wide selection, or use the confirmed emergency
+switch to bypass it completely. A live session can only add hooks to the
+machine baseline; it can never remove one. There is no per-session disable
 (<a href="core-contracts.md">core-contracts</a>).</p>
+<h2>The three machine states</h2>
+<table>
+<thead><tr><th>State</th><th>Owner and direction</th><th>Hooks that run</th></tr></thead>
+<tbody>
+<tr><td>All hooks</td><td>Operator baseline; <code>tama enforcement all</code> restores the strongest machine policy</td><td>Every registered hook</td></tr>
+<tr><td>Selected hooks</td><td>Operator; <code>tama enforcement only &lt;hook-id&gt;...</code> narrows the machine baseline</td><td>The ids in <code>hook-enforcement.json</code>, plus ids enabled by the current session</td></tr>
+<tr><td>Emergency bypass</td><td>Operator; the confirmed emergency switch weakens policy to none at machine scope</td><td>Only generation-bound ids explicitly enabled by the current session</td></tr>
+</tbody>
+</table>
+<p>The durable selection remains recorded during an emergency bypass, but it
+enforces nothing while that bypass is active. Re-enable removes the bypass
+and the selected machine policy takes effect again. Missing
+<code>hook-enforcement.json</code> means all hooks; malformed or unreadable state
+reports the failure and falls back to all, never none.</p>
 <h2>Session records</h2>
 <p>Supervised runtimes publish one file per live session under
 <code>~/Library/Application Support/Tama/session-control/</code> (directory mode
@@ -19,7 +31,8 @@ disabling enforcement remains an operator-owned action outside the session
 nonce, release and checksum binding, lifetime, expiry, remaining uses, and
 per-tool grants), <code>runtime</code> status (<code>installedReleaseId</code>, <code>loadedReleaseId</code>,
 <code>catalogChecksum</code>, registered/loaded hook counts, unknown hook ids,
-<code>reloadRequired</code>, <code>reloadPending</code>, <code>registryLoadError</code>), and
+<code>enforcementMode</code>, <code>machineEnabledHookIds</code>, <code>reloadRequired</code>,
+<code>reloadPending</code>, <code>registryLoadError</code>), and
 <code>semanticRuntime</code> — the sequence of recent events with each <code>decision</code>, the
 <code>blockedHookId</code>, and the <code>reason</code> string. Tama only reads these records;
 invalid, legacy-v1, or stale ones are ignored.</p>
@@ -33,13 +46,17 @@ supervisor validates the envelope against the exact session identity tuple,
 applies accepted state atomically, and answers with the authoritative session
 record; rejection, malformed identity, session exit, or timeout is an
 actionable failure, never optimistic success.</p>
-<p>Enablement semantics follow <code>globallyDisabled</code>:</p>
+<p>Enablement semantics compose the machine state and the session state:</p>
 <ul>
-<li>normally, a hook is enabled unless its id is in <code>disabledHookIds</code>;</li>
+<li>normally, every hook in the all-hooks baseline runs;</li>
+<li>in machine selection mode, the selected ids run and
+<code>enabledHookIds</code> can add hooks for this session, but cannot remove a
+machine-selected hook;</li>
 <li>during a global emergency disable, one-hook enable may add the id to
 <code>enabledHookIds</code> only when its preflight and persisted override are bound to
-the active emergency state's exact, nonempty <code>changedAt</code>. The session record
-publishes that binding as <code>emergencyChangedAt</code>.</li>
+the active emergency state's exact, nonempty <code>changedAt</code>. The machine
+selection is bypassed, and the session record publishes that binding as
+<code>emergencyChangedAt</code>.</li>
 </ul>
 <p>The one-hook allowlist and generation binding are retained in the private
 override and OMP session history, so they survive a reload or resume of that
@@ -55,10 +72,11 @@ active, enable-all is refused with
 <code>global-emergency-disable-active</code>; it cannot turn the emergency allowlist
 into every hook.</p>
 <p>The <strong>Session</strong> screen and <strong>Hooks</strong> inspector use the same live facts:
-when <code>globallyDisabled</code> is true, per-hook <em>Enabled</em> means membership in
-the generation-validated <code>enabledHookIds</code>; otherwise it means absence from
-<code>disabledHookIds</code>. A rejected mutation remains a visible failure rather
-than changing the displayed status optimistically.</p>
+during emergency disable, per-hook <em>Enabled</em> means membership in the
+generation-validated <code>enabledHookIds</code>. Otherwise it means membership in the
+all-hooks or selected machine baseline, plus any session enable. A rejected
+mutation remains a visible failure rather than changing the displayed status
+optimistically.</p>
 <p>Inside an OMP session, the bundled adapter exposes the same control plane as
 session tools: <code>tama_hook_runtime_status</code>, <code>tama_set_session_hook</code>,
 <code>tama_enable_all_session_hooks</code>, <code>tama_request_session_capability</code>, and
