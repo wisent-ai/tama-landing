@@ -1,40 +1,52 @@
 <h1>Coverage screen</h1>
-<p>Which runtime carries which hook, as the registry declares it. The screen
-answers &quot;is Codex actually covered on this machine&quot; without a terminal —
-and is explicit that these are declared mappings, not live execution
-evidence, because the data says so in every row: the rail footer reads
-<code>Evidence</code> / <code>Registry-declared mappings, not live execution</code>, and each
-provider's own evidence sentence — captured live from the sealed release —
-is <code>Registry-declared mappings; not live execution evidence.</code></p>
+<p>Which runtime carries which hook, and whether that runtime's own
+configuration really installs it. The screen answers &quot;is Codex actually
+covered on this machine&quot; without a terminal, and it separates the two halves
+of that question: the registry's declared mappings, and how many of them the
+provider's config on this machine installs. It is explicit that neither half
+is live execution evidence — each provider's own sentence, captured from the
+sealed release, is <code>Registry-declared mappings; not live execution evidence.</code></p>
+<p>The distinction is not academic. Until 2026-09-07 every install deleted
+Tama's entries from <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code>,
+so both providers ran no policy at all while this screen showed full declared
+coverage (<a href="../hook-releases.md#installation">hook-releases</a>).</p>
 <h2>Where the data comes from</h2>
 <p>A plain GET of <code>/v1/coverage</code> on the loopback backend
 (<a href="../cli.md#the-desktop-backend">cli</a>), read on first visit and re-read
 only on demand — coverage is registry content, so polling it would imply it
-changes. Against the release sealed on 2026-08-24, the <code>claude</code> provider
-reports adapter <code>~/.claude/settings.json</code>, 95 declared mappings, 57 hooks,
-9 events. A failed read shows <code>Coverage could not be read</code> with the error
+changes. Against the release sealed on 2026-09-07 (source revision
+<code>2b50253</code>), the <code>claude</code> provider reports adapter
+<code>~/.claude/settings.json</code>, 94 declared mappings, 94 of them installed, 56
+hooks, 9 events; <code>codex</code> reports 111 declared, 111 installed, 57 hooks, 16
+events. A failed read shows <code>Coverage could not be read</code> with the error
 sentence and Retry.</p>
 <h2>Header, facets, counters</h2>
 <p>Title <code>Coverage</code>; scope is the selected provider; freshness reads
 <code>reading now</code>, <code>read &lt;time&gt;</code>, or <code>not read yet</code>; the one action is <code>Re-read coverage</code>. The <code>Provider</code> facet lists <code>Every provider</code> (total mappings) and
 each provider with its mapping count — warning-toned when it maps nothing.
-Counters: <code>Providers</code> (declared in this release), <code>Mappings</code> (event to
-runtime pairs), <code>Hooks covered</code> (distinct policies reachable), <code>Without mappings</code> (providers nothing runs through; warns when nonzero).</p>
+Counters: <code>Providers</code> (declared in this release), <code>Assignments</code> (covered
+event pairs), <code>Policies covered</code> (distinct covered policies), <code>Without coverage</code> (providers without coverage; warns when nonzero), and <code>Not installed</code> (configs missing declared mappings; warns when nonzero).</p>
 <h2>States and table</h2>
-<p>Empty registry: <code>The registry declares no coverage</code> — <code>No runtime in this release claims any catalogued event.</code> A provider with no mappings:
-<code>&lt;provider&gt; maps no hook</code>, with the registry's own note when it declares
-one, else <code>The registry lists the provider and declares no event mapping for it, so nothing runs through it.</code>, and a <code>Show every provider</code> action.
-Loading reads <code>Reading declared provider coverage</code>. The table is HOOK,
-EVENT, RUNTIME EVENT, PROVIDER.</p>
+<p>No providers at all: <code>No provider coverage</code> — <code>No providers are covered in this release.</code> A provider with no mappings: <code>No coverage for &lt;provider&gt;</code>,
+with the registry's own note when it declares one, else <code>This provider has no covered events.</code>, and a <code>Show every provider</code> action. Loading reads
+<code>Reading provider coverage</code>; a failed read shows <code>Coverage could not be read</code> with the error sentence and <code>Retry</code>. The table is POLICY, EVENT,
+TRIGGER, PROVIDER.</p>
 <h2>Inspector</h2>
 <p>Selecting a provider (or any of its rows) shows: badges for the coverage
-kind (<code>declared</code>) and <code>No mappings</code> when uncovered; fields <code>Declared mappings</code>, <code>Hooks</code>, <code>Events</code>, <code>Adapter path</code> (<code>No adapter declared</code>), and
-<code>Live coverage required</code> — <code>yes</code> / <code>no</code> / <code>not declared</code>, the release's own
-statement of whether it demands live coverage evidence for this provider.
-Below, the evidence sentence and any registry note, verbatim. Unselected:
-<code>Choose a provider to read its adapter path, whether the release demands live coverage evidence for it, and what the registry says its coverage is based on.</code> The boundary is stated on the screen: it can <em>List declared
-event to runtime mappings</em> and <em>Name the adapter file each provider reads</em>;
-it never can <em>Prove a hook ran in that runtime</em> or <em>Edit an adapter
-configuration</em>.</p>
+kind (<code>declared</code>), <code>No mappings</code> when uncovered, and <code>Not installed</code> when
+the config installs fewer mappings than the registry declares; fields
+<code>Declared mappings</code>, <code>Policies</code>, <code>Events</code>, <code>Installed in its config</code>,
+<code>Adapter path</code> (<code>No adapter declared</code>), and <code>Live coverage required</code> —
+<code>yes</code> / <code>no</code> / <code>not declared</code>, the release's own statement of whether it
+demands live coverage evidence for this provider. Below, the evidence
+sentence and any registry note, verbatim.</p>
+<p><code>Installed in its config</code> reads <code>&lt;n&gt; of &lt;m&gt; installed</code> for the two
+providers whose config Tama writes, counted by matching each declared
+mapping against the commands in that config, and <code>no config Tama writes</code>
+for OMP, Git, the editor adapters and kimi — where the question has no
+answer rather than the answer zero. The same numbers come from
+<code>/v1/coverage</code> as <code>mappingCount</code> and <code>installedMappingCount</code>, and
+<code>tama validate</code> turns a shortfall into one <code>install drift</code> line per missing
+mapping.</p>
 <p>Coverage is what <em>should</em> dispatch; what is loaded and deciding right now is
 <a href="posture.md">Posture</a> (<a href="../concepts/posture.md#not-to-be-confused-with">concepts/posture</a>).</p>
