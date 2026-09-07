@@ -5,7 +5,47 @@
 </code></pre>
 <p>The command has no required input or public options. It resolves <code>tama-require-live-runtime</code> beside the running CLI and starts it with the selected Tama root as its working directory.</p>
 <h2>Output and state</h2>
-<p>The verification harness owns its output and performs catalog validation plus live hook block fixtures. Tama exits with the harness exit code; a signal or spawn failure maps to exit <code>1</code>.</p>
+<p>The harness owns its output and runs two stages, in this order.</p>
+<p><strong>Catalog validation</strong> first, because a catalog the release
+itself rejects makes every scenario result meaningless. It is the same
+verdict <a href="validate.md"><code>tama validate</code></a> prints —
+<code>validate_catalog</code> plus the wired-but-uncatalogued check — reported as
+<code>catalog validation: &lt;n&gt; hooks, &lt;n&gt; errors, &lt;n&gt; warnings</code>. Errors are
+listed one per line as <code>ERROR &lt;sentence&gt;</code> and the stage refuses with
+<code>INVALID CATALOG: the release's own catalog validation fails, so no live scenario result would mean anything. Fix the errors above, or run `tama validate` for the same list.</code>,
+exit <code>1</code>, before a single fixture runs. Warnings do not stop it.</p>
+<p><strong>Live hook fixtures</strong> second: every claimed runtime and editor
+path exercised with real execution and captured payloads, ending in one JSON
+report and either <code>REAL RUNTIME COVERAGE COMPLETE</code> or
+<code>INCOMPLETE REAL RUNTIME COVERAGE: …</code>. Tama exits with the harness exit
+code; a signal or spawn failure maps to exit <code>1</code>.</p>
+<p>The fixtures need every catalogued hook to run — they assert which hook
+fired and read the payload another hook captured — so the harness does not
+read this machine's hook selection
+(<a href="enforcement/status.md">enforcement</a>). It points
+<code>TAMA_HOOK_ENFORCEMENT</code> at a path of its own under
+<code>.live-runtime-tmp/</code> that does not exist, the state the reader treats as
+no selection, and reports it as
+<code>enforcement state for this run: &lt;path&gt; (absent: every catalogued hook runs)</code>.
+An explicit <code>TAMA_HOOK_ENFORCEMENT</code> in the environment is left alone. A
+run under a machine selection instead fails every scenario whose hook or
+capture shim sits outside it, with an empty payload list.</p>
+<h2>What a complete run needs</h2>
+<p>Every claimed runtime has to be usable on the machine, and a runtime that
+is not answers as a failed scenario rather than a missing prerequisite: an
+unauthenticated Claude CLI surfaces as
+<code>Claude stream-json did not include expected Bash tool_use</code> carrying
+<code>Not logged in · Please run /login</code>, a Codex CLI that cannot run reports
+<code>real Codex runtime did not report expected hook block: status=null</code>, and
+the editor scenarios need the editor adapters live. The two global Git
+scenarios expect a dirty-worktree refusal from the user-global dispatcher,
+which by contract runs the repository's own <code>.githooks/&lt;name&gt;</code>, the
+archived per-repository hook, or a preserved backup and nothing else
+(<a href="../hook-releases.md#installation">hook-releases</a>), so a
+temporary fixture repository matching none of the three is not refused.</p>
+<p>Until 2026-09-07 the harness ran only the second stage while this page and
+the command summary promised both, so a release could verify green with a
+catalog <code>tama validate</code> rejects.</p>
 <h2>Refusals and failures</h2>
 <p>If the native harness is not installed next to the CLI, Tama writes exactly <code>tama-require-live-runtime not found next to this binary</code> and exits <code>1</code>. The command has no fallback to the removed Node CLI.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
