@@ -7,6 +7,21 @@
 <li><code>tama-core</code> reads those structured sources for the Rust CLI, MCP server, desktop catalogue snapshot, and product checks.</li>
 </ol>
 <p>Do not duplicate a hook description in a command or prose file. Update the structured catalogue, then inspect it through <code>tama list --json</code>, <code>tama show &lt;hook-id&gt; --json</code>, or the matching MCP tools.</p>
+<h2>One rule, one hook</h2>
+<p>A hook is the unit the machine selection can switch, so a script holding
+several unrelated rules cannot be half-enforced. <code>pre_write_edit.sh</code> held
+three: the file-line limit, the folder-file limit, and the new-file
+justification requirement, so an operator who wanted the two limits without
+the third had no way to say it. They are three hooks now —
+<code>block-oversized-files</code>, <code>block-crowded-folders</code> and
+<code>require-new-file-justification</code> — each with its own script, sharing the
+payload preamble in <code>write_payload_env.sh</code>, and each registered through
+<code>register-hook.mjs</code> so the catalogue and the seal stay consistent.</p>
+<p>Write a new rule as its own hook. When an existing script grows a second
+rule an operator might want separately, move it out the same way: the code
+is moved, never deleted, and
+<a href="cli/enforcement/only.md"><code>tama enforcement only</code></a> decides
+what runs.</p>
 <h2>Repository layout</h2>
 <ul>
 <li><code>shared-hooks/</code>, <code>codex-hooks/</code>, and <code>claude-hooks/</code> contain archived hook source and the shared registry.</li>
