@@ -77,8 +77,9 @@ allowlist copied from disk.</p>
 <h2>Runtime status</h2>
 <p>The session record and <code>tama_hook_runtime_status</code> publish
 <code>enforcementMode</code> (<code>all</code> or <code>only</code>) and
-<code>machineEnabledHookIds</code>, the validated, sorted registered ids selected by
-the durable machine state. These sit beside <code>enabledHookIds</code>, which remains
+<code>machineEnabledHookIds</code>, the validated and sorted <code>enabled</code> list from
+the durable machine state (<code>[]</code> in all mode). These sit beside
+<code>enabledHookIds</code>, which remains
 the session's additive state. Under emergency disable, the machine ids stay
 visible as retained configuration but do not run.</p>
 <h2>Where it surfaces</h2>
