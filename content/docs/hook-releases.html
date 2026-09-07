@@ -61,7 +61,7 @@ the rewritten <code>registry.json</code>;</li>
 <li><code>~/.claude/settings.json</code>, <code>~/.codex/hooks.json</code> — the provider
 configs, mode <code>0600</code>. Their other keys are preserved; the <code>hooks</code> key is
 replaced by the block the sealed CLI in the release prints for the registry
-being installed (<a href="cli/provider-config/"><code>tama provider-config</code></a>),
+being installed (<a href="cli/provider-config.md"><code>tama provider-config</code></a>),
 one command per catalogued hook, each running the pinned Node plus the
 installed <code>~/.shared-hooks/run-hook.mjs</code> under
 <code>TAMA_ONLY_HOOK_ID</code>. Generation failing, or producing an empty block,

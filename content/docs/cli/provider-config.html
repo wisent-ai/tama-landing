@@ -15,7 +15,7 @@ commands: 100
   Stop: *
   UserPromptSubmit: *
 </code></pre>
-<p><code>--json</code> prints the block itself — provider event key to groups of <code>{ matcher, hooks }</code> — which is what <code>install_hook_release.py</code> merges into <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> (<a href="../hook-releases/#installation">hook-releases</a>). The event and matcher table is the one <code>tama_hook_tools::registry</code> owns, so a config can never disagree with the registry installed beside it.</p>
+<p><code>--json</code> prints the block itself — provider event key to groups of <code>{ matcher, hooks }</code> — which is what <code>install_hook_release.py</code> merges into <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> (<a href="../hook-releases.md#installation">hook-releases</a>). The event and matcher table is the one <code>tama_hook_tools::registry</code> owns, so a config can never disagree with the registry installed beside it.</p>
 <h2>Refusals and failures</h2>
 <p>Each of these exits <code>1</code> and writes nothing to stdout:</p>
 <ul>
