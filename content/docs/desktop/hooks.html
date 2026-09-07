@@ -4,10 +4,15 @@ policy does, why it exists, which events it gates, and whether the live
 session in front of you has it enabled. Three zones — facets, table,
 inspector. The catalog itself is read-only here; the sealed registry model
 is <a href="../hook-model.md">hook-model</a>.</p>
-<h2>Header</h2>
+<h2>Header and machine selection</h2>
 <p>Title <code>Hooks</code>; scope <code>session &lt;first-8&gt;</code> when a live session is selected on
-<a href="session.md">Session</a>; freshness counts policies. One action: <code>Reveal source</code>, enabled only when the selected hook has an archived source path.
-The toolbar search prompt is <code>Search hook id, category, event or description</code>, and it matches exactly those four fields.</p>
+<a href="session.md">Session</a>; freshness counts policies. <code>Reveal source</code> is
+enabled only when the selected hook has an archived source path. The compact
+<code>MACHINE SELECTION</code> panel shows <code>All hooks</code> or
+<code>Only N selected</code>, and in only mode offers <code>Select all hooks</code>. It states:
+<code>This selection is machine-wide and operator-owned. A session can only add a hook for itself; it cannot remove one from this selection.</code>
+The toolbar search prompt is <code>Search hook id, category, event or description</code>,
+and it matches exactly those four fields.</p>
 <h2>Facets</h2>
 <ul>
 <li><strong>Enforcement</strong> — <code>All hooks</code>, <code>Blocking</code> (warning tone while any exist),
@@ -24,26 +29,35 @@ category is the number of rows selecting it produces.</li>
 <code>Catalog unavailable</code> (no catalog at all) carry the loader's error sentence
 verbatim, with Retry. Loading reads <code>Reading the approved hook catalog</code>.
 The empty states are exact: <code>This build carries no hooks</code> — <code>The sealed catalog declares no policies. Rebuild Tama against a tama release that does.</code> — and <code>No hook matches this selection</code> with a <code>Clear filters</code>
-action. The table is HOOK, CATEGORY, EVENTS (count), FLAG; the
-<code>Blocking</code> / <code>Advisory</code> chip marks the minority, so when most of the catalog
-blocks, the pill moves to the advisory rows.</p>
+action. The table is HOOK, CATEGORY, EVENTS (count), FLAG, MACHINE. The
+machine column reads <code>Enforcing</code>, <code>Not selected</code>,
+<code>Bypassed</code> during emergency disable, or <code>Not read</code> after a state-read
+failure. The <code>Blocking</code> / <code>Advisory</code> chip marks the minority, so when most
+of the catalog blocks, the pill moves to the advisory rows.</p>
 <h2>Inspector</h2>
 <p>Eyebrow is the category, title the hook id, badges the status (capitalized;
 success only for <code>active</code>) plus <code>Blocking</code>. Sections: <em>What it does</em>, <em>Why
 it exists</em>, <em>Side effects</em> — the registry's own prose — then EVENTS with a
-per-event <code>Blocking</code> chip and <code>&lt;timeout&gt;s</code>, then <code>Source</code> (<code>No archived source path</code> for sealed-backend hooks) and <code>Command</code>. Unselected: <code>Choose a policy to read what it does, why it exists, which events it runs on, and whether the live session has it enabled.</code></p>
-<h2>The one mutation</h2>
-<p>With a live session, the inspector adds <code>In &lt;agent&gt; session</code>:
-<code>Enabled</code> / <code>Not enabled</code>, and — only when not enabled — the primary
-<code>Enable in this session</code>. Enabling restores policy, so it needs no dialog;
-the disabling direction does not exist per hook by design
-(<a href="../core-contracts.md">core-contracts</a>). The note under the button states
-persistence exactly:</p>
-<ul>
-<li>normally: <code>The override is stored for this agent session and restored when the same session is resumed.</code></li>
-<li>during a global disable: <code>All hooks are globally disabled. Enabling writes an allowlist entry for this agent session only.</code></li>
-</ul>
-<p>The mutation reports <code>Enabling &lt;hook-id&gt; in session &lt;id&gt;…</code> then
-<code>&lt;hook-id&gt; is enabled in &lt;agent&gt; session &lt;id&gt;.</code>, over the same validated
-request channel as <a href="session.md#mutations">Session</a>
+per-event <code>Blocking</code> chip and <code>&lt;timeout&gt;s</code>, then <code>Source</code> (<code>No archived source path</code> for sealed-backend hooks), <code>Command</code>, and
+<code>On this machine</code> with the same machine status as the table. Unselected:
+<code>Choose a policy to read what it does, why it exists, which events it runs on, and whether the live session has it enabled.</code></p>
+<h2>Machine and session mutations</h2>
+<p>The operator can choose <code>Add to machine selection</code> or
+<code>Remove from machine selection</code> in the inspector, and
+<code>Select all hooks</code> in the machine panel. These selection changes do not use
+the emergency confirmation dialog. Their progress text is
+<code>Changing the machine-wide hook selection…</code> or
+<code>Selecting every registered hook on this machine…</code>; success is
+<code>&lt;id&gt; is selected on this machine.</code>,
+<code>&lt;id&gt; is not selected on this machine.</code>, or
+<code>Every registered hook is selected on this machine.</code> Backend refusal text
+is shown verbatim in the same mutation bar.</p>
+<p>Only mode cannot become an empty selection. For its sole selected hook, the
+remove action is unavailable and the inspector explains:
+<code>At least one hook must remain selected. Choose Select all hooks, or add another hook first.</code></p>
+<p>With a live session, the inspector separately adds
+<code>In &lt;agent&gt; session</code>: <code>Enabled</code> / <code>Not enabled</code>, and — only when not
+enabled — <code>Enable in this session</code>. Session enable remains additive to the
+machine selection and needs no dialog. During emergency disable, it writes
+only a generation-bound allowlist entry for that session
 (<a href="../concepts/session-enable.md">concepts/session-enable</a>).</p>

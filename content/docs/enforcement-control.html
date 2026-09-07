@@ -1,12 +1,24 @@
 <h1>Enforcement control</h1>
-<p>Tama has exactly two enforcement mutations, and they point in opposite
-directions on purpose. Enabling is narrow: one hook, or all hooks, in one
-live session, applied by that session's own supervisor. Disabling is global:
-one confirmed emergency action that bypasses every managed dispatcher on the
-machine and leaves durable evidence until re-enable succeeds. There is no
-per-session disable — agent-session controls never weaken policy, and
-disabling enforcement remains an operator-owned action outside the session
+<p>Tama has three machine enforcement states, and their ownership is explicit.
+The normal baseline runs every registered hook. An operator can narrow that
+baseline to a durable machine-wide selection, or use the confirmed emergency
+switch to bypass it completely. A live session can only add hooks to the
+machine baseline; it can never remove one. There is no per-session disable
 (<a href="core-contracts.md">core-contracts</a>).</p>
+<h2>The three machine states</h2>
+<table>
+<thead><tr><th>State</th><th>Owner and direction</th><th>Hooks that run</th></tr></thead>
+<tbody>
+<tr><td>All hooks</td><td>Operator baseline; <code>tama enforcement all</code> restores the strongest machine policy</td><td>Every registered hook</td></tr>
+<tr><td>Selected hooks</td><td>Operator; <code>tama enforcement only &lt;hook-id&gt;...</code> narrows the machine baseline</td><td>The ids in <code>hook-enforcement.json</code>, plus ids enabled by the current session</td></tr>
+<tr><td>Emergency bypass</td><td>Operator; the confirmed emergency switch weakens policy to none at machine scope</td><td>Only generation-bound ids explicitly enabled by the current session</td></tr>
+</tbody>
+</table>
+<p>The durable selection remains recorded during an emergency bypass, but it
+enforces nothing while that bypass is active. Re-enable removes the bypass
+and the selected machine policy takes effect again. Missing
+<code>hook-enforcement.json</code> means all hooks; malformed or unreadable state
+reports the failure and falls back to all, never none.</p>
 <h2>Session records</h2>
 <p>Supervised runtimes publish one file per live session under
 <code>~/Library/Application Support/Tama/session-control/</code> (directory mode
@@ -14,11 +26,13 @@ disabling enforcement remains an operator-owned action outside the session
 <code>agentId</code>, <code>sessionId</code>, a 64-hex <code>controlKey</code>, <code>pid</code>, <code>cwd</code>, <code>livenessMode</code>
 (<code>process</code> — the pid must be alive — or <code>heartbeat</code> — <code>updatedAt</code> within
 <code>heartbeatTTLSeconds</code>, clamped to 5–3600), <code>globallyDisabled</code>,
-<code>disabledHookIds</code>, <code>enabledHookIds</code>, the session's <code>capability</code> (issuer,
+<code>disabledHookIds</code>, <code>enabledHookIds</code>, the override's
+<code>emergencyChangedAt</code> generation binding, the session's <code>capability</code> (issuer,
 nonce, release and checksum binding, lifetime, expiry, remaining uses, and
 per-tool grants), <code>runtime</code> status (<code>installedReleaseId</code>, <code>loadedReleaseId</code>,
 <code>catalogChecksum</code>, registered/loaded hook counts, unknown hook ids,
-<code>reloadRequired</code>, <code>reloadPending</code>, <code>registryLoadError</code>), and
+<code>enforcementMode</code>, <code>machineEnabledHookIds</code>, <code>reloadRequired</code>,
+<code>reloadPending</code>, <code>registryLoadError</code>), and
 <code>semanticRuntime</code> — the sequence of recent events with each <code>decision</code>, the
 <code>blockedHookId</code>, and the <code>reason</code> string. Tama only reads these records;
 invalid, legacy-v1, or stale ones are ignored.</p>
@@ -29,28 +43,89 @@ directory — operation <code>set-hook</code> with <code>hookId</code> and <code
 <code>enable-all</code> — and polls for the matching
 <code>&lt;controlKey&gt;.&lt;requestId&gt;.response.json</code> for up to 10 seconds. The
 supervisor validates the envelope against the exact session identity tuple,
-applies the override atomically, and answers with the authoritative session
-state; rejection, malformed identity, session exit, or timeout is an
-actionable failure, never optimistic success. Retrying the same enable is
-idempotent.</p>
-<p>Enablement semantics follow <code>globallyDisabled</code>:</p>
+applies accepted state atomically, and answers with the authoritative session
+record; rejection, malformed identity, session exit, or timeout is an
+actionable failure, never optimistic success.</p>
+<p>Enablement semantics compose the machine state and the session state:</p>
 <ul>
-<li>normally, a hook is enabled unless its id is in <code>disabledHookIds</code>;</li>
-<li>during a global emergency disable, <code>enabledHookIds</code> is the session's
-explicit allowlist — the only hooks that run.</li>
+<li>normally, every hook in the all-hooks baseline runs;</li>
+<li>in machine selection mode, the selected ids run and
+<code>enabledHookIds</code> can add hooks for this session, but cannot remove a
+machine-selected hook;</li>
+<li>during a global emergency disable, one-hook enable may add the id to
+<code>enabledHookIds</code> only when its preflight and persisted override are bound to
+the active emergency state's exact, nonempty <code>changedAt</code>. The machine
+selection is bypassed, and the session record publishes that binding as
+<code>emergencyChangedAt</code>.</li>
 </ul>
-<p><code>enable-all</code> first persists an override bound to the installed release and
-catalog checksum, then schedules one runtime reload after the active agent
-turn settles; concurrent reload requests coalesce, and a failure restores
-the preceding override state. The <strong>Session</strong> screen shows the pending state
-until the transition completes, and offers <strong>Enable all hooks</strong> whenever a
-session lags the installed release.</p>
-<p>Inside an OMP session, the bundled adapter
-(<code>~/.shared-hooks/omp-shared-hooks.js</code>) exposes the same control plane as
+<p>The one-hook allowlist and generation binding are retained in the private
+override and OMP session history, so they survive a reload or resume of that
+same session while the emergency generation is unchanged. A fresh global
+disable changes <code>changedAt</code> and invalidates prior or legacy allowlists and
+capabilities. The supervisor clears them before publishing state; neither the
+desktop nor <code>tama-cli sessions</code> treats a stale id as enabled.</p>
+<p><code>enable-all</code> is different. Outside emergency disable it binds an override to
+the installed release and catalog checksum and schedules one runtime reload
+after the active agent turn settles; concurrent requests coalesce, and reload
+failure restores the preceding override. While global emergency disable is
+active, enable-all is refused with
+<code>global-emergency-disable-active</code>; it cannot turn the emergency allowlist
+into every hook.</p>
+<p>The <strong>Session</strong> screen and <strong>Hooks</strong> inspector use the same live facts:
+during emergency disable, per-hook <em>Enabled</em> means membership in the
+generation-validated <code>enabledHookIds</code>. Otherwise it means membership in the
+all-hooks or selected machine baseline, plus any session enable. A rejected
+mutation remains a visible failure rather than changing the displayed status
+optimistically.</p>
+<p>Inside an OMP session, the bundled adapter exposes the same control plane as
 session tools: <code>tama_hook_runtime_status</code>, <code>tama_set_session_hook</code>,
 <code>tama_enable_all_session_hooks</code>, <code>tama_request_session_capability</code>, and
 <code>tama_reload_hook_runtime</code>. Session hook disablement is prohibited there
 too.</p>
+<p>Deferred reload requires OMP's <code>ctx.requestReload</code> API. If the tool
+returns <code>OMP does not expose deferred runtime reload requests</code>, no reload
+was scheduled and the session still uses its old release. The existing
+<code>/tama_reload_hook_runtime</code> slash command reloads that same session through
+the command-handler API without restarting the process or enabling every hook.
+Compare both release ids and checksums in the subsequent runtime status before
+treating an installation as active.</p>
+<h2>Completion enforcement</h2>
+<p>Prompt text and installed instructions describe expected conduct; they do not
+execute a Stop rule. Execution comes from the enabled registered hook commands
+dispatched by the runtime. <code>block-stop-with-open-work</code> deterministically
+reconstructs the latest successful tracker state and blocks any pending or
+in-progress item. <code>check-open-items-with-model</code> separately reviews the real
+user contract, bounded current-turn tool evidence, and proposed final response
+through Tama's existing objective reviewer. It blocks for even one executable
+unfinished item or unresolved task error, while accepting completed and
+read-only work, user-stopped or user-restricted work, and a genuinely external
+unavailable prerequisite.</p>
+<p>The reviewer obtains its bearer and signing identity through Skarbiec items
+<code>tama-objective-authority-model-router</code> and <code>agent:wisent-app</code>, then
+calls Brama at the configured HTTPS endpoint (default
+<code>https://brama.wisent.com/v1/chat/completions</code>) with route <code>-best</code>,
+agent id <code>wisent-app</code>, temperature <code>0</code>, <code>max_tokens: 160</code>,
+a 3-second connect timeout, and a 25-second total timeout. Missing transcript
+or credentials, client/transport/HTTP failure, or an invalid reviewer response
+prints
+<code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code> and exits
+<code>70</code>; unavailable review is never reported as successful completion.</p>
+<p>Both model hooks invoke <code>stado secrets get &lt;item&gt; --field &lt;field&gt;</code>
+with an explicit <code>STADO_CREDENTIALS_ADMIN_URL</code>,
+<code>STADO_CREDENTIALS_ADMIN_CONSUMER</code>, and
+<code>STADO_CREDENTIALS_ADMIN_TOKEN_FILE</code> binding. The consumer is
+<code>tama-objective-authority-model-router-client</code>, with its own
+<code>~/.stado/tama-objective-authority-model-router-client-skarbiec-token</code>;
+it does not inherit the operator's credential-store identity. The URL comes
+from <code>TAMA_OBJECTIVE_AUTHORITY_SKARBIEC_URL</code>, defaulting to
+<code>http://127.0.0.1:8787</code>. The workload <code>WC_SKARBIEC_*</code> variables
+do not select the credential CLI's administration binding.</p>
+<p>An activation failure records the process outcome before its captured
+diagnostic: <code>could not start command</code>, <code>timed out after &lt;N&gt;ms</code>,
+signal termination, or the exit code. A failed credential read names the
+exact item, field, endpoint and consumer, followed by Stado's own error;
+no field value is included. A timeout is not reported as an unexplained
+<code>exit null</code>.</p>
 <h2>Global emergency disable</h2>
 <p>The bundled <code>emergency_disable_hooks</code> script is the switch; the desktop runs
 it from <strong>Posture</strong> (confirmed as <em>Disable every Tama hook on this machine</em>)

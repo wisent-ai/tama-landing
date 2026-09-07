@@ -3,9 +3,20 @@
 <h2>Invocation</h2>
 <pre><code>tama sessions [--json] [--home &lt;path&gt;]
 </code></pre>
-<p><code>--home</code> selects the home containing <code>Library/Application Support/Tama/session-control</code>; otherwise Tama uses <code>HOME</code>. <code>--json</code> prints the full session array.</p>
+<p><code>--home</code> selects the home containing both
+<code>Library/Application Support/Tama/session-control</code> and the machine
+enforcement state; otherwise Tama uses <code>HOME</code>. <code>--json</code> prints the
+structured machine status and session array.</p>
 <h2>Output and state</h2>
-<p>Text mode prints agent id, the first 12 characters of session id, and either loaded/registered hook counts or the effective allowlist when hooks are globally disabled. JSON includes status, working directory, counts, enabled and disabled ids, and update time. The command only reads session records.</p>
+<p>Text mode begins
+<code>machine enforcement&#9;mode=&lt;mode&gt;&#9;selected=&lt;n&gt;/&lt;N&gt;&#9;ids=&lt;all or comma ids&gt;&#9;emergency-disabled=&lt;bool&gt;</code>,
+then prints each session's agent id, first 12 session-id characters, and
+loaded/registered hook state. JSON is
+<code>{&quot;machineEnforcement&quot;: &lt;status&gt;, &quot;sessions&quot;: [...]}</code>;
+the machine object has the same fields as
+<a href="../enforcement/status/">enforcement status</a>, and each session includes
+status, working directory, counts, enabled and disabled ids, and update time.
+The command only reads state.</p>
 <h2>Refusals and failures</h2>
 <p>A missing or unreadable control directory produces an empty result and exit <code>0</code>. An invalid individual JSON file is retained as a row with <code>parseError: true</code>; an unreadable file becomes <code>readError: true</code>. These records are surfaced rather than causing a command-wide refusal.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>

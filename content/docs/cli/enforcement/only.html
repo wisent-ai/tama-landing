@@ -1,0 +1,14 @@
+<h1><code>tama enforcement only</code></h1>
+<p>Replaces the machine-wide baseline with an operator-owned selection of installed hook ids.</p>
+<h2>Invocation</h2>
+<pre><code>tama enforcement only &lt;hook-id&gt;...
+</code></pre>
+<p>Provide one or more ids declared by the installed registry. Known ids include the registry's agent hooks and repository Git hooks. Tama sorts and deduplicates accepted ids before writing them.</p>
+<h2>Output and state</h2>
+<p>Success begins <code>Machine enforcement selection saved.</code> Tama writes <code>~/Library/Application Support/Tama/hook-enforcement.json</code> atomically with mode <code>0600</code>, <code>mode: "only"</code>, the selected ids, the transition time, and the immediately preceding effective mode and ids in <code>previous</code>. A live session may add hooks for itself, but cannot remove an id from this machine selection.</p>
+<h2>Refusals and failures</h2>
+<p>An unknown id refuses the entire mutation before any write:</p>
+<p><code>Unknown hook id '&lt;id&gt;'; the installed registry declares &lt;N&gt; hook ids, and the enforcement selection was not changed.</code></p>
+<p>The sentence names the rejected id and the number of unique agent and Git hook ids known to the installed registry.</p>
+<p>Other registry or write failures print <code>enforcement: &lt;OS/core error&gt;</code> to stderr and exit <code>1</code> without claiming success.</p>
+<p>Return to the <a href="../../">complete CLI command tree</a>.</p>

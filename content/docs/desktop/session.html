@@ -36,11 +36,13 @@ unknown hook ids, listed.</li>
 the exact expectation — <code>Tama refuses to start an agent unless the platform has a ready kernel-enforcement backend. Open or resume a supported coding-agent session, and it appears here within a second.</code></p>
 <h2>Hook state per session</h2>
 <p>One table across every live session before any is selected: SESSION,
-GLOBAL STATE (<code>Enabled</code> / <code>Disabled</code>), LOADED, and ALLOWLIST — <code>empty</code> or
-the explicit ids during a global disable, otherwise
-<code>all (no overrides)</code> / <code>all (&lt;n&gt; disabled)</code>. This is the desktop's rendering
-of the same facts <code>tama-cli sessions</code> prints
-(<a href="../walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</p>
+GLOBAL STATE, LOADED, and ALLOWLIST. The record's runtime status distinguishes
+<code>enforcementMode</code> (<code>all</code> or <code>only</code>) and its sorted
+<code>machineEnabledHookIds</code> from the session's additive
+<code>enabledHookIds</code>. Under emergency disable, the machine selection remains
+visible but is bypassed, so only the generation-bound session allowlist can
+run. These are the same facts <code>tama-cli sessions</code> and
+<code>tama_hook_runtime_status</code> expose.</p>
 <h2>Counters</h2>
 <p><code>Registered</code> (hooks the runtime knows), <code>Loaded</code> (hooks the runtime can
 run; warns when it differs from registered), <code>Overrides</code> (allowlisted in
@@ -55,11 +57,14 @@ Without one: <code>No capability has been issued to this session. Every privileg
 table (TOOL / ACTIONS) states the empty cases exactly: <code>No capability, so no grants.</code> and <code>The capability carries no tool grants; it authorises nothing by itself.</code></p>
 <h2>Runtime and decisions</h2>
 <p>The Runtime box shows Loaded release, Installed release, Catalog checksum,
-and Liveness — <code>heartbeat, &lt;ttl&gt;s TTL</code> or <code>process &lt;pid&gt;</code>, the two modes the
-supervisor publishes. During a global disable it adds: <code>Hooks are globally disabled on this machine. This session runs only the policies in its allowlist.</code> Recent decisions is the register of what policy actually
-decided, newest first — WHEN, EVENT, HOOK, DECISION (blocking decisions get
-the danger chip; the trailing count is blocks) — with the most recent
-blocking <code>reason</code> printed verbatim below the table. The same reason headlines
+and Liveness — <code>heartbeat, &lt;ttl&gt;s TTL</code> or
+<code>process &lt;pid&gt;</code>, the two modes the supervisor publishes. During a global
+disable it adds:
+<code>Hooks are globally disabled on this machine. This session runs only the policies in its allowlist.</code>
+Recent decisions is the register of what policy actually decided, newest
+first — WHEN, EVENT, HOOK, DECISION (blocking decisions get the danger chip;
+the trailing count is blocks) — with the most recent blocking
+<code>reason</code> printed verbatim below the table. The same reason headlines
 <a href="posture.md#the-last-blocking-decision">Posture</a>.</p>
 <h2>Mutations</h2>
 <p><code>Enable all hooks</code> reports <code>Enabling every registered hook in session &lt;id&gt;…</code> then <code>&lt;n&gt; hooks enabled in &lt;agent&gt; session &lt;id&gt;.</code>; the single-hook

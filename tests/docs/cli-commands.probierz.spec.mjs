@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 
 const origin = (process.env.TAMA_DOCS_ORIGIN || "https://tama.wisent.com").replace(/\/$/, "");
+const canonicalOrigin = (process.env.TAMA_DOCS_CANONICAL_ORIGIN || "https://tama.wisent.com").replace(/\/$/, "");
 const commands = [
   ["/docs/cli/help", "tama help"],
   ["/docs/cli/list", "tama list [--json]"],
@@ -13,6 +14,9 @@ const commands = [
   ["/docs/cli/find-violations", "tama find-violations (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-user-or-org&gt; | --me) [...]"],
   ["/docs/cli/clean", "tama clean (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-owner&gt; | --me) [...]"],
   ["/docs/cli/sessions", "tama sessions [--json] [--home &lt;path&gt;]"],
+  ["/docs/cli/enforcement/status", "tama enforcement status [--json]"],
+  ["/docs/cli/enforcement/only", "tama enforcement only &lt;hook-id&gt;..."],
+  ["/docs/cli/enforcement/all", "tama enforcement all"],
   ["/docs/cli/serve", "tama serve [--port N] [--root &lt;release-path&gt;]"],
   ["/docs/cli/adaptive", "tama adaptive &lt;command&gt; [...]"],
   ["/docs/cli/adaptive/status", "tama adaptive status"],
@@ -32,7 +36,7 @@ for (const [route, invocation] of commands) {
   assert.equal(response.url, url, `${route} did not resolve at its canonical URL`);
   const html = await response.text();
   assert.ok(
-    html.includes(`<link rel="canonical" href="${url}">`),
+    html.includes(`<link rel="canonical" href="${canonicalOrigin}${route}/">`),
     `${route} has the wrong canonical link`,
   );
   assert.ok(html.includes(invocation), `${route} is missing invocation: ${invocation}`);

@@ -44,19 +44,22 @@ destructive <code>Disable all hooks</code>, primary <code>Keep policy active</co
 <p>Tama treats the machine as disabled only when <strong>both</strong> the manifest and the
 state file exist, and it re-reads that durable state after the script
 returns — <code>Tama could not persist the emergency hook state.</code> is a failure,
-never claimed success. During the bypass, a session's
-<code>enabledHookIds</code> allowlist is the only policy that runs
-(<a href="session-enable.md#semantics-under-global-disable">session-enable</a>).</p>
+never claimed success. A machine-wide hook selection remains recorded, but
+the emergency bypass takes precedence: none of its selected ids run until
+re-enable succeeds. During the bypass, only a session's generation-bound
+<code>enabledHookIds</code> allowlist can run
+(<a href="session-enable.md#composition-with-machine-enforcement">session-enable</a>).</p>
 <h2>Re-enable</h2>
 <p>Enable refuses without evidence: no manifest answers <code>Tama has no emergency backup manifest to restore.</code>, and the bundled release must pass its
 <a href="seal.md">seal</a> gates. It performs the full transactional installation with
 <code>--emergency-manifest</code> — restoring every moved entrypoint, regenerating
 provider configs from the backups, re-bootstrapping the editor LaunchAgent —
-and only then removes the state file and manifest, printing <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> A failed enable preserves the recovery evidence.</p>
+and only then removes the emergency state and manifest, printing <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> A failed enable preserves the recovery evidence. After successful re-enable, the retained all-hooks or selected-hooks machine policy resumes.</p>
 <h2>Where it lives</h2>
 <p>| Path | Content |
 |---|---|
 | <code>~/Library/Application Support/Tama/hook-emergency-state.json</code> | The durable disabled flag |
+| <code>~/Library/Application Support/Tama/hook-enforcement.json</code> | The independent all-hooks or selected-hooks baseline; retained while emergency state takes precedence |
 | <code>~/Library/Application Support/Tama/emergency-backup/manifest.json</code> | <code>configs</code> emptied, <code>moved</code> entrypoint pairs, <code>editorWatcherStopped</code> — written once |
 | <code>~/Library/Application Support/Tama/emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code> | Original provider configs, restored on enable |</p>
 <p>The desktop wrapper (<code>HookEmergencySwitch</code>) bounds the script: 300 s

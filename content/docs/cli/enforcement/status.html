@@ -1,0 +1,13 @@
+<h1><code>tama enforcement status</code></h1>
+<p>Reads the durable machine-wide hook selection and the emergency switch that can temporarily bypass it.</p>
+<h2>Invocation</h2>
+<pre><code>tama enforcement status [--json]
+</code></pre>
+<p>The command takes no positional input. <code>--json</code> selects the structured status document.</p>
+<h2>Output and state</h2>
+<p>Text output reports <code>mode: all</code> or <code>mode: only</code>, <code>selected hooks: &lt;selected&gt;/&lt;installed&gt; installed</code>, either <code>selected ids: all installed hooks</code> or the selected id list, and <code>emergency disabled: true</code> or <code>false</code>. JSON reports <code>mode</code>, <code>enabled</code>, <code>selectedHookCount</code>, <code>installedHookCount</code>, <code>emergencyDisabled</code>, and an optional <code>readError</code>. The command is read-only.</p>
+<h2>Refusals and failures</h2>
+<p>A missing <code>hook-enforcement.json</code> is normal all-hooks state. Malformed or unreadable state still prints the fallback-all status, writes the following exact sentence to stderr, and exits <code>1</code>:</p>
+<p><code>Tama could not read the machine enforcement selection: &lt;core error&gt;. Falling back to all hooks.</code></p>
+<p>The JSON result includes the same failure in <code>readError</code>. The dispatcher also falls back to all, never none.</p>
+<p>Return to the <a href="../../">complete CLI command tree</a>.</p>

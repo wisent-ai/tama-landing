@@ -59,17 +59,56 @@ record exists. v1 records cannot satisfy the v2 <code>agentId</code> contract an
 deliberately not migrated (<a href="operations.md#backup-and-restore">operations</a>).
 Do what the sentence says, in that order — the reinstall updates the
 supervisor, the stop/resume republishes state.</p>
-<h2>Global-disable states</h2>
-<p>The durable state machine has exactly three observable configurations under
-<code>~/Library/Application Support/Tama</code>:</p>
+<h2><code>Unknown hook id '&lt;id&gt;'; the installed registry declares &lt;N&gt; hook ids, and the enforcement selection was not changed.</code></h2>
+<p>From <code>tama enforcement only</code>. The requested id is absent from the
+installed registry's unique agent-hook and Git-hook ids, so Tama refused the
+entire selection before writing state. The existing machine selection still
+applies.</p>
+<p>First command:</p>
+<pre><code class="language-bash">tama list --json
+</code></pre>
+<p>Use the registry's exact ids, then retry the complete intended selection.</p>
+<h2><code>Tama could not read the machine enforcement selection: &lt;core error&gt;. Falling back to all hooks.</code></h2>
+<p>From <code>tama enforcement status</code>. The state file was readable neither as a
+valid <code>ai.wisent.tama.hook-enforcement.v1</code> document nor as its required
+shape. Dispatchers choose the safe all-hooks fallback; the status command
+reports that effective state and exits <code>1</code> rather than hiding the damaged
+record.</p>
+<p>First command:</p>
+<pre><code class="language-bash">tama enforcement status --json
+</code></pre>
+<p>Inspect <code>readError</code> before replacing the operator-owned file through
+<code>tama enforcement all</code> or a corrected <code>only</code> command.</p>
+<h2><code>enforcement: &lt;OS/core error&gt;</code></h2>
+<p>From a failed <code>tama enforcement only</code> or
+<code>tama enforcement all</code> write. The registry or atomic state transition
+failed, and no success is claimed.</p>
+<p>First command:</p>
+<pre><code class="language-bash">tama enforcement status --json
+</code></pre>
+<p>Read the effective retained selection before retrying the operator mutation.</p>
+<h2><code>At least one hook must remain selected. Choose Select all hooks, or add another hook first.</code></h2>
+<p>From the Hooks inspector when the selected row is the sole member of only
+mode. An empty <code>only</code> selection is invalid; the desktop leaves the machine
+state unchanged and offers the two valid directions named in the sentence.</p>
+<p>First command:</p>
+<pre><code class="language-bash">tama enforcement status --json
+</code></pre>
+<p>Confirm the one selected id, then select all or add another id before
+removing it.</p>
+<h2>Emergency-bypass evidence</h2>
+<p>The emergency switch has three observable evidence configurations under
+<code>~/Library/Application Support/Tama</code>, separate from retained
+<code>hook-enforcement.json</code>:</p>
 <p>| <code>emergency-backup/manifest.json</code> | <code>hook-emergency-state.json</code> | Meaning |
 |---|---|---|
 | absent | absent | Enforcing (or never installed) |
 | present | present, <code>disabled: true</code> | Globally disabled; Tama shows the machine as bypassed |
 | one without the other | — | Interrupted transition: treat as disabled and run re-enable, which restores from the manifest and removes both |</p>
 <p>The script's own sentences: a repeat disable prints <code>Tama hooks are already disabled.</code>; enable without evidence refuses with <code>Tama has no emergency backup manifest to restore.</code>; success prints <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code> or <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> The desktop trusts only re-read durable state: <code>Tama could not persist the emergency hook state.</code> means the switch did not stick.
-During the bypass, <code>tama-cli sessions</code> prints each session's explicit
-allowlist (<code>allowlist: empty</code> when nothing was re-enabled)
+During the bypass, the retained machine selection does not run;
+<code>tama-cli sessions</code> prints each session's explicit allowlist
+(<code>allowlist: empty</code> when nothing was re-enabled)
 (<a href="walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</p>
 <h2>The installer refuses</h2>
 <p>Each sentence from <code>install_hook_release.py</code>, surfaced verbatim behind

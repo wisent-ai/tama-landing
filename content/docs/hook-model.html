@@ -25,6 +25,22 @@ field itself removed (sorted keys, canonical separators). It is recomputed
 by the installer after path rewriting, and every session record carries it,
 so the desktop can compare the bundle, the installed runtime, and the live
 session by checksum rather than by trust.</p>
+<h2>Machine enforcement state</h2>
+<p>The operational selection is separate from the sealed registry:</p>
+<table>
+<thead><tr><th>Property</th><th>Contract</th></tr></thead>
+<tbody>
+<tr><td>Path</td><td><code>~/Library/Application Support/Tama/hook-enforcement.json</code></td></tr>
+<tr><td>Schema</td><td><code>ai.wisent.tama.hook-enforcement.v1</code>; <code>mode</code> is <code>all</code> or <code>only</code>, <code>enabled</code> is the selected id array, <code>changedAt</code> is the transition time, and <code>previous</code> retains the preceding mode and ids</td></tr>
+<tr><td>Writer</td><td>The operator-facing enforcement controls use the shared Rust enforcement writer, which replaces the file atomically with mode <code>0600</code></td></tr>
+<tr><td>Retention</td><td>The file persists across sessions, runtime reloads, installation, and emergency disable/re-enable; emergency state temporarily takes precedence without deleting the selection</td></tr>
+</tbody>
+</table>
+<p><code>all</code> requires an empty <code>enabled</code> array; <code>only</code> requires at
+least one unique, nonempty, exact-trimmed id. Operator writers additionally
+refuse ids absent from the installed registry. Missing state resolves to
+<code>all</code>. An unreadable, malformed, wrong-schema, or invalid-shape file reports
+an error and also resolves to <code>all</code>, so state failure never weakens policy.</p>
 <h2>One agent hook</h2>
 <p>Each <code>agentHooks[]</code> entry declares:</p>
 <p>| Field | Meaning |

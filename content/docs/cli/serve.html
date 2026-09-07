@@ -5,12 +5,13 @@
 </code></pre>
 <p><code>--port</code> accepts an unsigned 16-bit port and defaults to <code>0</code> for an OS-assigned port. <code>--root</code> selects the sealed hook release used by backend operations.</p>
 <h2>Output and state</h2>
-<p>The server binds only <code>127.0.0.1</code>, writes exactly one ready line <code>{"ready":true,"port":N}</code>, then serves <code>/v1/health</code>, coverage, install plan, MCP config, violation scan, and cleanup endpoints. Scan and cleanup jobs stream NDJSON and cleanup may modify the requested repository.</p>
+<p>The server binds only <code>127.0.0.1</code>, writes exactly one ready line <code>{"ready":true,"port":N}</code>, then serves <code>/v1/health</code>, coverage, install plan, MCP config, policy-bundle list/import, violation scan, and cleanup endpoints. <code>GET /v1/policy-bundles</code> returns retained inactive source identities; <code>POST /v1/policy-bundles/import</code> invokes the same validating transaction as <code>tama policy import</code> and never enables hooks. Scan and cleanup jobs stream NDJSON and cleanup may modify the requested repository.</p>
 <h2>Refusals and failures</h2>
 <ul>
 <li>Missing values: <code>missing value for --port</code> or <code>missing value for --root</code>, exit <code>2</code>.</li>
 <li>Invalid port: <code>invalid --port: &lt;value&gt;</code>, exit <code>2</code>.</li>
 <li>Any other argument: <code>unknown serve option: &lt;argument&gt;</code>, exit <code>2</code>.</li>
 <li>Bind failure: the operating-system error is written to stderr and the command exits <code>1</code>.</li>
+<li>Policy import requires a nonempty <code>sourcePath</code>, valid JSON below 1 MiB, and a supported bundle. Invalid input returns the core refusal; conflict and rejected results remain structured documents with no partial writes.</li>
 </ul>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
