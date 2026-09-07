@@ -1,0 +1,28 @@
+<h1><code>tama provider-config</code></h1>
+<p>Prints the hook block an install writes into a provider's configuration: the wiring that makes a Claude or Codex event reach the installed runtime.</p>
+<h2>Invocation</h2>
+<pre><code>tama provider-config --provider &lt;claude|codex&gt; --dispatcher &lt;command&gt; [--json]
+</code></pre>
+<p>The registry arrives on stdin, so the caller decides which registry is being described — an install pipes the one it is about to write, and a person can pipe <code>~/.shared-hooks/registry.json</code> or a source tree's copy. The dispatcher is the command that runs the installed hook dispatcher, pinned Node included; every printed command runs it for exactly one hook id through <code>TAMA_ONLY_HOOK_ID</code>.</p>
+<h2>Output</h2>
+<p>Without <code>--json</code> the summary names the provider, the dispatcher, the total number of commands, and each provider event with its matchers:</p>
+<pre><code>provider: claude
+dispatcher: /opt/homebrew/bin/node --require '…/node-runtime-preflight.cjs' '…/.shared-hooks/run-hook.mjs'
+commands: 100
+  PostToolUse: Bash
+  PreToolUse: Bash, apply_patch|Edit|Write, MultiEdit, Read, …
+  SessionStart: compact
+  Stop: *
+  UserPromptSubmit: *
+</code></pre>
+<p><code>--json</code> prints the block itself — provider event key to groups of <code>{ matcher, hooks }</code> — which is what <code>install_hook_release.py</code> merges into <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> (<a href="../hook-releases/#installation">hook-releases</a>). The event and matcher table is the one <code>tama_hook_tools::registry</code> owns, so a config can never disagree with the registry installed beside it.</p>
+<h2>Refusals and failures</h2>
+<p>Each of these exits <code>1</code> and writes nothing to stdout:</p>
+<ul>
+<li><code>provider-config produced no wiring for &lt;provider&gt;: the registry declares no event this provider supports</code> — the block would have been empty, which is a config that enforces nothing.</li>
+<li><code>provider-config does not configure the provider &lt;name&gt;; it configures claude and codex</code></li>
+<li><code>provider-config could not parse the registry on stdin: &lt;detail&gt;</code>, or <code>provider-config requires a registry object on stdin</code></li>
+<li><code>provider-config requires a non-empty --dispatcher command</code></li>
+</ul>
+<p>A missing <code>--provider</code> or <code>--dispatcher</code> prints the usage text and exits <code>2</code>.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

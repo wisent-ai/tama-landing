@@ -58,8 +58,17 @@ restored on failure:</p>
 <ul>
 <li><code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code> — hook sources and
 the rewritten <code>registry.json</code>;</li>
-<li><code>~/.claude/settings.json</code>, <code>~/.codex/hooks.json</code> — regenerated provider
-configs, mode <code>0600</code>;</li>
+<li><code>~/.claude/settings.json</code>, <code>~/.codex/hooks.json</code> — the provider
+configs, mode <code>0600</code>. Their other keys are preserved; the <code>hooks</code> key is
+replaced by the block the sealed CLI in the release prints for the registry
+being installed (<a href="cli/provider-config/"><code>tama provider-config</code></a>),
+one command per catalogued hook, each running the pinned Node plus the
+installed <code>~/.shared-hooks/run-hook.mjs</code> under
+<code>TAMA_ONLY_HOOK_ID</code>. Generation failing, or producing an empty block,
+refuses the install before the transaction opens with
+<code>Provider config generation failed for &lt;provider&gt;: &lt;detail&gt;</code>; a release
+with no dispatcher refuses with <code>Approved hook release is missing the Tama
+hook dispatcher</code>;</li>
 <li><code>~/.local/bin/tama-agent</code> — the generated supervisor launcher, exporting
 the pinned Node executable and preflight;</li>
 <li><code>pre-commit</code> and <code>pre-push</code> dispatchers at the user-global Git hooks path

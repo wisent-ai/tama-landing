@@ -41,6 +41,7 @@
   {"route":"cli/enforcement/status","source":"content/docs/cli/enforcement/status.html","content":"content/docs/cli/enforcement/status.html","category":"CLI reference"},
   {"route":"cli/enforcement/only","source":"content/docs/cli/enforcement/only.html","content":"content/docs/cli/enforcement/only.html","category":"CLI reference"},
   {"route":"cli/enforcement/all","source":"content/docs/cli/enforcement/all.html","content":"content/docs/cli/enforcement/all.html","category":"CLI reference"},
+  {"route":"cli/provider-config","source":"content/docs/cli/provider-config.html","content":"content/docs/cli/provider-config.html","category":"CLI reference"},
   {"route":"cli/serve","source":"docs/cli/serve.md","content":"content/docs/cli/serve.html","category":"CLI reference"},
   {"route":"cli/adaptive","source":"docs/cli/adaptive.md","content":"content/docs/cli/adaptive.html","category":"CLI reference"},
   {"route":"cli/adaptive/status","source":"docs/cli/adaptive/status.md","content":"content/docs/cli/adaptive/status.html","category":"CLI reference"},
