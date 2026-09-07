@@ -87,9 +87,16 @@ allowlist (<code>allowlist: empty</code> when nothing was re-enabled)
 | <code>Approved repository hook is missing: &lt;path&gt;</code> | The manifest names a moved <code>.githooks</code> entry with no approved replacement in the release |
 | <code>Refusing to remove an obsolete path outside managed roots: &lt;path&gt;</code> | A previous install recorded a source file outside <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, or the managed launchers — the installer aborts rather than delete it |
 | <code>Tama runtime current path is not a symlink: &lt;path&gt;</code> | Something replaced <code>hooks-runtime/current</code> with a real file or directory; remove it manually, nothing else repairs this |
-| <code>Both active and disabled hook entrypoints exist: &lt;path&gt;</code> | An entrypoint and its <code>.tama-disabled</code> sibling both exist; a previous transition was interrupted — decide which is current and remove the other |
+| <code>&lt;N&gt; hook entrypoint(s) exist both active and disabled; resolve each one before restoring policy:</code> | Every conflicting pair is listed under it, each active file classified as <code>tama-managed dispatcher</code> — something the product wrote and the installer would rewrite anyway — or <code>not Tama-managed</code>, which is a person's file and their decision. Nothing is installed. <code>Scripts/entrypoints/report_conflicts.py --home &lt;home&gt; [--json]</code> reports the same set read-only, before you attempt a re-enable |
 | <code>Missing disabled hook entrypoint: &lt;path&gt;</code> | The manifest promises a <code>.tama-disabled</code> file that is gone |
 | <code>Could not read OMP extensions</code> / <code>Could not register OMP hook adapter</code> | The <code>omp config</code> round-trip failed; the transaction rolls back, including a half-applied extensions change |</p>
+<p>One refusal comes from the other side, before an install writes anything:
+<code>Tama hooks are disabled and &lt;path&gt;.tama-disabled is the entrypoint the
+bypass is holding. Installing &lt;name&gt; here would leave both files in place,
+which a re-enable refuses. Re-enable policy first, then install.</code> That is
+<code>tama install</code> declining to recreate a global Git dispatcher while a
+bypass holds it aside — the state that made a machine unrestorable on
+2026-08-24. Re-enable, then install.</p>
 <p>Every failure rolls the transaction back: originals restored, <code>current</code>
 re-pointed, the OMP extensions change reverted
 (<a href="hook-releases.md#installation">hook-releases</a>).</p>
