@@ -58,6 +58,17 @@ the active emergency state's exact, nonempty <code>changedAt</code>. The machine
 selection is bypassed, and the session record publishes that binding as
 <code>emergencyChangedAt</code>.</li>
 </ul>
+<p>Those semantics are checked twice, and the second check is what makes a
+deselection hold. The dispatcher resolves them before it spawns anything;
+each native hook binary then resolves them again for itself, first thing,
+matching its own executable name against the installed registry's commands
+and exiting passing when the machine selection excludes its id. A session
+whose adapter loaded before a selection existed asks nobody, so without the
+second check a hook the operator had removed kept refusing work inside that
+session — visible on this machine on 2026-09-07, hours after
+<code>tama enforcement only</code> had dropped it. The binary check fails closed:
+an id it cannot resolve, an unreadable or malformed selection, mode
+<code>all</code>, or a session that added the id all leave the hook enforcing.</p>
 <p>The one-hook allowlist and generation binding are retained in the private
 override and OMP session history, so they survive a reload or resume of that
 same session while the emergency generation is unchanged. A fresh global
