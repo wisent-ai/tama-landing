@@ -37,6 +37,7 @@
   {"route":"cli/mcp-config","source":"docs/cli/mcp-config.md","content":"content/docs/cli/configuration/mcp-config.html","category":"CLI reference"},
   {"route":"cli/find-violations","source":"docs/cli/find-violations.md","content":"content/docs/cli/inspection/find-violations.html","category":"CLI reference"},
   {"route":"cli/clean","source":"docs/cli/installation/clean.html","content":"content/docs/cli/installation/clean.html","category":"CLI reference"},
+  {"route":"cli/brama-check","source":"content/docs/cli/installation/brama-check.html","content":"content/docs/cli/installation/brama-check.html","category":"CLI reference"},
   {"route":"cli/sessions","source":"docs/cli/sessions.md","content":"content/docs/cli/runtime/sessions.html","category":"CLI reference"},
   {"route":"cli/enforcement/status","source":"content/docs/cli/enforcement/status.html","content":"content/docs/cli/enforcement/status.html","category":"CLI reference"},
   {"route":"cli/enforcement/only","source":"content/docs/cli/enforcement/only.html","content":"content/docs/cli/enforcement/only.html","category":"CLI reference"},

@@ -1,0 +1,13 @@
+<h1><code>tama brama-check</code></h1>
+<p>Reports which Brama address this machine resolves, whether it passes the client's own transport policy, and what the gateway answers to a bearer-only <code>GET /v1/models</code>. That request is not billable and calls no provider.</p>
+<h2>Invocation</h2>
+<pre><code>tama brama-check [--json]
+</code></pre>
+<h2>Output and state</h2>
+<p>Text output is four lines: the chat <code>endpoint</code> the client would post to, the <code>transport</code> verdict, the <code>probe</code> address with the HTTP status it returned, and <code>detail</code> — the number of models offered on success, or Brama's own error body. <code>--json</code> emits the same fields as one object. No credential value is printed on either surface. The command writes no state and calls no provider.</p>
+<p>The address is resolved exactly as <a href="../clean/"><code>clean</code></a> and the objective reviewer resolve it: <code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTER_URL</code>, <code>STADO_MODEL_ROUTER_URL</code> or <code>BRAMA_URL</code> when one is set; then <code>stado service directory connect brama --consumer operator</code>; then the public hostname.</p>
+<h2>Reading the answer</h2>
+<p><code>200</code> means the gateway accepts this client's bearer, so a chat request that still fails is being refused for its agent signature or its model route, not its identity. <code>401</code> means the gateway does not know this bearer: it is in neither the boot table it read at start nor the authority that issued it, and the credential is repaired at that authority. <code>503</code> means the identity upstream is unavailable, which is the gateway's dependency and not this client's credential. <code>426</code> means the peer is neither loopback nor an approved HTTPS terminator.</p>
+<h2>Refusals and failures</h2>
+<p>Exits <code>1</code> unless the probe answered <code>200</code> through an allowed transport. A credential store that cannot be read exits <code>1</code> with <code>brama-check: Skarbiec read &lt;item&gt;/&lt;field&gt; via &lt;endpoint&gt; as &lt;consumer&gt; failed</code>, which names the item, the store and the consumer identity but never a value. An address off loopback that is not HTTPS, or one carrying credentials, a query or a fragment, is refused by the client before anything is sent.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

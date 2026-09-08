@@ -13,6 +13,7 @@ const commands = [
   ["/docs/cli/mcp-config", "tama mcp-config"],
   ["/docs/cli/find-violations", "tama find-violations (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-user-or-org&gt; | --me) [...]"],
   ["/docs/cli/clean", "tama clean (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-owner&gt; | --me) [...]"],
+  ["/docs/cli/brama-check", "tama brama-check [--json]"],
   ["/docs/cli/sessions", "tama sessions [--json] [--home &lt;path&gt;]"],
   ["/docs/cli/enforcement/status", "tama enforcement status [--json]"],
   ["/docs/cli/enforcement/only", "tama enforcement only &lt;hook-id&gt;..."],
