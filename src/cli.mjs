@@ -10,7 +10,7 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, posix } from 'node:path';
 
 const root = new URL('../', import.meta.url).pathname;
-const pages = JSON.parse(readFileSync(join(root, 'pages.json'), 'utf8'));
+const pages = JSON.parse(readFileSync(join(root, 'content', 'pages.json'), 'utf8'));
 const pageRoutes = new Set(pages.map((page) => page.route));
 const dist = join(root, 'dist');
 const origin = 'https://tama.wisent.com';
