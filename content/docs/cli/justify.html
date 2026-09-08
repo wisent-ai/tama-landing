@@ -1,0 +1,38 @@
+<h1><code>tama justify</code></h1>
+<p>Records the justification the authorization gates require before a new file or a new test is written, and reads or removes one that is already recorded.</p>
+<h2>Invocation</h2>
+<pre><code>tama justify &lt;record|show|remove|list&gt; [--file &lt;path&gt;] [--justification &lt;text&gt;] [--kind file|test] [--quote &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]
+</code></pre>
+<p><code>--kind file</code> (the default) addresses <code>~/.shared-hooks/file_justifications.json</code>, which <code>require-new-file-justification</code> reads; <code>--kind test</code> addresses <code>~/.shared-hooks/test_justifications.json</code>, which the write gate reads for a new test. <code>--home</code> points both at another home directory, which is how a test drives this command without touching an operator's registry. Entries are keyed by absolute path, because that is the key the gates look up.</p>
+<h2>Why a command and not an edit</h2>
+<p>A justification registry is data an agent is required to write, and the directory holding it is hook configuration an agent must never write. Three gates enforce that directory: <code>block-hook-config-edits-without-consent</code> reads it as protected configuration, <code>block-oversized-files</code> reads a registry of a few thousand entries as an oversized source module, and the write gate protects the path outright. Editing the file by hand is refused by design, so the data inside it gets a product surface instead of an exemption.</p>
+<p>The document is edited in place rather than re-serialised: one entry is spliced in, the result is parsed back, and it is compared against the registry plus exactly that entry before anything is written. An operator registry keeps its order and its other entries byte for byte, and a splice can never publish a broken registry.</p>
+<h2>Actions</h2>
+<ul>
+<li><code>record</code> writes one entry and replaces an entry already stored under that path.</li>
+<li><code>show</code> prints the stored entry, or refuses when nothing is recorded for that path.</li>
+<li><code>remove</code> deletes one entry.</li>
+<li><code>list</code> prints every path the registry carries, one per line, or as JSON with <code>--json</code>.</li>
+</ul>
+<h2>What a recorded justification must satisfy</h2>
+<p>The command enforces exactly what the gates enforce, so a recorded entry is never one a gate then rejects:</p>
+<ul>
+<li>fifty words or more, counted the way the gates count them;</li>
+<li>for <code>--kind test</code>, a <code>--quote</code> copied verbatim from the request that asked for the test, contained verbatim inside the justification, and confirmed against the stored transcripts by the same checker the test gate runs.</li>
+</ul>
+<h2>Refusals</h2>
+<p>Each of these exits <code>1</code> and writes nothing:</p>
+<ul>
+<li><code>the justification is &lt;n&gt; words and the registry requires 50</code></li>
+<li><code>the registry is keyed by absolute paths, and &lt;path&gt; is relative</code></li>
+<li><code>a test justification needs --quote, copied verbatim from the request that asked for &lt;path&gt;</code></li>
+<li><code>the justification must contain the quote verbatim, because the gate checks that</code></li>
+<li><code>the quote is not a verbatim message from any stored user turn</code></li>
+<li><code>the quote verifier is missing at &lt;path&gt;, and the test gate refuses a quote it cannot verify</code></li>
+<li><code>no justification is recorded for &lt;path&gt;</code></li>
+<li><code>the edit would have changed entries other than the one asked for, so &lt;registry&gt; is unchanged</code>, and its sibling for invalid JSON — the read-back check refusing to publish a document it did not intend</li>
+</ul>
+<p>An unknown action or a missing subcommand prints the usage text and exits <code>2</code>.</p>
+<h2>The same capability in Tama Desktop</h2>
+<p>The Justifications screen records an entry as well as reading one: its <em>Record justification</em> action opens a sheet for the target, the registry, the justification and the user quote, and runs this command from the release sealed into the application. The rules are not restated in the interface, and a refusal appears there in the command's own words.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

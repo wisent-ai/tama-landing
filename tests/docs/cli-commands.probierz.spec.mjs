@@ -15,6 +15,7 @@ const commands = [
   ["/docs/cli/clean", "tama clean (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-owner&gt; | --me) [...]"],
   ["/docs/cli/brama-check", "tama brama-check [--json]"],
   ["/docs/cli/sessions", "tama sessions [--json] [--home &lt;path&gt;]"],
+  ["/docs/cli/justify", "tama justify &lt;record|show|remove|list&gt;"],
   ["/docs/cli/enforcement/status", "tama enforcement status [--json]"],
   ["/docs/cli/enforcement/only", "tama enforcement only &lt;hook-id&gt;..."],
   ["/docs/cli/enforcement/all", "tama enforcement all"],
