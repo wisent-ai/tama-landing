@@ -1,0 +1,55 @@
+<h1><code>tama worktrees list</code></h1>
+<p>Reports every linked git worktree under the roots you name, with its branch, head, dirty, locked and prunable state, and mutates nothing.</p>
+<h2>Invocation</h2>
+<pre><code>tama worktrees list [--root &lt;PATH&gt;]... [--json]
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Contract</th></tr></thead>
+<tbody>
+<tr><td><code>--root &lt;PATH&gt;</code></td><td>Repeatable, and required at least once. Each value is a directory under which Tama looks for the repositories that own worktrees. There is deliberately no default root</td></tr>
+<tr><td><code>--json</code></td><td>Prints the exact document below instead of the text report. Both modes read the same state</td></tr>
+</tbody>
+</table>
+<p>No other input is accepted, and no argument selects a single worktree: the
+command reports every linked worktree it finds under the given roots.</p>
+<h2>Discovery</h2>
+<p><code>tama_violations::repo_discovery</code>'s <code>discover_repos(root)</code> finds the
+owning repositories under each root; git itself is then the authority on
+worktrees, through <code>git -C &lt;repo&gt; worktree list --porcelain</code>. The
+repository's own main worktree is never reported. A worktree is dirty when
+<code>git -C &lt;worktree&gt; status --porcelain</code> prints anything; <code>locked</code> and
+<code>prunable</code> are git's own porcelain flags.</p>
+<p>Only linked worktrees appear — a checkout whose <code>.git</code> is a file holding a
+<code>gitdir:</code> pointer into <code>&lt;owner&gt;/.git/worktrees/&lt;name&gt;</code>. A second full
+clone with its own <code>.git</code> directory is a repository copy that no repository
+owns, so git never lists it and neither does this command
+(<a href="../">the worktrees group</a>).</p>
+<h2>Output document</h2>
+<p>Under <code>--json</code>, exactly:</p>
+<pre><code>{&quot;schemaVersion&quot;:1,&quot;roots&quot;:[String],&quot;repositories&quot;:[{&quot;repository&quot;:String,&quot;worktrees&quot;:[{&quot;path&quot;:String,&quot;branch&quot;:String|null,&quot;head&quot;:String,&quot;dirty&quot;:Boolean,&quot;locked&quot;:Boolean,&quot;prunable&quot;:Boolean}]}],&quot;worktreeCount&quot;:Number}
+</code></pre>
+<p><code>roots</code> echoes the roots you passed, in order. <code>repositories</code> carries one
+entry per owning repository that has at least one linked worktree, and
+<code>branch</code> is <code>null</code> for a detached head. <code>worktreeCount</code> is the total
+across every repository, so an empty machine answers
+<code>&quot;worktreeCount&quot;:0</code> with an empty <code>repositories</code> array. The same
+document is served by <code>POST /v1/worktrees/list</code> with body
+<code>{&quot;roots&quot;:[String]}</code> on the loopback desktop backend
+(<a href="../../serve/"><code>tama serve</code></a>).</p>
+<h2>State effect</h2>
+<p>None. The command runs <code>git worktree list</code> and <code>git status</code>, both
+read-only; it never removes, prunes, locks, unlocks or checks out anything.
+It is the safe first command when a hook has just refused a repository copy.</p>
+<h2>Refusal boundary</h2>
+<p>Passing no <code>--root</code> is a usage error, exit <code>2</code>:</p>
+<pre><code>tama worktrees needs at least one --root; a machine-wide default would walk directories Tama does not own.
+</code></pre>
+<p>A root that does not exist or cannot be read is an operational failure, exit
+<code>1</code>. A repository whose <code>git worktree list</code> fails is reported as the
+failure it is rather than silently omitted. Otherwise the command exits
+<code>0</code>, including when it finds nothing — an empty inventory is an answer, not
+an error. This leaf has no other refusal: it never asks about dirty or locked
+state, which is <a href="../remove/"><code>tama worktrees remove</code></a>'s boundary.</p>
+<p>Return to <a href="../">the worktrees command group</a> or the
+<a href="../../">complete CLI tree</a>.</p>

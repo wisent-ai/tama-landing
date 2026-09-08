@@ -1,0 +1,71 @@
+<h1><code>tama worktrees</code></h1>
+<p>Opens the command group that reports and removes the linked git worktrees under roots you name, because a linked worktree is a second checkout of a repository you already have.</p>
+<h2>Invocation</h2>
+<pre><code>tama worktrees &lt;command&gt;
+
+Commands:
+  list   [--root &lt;PATH&gt;]... [--json]                     Every linked git worktree under the roots
+  remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]  Remove them; previews unless --apply
+</code></pre>
+<p><code>&lt;command&gt;</code> is required and must be one of the two linked leaves below.</p>
+<h2>Command tree</h2>
+<ul>
+<li><a href="list/"><code>tama worktrees list [--root &lt;PATH&gt;]... [--json]</code></a> — every linked git worktree under the roots.</li>
+<li><a href="remove/"><code>tama worktrees remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]</code></a> — remove them; previews unless <code>--apply</code>.</li>
+</ul>
+<h2><code>--root</code> has no default, deliberately</h2>
+<p><code>--root</code> is repeatable and required at least once on both leaves. There is
+no machine-wide default and no implicit home-directory scan. Omitting it is a
+usage error, not a full-machine walk:</p>
+<pre><code>tama worktrees needs at least one --root; a machine-wide default would walk directories Tama does not own.
+</code></pre>
+<p>The reason is scope, not caution for its own sake. A default root would have
+to be your home directory, and a home directory contains checkouts Tama did
+not install, was never pointed at, and must not enumerate — on the machine
+this command was written for, one project tree alone holds 519 GB across
+sub-trees of 72 GB, 68 GB, 50 GB and 47 GB, and one agent scratch root
+(<code>~/.stado/work</code>) holds 1568 entries and 178 GB. Walking that by default
+would make a read-only inventory command a device-wide filesystem scan, and it
+would make <code>remove --apply</code> a device-wide deletion command. You name the
+roots; Tama stays inside them.</p>
+<h2>A linked worktree, not a repository copy</h2>
+<p>These two look alike in a file browser and are not the same object:</p>
+<ul>
+<li>A <strong>linked worktree</strong> is a checkout whose <code>.git</code> is a <em>file</em> holding a
+<code>gitdir:</code> pointer into the owning repository's
+<code>.git/worktrees/&lt;name&gt;</code> directory. Git manages it, so git can list and
+remove it.</li>
+<li>A <strong>repository copy</strong> is a second full clone with its own <code>.git</code>
+<em>directory</em>. No repository owns it, so no <code>git worktree</code> command knows
+about it.</li>
+</ul>
+<p>Observed on the machine this command was written for, the first kind:</p>
+<pre><code class="language-console">$ cat Wisent/.worktrees/brama-stub-purge/.git
+gitdir: /Users/lukaszbartoszcze/Documents/CodingProjects/Wisent/brama/.git/worktrees/brama-stub-purge
+</code></pre>
+<p>and the second kind, <code>~/worktrees/brama-build/.git</code>, which is a full
+<code>.git</code> directory. <code>tama worktrees</code> handles the first kind, because that is
+the noun git itself manages. Both kinds are refused at creation time by the
+<code>block-repository-copies</code> hook, whose three refusal sentences are in the
+<a href="../../runbook/">runbook</a>; a repository copy that already exists is an
+ordinary directory you delete yourself, and this command will not claim to
+have found it.</p>
+<h2>Discovery and authority</h2>
+<p><code>tama_violations::repo_discovery</code>'s <code>discover_repos(root)</code> finds the
+owning repositories under each root. Git is then the authority on worktrees:
+<code>git -C &lt;repo&gt; worktree list --porcelain</code>. The repository's own main
+worktree is never reported and never removed. A worktree is dirty when
+<code>git -C &lt;worktree&gt; status --porcelain</code> prints anything.</p>
+<h2>Output and state</h2>
+<p>The group itself performs no action and takes no options. <code>list</code> and a bare
+<code>remove</code> mutate nothing; only <code>remove --apply</code> deletes anything. Both
+leaves print a text report by default and an exact JSON document under
+<code>--json</code>, and both are also reachable on the loopback desktop backend as
+<code>POST /v1/worktrees/list</code> and <code>POST /v1/worktrees/remove</code>
+(<a href="../serve/"><code>tama serve</code></a>).</p>
+<h2>Refusals and failures</h2>
+<p>Exit <code>0</code> is success, exit <code>1</code> is an operational failure or a refusal,
+and exit <code>2</code> is a usage error — a missing or unknown leaf, or a leaf
+invoked without <code>--root</code>. Each leaf page carries its own exact refusal
+sentences.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

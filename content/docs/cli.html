@@ -47,6 +47,18 @@ adaptive-layer command group. Its leaves are:</p>
 <li><a href="cli/adaptive/uninstall/"><code>tama adaptive uninstall</code></a> — restore the newest runner backup.</li>
 <li><a href="cli/adaptive/claude-config/"><code>tama adaptive claude-config</code></a> — print Claude event routing.</li>
 </ul>
+<h2>Worktrees</h2>
+<p><a href="cli/worktrees/"><code>tama worktrees &lt;command&gt;</code></a> is the public
+worktree command group. A linked worktree is a second checkout of a repository
+you already have, and creating one is refused by the
+<code>block-repository-copies</code> hook; this group is how you inventory and remove
+the ones that already exist. Its leaves are:</p>
+<ul>
+<li><a href="cli/worktrees/list/"><code>tama worktrees list [--root &lt;PATH&gt;]... [--json]</code></a> — every linked git worktree under the roots.</li>
+<li><a href="cli/worktrees/remove/"><code>tama worktrees remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]</code></a> — remove them; previews unless <code>--apply</code>.</li>
+</ul>
+<p><code>--root</code> is repeatable and required at least once on both leaves; there
+is deliberately no machine-wide default root.</p>
 <h2>Existing policy bundles</h2>
 <p>A supported self-contained policy bundle or sealed release contains
 <code>shared-hooks/registry.json</code> and regular, non-symlink files under

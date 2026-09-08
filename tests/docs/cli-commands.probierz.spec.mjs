@@ -29,6 +29,9 @@ const commands = [
   ["/docs/cli/adaptive/install", "DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive install"],
   ["/docs/cli/adaptive/uninstall", "tama adaptive uninstall"],
   ["/docs/cli/adaptive/claude-config", "tama adaptive claude-config"],
+  ["/docs/cli/worktrees", "tama worktrees &lt;command&gt;"],
+  ["/docs/cli/worktrees/list", "tama worktrees list [--root &lt;PATH&gt;]... [--json]"],
+  ["/docs/cli/worktrees/remove", "tama worktrees remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]"],
 ];
 
 for (const [route, invocation] of commands) {

@@ -1,0 +1,88 @@
+<h1><code>tama worktrees remove</code></h1>
+<p>Removes every linked git worktree under the roots you name, previewing the whole pass unless <code>--apply</code> is given, and refusing the entire pass before deleting anything when a selected worktree is dirty or locked.</p>
+<h2>Invocation</h2>
+<pre><code>tama worktrees remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Contract</th></tr></thead>
+<tbody>
+<tr><td><code>--root &lt;PATH&gt;</code></td><td>Repeatable, and required at least once. Each value is a directory under which Tama looks for the repositories that own worktrees. There is deliberately no default root</td></tr>
+<tr><td><code>--apply</code></td><td>Performs the removal. Without it the command previews and mutates nothing</td></tr>
+<tr><td><code>--force</code></td><td>Proceeds past dirty and locked worktrees and discards their uncommitted changes. Without it either condition refuses the pass</td></tr>
+<tr><td><code>--json</code></td><td>Prints the exact document below instead of the text report, in both preview and applied mode</td></tr>
+</tbody>
+</table>
+<p>There is no argument that selects one worktree: the pass is every linked
+worktree found under the roots. Narrow it by naming narrower roots, and see
+what it would touch with
+<a href="../list/"><code>tama worktrees list</code></a> or with this command's own
+preview.</p>
+<h2>Discovery and removal mechanics</h2>
+<p><code>tama_violations::repo_discovery</code>'s <code>discover_repos(root)</code> finds the
+owning repositories under each root; git itself is then the authority on
+worktrees, through <code>git -C &lt;repo&gt; worktree list --porcelain</code>. The
+repository's own main worktree is never reported and never removed. A
+worktree is dirty when <code>git -C &lt;worktree&gt; status --porcelain</code> prints
+anything.</p>
+<p>Each removal is git's own operation, never a directory delete:</p>
+<pre><code>git -C &lt;repo&gt; worktree remove [--force] &lt;path&gt;
+git -C &lt;repo&gt; worktree prune
+</code></pre>
+<p><code>--force</code> is passed through to <code>git worktree remove</code> only when you
+passed it. The prune runs after the removals so the owning repository's
+<code>.git/worktrees</code> administrative entries do not outlive the checkouts.</p>
+<h2>Output document</h2>
+<p>Under <code>--json</code>, exactly:</p>
+<pre><code>{&quot;schemaVersion&quot;:1,&quot;roots&quot;:[String],&quot;repositories&quot;:[{&quot;repository&quot;:String,&quot;worktrees&quot;:[{&quot;path&quot;:String,&quot;branch&quot;:String|null,&quot;head&quot;:String,&quot;dirty&quot;:Boolean,&quot;locked&quot;:Boolean,&quot;prunable&quot;:Boolean}]}],&quot;worktreeCount&quot;:Number,&quot;applied&quot;:Boolean,&quot;removed&quot;:[String],&quot;refused&quot;:[{&quot;path&quot;:String,&quot;reason&quot;:&quot;uncommitted-changes&quot;|&quot;locked&quot;}]}
+</code></pre>
+<p>It is the <a href="../list/"><code>list</code></a> document plus three fields.</p>
+<p><code>applied</code> is <code>true</code> only for an <code>--apply</code> pass that actually
+ran: it is <code>false</code> for every preview, and <code>false</code> for an
+<code>--apply</code> pass that was refused. <code>removed</code> holds the paths git
+actually removed, so a preview and a refused pass both report
+<code>&quot;removed&quot;:[]</code>. <code>refused</code> names every worktree that blocks
+the pass — each with the reason <code>&quot;uncommitted-changes&quot;</code> or
+<code>&quot;locked&quot;</code> — and it is populated in a preview too, so a bare
+<code>remove</code> shows exactly what <code>--apply</code> would refuse. <code>--force</code>
+empties <code>refused</code> in both modes, because nothing blocks a forced pass.</p>
+<p>The same document is served by <code>POST /v1/worktrees/remove</code> with body
+<code>{&quot;roots&quot;:[String],&quot;apply&quot;:Boolean,&quot;force&quot;:Boolean}</code> on the
+loopback desktop backend (<a href="../../serve/"><code>tama serve</code></a>). An empty
+<code>roots</code> array answers <code>400</code> with the missing-root sentence below; a
+refused pass answers <code>200</code> with the refusal document, where the CLI
+exits <code>1</code>.</p>
+<h2>State effect</h2>
+<p>A bare <code>remove</code> changes nothing: it is a preview, and it exits
+<code>0</code> even when its <code>refused</code> array is non-empty, because a preview
+has nothing to refuse yet. Only <code>remove --apply</code> deletes, and then only
+through <code>git worktree remove</code> followed by <code>git worktree prune</code>.
+The refusal check runs across the whole selection before the first removal,
+so an applied pass either removes every worktree it selected or removes none
+of them — Tama does not delete the first three worktrees and then discover
+the fourth is dirty.</p>
+<h2>Refusal boundary</h2>
+<p>Passing no <code>--root</code> is a usage error, exit <code>2</code>:</p>
+<pre><code>tama worktrees needs at least one --root; a machine-wide default would walk directories Tama does not own.
+</code></pre>
+<p><code>--apply</code> without <code>--force</code> refuses the whole pass before deleting
+anything if any selected worktree carries uncommitted changes or git reports
+it locked, and names every one of them, one sentence per worktree, exit
+<code>1</code>:</p>
+<pre><code>Refusing to remove &lt;path&gt;: it carries uncommitted changes. Commit them in that worktree, or pass --force to discard them.
+</code></pre>
+<pre><code>Refusing to remove &lt;path&gt;: git reports it locked. Unlock it with git worktree unlock, or pass --force.
+</code></pre>
+<p>Both sentences name the repair you probably want first — commit in that
+worktree, or <code>git worktree unlock</code> — and the switch that overrides it.
+<code>--force</code> proceeds and discards those changes; that is the whole meaning of
+the flag, and it is why it is not the default.</p>
+<p>A refused <code>--apply</code> pass reports <code>&quot;applied&quot;:false</code> and
+<code>&quot;removed&quot;:[]</code> with every blocker in <code>refused</code>: the refusal is
+the whole pass, not the worktrees that happened to be clean.</p>
+<p>A failed <code>git worktree remove</code> or <code>git worktree prune</code> is an operational
+failure, exit <code>1</code>. Otherwise the command exits <code>0</code>: every preview
+does, and so does an applied pass that removed everything it selected,
+including the pass that found nothing to remove.</p>
+<p>Return to <a href="../">the worktrees command group</a> or the
+<a href="../../">complete CLI tree</a>.</p>
