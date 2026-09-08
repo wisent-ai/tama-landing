@@ -5,6 +5,9 @@
                      [--json] [--hook &lt;path&gt;] [--clone-dir &lt;dir&gt;]
 </code></pre>
 <p>Targets are repeatable and combinable. <code>--repo</code> names one directory; <code>--tree</code> discovers Git checkouts; <code>--owner</code> uses <code>gh</code> and shallow-clones missing repositories; <code>--me</code> selects the authenticated user and their organizations. <code>--hook</code> overrides the replayed hook, <code>--clone-dir</code> changes the clone cache, and <code>--json</code> selects structured reports.</p>
+<h2>Which checkouts a tree claims</h2>
+<p><code>--tree</code> decides by provenance, not by a list of directory names. A checkout whose <code>.git</code> is a file is a linked worktree or a submodule, so its content belongs to the repository that owns it and it is not a target of its own. A checkout inside a path its owning repository ignores was written by a package manager, a cache or a scratch run — that ignore rule is the owner's own statement about provenance — so it is skipped too. Dependency and build directory names are still pruned, but only to keep the walk cheap.</p>
+<p>Two checkouts that share an origin remote are one repository: the shallowest path is kept, with a lexicographic tie-break so the answer never depends on walk order, because fixing the source fixes every clone of it. A checkout with no origin remote is nobody's copy and is always kept, and a repository named with <code>--repo</code> is never deduplicated away.</p>
 <h2>Output and state</h2>
 <p>Text mode groups findings by rule and ends with repository, violation, and discovery-problem totals. JSON returns <code>repos</code>, <code>problems</code>, and <code>totals</code>. Exit <code>0</code> means no violations or problems; any violation or discovery problem exits <code>1</code>. Command-gating rules are out of scope because they inspect shell commands rather than file content.</p>
 <h2>Refusals and failures</h2>
