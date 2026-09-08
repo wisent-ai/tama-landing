@@ -1,0 +1,14 @@
+<h1><code>tama justify</code></h1>
+<p>Records, reads and retires the justifications the write guards require, so a registry that a hook demands is written by a command instead of by hand.</p>
+<h2>Invocation</h2>
+<pre><code>tama justify &lt;record|show|remove|list&gt; [--file &lt;path&gt;] [--justification &lt;text&gt;]
+             [--kind file|test] [--quote &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]
+</code></pre>
+<p><code>--kind</code> selects the registry: <code>file</code> for <code>~/.shared-hooks/file_justifications.json</code>, which the new-file rule reads, and <code>test</code> for <code>~/.shared-hooks/test_justifications.json</code>, which additionally requires <code>--quote</code>, the operator's own words asking for that test. <code>--home</code> points both registries at another home, which is how the tests drive the command against an isolated one.</p>
+<h2>Why it exists</h2>
+<p>The rules that demand a justification are enforced on write, and the registries they read are long — the file registry passed seven thousand lines. A guard that refuses any edit leaving a source file over three hundred lines therefore refused every edit to the registry that another guard demanded an entry in, so the two rules together made the required entry unwritable. The command owns those files instead: it is not an exemption from either rule, it is the supported way to satisfy one of them.</p>
+<h2>Output and state</h2>
+<p><code>record</code> writes or replaces one entry keyed by the absolute path and reports which registry it wrote. <code>show</code> prints one entry, <code>list</code> prints the paths a registry holds, and <code>remove</code> retires one entry. <code>--json</code> emits the same answers as one object. Each write replaces the registry atomically, so a failed write leaves the previous content intact.</p>
+<h2>Refusals and failures</h2>
+<p>A justification shorter than the rule's own word count is refused with the count it needs. A test justification whose <code>--quote</code> is not a verbatim user message in the stored transcripts is refused, and so is one whose justification text does not contain that quote — the same two checks the write guard performs, so the command cannot record an entry the guard would then reject. A missing <code>--file</code>, an unknown subcommand and an unreadable registry print usage and exit non-zero.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>
