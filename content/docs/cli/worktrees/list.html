@@ -27,7 +27,7 @@ owns, so git never lists it and neither does this command
 (<a href="../">the worktrees group</a>).</p>
 <h2>Output document</h2>
 <p>Under <code>--json</code>, exactly:</p>
-<pre><code>{&quot;schemaVersion&quot;:1,&quot;roots&quot;:[String],&quot;repositories&quot;:[{&quot;repository&quot;:String,&quot;worktrees&quot;:[{&quot;path&quot;:String,&quot;branch&quot;:String|null,&quot;head&quot;:String,&quot;dirty&quot;:Boolean,&quot;locked&quot;:Boolean,&quot;prunable&quot;:Boolean}]}],&quot;worktreeCount&quot;:Number}
+<pre><code>{&quot;schemaVersion&quot;:1,&quot;roots&quot;:[String],&quot;repositories&quot;:[{&quot;repository&quot;:String,&quot;worktrees&quot;:[{&quot;path&quot;:String,&quot;branch&quot;:String|null,&quot;head&quot;:String,&quot;dirty&quot;:Boolean,&quot;locked&quot;:Boolean,&quot;prunable&quot;:Boolean}]}],&quot;worktreeCount&quot;:Number,&quot;unreadable&quot;:[String]}
 </code></pre>
 <p><code>roots</code> echoes the roots you passed, in order. <code>repositories</code> carries one
 entry per owning repository that has at least one linked worktree, and
@@ -37,6 +37,14 @@ across every repository, so an empty machine answers
 document is served by <code>POST /v1/worktrees/list</code> with body
 <code>{&quot;roots&quot;:[String]}</code> on the loopback desktop backend
 (<a href="../../serve/"><code>tama serve</code></a>).</p>
+<p><code>unreadable</code> names every candidate the walk found a <code>.git</code> for
+and git then refused to answer for as a repository. It is reported rather
+than dropped, because silence would be the pass claiming it read a checkout
+it never read.</p>
+<p>This document carries no <code>excepted</code> array, because <code>list</code> has no
+<code>--except</code>: that option belongs to
+<a href="../remove/"><code>tama worktrees remove</code></a>, which is the only leaf
+with anything to exempt.</p>
 <h2>State effect</h2>
 <p>None. The command runs <code>git worktree list</code> and <code>git status</code>, both
 read-only; it never removes, prunes, locks, unlocks or checks out anything.

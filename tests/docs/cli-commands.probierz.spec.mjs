@@ -31,7 +31,7 @@ const commands = [
   ["/docs/cli/adaptive/claude-config", "tama adaptive claude-config"],
   ["/docs/cli/worktrees", "tama worktrees &lt;command&gt;"],
   ["/docs/cli/worktrees/list", "tama worktrees list [--root &lt;PATH&gt;]... [--json]"],
-  ["/docs/cli/worktrees/remove", "tama worktrees remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]"],
+  ["/docs/cli/worktrees/remove", "tama worktrees remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--apply] [--force] [--json]"],
 ];
 
 for (const [route, invocation] of commands) {

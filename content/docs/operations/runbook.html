@@ -262,3 +262,21 @@ largest sub-trees of one project directory on this machine are 72 GB, 68 GB,
 throwaway experiment, make it a branch in the existing checkout instead; if
 you wanted an archive, produce one file with <code>git archive</code> rather than a
 second repository.</p>
+<h2><code>tama worktrees does not know the worktree &lt;path&gt;; --except takes the path of a worktree this pass would otherwise remove.</code></h2>
+<p>From <code>tama worktrees remove</code>, exit <code>2</code>, when a value you passed to
+<code>--except</code> matches no worktree the pass would otherwise consider.
+<code>&lt;path&gt;</code> is your value. It means nothing was removed and nothing was
+previewed: the usage error ends the pass before any selection is acted on.</p>
+<p>The check exists because <code>--except</code> is how you keep one worktree while
+removing the rest, so an unrecognised path must not be ignored — an ignored
+typo would silently remove the one worktree you named to protect. Comparison
+is canonicalised, the same way a main worktree path is compared, so a
+relative path or a symlinked parent still matches; a path under a root you
+did not name does not, because the pass would never have considered it.</p>
+<p>First command:</p>
+<pre><code class="language-bash">tama worktrees list --root &lt;PATH&gt;
+</code></pre>
+<p>That is read-only. It prints the exact paths of the linked worktrees this
+pass can see under the root you name; copy the one you meant into
+<code>--except</code> and run the removal again
+(<a href="cli/worktrees/remove.md">cli/worktrees/remove</a>).</p>

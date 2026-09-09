@@ -55,10 +55,13 @@ you already have, and creating one is refused by the
 the ones that already exist. Its leaves are:</p>
 <ul>
 <li><a href="cli/worktrees/list/"><code>tama worktrees list [--root &lt;PATH&gt;]... [--json]</code></a> — every linked git worktree under the roots.</li>
-<li><a href="cli/worktrees/remove/"><code>tama worktrees remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]</code></a> — remove them; previews unless <code>--apply</code>.</li>
+<li><a href="cli/worktrees/remove/"><code>tama worktrees remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--apply] [--force] [--json]</code></a> — remove them; previews unless <code>--apply</code>.</li>
 </ul>
 <p><code>--root</code> is repeatable and required at least once on both leaves; there
-is deliberately no machine-wide default root.</p>
+is deliberately no machine-wide default root. <code>--except</code> is repeatable,
+takes the path of one linked worktree to leave completely alone, and exists
+on <code>remove</code> only — <code>list</code> removes nothing, so it has no
+<code>--except</code>.</p>
 <h2>Existing policy bundles</h2>
 <p>A supported self-contained policy bundle or sealed release contains
 <code>shared-hooks/registry.json</code> and regular, non-symlink files under

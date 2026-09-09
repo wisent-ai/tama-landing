@@ -4,15 +4,29 @@
 <pre><code>tama worktrees &lt;command&gt;
 
 Commands:
-  list   [--root &lt;PATH&gt;]... [--json]                     Every linked git worktree under the roots
-  remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]  Remove them; previews unless --apply
+  list   [--root &lt;PATH&gt;]... [--json]                                          Every linked git worktree under the roots
+  remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--apply] [--force] [--json]  Remove them; previews unless --apply
 </code></pre>
 <p><code>&lt;command&gt;</code> is required and must be one of the two linked leaves below.</p>
 <h2>Command tree</h2>
 <ul>
 <li><a href="list/"><code>tama worktrees list [--root &lt;PATH&gt;]... [--json]</code></a> — every linked git worktree under the roots.</li>
-<li><a href="remove/"><code>tama worktrees remove [--root &lt;PATH&gt;]... [--apply] [--force] [--json]</code></a> — remove them; previews unless <code>--apply</code>.</li>
+<li><a href="remove/"><code>tama worktrees remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--apply] [--force] [--json]</code></a> — remove them; previews unless <code>--apply</code>.</li>
 </ul>
+<h2><code>--except</code> is a <code>remove</code> option only</h2>
+<p><code>--except</code> is repeatable and takes the path of one linked worktree to
+leave completely alone: it is not removed, it is not counted as removable,
+and it never produces a refusal. It exists because the refusal is the whole
+pass — on the machine it was written for, 39 worktrees could not be removed
+because a fortieth was being written by a live agent session, and root
+selection could not separate them because a root selects owning
+repositories. An <code>--except</code> value that matches no worktree the pass
+would otherwise consider is a usage error, exit <code>2</code>, so a mistyped path
+cannot silently remove the thing it meant to keep.</p>
+<p><a href="list/"><code>list</code></a> has no <code>--except</code>. It removes
+nothing, so it has nothing to exempt, and only the
+<a href="remove/"><code>remove</code></a> document carries the
+<code>excepted</code> array.</p>
 <h2><code>--root</code> has no default, deliberately</h2>
 <p><code>--root</code> is repeatable and required at least once on both leaves. There is
 no machine-wide default and no implicit home-directory scan. Omitting it is a
