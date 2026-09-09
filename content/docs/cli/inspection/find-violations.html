@@ -1,10 +1,11 @@
 <h1><code>tama find-violations</code></h1>
-<p>Replays the real shared pre-write hook against files in one or more repositories and reports the first content-rule violation per file without modifying the repositories.</p>
+<p>Replays the shared content and file-size hooks, reporting the first violation per file and one finding per crowded folder without modifying the repositories. The CLI, repair command and MCP tool use the same scanner.</p>
 <h2>Invocation</h2>
 <pre><code>tama find-violations (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-user-or-org&gt; | --me) [...]
                      [--json] [--hook &lt;path&gt;] [--clone-dir &lt;dir&gt;]
 </code></pre>
 <p>Targets are repeatable and combinable. <code>--repo</code> names one directory; <code>--tree</code> discovers Git checkouts; <code>--owner</code> uses <code>gh</code> and shallow-clones missing repositories; <code>--me</code> selects the authenticated user and their organizations. <code>--hook</code> overrides the replayed hook, <code>--clone-dir</code> changes the clone cache, and <code>--json</code> selects structured reports.</p>
+<p>The file-size rule is read from <code>block_oversized_files.sh</code> beside the selected hook. A custom hook directory must contain that companion file; an unreadable or failing hook appears in <code>errors</code> and makes the scan fail. Each file is enumerated once, the 300-line boundary is checked, and <code>.tama-violations-ignore</code> applies to both content and size checks. The repair command uses this same result, so an oversized file cannot disappear from its work list.</p>
 <h2>Which checkouts a tree claims</h2>
 <p><code>--tree</code> decides by provenance, not by a list of directory names. A checkout whose <code>.git</code> is a file is a linked worktree or a submodule, so its content belongs to the repository that owns it and it is not a target of its own. A checkout inside a path its owning repository ignores was written by a package manager, a cache or a scratch run — that ignore rule is the owner's own statement about provenance — so it is skipped too. Dependency and build directory names are still pruned, but only to keep the walk cheap.</p>
 <p>Two checkouts that share an origin remote are one repository: the shallowest path is kept, with a lexicographic tie-break so the answer never depends on walk order, because fixing the source fixes every clone of it. A checkout with no origin remote is nobody's copy and is always kept, and a repository named with <code>--repo</code> is never deduplicated away.</p>
