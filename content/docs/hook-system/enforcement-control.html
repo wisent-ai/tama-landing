@@ -82,35 +82,70 @@ session tools: <code>tama_hook_runtime_status</code>, <code>tama_set_session_hoo
 <code>tama_enable_all_session_hooks</code>, <code>tama_request_session_capability</code>, and
 <code>tama_reload_hook_runtime</code>. Session hook disablement is prohibited there
 too.</p>
-<p>Deferred reload requires OMP's <code>ctx.requestReload</code> API. If the tool
-returns <code>OMP does not expose deferred runtime reload requests</code>, no reload
-was scheduled and the session still uses its old release. The existing
-<code>/tama_reload_hook_runtime</code> slash command reloads that same session through
-the command-handler API without restarting the process or enabling every hook.
-Compare both release ids and checksums in the subsequent runtime status before
-treating an installation as active.</p>
-<h2>A hook installed while a session runs</h2>
-<p>OMP builds one hook handler per event and hook id when a session starts, so a
-hook installed later has no handler of its own in that session. Until
-2026-09-09 that meant an installed, machine-selected hook stayed inert until a
-new session began, and the only way to close the gap from inside was the
-<code>/tama_reload_hook_runtime</code> slash command, which belongs to the person at
-the keyboard.</p>
-<p>The gates a session does have now carry the machine's current policy for the
-event they were called for. On every call, a Rust gate reads the installed
-registry and <code>hook-enforcement.json</code> from disk, finds the other hooks
-declared for that same event, and evaluates those whose rule answers from the
-tool payload alone; the first refusal wins and names the hook that owns it, so
-a sentence read as
-<code>block-unauthorized-cua: block-subagent-spawn: BLOCKED: …</code> is the
-subagent policy speaking through the gate that carried it. Hooks that need
-more than the payload — a transcript scan, a justification file, a model call
-— keep their own wrappers and are not swept.</p>
-<p>Consequences worth knowing: an installed hook takes effect on the next tool
-call rather than the next session; a hook outside the machine selection is
-still not enforced, because the selection is read with it; and a reload is
-then only needed to make the runtime <em>report</em> the new release, not to make
-its policy hold.</p>
+<h2>Common hook runtime and harness adapters</h2>
+<p>Tama owns registry loading, hook execution, enforcement selection and reload.
+Harness adapters translate their incoming events and outgoing decisions; they
+do not implement another copy of the hook rules. The native
+<code>tama-run-hook</code> library and binary share the same execution loop.</p>
+<p>The one-event interface remains
+<code>tama-run-hook &lt;event&gt; &lt;agent-id&gt;</code>, with the payload on standard
+input. Claude receives the canonical decision and exit code <code>2</code> on
+a policy block. Codex receives its existing minimal block response and exit
+code <code>0</code>; a passing Codex decision produces no stdout. Those are
+adapter differences, not different policy evaluations.</p>
+<h3>Persistent runtime protocol</h3>
+<pre><code>tama-run-hook --serve omp</code></pre>
+<p>This starts the common engine, not an OMP agent. It first emits a JSON
+<code>ready</code> frame containing its state, then accepts one JSON object per
+line on stdin and returns one JSON object per line on stdout. Frames must end
+with LF. Closing stdin ends the process.</p>
+<pre><code>{"id":"inspect","op":"status"}
+{"id":"reload","op":"reload"}
+{"id":"event","op":"dispatch","event":"pre_tool_use:read","payload":{"session_id":"example-session","tool_name":"read","tool_input":{"path":"example.txt"}}}</code></pre>
+<p>Responses carry the request <code>id</code>, <code>ok</code>, a
+<code>result</code> or <code>error</code>, and the observed <code>state</code>.
+Status requests report their data in <code>state</code>; their
+<code>result</code> is null. A successful reload returns
+<code>{"reloaded":true,"changed":true}</code>, or <code>changed:false</code>
+when the validated catalog already matches. The response is produced after
+the engine has adopted the candidate, never after inserting a prompt.</p>
+<p>Every dispatch also checks the registry. A valid changed catalog is adopted
+automatically before its hooks execute, without restarting the engine or
+changing the event's session identity. The process starts each hook command
+afresh; script and executable code is not cached between invocations.</p>
+<h3>Rejected replacements and observed state</h3>
+<p>A registry read, JSON parsing, shape or declared-checksum failure leaves the
+preceding loaded generation intact. A dispatch encountering that failure
+returns <code>ok:false</code> and executes no hook; it does not quietly run
+the preceding policy instead. After a valid replacement is published, a later
+dispatch can adopt it without restarting the process.</p>
+<p>Diagnostics name the failed registry path and operation, for example
+<code>parsing hook registry &lt;path&gt;: EOF while parsing a value at line 2 column 0</code>
+or <code>hook registry &lt;path&gt; checksum mismatch: expected &lt;declared&gt;, actual &lt;computed&gt;</code>.
+State includes <code>processId</code>, <code>generation</code>,
+<code>loadedReleaseId</code>, <code>catalogChecksum</code>,
+<code>registeredHookCount</code>, <code>reloadCount</code>,
+<code>lastReloadAtMs</code> and <code>lastReloadError</code>.
+<code>processId</code> identifies the common engine process, not its caller's
+harness process. A registry without release metadata reports a null release
+identity, not a fabricated release.</p>
+<h3>OMP integration status</h3>
+<p>The existing <code>omp-shared-hooks.js</code> adapter still has its own
+in-memory catalog and dispatcher; it has not yet been switched to this common
+engine. Starting <code>tama-run-hook --serve omp</code> alone does not reconnect
+an already-running OMP session. The native engine's reload tests therefore do
+not establish automatic reload through that legacy adapter.</p>
+<p>In OMP 18.1.13, <code>sendUserMessage()</code> deliberately skips command
+handling. The legacy reload tool can consequently report a scheduled reload
+after merely inserting <code>/tama_reload_hook_runtime</code> into the
+conversation. That message is not a completion receipt. The command entered
+through OMP's command handler and its subsequent loaded-state readback are
+separate from this defective tool path.</p>
+<p>The native core's real-process regression tests live under
+<code>tama/rust/crates/tama-run-hook/tests/runtime_reload/</code>.
+They execute changed filesystem hook commands, inspect their persisted
+effects, reject malformed and incorrectly sealed replacements, and retain
+stdin, stdout, stderr, source revision, binary checksum and exit status.</p>
 
 <h2>Completion enforcement</h2>
 <p>Prompt text and installed instructions describe expected conduct; they do not
