@@ -53,9 +53,53 @@ tama install-plan --json</code></pre>
 <h2>Changing a hook</h2>
 <ol>
 <li>Place source under the owning archive directory.</li>
-<li>Update the registry and catalogue metadata with identity, event, command, timeout, blocking mode, category, purpose, rationale, and side effects.</li>
+<li>Record the catalogue entry, then write the registry entry, in that order.
+<code>tama-record-hook-metadata</code> writes the <code>catalog-metadata.json</code> entry —
+category, purpose, rationale, and side effects:
+<pre><code>tama-record-hook-metadata [--check] --category C --description D --why W --side-effects S [--status S] &lt;catalog-metadata.json&gt; &lt;hook-id&gt;</code></pre>
+<code>--status</code> defaults to <code>active</code>; the entry carries <code>status</code>,
+<code>category</code>, <code>description</code>, <code>why</code> and <code>sideEffects</code> in that
+order; a repeat run reports that the catalogue already records the id and writes
+nothing; <code>--check</code> writes nothing and exits non-zero when the entry is
+absent or differs, naming the field that differs; refusals exit <code>2</code>. It
+never opens <code>registry.json</code>.
+Then <code>shared-hooks/register-hook.mjs</code> writes <code>registry.json</code> —
+identity, event, command, timeout, blocking mode, runtime placement — and
+reseals it. That order is not a preference: before it writes anything
+<code>register-hook.mjs</code> reads the catalogue and refuses a hook with no entry
+there, printing <code>catalog-metadata.json has no entry for &lt;id&gt;</code> and exiting
+<code>2</code>. The registry catalogue takes its category, purpose, rationale, and
+side effects from the metadata entry, so those are written once.</li>
 <li>Exercise the real runtime path that claims enforcement. Synthetic payload replay, mocks, and dry-run-only evidence do not prove live blocking.</li>
 <li>Keep commits limited to hook source, structured catalogue/configuration, and applicable product checks. Exclude runtime state, credentials, logs, profiles, and caches.</li>
 </ol>
+<h2>Repairing a recorded hook source</h2>
+<p><code>register-hook.mjs</code> derives a hook's <code>source</code> from its command: it
+takes the executable, drops the <code>tama-</code> prefix, turns hyphens into
+underscores, and looks for that stem as a sibling script or as a flat
+<code>rust/crates/tama-hook-tools/src/bin/&lt;stem&gt;.rs</code>. A guard whose source sits
+in a nested directory — <code>src/bin/block/repo/block_repository_copies.rs</code>, for
+instance — matches none of those candidates, so the writer falls back to
+recording the hook's own command, the installed binary path, as its
+<code>source</code>. Registration still succeeds and says nothing about it.</p>
+<p>The next seal is where it surfaces. <code>seal_hook_release.py</code> packages every
+source outside the managed hook directories and refuses the whole release with
+<code>External hook source is missing</code> for the first one it cannot open
+(<a href="scripts.md#seal-hook-release-py">scripts</a>). Until the entry is
+repaired no hook release can be sealed at all, and sealing is the step that puts
+a fixed hook on a machine. <code>block-repository-copies</code> hit exactly this the
+moment it was registered.</p>
+<p>Repair the entry, then reseal the registry:</p>
+<pre><code>tama-reconcile-registry-sources [--check] [--out PATH] &lt;registry.json&gt;
+node shared-hooks/seal-registry.mjs</code></pre>
+<p>The reconciler recognises a <code>source</code> that names an installed hook binary,
+derives the stem the way the writer does — drop <code>tama-</code>, hyphens become
+underscores — and repairs the entry when exactly one tracked file is named
+<code>&lt;stem&gt;.rs</code>; no match or several is reported and nothing is written. A
+<code>source</code> that already resolves is left alone. <code>--check</code> writes nothing
+and exits non-zero on the first stale entry, which is what a repository gate
+runs. The reseal is required, not optional: the catalogue checksum covers the
+whole document, so a rewritten <code>source</code> leaves the registry unsealed until
+<code>shared-hooks/seal-registry.mjs</code> runs.</p>
 <h2>Security rules</h2>
 <p>Never commit settings, environment files, shell profiles, logs, transcripts, credentials, private keys, session cookies, or Keychain exports. Hook archives may contain forbidden patterns by design, so any bypass for the Tama source repository must be explicit and scoped.</p>

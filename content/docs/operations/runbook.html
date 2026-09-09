@@ -262,6 +262,21 @@ largest sub-trees of one project directory on this machine are 72 GB, 68 GB,
 throwaway experiment, make it a branch in the existing checkout instead; if
 you wanted an archive, produce one file with <code>git archive</code> rather than a
 second repository.</p>
+<h2><code>BLOCKED: cannot tell whether &lt;source&gt; is a git repository, because the path is not literal. Pass the real path so the copy can be checked, or work in the existing checkout instead.</code></h2>
+<p>From the same hook, on a recursive copy whose source is not a literal path — the token carries a <code>$</code>
+or a backtick, as in <code>cp -r &quot;$REPO&quot; dest</code>. <code>&lt;source&gt;</code> is that operand exactly as you wrote
+it, unexpanded, because that is all the hook was handed; nothing was copied, the refusal lands before the copy starts.</p>
+<p>The check exists because the hook reads the command text, not the shell's expansion of it, while answering
+&quot;is this source a checkout?&quot; means looking at the source on disk. Proven live on 2026-09-09, in a session
+with this hook loaded and enabled: <code>cp -r &quot;$REPO&quot; dest</code> offered the literal <code>$REPO</code>, which
+stats as nothing, so the copy check found no <code>.git</code> and the copy went through — while the same command
+written with a literal path was refused. An agent putting paths into variables is ordinary, so failing open left the ban decorative.</p>
+<p>First command:</p>
+<pre><code class="language-bash">tama worktrees list --root &lt;PATH&gt;
+</code></pre>
+<p>Passing the real literal path is the way through: the copy is then checked and judged on what is actually
+there. That is deliberate — the guard cannot prove that a source it cannot examine is not a checkout, so it
+refuses rather than guessing. If the literal path is a checkout, the other three sentences apply: work in it, in place.</p>
 <h2><code>tama worktrees does not know the worktree &lt;path&gt;; --except takes the path of a worktree this pass would otherwise remove.</code></h2>
 <p>From <code>tama worktrees remove</code>, exit <code>2</code>, when a value you passed to
 <code>--except</code> matches no worktree the pass would otherwise consider.
