@@ -89,6 +89,29 @@ was scheduled and the session still uses its old release. The existing
 the command-handler API without restarting the process or enabling every hook.
 Compare both release ids and checksums in the subsequent runtime status before
 treating an installation as active.</p>
+<h2>A hook installed while a session runs</h2>
+<p>OMP builds one hook handler per event and hook id when a session starts, so a
+hook installed later has no handler of its own in that session. Until
+2026-09-09 that meant an installed, machine-selected hook stayed inert until a
+new session began, and the only way to close the gap from inside was the
+<code>/tama_reload_hook_runtime</code> slash command, which belongs to the person at
+the keyboard.</p>
+<p>The gates a session does have now carry the machine's current policy for the
+event they were called for. On every call, a Rust gate reads the installed
+registry and <code>hook-enforcement.json</code> from disk, finds the other hooks
+declared for that same event, and evaluates those whose rule answers from the
+tool payload alone; the first refusal wins and names the hook that owns it, so
+a sentence read as
+<code>block-unauthorized-cua: block-subagent-spawn: BLOCKED: …</code> is the
+subagent policy speaking through the gate that carried it. Hooks that need
+more than the payload — a transcript scan, a justification file, a model call
+— keep their own wrappers and are not swept.</p>
+<p>Consequences worth knowing: an installed hook takes effect on the next tool
+call rather than the next session; a hook outside the machine selection is
+still not enforced, because the selection is read with it; and a reload is
+then only needed to make the runtime <em>report</em> the new release, not to make
+its policy hold.</p>
+
 <h2>Completion enforcement</h2>
 <p>Prompt text and installed instructions describe expected conduct; they do not
 execute a Stop rule. Execution comes from the enabled registered hook commands
