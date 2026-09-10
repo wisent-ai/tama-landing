@@ -109,10 +109,20 @@ Status requests report their data in <code>state</code>; their
 <code>{"reloaded":true,"changed":true}</code>, or <code>changed:false</code>
 when the validated catalog already matches. The response is produced after
 the engine has adopted the candidate, never after inserting a prompt.</p>
+<p>A client can send <code>knownCatalogChecksum</code>. When it differs from
+the loaded checksum, the response also includes the loaded <code>catalog</code>,
+including on a rejected replacement. Matching clients receive no duplicate
+catalog. Adapters can therefore update their display and permission bindings
+from the engine's observed snapshot instead of racing a second file read.</p>
 <p>Every dispatch also checks the registry. A valid changed catalog is adopted
 automatically before its hooks execute, without restarting the engine or
 changing the event's session identity. The process starts each hook command
 afresh; script and executable code is not cached between invocations.</p>
+<p>The persistent engine leaves the harness-owned session record unchanged.
+It reads current session permissions for each event and supplies a capability
+to hook commands only when its session control key, release and catalog
+checksum match the loaded policy. A stale capability does not authorize newly
+loaded hooks. One-event adapters still publish their own session records.</p>
 <h3>Rejected replacements and observed state</h3>
 <p>A registry read, JSON parsing, shape or declared-checksum failure leaves the
 preceding loaded generation intact. A dispatch encountering that failure
