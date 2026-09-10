@@ -233,32 +233,34 @@ repository that is already on the disk.</p>
 <p>The ban exists because a local clone is the same divergence as a worktree
 without git even knowing the two are related: the copy has its own <code>.git</code>
 directory, so no repository owns it, no <code>git worktree list</code> reports it, and
-<code>tama worktrees remove</code> cannot remove it — it would be an ordinary
-directory you must find and delete yourself. Observed on this machine:
-<code>~/worktrees/brama-build/.git</code> is a full <code>.git</code> directory, exactly that
-unowned kind of copy.</p>
+<code>tama worktrees remove</code> cannot remove it. Since 2026-09-09 a copy that
+already exists is not a directory you have to find by hand either:
+<code>tama copies</code> walks the tree for it and refuses to delete one that carries
+uncommitted changes, commits absent from every remote, or no origin to
+compare against.</p>
 <p>First command:</p>
-<pre><code class="language-bash">tama worktrees list --root &lt;PATH&gt;
+<pre><code class="language-bash">tama copies list --root &lt;PATH&gt;
 </code></pre>
-<p>Run it on the root holding <code>&lt;source&gt;</code> to see the linked worktrees that
-do exist there, then work in <code>&lt;source&gt;</code> itself.</p>
+<p>Run it on the root holding <code>&lt;source&gt;</code> to see the copies that already
+exist there (<a href="cli/copies/list.md">cli/copies/list</a>), then work in
+<code>&lt;source&gt;</code> itself.</p>
 <h2><code>BLOCKED: recursively copying a git repository makes a copy of it. Work in the existing checkout instead.</code></h2>
 <p>From the same hook, when the refused command is a recursive copy
 (<code>cp -r</code>, or an equivalent recursive copy) whose source is a git
 repository. It means the copy never started; nothing was written to the
 destination.</p>
-<p>The ban exists because this is the worst of the three: the result is a
-directory tree containing a <code>.git</code> directory that git has no record of,
-which no Tama command can inventory, and which nothing but manual deletion
-will ever remove. It also copies whatever the working tree happened to
-contain, including untracked and ignored build output — the reason the four
-largest sub-trees of one project directory on this machine are 72 GB, 68 GB,
-50 GB and 47 GB.</p>
+<p>The ban exists because the result is a directory tree containing a
+<code>.git</code> directory that git has no record of and no repository owns. It also
+copies whatever the working tree happened to contain, including untracked and
+ignored build output — the reason the four largest sub-trees of one project
+directory on this machine are 72 GB, 68 GB, 50 GB and 47 GB. What already
+exists is inventoried and removed by <code>tama copies</code>, under the refusals on
+its <a href="cli/copies/remove.md">remove page</a>.</p>
 <p>First command:</p>
-<pre><code class="language-bash">tama worktrees list --root &lt;PATH&gt;
+<pre><code class="language-bash">tama copies list --root &lt;PATH&gt;
 </code></pre>
-<p>It confirms what checkouts legitimately exist under that root
-(<a href="cli/worktrees.md">cli/worktrees</a>). If you wanted a copy for a
+<p>It confirms which checkouts under that root are copies of something else
+(<a href="cli/copies.md">cli/copies</a>). If you wanted a copy for a
 throwaway experiment, make it a branch in the existing checkout instead; if
 you wanted an archive, produce one file with <code>git archive</code> rather than a
 second repository.</p>

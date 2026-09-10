@@ -1,0 +1,58 @@
+<h1><code>tama copies list</code></h1>
+<p>Reports every second full checkout under the roots you name, with the checkout it duplicates, its apparent size and the state that would refuse its removal, and mutates nothing.</p>
+<h2>Invocation</h2>
+<pre><code>tama copies list [--root &lt;PATH&gt;]... [--json]
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--root &lt;PATH&gt;</code></td><td>Repeatable, and required at least once. Each value is a directory whose checkouts are walked. There is deliberately no default root</td></tr>
+<tr><td><code>--json</code></td><td>Prints the exact document below instead of the text report. Both modes read the same state</td></tr>
+</tbody>
+</table>
+<h2>What counts as a copy</h2>
+<p>The named root and every checkout directly under it are canonical. A
+checkout deeper than that, with its own <code>.git</code> <em>directory</em>, is a
+candidate; a checkout whose <code>.git</code> is a <em>file</em> is a linked worktree and
+belongs to <a href="../../worktrees/list/"><code>tama worktrees list</code></a>, so
+it is counted under <code>linkedWorktrees</code> and never listed as a copy.</p>
+<p>For each candidate the command asks git three things: whether its working
+tree is dirty, whether any commit on a local branch is absent from every
+remote, and what its <code>origin</code> is. The origin is what pairs a copy with the
+canonical checkout it duplicates, including the local-path origin a
+<code>git clone /path/to/repo</code> records.</p>
+<h2>Output document</h2>
+<p>Under <code>--json</code>, exactly these fields, with the schema version the whole
+copies contract is fixed at:</p>
+<pre><code>{"schemaVersion":Number,"roots":[String],"copies":[{"path":String,"owner":String|null,"origin":String|null,"bytes":Number,"dirty":Boolean,"unpublished":Boolean,"ownsWorktrees":Boolean,"named":Boolean}],"copyCount":Number,"bytes":Number,"linkedWorktrees":[String],"twins":[{"path":String,"twin":String,"origin":String}],"unreadable":[String]}
+</code></pre>
+<p><code>roots</code> echoes the roots you passed, resolved. <code>owner</code> is the canonical
+checkout of the same repository under those roots, or <code>null</code> when this
+directory is the only checkout of its repository here — which is a refusal on
+<a href="../remove/"><code>remove</code></a> until you name it with <code>--only</code>.
+<code>bytes</code> is apparent size, per copy and summed for the pass. <code>named</code> is
+false here and only ever true in a narrowed removal document.</p>
+<p><code>twins</code> carries checkouts of one repository that both sit directly under a
+root; the pass reports them and removes neither. <code>unreadable</code> names every
+candidate the walk found a <code>.git</code> for and git then refused to answer for:
+reported rather than dropped, because silence would be the pass claiming it
+read a checkout it never read.</p>
+<p>The same document is served by <code>POST /v1/copies/list</code> with body
+<code>{"roots":[String]}</code> on the loopback desktop backend
+(<a href="../../serve/"><code>tama serve</code></a>).</p>
+<h2>State effect</h2>
+<p>None. The command walks directories and runs <code>git status</code>,
+<code>git log</code> and <code>git remote get-url</code>, all read-only, and it has no
+<code>--apply</code>, no <code>--force</code>, no <code>--except</code> and no <code>--only</code>: those belong
+to <a href="../remove/"><code>tama copies remove</code></a>, which is the only leaf
+with anything to spare, narrow or delete.</p>
+<h2>Refusal boundary</h2>
+<p>Passing no <code>--root</code> is a usage error, exit code two:</p>
+<pre><code>tama copies needs at least one --root; a machine-wide default would walk directories Tama does not own.
+</code></pre>
+<p>A root that cannot be read contributes nothing rather than ending the pass.
+This leaf has no other refusal: it never asks whether a copy may be removed,
+which is <a href="../remove/"><code>tama copies remove</code></a>'s boundary.</p>
+<p>Return to <a href="../">the copies command group</a> or the
+<a href="../../">complete CLI tree</a>.</p>

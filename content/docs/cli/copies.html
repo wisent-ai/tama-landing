@@ -1,0 +1,96 @@
+<h1><code>tama copies</code></h1>
+<p>Opens the command group that reports and removes the second full checkouts under roots you name, because a repository copy is a checkout of a repository you already have that git knows nothing about.</p>
+<h2>Invocation</h2>
+<pre><code>tama copies &lt;command&gt;
+
+Commands:
+  list   [--root &lt;PATH&gt;]... [--json]                     Every second full checkout under the roots
+  remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--only &lt;PATH&gt;]... [--apply] [--force] [--json]  Remove them; previews unless --apply
+</code></pre>
+<p><code>&lt;command&gt;</code> is required and must be one of the two linked leaves below.</p>
+<h2>Command tree</h2>
+<ul>
+<li><a href="list/"><code>tama copies list [--root &lt;PATH&gt;]... [--json]</code></a> — every second full checkout under the roots.</li>
+<li><a href="remove/"><code>tama copies remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--only &lt;PATH&gt;]... [--apply] [--force] [--json]</code></a> — remove them; previews unless <code>--apply</code>.</li>
+</ul>
+<h2>The noun this group owns</h2>
+<p><code>block-repository-copies</code> refuses two nouns, and until this group existed
+only one of them could be reclaimed:</p>
+<ul>
+<li>A <strong>linked worktree</strong> is a checkout whose <code>.git</code> is a <em>file</em> pointing
+into the owning repository's <code>.git/worktrees/&lt;name&gt;</code>. Git tracks it, and
+<a href="../worktrees/"><code>tama worktrees</code></a> removes it.</li>
+<li>A <strong>repository copy</strong> is a second checkout with its own <code>.git</code>
+<em>directory</em>, which a clone of a local path or a recursive copy produces.
+The original knows nothing about it, so no <code>git worktree</code> command reaches
+it — and until 2026-09-09 no command did. On the machine this group was
+written for, that meant an 8.4 GiB clone of one upstream in
+<code>backends/.work/content-platform-upstream-https</code> and 45 nested checkouts
+holding 24 GiB in total, none of them reachable by any product surface.</li>
+</ul>
+<p>A pass reports every linked worktree it crosses and never removes one, so a
+clean copies pass cannot read as "one checkout per repository" when it is not.</p>
+<h2>What a pass proves before deleting anything</h2>
+<p>A copy goes by deleting its directory, which git cannot undo and no remote
+can restore, so each candidate is judged first. In this order, one sentence
+each:</p>
+<ul>
+<li><code>uncommitted-changes</code> — <code>git status --porcelain</code> prints something.</li>
+<li><code>commits-not-on-remote</code> — <code>git log --branches --not --remotes</code> prints
+something, so history exists only there.</li>
+<li><code>no-origin-remote</code> — nothing to compare against.</li>
+<li><code>no-canonical-checkout</code> — no checkout of the same repository sits under
+the roots given, so this directory is the only one here. <code>--only</code> is how
+an operator answers that one.</li>
+<li><code>owns-linked-worktrees</code> — deleting it would orphan git's records in
+<code>.git/worktrees</code>; remove those first with
+<a href="../worktrees/remove/"><code>tama worktrees remove</code></a>.</li>
+</ul>
+<p>A candidate git will not answer for at all is reported under
+<code>unreadable</code> and never removed.</p>
+<h2><code>--except</code> and <code>--only</code> are <code>remove</code> options, and never both</h2>
+<p><code>--except</code> spares one copy: it is not removed, not counted as removable,
+and never produces a refusal. <code>--only</code> narrows the pass to the paths it
+names and accepts them as removable even when they are the sole checkout of
+their repository here — every refusal that protects history still applies to
+them. They are two answers to the same question, so a command carrying both
+is a usage error, and so is a value that matches no copy the pass found.</p>
+<h2>Two checkouts of one repository, both at the top</h2>
+<p>Two directories directly under a root can share an origin: on this machine
+<code>Wisent/wisent-compute</code> and <code>Wisent/stado</code> are both checkouts of
+<code>github.com/wisent-ai/stado</code>. A pass reports that pair and removes
+neither, because which one to keep is the operator's call and a sort order
+would have deleted 69 GB of the tree the product is built from.</p>
+<h2><code>--root</code> has no default, deliberately</h2>
+<p><code>--root</code> is repeatable and required at least once on both leaves. Omitting
+it is a usage error, not a full-machine walk:</p>
+<pre><code>tama copies needs at least one --root; a machine-wide default would walk directories Tama does not own.
+</code></pre>
+<p>The named root itself is a canonical checkout, never a candidate: naming one
+repository as the root reports the clones inside it, not the repository.</p>
+<h2>Discovery and authority</h2>
+<p><code>tama_violations::repo_discovery</code>'s <code>discover_every_checkout_deep(root)</code>
+walks every checkout under each root, including the ones the owning
+repository ignores, and unlike the content scan it also walks <code>vendor</code>,
+<code>target</code>, <code>build</code>, <code>.build</code> and <code>dist</code> — a pass whose purpose is
+finding second checkouts cannot inherit a speed list that hides them.
+<code>node_modules</code>, <code>Pods</code>, <code>SourcePackages</code> and <code>checkouts</code> stay pruned:
+what lives there is a package manager's working state, which it re-resolves.
+Git is then the authority on each candidate: status, unpublished commits, and
+its origin remote.</p>
+<h2>Output and state</h2>
+<p>The group itself performs no action and takes no options. <code>list</code> and a bare
+<code>remove</code> mutate nothing; only <code>remove --apply</code> deletes anything, and it is
+all-or-nothing: a pass with any refusal outstanding removes none of the
+copies it selected. Both leaves print a text report by default and an exact
+JSON document under <code>--json</code>, and both are also reachable on the loopback
+desktop backend as <code>POST /v1/copies/list</code> and <code>POST /v1/copies/remove</code>
+(<a href="../serve/"><code>tama serve</code></a>), which is what the
+<a href="../../desktop/copies/">Copies screen</a> of Tama Desktop drives.</p>
+<h2>Refusals and failures</h2>
+<p>Exit <code>0</code> is success, exit <code>1</code> is an operational failure or a refused
+<code>--apply</code>, and exit <code>2</code> is a usage error — a missing or unknown leaf, a
+leaf invoked without <code>--root</code>, <code>--except</code> together with <code>--only</code>, or
+either of them naming a path this pass did not find. Each leaf page carries
+its own exact refusal sentences.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

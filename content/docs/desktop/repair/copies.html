@@ -1,0 +1,53 @@
+<h1>Copies screen</h1>
+<p>Every second full checkout under the roots you name, and the one verb that
+deletes them. The engine is the sealed CLI's <code>copies</code> group
+(<a href="../../cli/copies/">cli/copies</a>), reached through the loopback
+backend's <code>POST /v1/copies/list</code> and <code>POST /v1/copies/remove</code>, so the
+screen and the terminal cannot disagree about what a pass would do.</p>
+<h2>Scope, header, refusals</h2>
+<p>The roots are scope, not a destination: <code>Add root…</code> opens a directory
+chooser, because the walk refuses a relative path and a directory that does
+not exist, and both are avoidable before a request leaves. With no root the
+screen states the command's own refusal rather than sending anything:
+<code>tama copies needs at least one --root; a machine-wide default would walk
+directories Tama does not own.</code></p>
+<p>Title <code>Copies</code>; scope is the number of roots; freshness reads
+<code>no root selected</code>, <code>not scanned</code>, <code>scanning now</code>, <code>scan refused</code>,
+or the copy count with the apparent size the pass found. Actions, in the
+order the decision is made: <code>Add root…</code>, <code>Scan</code>, <code>Preview removal</code>,
+<code>Remove copies</code>.</p>
+<h2>What a row says</h2>
+<p>One row per copy: its path, the checkout it duplicates (<code>OF</code>), its
+apparent size, its state, and what this pass would do with it. The state
+chip carries the same facts the refusals are made of — uncommitted changes,
+commits on no remote, no origin, only checkout here, owns worktrees — and a
+clean row reads <code>Clean</code>. The inspector adds the origin, the size and the
+command's own refusal sentence when there is one.</p>
+<h2>Keeping and claiming</h2>
+<p><code>Keep</code> marks a copy to leave alone and travels as <code>--except</code>: it is
+neither removed nor refused. <code>Claim</code> appears only on a row whose owner is
+absent — the one refusal an operator can answer — and travels as
+<code>--only</code>, narrowing the pass to exactly the claimed paths. The two cannot
+travel together, so claiming clears every kept mark, and the screen says so
+in both lists. Changing a mark, a root, or the override drops the preview:
+an apply must never run against a plan that no longer describes it.</p>
+<p><code>Remove past every refusal (--force)</code> is off until it is turned on, because
+it is the difference between a refusal and deleted history.</p>
+<h2>What the screen never removes</h2>
+<p>Linked worktrees are counted and named, not removed: git tracks those and
+the <a href="../../cli/worktrees/">Worktrees</a> surface owns them. Two
+checkouts of one repository that both sit directly under a root are reported
+as a twin pair and neither is removable, because which one to keep is the
+operator's call. A candidate git will not answer for is reported as skipped.</p>
+<h2>The decision</h2>
+<p><code>Remove copies</code> is enabled only after a preview with no refusal
+outstanding. It opens a confirmation that lists exactly the paths the
+preview reported, states how much apparent size comes back, and names the
+override and every mark in force. The removal is all-or-nothing, so a
+refused pass deletes nothing and reports the refusal instead; a clean pass
+re-reads the tree afterwards and keeps the removed list on screen, because
+that tree no longer contains what went.</p>
+<p>Control is required for this destination: a signed-out operator does not see
+it, rather than seeing a dead row.</p>
+<p>Return to the <a href="../../desktop/">desktop application</a> or the
+<a href="../../cli/copies/">copies command group</a>.</p>

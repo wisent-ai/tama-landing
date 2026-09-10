@@ -1,0 +1,78 @@
+<h1><code>tama copies remove</code></h1>
+<p>Removes every repository copy under the roots you name, previewing the whole pass unless <code>--apply</code> is given, and refusing the entire pass before deleting anything when a selected copy carries work that exists nowhere else.</p>
+<h2>Invocation</h2>
+<pre><code>tama copies remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--only &lt;PATH&gt;]... [--apply] [--force] [--json]
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--root &lt;PATH&gt;</code></td><td>Repeatable, and required at least once. Each value is a directory whose checkouts are walked. There is deliberately no default root</td></tr>
+<tr><td><code>--except &lt;PATH&gt;</code></td><td>Repeatable. The path of one copy to leave completely alone: neither removed, nor counted as removable, nor able to refuse the pass</td></tr>
+<tr><td><code>--only &lt;PATH&gt;</code></td><td>Repeatable. Narrows the pass to the copies it names and accepts each as removable even when it is the sole checkout of its repository here. Not combinable with <code>--except</code></td></tr>
+<tr><td><code>--apply</code></td><td>Performs the removal. Without it the command previews and mutates nothing</td></tr>
+<tr><td><code>--force</code></td><td>Proceeds past every refusal, including uncommitted changes and commits on no remote. Without it any of them refuses the whole pass</td></tr>
+<tr><td><code>--json</code></td><td>Prints the exact document below instead of the text report, in both preview and applied mode</td></tr>
+</tbody>
+</table>
+<h2>What is proved before a directory is deleted</h2>
+<p>A copy goes by deleting its directory, so the pass asks git first, and each
+answer is a refusal with its own sentence:</p>
+<pre><code>&lt;path&gt; has uncommitted changes; commit them there, then run the pass again.
+&lt;path&gt; holds commits that are on no remote; push them from there, then run the pass again.
+&lt;path&gt; has no origin remote, so this pass cannot prove its history exists anywhere else.
+&lt;path&gt; is the only checkout of its repository under the roots given, so it is not a copy of anything.
+&lt;path&gt; owns linked worktrees; remove those first with 'tama worktrees remove --root &lt;PATH&gt; --apply'.
+</code></pre>
+<p>The pass is all-or-nothing: with any refusal outstanding an <code>--apply</code>
+removes none of the copies it selected, so Tama never deletes the first
+three and then discovers the fourth carries work. Immediately before each
+deletion the filesystem is checked again — the reads behind a document are
+minutes old by the time an operator types <code>--apply</code> — and a path that is a
+symlink, or that no longer lies under the roots given, is an operational
+failure rather than a deletion.</p>
+<h2>Sparing with <code>--except</code>, claiming with <code>--only</code></h2>
+<p><code>--except</code> is the operator's exclusion: an excepted copy is dropped from
+the pass before anything judges it, so a dirty copy cannot refuse a pass it
+is not part of. <code>--only</code> is the opposite move: it narrows the pass to the
+paths it names and answers the one question the pass cannot answer for
+itself — whether losing a directory that is the sole checkout of its
+repository here loses anything the operator wants. It answers nothing else:
+a claimed copy that is dirty, unpushed or without an origin is still
+refused.</p>
+<p>They are two answers to the same question, so a command carrying both is a
+usage error, and a value of either that matches no copy the pass found is
+one too: a pass the operator believed narrowed must not quietly become a
+pass over everything.</p>
+<h2>Output document</h2>
+<p>Under <code>--json</code>, the <a href="../list/"><code>list</code></a> document plus four
+fields, with the same schema version:</p>
+<pre><code>{... list fields ...,"excepted":[String],"applied":Boolean,"removed":[String],"refused":[{"path":String,"reason":String}]}
+</code></pre>
+<p><code>excepted</code> echoes what <code>--except</code> held back, so the document states what
+the pass deliberately left alone; those copies appear in neither
+<code>removed</code> nor <code>refused</code>, in a preview and in an applied pass alike.
+<code>applied</code> is true only for an <code>--apply</code> pass that was free of refusals.
+<code>reason</code> is one of the five keys named above, and the sentence beside it is
+the one the command prints. <code>--force</code> empties <code>refused</code> in both modes,
+because nothing blocks a forced pass.</p>
+<p>The same document is served by <code>POST /v1/copies/remove</code> with body
+<code>{"roots":[String],"except":[String],"only":[String],"apply":Boolean,"force":Boolean}</code>
+on the loopback desktop backend (<a href="../../serve/"><code>tama serve</code></a>),
+where a body carrying both <code>except</code> and <code>only</code> is refused with 400. That
+route is what the <a href="../../../desktop/copies/">Copies screen</a> drives.</p>
+<h2>Refusal boundary</h2>
+<p>Passing no <code>--root</code> is a usage error, exit code two:</p>
+<pre><code>tama copies needs at least one --root; a machine-wide default would walk directories Tama does not own.
+</code></pre>
+<p>So is a value that names nothing this pass found:</p>
+<pre><code>tama copies does not know the copy &lt;path&gt;; --only takes the path of a copy this pass found.
+tama copies does not know the copy &lt;path&gt;; --except takes the path of a copy this pass would otherwise remove.
+</code></pre>
+<p>A refused <code>--apply</code> exits one and prints every refusal to stderr; under
+<code>--json</code> it exits one with <code>"applied":false</code> and <code>"removed":[]</code>. A
+failed deletion is an operational failure, exit one. Otherwise the command
+exits zero: every preview does, and so does an applied pass that removed
+everything it selected, including the pass that found nothing to remove.</p>
+<p>Return to <a href="../">the copies command group</a> or the
+<a href="../../">complete CLI tree</a>.</p>

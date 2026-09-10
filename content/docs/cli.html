@@ -62,6 +62,21 @@ is deliberately no machine-wide default root. <code>--except</code> is repeatabl
 takes the path of one linked worktree to leave completely alone, and exists
 on <code>remove</code> only — <code>list</code> removes nothing, so it has no
 <code>--except</code>.</p>
+<h2>Copies</h2>
+<p><a href="cli/copies/"><code>tama copies &lt;command&gt;</code></a> is the public
+group for the other noun <code>block-repository-copies</code> refuses: a second full
+checkout with its own <code>.git</code> directory, which a clone of a local path or a
+recursive copy produces and which git never lists from the original. Its
+leaves are:</p>
+<ul>
+<li><a href="cli/copies/list/"><code>tama copies list [--root &lt;PATH&gt;]... [--json]</code></a> — every second full checkout under the roots.</li>
+<li><a href="cli/copies/remove/"><code>tama copies remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--only &lt;PATH&gt;]... [--apply] [--force] [--json]</code></a> — remove them; previews unless <code>--apply</code>.</li>
+</ul>
+<p>A pass refuses any copy carrying uncommitted changes, commits absent from
+every remote, no origin to compare against, linked worktrees of its own, or
+no canonical checkout under the roots given. <code>--except</code> spares a copy and
+<code>--only</code> narrows the pass to named copies, accepting them as removable
+when they are the sole checkout here; the two are never combined.</p>
 <h2>Existing policy bundles</h2>
 <p>A supported self-contained policy bundle or sealed release contains
 <code>shared-hooks/registry.json</code> and regular, non-symlink files under

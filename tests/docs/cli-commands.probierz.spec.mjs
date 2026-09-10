@@ -32,6 +32,9 @@ const commands = [
   ["/docs/cli/worktrees", "tama worktrees &lt;command&gt;"],
   ["/docs/cli/worktrees/list", "tama worktrees list [--root &lt;PATH&gt;]... [--json]"],
   ["/docs/cli/worktrees/remove", "tama worktrees remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--apply] [--force] [--json]"],
+  ["/docs/cli/copies", "tama copies &lt;command&gt;"],
+  ["/docs/cli/copies/list", "tama copies list [--root &lt;PATH&gt;]... [--json]"],
+  ["/docs/cli/copies/remove", "tama copies remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--only &lt;PATH&gt;]... [--apply] [--force] [--json]"],
 ];
 
 for (const [route, invocation] of commands) {

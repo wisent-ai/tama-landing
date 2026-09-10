@@ -57,13 +57,13 @@ about it.</li>
 <pre><code class="language-console">$ cat Wisent/.worktrees/brama-stub-purge/.git
 gitdir: /Users/lukaszbartoszcze/Documents/CodingProjects/Wisent/brama/.git/worktrees/brama-stub-purge
 </code></pre>
-<p>and the second kind, <code>~/worktrees/brama-build/.git</code>, which is a full
-<code>.git</code> directory. <code>tama worktrees</code> handles the first kind, because that is
-the noun git itself manages. Both kinds are refused at creation time by the
+<p>and the second kind, a full <code>.git</code> directory rather than a file.
+<code>tama worktrees</code> handles the first kind, because that is the noun git
+itself manages; the second is <a href="../copies/"><code>tama copies</code></a>'s,
+which finds it by walking the tree and proves its history exists elsewhere
+before deleting it. Both kinds are refused at creation time by the
 <code>block-repository-copies</code> hook, whose three refusal sentences are in the
-<a href="../../runbook/">runbook</a>; a repository copy that already exists is an
-ordinary directory you delete yourself, and this command will not claim to
-have found it.</p>
+<a href="../../runbook/">runbook</a>.</p>
 <h2>Discovery and authority</h2>
 <p><code>tama_violations::repo_discovery</code>'s <code>discover_repos(root)</code> finds the
 owning repositories under each root. Git is then the authority on worktrees:
