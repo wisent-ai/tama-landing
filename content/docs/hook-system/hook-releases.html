@@ -31,6 +31,33 @@ in <code>release.json</code>, schema <code>ai.wisent.tama.hook-release.v1</code>
 <code>sourceRevision</code> (the hook source Git commit), and <code>sealedAt</code>. The build
 manifest <code>tama-build.json</code> embeds the same object, so the app can display
 its bundled hook identity without reopening the release.</p>
+<p>The declared <code>--source-root</code> must be the actual Git checkout root.
+Staging reads its <code>HEAD</code> and working-tree state, and records
+<code>sourceIdentity</code> in <code>native-hook-binaries.json</code>:
+<code>revision</code>, <code>dirty</code>, and a <code>fingerprint</code> of tracked
+and non-ignored source inputs under <code>package.json</code>, the four hook
+directories, and <code>rust/</code>. File paths, contents, modes and symlink targets
+contribute to that fingerprint; build outputs are not source inputs.</p>
+<p>The packager checks that staged source files match the checkout and that
+source identity has not changed during compilation. Sealing checks the captured
+identity again before publishing <code>release.json</code>; it never substitutes
+<code>unknown</code> or trusts a supplied revision string. The existing
+<code>TAMA_HOOK_SOURCE_REVISION</code> and <code>TAMA_HOOK_SOURCE_DIRTY</code>
+variables, when present, are checked expectations, not the source of the fields.
+Script-only releases without a native manifest derive identity directly from Git.</p>
+<p>From the <code>tama-desktop</code> checkout, the maintainer flow is:</p>
+<pre><code>python3 Scripts/stage_live_hook_release.py --source-root ../tama
+python3 Scripts/seal_hook_release.py --source-root ../tama .work/inline-hook-release
+swift test --filter HookReleaseSealTests --disable-automatic-resolution</code></pre>
+<p>A missing Git revision reports the failed Git operation and checkout path.
+<code>Hook source changed after staging</code> or
+<code>Staged hook source differs</code> means the candidate must be staged again,
+not labeled with the checkout's newer revision. A native manifest without
+<code>sourceIdentity</code> is also refused with <code>restage the release</code>.
+An expectation that disagrees with Git reports both expected and observed values.
+The real sealer/Git tests live under <code>Tests/release/</code> and retain their
+commands, outputs, exit statuses and manifests under
+<code>.build/release-evidence/</code>.</p>
 <h2>Installation</h2>
 <p><code>Scripts/install_hook_release.py</code> (bundled in the app resources, run by the
 desktop's explicit install action) takes <code>--release</code>, <code>--home</code>, and either
