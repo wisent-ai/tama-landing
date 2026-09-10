@@ -78,6 +78,36 @@ side effects from the metadata entry, so those are written once.</li>
 <li>Exercise the real runtime path that claims enforcement. Synthetic payload replay, mocks, and dry-run-only evidence do not prove live blocking.</li>
 <li>Keep commits limited to hook source, structured catalogue/configuration, and applicable product checks. Exclude runtime state, credentials, logs, profiles, and caches.</li>
 </ol>
+<h2>Owner consent for a hook change</h2>
+<p>Hook source and structured configuration are protected at device level. Inside
+an agent session <code>block-hook-config-edits-without-consent</code> refuses any
+payload that would create or edit them, and the refusal names what lifts it:
+<code>DEVICE_HOOK_EDIT_APPROVED=1</code>, exported by the owner in their own shell,
+outside the session. Three places read that one variable — the hook itself,
+<a href="cli/adaptive/apply.md"><code>tama adaptive apply</code></a>, and
+<a href="cli/adaptive/install.md"><code>tama adaptive install</code></a> — so a
+session capability, a renamed path, or a patch applied beside the guard is a
+bypass rather than a route, and this page is the route.</p>
+<p>For a live hook the supported route is a validated proposal:</p>
+<pre><code>tama adaptive repair &lt;hook-id&gt; --patch-file &lt;path&gt;
+DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;</code></pre>
+<p><a href="cli/adaptive/repair.md"><code>repair</code></a> validates the supplied
+candidate and prints the proposal directory;
+<a href="cli/adaptive/apply.md"><code>apply</code></a> writes the proposed file to
+the live path after copying the current one into the adaptive state directory's
+<code>backup/</code>. Validation is evidence-driven: a hook with no labeled corpus
+case inside a validated closed telemetry segment is refused as
+<code>insufficient-evidence</code>, so a guard the operator questioned by name
+which the feedback bridge never labeled yields no proposal to apply. In that state
+the archived source in this repository and the file at the live path are changed
+by the owner directly, with the same variable exported, because they are two
+separate files and installing one is not editing the other.</p>
+<p>Either way the hook's own acceptance check is what decides, run against the
+exact path being trusted: a passing candidate says nothing about the installed
+copy. An agent stopped by this gate owes the operator the exact command block
+rather than a description of it, and
+<a href="https://jeden.wisent.com/docs/cli/copy/"><code>jeden copy -</code></a>
+puts that block on their clipboard.</p>
 <h2>Repairing a recorded hook source</h2>
 <p><code>register-hook.mjs</code> derives a hook's <code>source</code> from its command: it
 takes the executable, drops the <code>tama-</code> prefix, turns hyphens into
