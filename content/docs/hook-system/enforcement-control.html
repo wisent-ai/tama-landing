@@ -156,6 +156,22 @@ separate from this defective tool path.</p>
 They execute changed filesystem hook commands, inspect their persisted
 effects, reject malformed and incorrectly sealed replacements, and retain
 stdin, stdout, stderr, source revision, binary checksum and exit status.</p>
+<p>The OMP adapter is checked separately through the real OMP SDK session and
+its registered tool dispatcher, not through a substitute extension host:</p>
+<pre><code>npm ci
+npm run test:omp-runtime</code></pre>
+<p>This repository command builds the native engine and executes
+<code>tests/runtime_reload/omp_runtime.test.ts</code>. It checks actual file
+changes after the reload tool returns, rejects a malformed replacement, recovers
+on the next valid catalog, and checks that neither the session nor the native
+process changes and that no reload prompt is inserted. It uses isolated local
+state and does not require model inference or a browser.</p>
+<p>Reports under <code>rust/target/omp-runtime-evidence/</code> retain source
+revision, adapter and native-binary checksums, tool calls and replies, hook
+decisions, and the actual result. With the legacy adapter the reload test fails:
+the observed file remains <code>first hook execution</code> instead of becoming
+<code>replacement hook execution</code>. Native-engine tests passing does not
+override that failure.</p>
 
 <h2>Completion enforcement</h2>
 <p>Prompt text and installed instructions describe expected conduct; they do not
