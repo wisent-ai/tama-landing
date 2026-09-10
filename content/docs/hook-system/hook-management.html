@@ -22,6 +22,11 @@ rule an operator might want separately, move it out the same way: the code
 is moved, never deleted, and
 <a href="cli/enforcement/only.md"><code>tama enforcement only</code></a> decides
 what runs.</p>
+<p>Each native hook evaluates only its own rule. The common Tama engine reads
+the registry and selects and executes the event's hooks. The former cross-hook
+policy sweeps have been removed: a repository-copy refusal is attributed to
+<code>block-repository-copies</code>, rather than appearing as a refusal from
+the background-execution or CUA hook that happened to run first.</p>
 <h2>Repository layout</h2>
 <ul>
 <li><code>shared-hooks/</code>, <code>codex-hooks/</code>, and <code>claude-hooks/</code> contain archived hook source and the shared registry.</li>

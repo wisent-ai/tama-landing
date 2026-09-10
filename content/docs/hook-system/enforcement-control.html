@@ -93,6 +93,12 @@ input. Claude receives the canonical decision and exit code <code>2</code> on
 a policy block. Codex receives its existing minimal block response and exit
 code <code>0</code>; a passing Codex decision produces no stdout. Those are
 adapter differences, not different policy evaluations.</p>
+<p>The installed <code>run-hook.mjs</code> entrypoint is a process transport to
+<code>hooks-runtime/current/bin/tama-run-hook</code>, not a second evaluator.
+It preserves stdin, stdout, stderr, exit status and signals. Failure to start
+the native engine, or a registry startup failure, exits <code>1</code> with
+<code>TAMA_HOOK_INFRASTRUCTURE</code>; it does not fall back to a JavaScript
+policy engine or report a passing policy decision.</p>
 <h3>Persistent runtime protocol</h3>
 <pre><code>tama-run-hook --serve omp</code></pre>
 <p>This starts the common engine, not an OMP agent. It first emits a JSON
@@ -151,12 +157,12 @@ OMP session. A session still using the legacy adapter needs the
 handler after installation. That loads the new adapter without restarting OMP.
 Subsequent hook reload requests use the shared engine directly. Compare installed
 and loaded identities; installation alone does not prove this initial transition.</p>
-<p>The installed Node entrypoint for Claude/Codex,
-<code>run-hook.mjs</code>, still has its old evaluator pending its protected
-source cutover. The native binary supports both providers, but that does not
-prove those Node entrypoints have migrated. <code>npm run test:provider-runtime</code>
-exercises this distinction: the old entrypoint executes a hook from an incorrectly
-sealed catalog and fails the shared-runtime contract.</p>
+<p>Claude/Codex and OMP now reach the same native execution loop.
+<code>npm run test:provider-runtime</code> exercises the actual Node entrypoint
+and native binary, checks the filesystem effects of a valid hook, and verifies
+that an invalid catalog or missing engine cannot execute that hook. Set
+<code>TAMA_TEST_PROVIDER_ADAPTER</code> and <code>TAMA_TEST_NATIVE_BINARY</code>
+to exercise installed artifacts instead of the repository copies.</p>
 <p>The native core's real-process regression tests live under
 <code>tama/rust/crates/tama-run-hook/tests/runtime_reload/</code>.
 They execute changed filesystem hook commands, inspect their persisted
@@ -170,8 +176,10 @@ npm run test:omp-runtime</code></pre>
 <code>tests/runtime_reload/omp_runtime.test.ts</code>. It checks actual file
 changes after the reload tool returns, rejects a malformed replacement, recovers
 on the next valid catalog, and checks that neither the session nor the native
-process changes and that no reload prompt is inserted. It uses isolated local
-state and does not require model inference or a browser.</p>
+process changes and that no reload prompt is inserted. It also invokes the real
+Bash tool against an isolated repository and verifies that the refusal names the
+repository-copy hook, not an unrelated carrier, and that no copy was created.
+It uses isolated local state and does not require model inference or a browser.</p>
 <p>The test calls OMP's actual <code>initializeExtensions</code> mode initializer
 before invoking tools. Constructing an SDK session without that step leaves
 actions such as <code>appendEntry</code> unbound and produces
