@@ -17,7 +17,7 @@ selected by <code>TAMA_HOOK_ROOT</code>:</p>
 | <code>claude-hooks/</code>, <code>codex-hooks/</code> | Provider-specific hook entrypoints |
 | <code>repo-githooks/&lt;project&gt;/</code> | Approved per-repository Git hooks |
 | <code>external-hooks/</code> + <code>external-sources.json</code> | Approved hook sources that live outside the managed roots, packaged in with <code>sourcePrefix</code> → <code>releasePath</code> mappings (schema <code>ai.wisent.tama.external-hook-sources.v1</code>) |
-| <code>bin/tama-cli</code>, <code>bin/tama-mcp-server</code> | The sealed, signed Rust backend and MCP server |
+| <code>bin/tama-cli</code>, <code>bin/tama-mcp-server</code>, <code>bin/tama-run-hook</code> | The sealed, signed Rust backend, MCP server and common hook engine |
 | <code>package.json</code> | The hook package version |</p>
 <p>Generator files (<code>generate-configs.mjs</code>, <code>providers.json</code>,
 <code>run-one-session-hook.js</code>) and Python bytecode are pruned before sealing.</p>

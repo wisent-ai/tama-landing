@@ -65,9 +65,9 @@ disable changes <code>changedAt</code> and invalidates prior or legacy allowlist
 capabilities. The supervisor clears them before publishing state; neither the
 desktop nor <code>tama-cli sessions</code> treats a stale id as enabled.</p>
 <p><code>enable-all</code> is different. Outside emergency disable it binds an override to
-the installed release and catalog checksum and schedules one runtime reload
-after the active agent turn settles; concurrent requests coalesce, and reload
-failure restores the preceding override. While global emergency disable is
+the installed release and catalog checksum and awaits the shared runtime reload;
+concurrent identical requests coalesce. A failed state update restores the
+preceding override. While global emergency disable is
 active, enable-all is refused with
 <code>global-emergency-disable-active</code>; it cannot turn the emergency allowlist
 into every hook.</p>
@@ -140,17 +140,23 @@ State includes <code>processId</code>, <code>generation</code>,
 harness process. A registry without release metadata reports a null release
 identity, not a fabricated release.</p>
 <h3>OMP integration status</h3>
-<p>The existing <code>omp-shared-hooks.js</code> adapter still has its own
-in-memory catalog and dispatcher; it has not yet been switched to this common
-engine. Starting <code>tama-run-hook --serve omp</code> alone does not reconnect
-an already-running OMP session. The native engine's reload tests therefore do
-not establish automatic reload through that legacy adapter.</p>
-<p>In OMP 18.1.13, <code>sendUserMessage()</code> deliberately skips command
-handling. The legacy reload tool can consequently report a scheduled reload
-after merely inserting <code>/tama_reload_hook_runtime</code> into the
-conversation. That message is not a completion receipt. The command entered
-through OMP's command handler and its subsequent loaded-state readback are
-separate from this defective tool path.</p>
+<p>The <code>omp-shared-hooks.js</code> adapter forwards ordinary hook events and
+reload operations to a persistent <code>tama-run-hook --serve omp</code> process.
+The reload tool and slash command return after the native operation completes;
+they do not insert a prompt or ask OMP to restart. Runtime status includes the
+observed native <code>core.processId</code>, separate from the OMP session pid.</p>
+<p>Installing this adapter does not replace JavaScript already loaded by an old
+OMP session. A session still using the legacy adapter needs the
+<code>/tama_reload_hook_runtime</code> command entered once through OMP's command
+handler after installation. That loads the new adapter without restarting OMP.
+Subsequent hook reload requests use the shared engine directly. Compare installed
+and loaded identities; installation alone does not prove this initial transition.</p>
+<p>The installed Node entrypoint for Claude/Codex,
+<code>run-hook.mjs</code>, still has its old evaluator pending its protected
+source cutover. The native binary supports both providers, but that does not
+prove those Node entrypoints have migrated. <code>npm run test:provider-runtime</code>
+exercises this distinction: the old entrypoint executes a hook from an incorrectly
+sealed catalog and fails the shared-runtime contract.</p>
 <p>The native core's real-process regression tests live under
 <code>tama/rust/crates/tama-run-hook/tests/runtime_reload/</code>.
 They execute changed filesystem hook commands, inspect their persisted
@@ -166,12 +172,17 @@ changes after the reload tool returns, rejects a malformed replacement, recovers
 on the next valid catalog, and checks that neither the session nor the native
 process changes and that no reload prompt is inserted. It uses isolated local
 state and does not require model inference or a browser.</p>
+<p>The test calls OMP's actual <code>initializeExtensions</code> mode initializer
+before invoking tools. Constructing an SDK session without that step leaves
+actions such as <code>appendEntry</code> unbound and produces
+<code>Extension runtime not initialized. Action methods cannot be called during extension loading.</code>
+That error is not suppressed in the adapter.</p>
 <p>Reports under <code>rust/target/omp-runtime-evidence/</code> retain source
 revision, adapter and native-binary checksums, tool calls and replies, hook
-decisions, and the actual result. With the legacy adapter the reload test fails:
-the observed file remains <code>first hook execution</code> instead of becoming
-<code>replacement hook execution</code>. Native-engine tests passing does not
-override that failure.</p>
+decisions, runtime errors, the selected release manifest when present, and the
+actual result. <code>TAMA_TEST_OMP_ADAPTER</code> and
+<code>TAMA_TEST_NATIVE_BINARY</code> select installed artifacts for the same test;
+without them it uses the repository adapter and debug binary.</p>
 
 <h2>Completion enforcement</h2>
 <p>Prompt text and installed instructions describe expected conduct; they do not
