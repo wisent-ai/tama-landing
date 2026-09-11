@@ -1,0 +1,15 @@
+<h1><code>tama assignment show</code></h1>
+<p>Prints the operator's newest instruction for this machine, verbatim, and records that it has been read.</p>
+<h2>Invocation</h2>
+<pre><code>tama assignment show [--json]
+</code></pre>
+<p>Takes no arguments. <code>--json</code> prints the whole record instead of the readable form. The record lives where <code>TAMA_ASSIGNMENT_STATE</code> names it, or beside the other Tama state.</p>
+<h2>Output and state</h2>
+<p>The readable form prints the session, when the instruction was captured, and its text exactly as it was written; the text is never summarised, because a summary is the reading model's interpretation and that is the thing this record exists to replace. Reading stamps the instruction's digest onto the record, which is what <code>block-stale-assignment</code> checks before a turn is allowed to end. A newer instruction supersedes the previous one by digest, so the stamp goes stale by itself when the operator says something new. The command exits <code>0</code>.</p>
+<h2>Refusals and failures</h2>
+<ul>
+<li>An unknown subcommand prints <code>usage: tama assignment show [--json]</code> and exits <code>2</code>.</li>
+<li>With no instruction recorded yet the command says so and exits <code>0</code>: a machine that has never seen a prompt has nothing to read, and that is not an error.</li>
+<li>A record that cannot be written back is reported as <code>cannot mark the assignment read: ...</code> and exits <code>1</code>, because a read that was not recorded would let a turn end on an unread instruction.</li>
+</ul>
+<p>Return to <a href="../">the complete CLI tree</a>.</p>

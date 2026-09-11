@@ -46,6 +46,7 @@
   {"route":"cli/enforcement/all","source":"content/docs/cli/enforcement/all.html","content":"content/docs/cli/enforcement/all.html","category":"CLI reference"},
   {"route":"cli/provider-config","source":"content/docs/cli/configuration/provider-config.html","content":"content/docs/cli/configuration/provider-config.html","category":"CLI reference"},
   {"route":"cli/serve","source":"docs/cli/serve.md","content":"content/docs/cli/runtime/serve.html","category":"CLI reference"},
+  {"route":"cli/assignment/show","source":"docs/cli/assignment/show.md","content":"content/docs/cli/assignment/show.html","category":"CLI reference"},
   {"route":"cli/adaptive","source":"docs/cli/adaptive.md","content":"content/docs/cli/adaptive.html","category":"CLI reference"},
   {"route":"cli/adaptive/status","source":"docs/cli/adaptive/status.md","content":"content/docs/cli/adaptive/lifecycle/status.html","category":"CLI reference"},
   {"route":"cli/adaptive/drift","source":"docs/cli/adaptive/drift.md","content":"content/docs/cli/adaptive/operations/drift.html","category":"CLI reference"},
