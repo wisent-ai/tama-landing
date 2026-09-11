@@ -43,6 +43,7 @@
   {"route":"cli/sessions","source":"docs/cli/sessions.md","content":"content/docs/cli/runtime/sessions.html","category":"CLI reference"},
   {"route":"cli/enforcement/status","source":"content/docs/cli/enforcement/status.html","content":"content/docs/cli/enforcement/status.html","category":"CLI reference"},
   {"route":"cli/enforcement/only","source":"content/docs/cli/enforcement/only.html","content":"content/docs/cli/enforcement/only.html","category":"CLI reference"},
+  {"route":"cli/enforcement/preflight","source":"content/docs/cli/enforcement/preflight.html","content":"content/docs/cli/enforcement/preflight.html","category":"CLI reference"},
   {"route":"cli/enforcement/all","source":"content/docs/cli/enforcement/all.html","content":"content/docs/cli/enforcement/all.html","category":"CLI reference"},
   {"route":"cli/provider-config","source":"content/docs/cli/configuration/provider-config.html","content":"content/docs/cli/configuration/provider-config.html","category":"CLI reference"},
   {"route":"cli/serve","source":"docs/cli/serve.md","content":"content/docs/cli/runtime/serve.html","category":"CLI reference"},

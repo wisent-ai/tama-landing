@@ -19,6 +19,7 @@ const commands = [
   ["/docs/cli/justify", "tama justify &lt;record|show|remove|list&gt;"],
   ["/docs/cli/enforcement/status", "tama enforcement status [--json]"],
   ["/docs/cli/enforcement/only", "tama enforcement only &lt;hook-id&gt;..."],
+  ["/docs/cli/enforcement/preflight", "tama enforcement preflight &lt;hook-id&gt;"],
   ["/docs/cli/enforcement/all", "tama enforcement all"],
   ["/docs/cli/serve", "tama serve [--port N] [--root &lt;release-path&gt;]"],
   ["/docs/cli/adaptive", "tama adaptive &lt;command&gt; [...]"],

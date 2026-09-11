@@ -10,5 +10,8 @@
 <p>An unknown id refuses the entire mutation before any write:</p>
 <p><code>Unknown hook id '&lt;id&gt;'; the installed registry declares &lt;N&gt; hook ids, and the enforcement selection was not changed.</code></p>
 <p>The sentence names the rejected id and the number of unique agent and Git hook ids known to the installed registry.</p>
+<p>A hook that cannot run on this machine is refused the same way, before any write, because a selected hook that answers every tool call with a credential error takes the machine away from its agent - including the command that would undo the selection:</p>
+<p><code>Hook '&lt;id&gt;' cannot run on this machine, so nothing was selected and the enforcement selection was not changed. It answered: &lt;the hook's own line&gt;</code></p>
+<p>Tama asks each requested hook once with the activation payload the session path uses, expanding the home directory the registry records literally. A hook whose binary is not installed yet is accepted: it is absent, not broken. Only a hook that runs and answers with an infrastructure failure is refused. <a href="../preflight/"><code>tama enforcement preflight</code></a> shows that exchange for one hook without changing anything.</p>
 <p>Other registry or write failures print <code>enforcement: &lt;OS/core error&gt;</code> to stderr and exit <code>1</code> without claiming success.</p>
 <p>Return to the <a href="../../">complete CLI command tree</a>.</p>
