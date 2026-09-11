@@ -117,6 +117,31 @@ they sit under the managed roots — anything else aborts the install.</p>
 <code>previousReleaseId</code>, <code>sourceFiles</code> (every managed path), <code>nodeExecutable</code>,
 and <code>nodeVersion</code>. That file is what the desktop reads as the installed
 identity.</p>
+<p>The either/or is load-bearing. A full install replaces what an emergency
+bypass set aside, so it needs that bypass's manifest; without one it refuses
+with <code>Full hook installation requires an emergency manifest</code> and writes
+nothing. Nothing in the product writes a manifest for a machine that has never
+been in the bypass, so the installer is not the operator's entry point - the
+bundled switch is.</p>
+<h3>Installing a staged release on this machine</h3>
+<p>Point the switch at the release and take the machine through the bypass and
+back. Disable records what it set aside and installs the session controllers
+from that release; enable performs the full install with that manifest, restores
+both provider configs, and repoints <code>current</code>:</p>
+<pre><code class="language-bash">cd ~/Documents/CodingProjects/Wisent/tama-desktop
+TAMA_HOOK_RELEASE_ROOT=$PWD/.build/hook-release TAMA_EMERGENCY_ACTION=disable sh Scripts/emergency_disable_hooks
+TAMA_HOOK_RELEASE_ROOT=$PWD/.build/hook-release TAMA_EMERGENCY_ACTION=enable  sh Scripts/emergency_disable_hooks
+</code></pre>
+<p>Enable ends with <code>Enabled approved hook release &lt;first-12-of-id&gt;</code>, and
+<code>tama validate</code> then reports no <code>ERROR install drift</code>: the provider configs
+an install writes come from the sealed CLI and the registry beside it, so they
+carry every catalogued hook for every event the provider supports. Running
+<code>shared-hooks/generate-configs.mjs --apply</code> afterwards is not part of this
+route; it writes a checkout's own narrower wiring over what the install just
+produced.</p>
+<p>The real install tests drive exactly these commands into a scratch home under
+<code>.build/install-evidence/</code>, and assert the installed symlink, both provider
+configs and an empty drift report.</p>
 <h2>Verifying a release by hand</h2>
 <p>Three read-only maintainer scripts answer <em>which file drifted</em>, not just
 that one did:</p>

@@ -118,11 +118,22 @@ digest definition is in <a href="concepts/seal.md">concepts/seal</a>.</p>
 → <code>unknown</code>, missing event <code>timeout</code> → <code>0</code>). Missing arguments throw
 <code>usage: export-catalog.mjs &lt;tama-root&gt; &lt;output-path&gt;</code>.</p>
 <h3>stage_live_hook_release.py</h3>
-<p>No arguments. Copies the installed runtime (<code>hooks-runtime/current</code>) to
-<code>.work/inline-hook-release</code>, strips its <code>release.json</code>, and replaces
-<code>shared-hooks/</code> with the tree from <code>TAMA_HOOK_SOURCE_ROOT</code> (default: the
-<code>tama</code> checkout beside this repository); prints the staged path. A developer
-seam for iterating on hook sources against a real runtime layout.</p>
+<p>Copies an installed runtime to a staging destination, strips its
+<code>release.json</code>, and replaces <code>shared-hooks/</code>, <code>claude-hooks/</code>,
+<code>codex-hooks/</code> and <code>repo-githooks/</code> with the trees from the hook checkout,
+rebuilding the native hook binaries into <code>bin/</code>; prints the staged path.</p>
+<pre><code>stage_live_hook_release.py [--source-root &lt;checkout&gt;] [--runtime &lt;installed-release&gt;]
+                           [--destination &lt;dir&gt;] [--replace]
+</code></pre>
+<p><code>--runtime</code> defaults to this machine's <code>hooks-runtime/current</code> and
+<code>--source-root</code> to the <code>tama</code> checkout beside this repository. Staging starts
+from an installed runtime, so a machine with none - or a wrong
+<code>--runtime</code> - is refused by name:
+<code>No installed hook runtime to stage from: &lt;path&gt;</code>. An existing explicit
+destination is refused with
+<code>Refusing to overwrite explicit staging destination: &lt;path&gt;</code> unless
+<code>--replace</code> is given. What to do with the staged tree afterwards is
+<a href="../hook-system/hook-releases.md#installing-a-staged-release-on-this-machine">hook-releases</a>.</p>
 <h3>package-release.sh</h3>
 <p>No arguments. Packages the immutable release candidate for the exact signed
 <code>v&lt;SemVer&gt;</code> tag at <code>HEAD</code> (<code>TAMA_RELEASE_TAG</code> disambiguates). It refuses,
