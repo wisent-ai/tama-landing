@@ -14,6 +14,15 @@
 <p>Every transition appends and synchronizes an immutable fact before publishing disposable per-hook projections. Missing or corrupt projections rebuild from the journal. A missing, corrupt, incomplete, or unwritable fact journal fails toward enforcement and reports persistence failure; it never authorizes warning mode.</p>
 <h2>Causal owner feedback</h2>
 <p>Blocked decisions are grouped by session and interaction episode. On the next owner prompt, Tama considers only the most recent episode group from that session. A direct correction of that blocked action may record a source-bound contested-block fact. General frustration, an ambiguous complaint, a missing session identity, or model disagreement is recommendation evidence only.</p>
+<p>A correction counts when it names the hook, or when it is worded as a direct
+correction; frustration language is neither required nor sufficient. Both entry
+points that see an owner prompt feed this: the per-provider runner and the
+shared runtime the providers talk to. Until 2026-09-10 the shared runtime fed
+neither the causal record nor the bridge, so on a machine driven only through it
+nothing was ever contested, the replay corpus stayed empty and
+<a href="cli/adaptive/repair.md"><code>tama adaptive repair</code></a> refused
+every candidate for want of labeled cases. If that is what you see, check that
+the installed hook release is built from a revision carrying it.</p>
 <h2>Telemetry transport</h2>
 <p>Each runner invocation owns one immutable telemetry segment, synchronizes it, and atomically publishes it closed. Transcript Lake validates frame count, source digest, and payload digest; masks and publishes deterministic output; commits its cursor; and only then writes a digest-bound acknowledgement. Tama may reclaim a source segment only after validating that acknowledgement. Lake failure leaves source segments intact and never changes enforcement.</p>
 <h2>Repair and migration</h2>
