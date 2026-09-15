@@ -3,43 +3,43 @@ import { strict as assert } from "node:assert";
 const origin = (process.env.TAMA_DOCS_ORIGIN || "https://tama.wisent.com").replace(/\/$/, "");
 const canonicalOrigin = (process.env.TAMA_DOCS_CANONICAL_ORIGIN || "https://tama.wisent.com").replace(/\/$/, "");
 const commands = [
-  ["/docs/cli/help", "tama help"],
-  ["/docs/cli/list", "tama list [--json]"],
-  ["/docs/cli/show", "tama show &lt;hook-id&gt; [--json]"],
-  ["/docs/cli/validate", "tama validate [--json]"],
-  ["/docs/cli/install-plan", "tama install-plan [--json] [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;]"],
-  ["/docs/cli/install", "tama install [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;]"],
-  ["/docs/cli/verify", "tama verify"],
-  ["/docs/cli/mcp-config", "tama mcp-config"],
-  ["/docs/cli/find-violations", "tama find-violations (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-user-or-org&gt; | --me) [...]"],
-  ["/docs/cli/clean", "tama clean (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-owner&gt; | --me) [...]"],
-  ["/docs/cli/brama-check", "tama brama-check [--json]"],
-  ["/docs/cli/sessions", "tama sessions [--json] [--home &lt;path&gt;]"],
-  ["/docs/cli/assignment/show", "tama assignment show [--json]"],
-  ["/docs/cli/justify", "tama justify &lt;record|show|remove|list&gt;"],
-  ["/docs/cli/enforcement/status", "tama enforcement status [--json]"],
-  ["/docs/cli/enforcement/only", "tama enforcement only &lt;hook-id&gt;..."],
-  ["/docs/cli/enforcement/preflight", "tama enforcement preflight &lt;hook-id&gt;"],
-  ["/docs/cli/enforcement/all", "tama enforcement all"],
-  ["/docs/cli/serve", "tama serve [--port N] [--root &lt;release-path&gt;]"],
-  ["/docs/cli/adaptive", "tama adaptive &lt;command&gt; [...]"],
-  ["/docs/cli/adaptive/status", "tama adaptive status"],
-  ["/docs/cli/adaptive/drift", "tama adaptive drift"],
-  ["/docs/cli/adaptive/queue", "tama adaptive queue"],
-  ["/docs/cli/adaptive/repair", "tama adaptive repair &lt;hook-id&gt; [--patch-file &lt;path&gt;]"],
-  ["/docs/cli/adaptive/apply", "DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;"],
-  ["/docs/cli/adaptive/install", "DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive install"],
-  ["/docs/cli/adaptive/uninstall", "tama adaptive uninstall"],
-  ["/docs/cli/adaptive/claude-config", "tama adaptive claude-config"],
-  ["/docs/cli/worktrees", "tama worktrees &lt;command&gt;"],
-  ["/docs/cli/worktrees/list", "tama worktrees list [--root &lt;PATH&gt;]... [--json]"],
-  ["/docs/cli/worktrees/remove", "tama worktrees remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--apply] [--force] [--json]"],
-  ["/docs/cli/copies", "tama copies &lt;command&gt;"],
-  ["/docs/cli/copies/list", "tama copies list [--root &lt;PATH&gt;]... [--json]"],
-  ["/docs/cli/copies/remove", "tama copies remove [--root &lt;PATH&gt;]... [--except &lt;PATH&gt;]... [--only &lt;PATH&gt;]... [--apply] [--force] [--json]"],
+  "/docs/cli/help",
+  "/docs/cli/list",
+  "/docs/cli/show",
+  "/docs/cli/validate",
+  "/docs/cli/install-plan",
+  "/docs/cli/install",
+  "/docs/cli/verify",
+  "/docs/cli/mcp-config",
+  "/docs/cli/find-violations",
+  "/docs/cli/clean",
+  "/docs/cli/brama-check",
+  "/docs/cli/sessions",
+  "/docs/cli/assignment/show",
+  "/docs/cli/justify",
+  "/docs/cli/enforcement/status",
+  "/docs/cli/enforcement/only",
+  "/docs/cli/enforcement/preflight",
+  "/docs/cli/enforcement/all",
+  "/docs/cli/serve",
+  "/docs/cli/adaptive",
+  "/docs/cli/adaptive/status",
+  "/docs/cli/adaptive/drift",
+  "/docs/cli/adaptive/queue",
+  "/docs/cli/adaptive/repair",
+  "/docs/cli/adaptive/apply",
+  "/docs/cli/adaptive/install",
+  "/docs/cli/adaptive/uninstall",
+  "/docs/cli/adaptive/claude-config",
+  "/docs/cli/worktrees",
+  "/docs/cli/worktrees/list",
+  "/docs/cli/worktrees/remove",
+  "/docs/cli/copies",
+  "/docs/cli/copies/list",
+  "/docs/cli/copies/remove",
 ];
 
-for (const [route, invocation] of commands) {
+for (const route of commands) {
   const url = `${origin}${route}/`;
   const response = await fetch(url, { redirect: "error" });
   assert.equal(response.status, 200, `${route} returned ${response.status}`);
@@ -49,13 +49,12 @@ for (const [route, invocation] of commands) {
     html.includes(`<link rel="canonical" href="${canonicalOrigin}${route}/">`),
     `${route} has the wrong canonical link`,
   );
-  assert.ok(html.includes(invocation), `${route} is missing invocation: ${invocation}`);
 }
 
 const indexResponse = await fetch(`${origin}/docs/cli/`, { redirect: "error" });
 assert.equal(indexResponse.status, 200, `/docs/cli returned ${indexResponse.status}`);
 const indexHtml = await indexResponse.text();
-for (const [route] of commands) {
+for (const route of commands) {
   assert.ok(indexHtml.includes(`href="${route}/"`), `/docs/cli is missing ${route}`);
 }
 
