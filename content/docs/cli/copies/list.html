@@ -25,7 +25,7 @@ canonical checkout it duplicates, including the local-path origin a
 <h2>Output document</h2>
 <p>Under <code>--json</code>, exactly these fields, with the schema version the whole
 copies contract is fixed at:</p>
-<pre><code>{"schemaVersion":Number,"roots":[String],"copies":[{"path":String,"owner":String|null,"origin":String|null,"bytes":Number,"dirty":Boolean,"unpublished":Boolean,"ownsWorktrees":Boolean,"named":Boolean}],"copyCount":Number,"bytes":Number,"linkedWorktrees":[String],"twins":[{"path":String,"twin":String,"origin":String}],"unreadable":[String]}
+<pre><code>{"schemaVersion":Number,"roots":[String],"copies":[{"path":String,"owner":String|null,"origin":String|null,"bytes":Number,"dirty":Boolean,"unpublished":Boolean,"ownsWorktrees":Boolean,"named":Boolean}],"copyCount":Number,"bytes":Number,"linkedWorktrees":[String],"twins":[{"path":String,"twin":String,"origin":String}],"unreadable":[String],"unreadableDirectories":[{"path":String,"reason":String}]}
 </code></pre>
 <p><code>roots</code> echoes the roots you passed, resolved. <code>owner</code> is the canonical
 checkout of the same repository under those roots, or <code>null</code> when this
@@ -38,6 +38,12 @@ root; the pass reports them and removes neither. <code>unreadable</code> names e
 candidate the walk found a <code>.git</code> for and git then refused to answer for:
 reported rather than dropped, because silence would be the pass claiming it
 read a checkout it never read.</p>
+<p><code>unreadableDirectories</code> names every directory the walk asked the
+operating system for and did not get, each with the reason it gave. A pass
+carrying one of these cannot say the roots hold one checkout per repository,
+only that it saw no second one where it could look, so it exits <code>1</code> and
+prints <code>could not read &lt;path&gt;: &lt;reason&gt;</code> to stderr in both output
+modes.</p>
 <p>The same document is served by <code>POST /v1/copies/list</code> with body
 <code>{"roots":[String]}</code> on the loopback desktop backend
 (<a href="../../serve/"><code>tama serve</code></a>).</p>
@@ -51,7 +57,9 @@ with anything to spare, narrow or delete.</p>
 <p>Passing no <code>--root</code> is a usage error, exit code two:</p>
 <pre><code>tama copies needs at least one --root; a machine-wide default would walk directories Tama does not own.
 </code></pre>
-<p>A root that cannot be read contributes nothing rather than ending the pass.
+<p>A root that cannot be read is reported in
+<code>unreadableDirectories</code> with the operating system's own reason, and the
+command exits <code>1</code> rather than reporting a clean tree it never walked.
 This leaf has no other refusal: it never asks whether a copy may be removed,
 which is <a href="../remove/"><code>tama copies remove</code></a>'s boundary.</p>
 <p>Return to <a href="../">the copies command group</a> or the

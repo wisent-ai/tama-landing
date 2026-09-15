@@ -57,10 +57,10 @@ passed it. The prune runs after the removals so the owning repository's
 <code>.git/worktrees</code> administrative entries do not outlive the checkouts.</p>
 <h2>Output document</h2>
 <p>Under <code>--json</code>, exactly:</p>
-<pre><code>{&quot;schemaVersion&quot;:1,&quot;roots&quot;:[String],&quot;repositories&quot;:[{&quot;repository&quot;:String,&quot;worktrees&quot;:[{&quot;path&quot;:String,&quot;branch&quot;:String|null,&quot;head&quot;:String,&quot;dirty&quot;:Boolean,&quot;locked&quot;:Boolean,&quot;prunable&quot;:Boolean}]}],&quot;worktreeCount&quot;:Number,&quot;unreadable&quot;:[String],&quot;excepted&quot;:[String],&quot;applied&quot;:Boolean,&quot;removed&quot;:[String],&quot;refused&quot;:[{&quot;path&quot;:String,&quot;reason&quot;:&quot;uncommitted-changes&quot;|&quot;locked&quot;}]}
+<pre><code>{&quot;schemaVersion&quot;:1,&quot;roots&quot;:[String],&quot;repositories&quot;:[{&quot;repository&quot;:String,&quot;worktrees&quot;:[{&quot;path&quot;:String,&quot;branch&quot;:String|null,&quot;head&quot;:String,&quot;dirty&quot;:Boolean,&quot;locked&quot;:Boolean,&quot;prunable&quot;:Boolean}]}],&quot;worktreeCount&quot;:Number,&quot;unreadable&quot;:[String],&quot;unreadableDirectories&quot;:[{&quot;path&quot;:String,&quot;reason&quot;:String}],&quot;excepted&quot;:[String],&quot;applied&quot;:Boolean,&quot;removed&quot;:[String],&quot;refused&quot;:[{&quot;path&quot;:String,&quot;reason&quot;:&quot;uncommitted-changes&quot;|&quot;locked&quot;}]}
 </code></pre>
 <p>It is the <a href="../list/"><code>list</code></a> document plus four fields, with
-<code>excepted</code> immediately after <code>unreadable</code>.</p>
+<code>excepted</code> immediately after <code>unreadableDirectories</code>.</p>
 <p><code>excepted</code> holds the canonicalised path of every worktree you named with
 <code>--except</code>, so the document states what the pass deliberately left alone;
 it is <code>[]</code> when you named none. Those worktrees appear nowhere in
@@ -75,6 +75,15 @@ the pass — each with the reason <code>&quot;uncommitted-changes&quot;</code> o
 <code>&quot;locked&quot;</code> — and it is populated in a preview too, so a bare
 <code>remove</code> shows exactly what <code>--apply</code> would refuse. <code>--force</code>
 empties <code>refused</code> in both modes, because nothing blocks a forced pass.</p>
+<p><code>unreadableDirectories</code> is the <a href="../list/"><code>list</code></a>
+report of what the walk could not read, and it ends this pass: an
+all-or-nothing removal cannot be all-or-nothing over a tree it could not see,
+so a pass carrying one of these answers <code>&quot;applied&quot;:false</code>,
+<code>&quot;removed&quot;:[]</code>, prints <code>could not read &lt;path&gt;: &lt;reason&gt;</code>
+followed by <code>this pass could not read N directories under the roots, so it
+cannot say what they hold; nothing was removed</code>, and exits <code>1</code>. This
+holds for a preview too, because neither answer covers the tree the operator
+named.</p>
 <p>The same document is served by <code>POST /v1/worktrees/remove</code> with body
 <code>{&quot;roots&quot;:[String],&quot;except&quot;:[String],&quot;apply&quot;:Boolean,&quot;force&quot;:Boolean}</code>
 on the loopback desktop backend

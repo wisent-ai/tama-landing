@@ -56,6 +56,15 @@ the pass deliberately left alone; those copies appear in neither
 <code>reason</code> is one of the five keys named above, and the sentence beside it is
 the one the command prints. <code>--force</code> empties <code>refused</code> in both modes,
 because nothing blocks a forced pass.</p>
+<p><code>unreadableDirectories</code> is the <a href="../list/"><code>list</code></a>
+report of what the walk could not read, and it ends this pass the same way an
+outstanding refusal does: an all-or-nothing removal cannot be
+all-or-nothing over a tree it could not see, so a pass carrying one of these
+answers <code>"applied":false</code>, <code>"removed":[]</code>, prints
+<code>could not read &lt;path&gt;: &lt;reason&gt;</code> followed by <code>this pass could
+not read N directories under the roots, so it cannot say what they hold;
+nothing was removed</code>, and exits <code>1</code> — in a preview as well as under
+<code>--apply</code>.</p>
 <p>The same document is served by <code>POST /v1/copies/remove</code> with body
 <code>{"roots":[String],"except":[String],"only":[String],"apply":Boolean,"force":Boolean}</code>
 on the loopback desktop backend (<a href="../../serve/"><code>tama serve</code></a>),
