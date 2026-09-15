@@ -1,15 +1,19 @@
-<h1><code>tama assignment show</code></h1>
-<p>Prints the operator's newest instruction for this machine, verbatim, and records that it has been read.</p>
+<h1><code>tama-cli assignment show</code></h1>
+<p>Prints one session's newest operator instruction verbatim together with Oko's current task ledger, then records that both were read. A question about the task is not itself a replacement task, and a session summary is not a source of task state.</p>
 <h2>Invocation</h2>
-<pre><code>tama assignment show [--json]
+<pre><code>tama-cli assignment show --session SESSION_ID [--json]
 </code></pre>
-<p>Takes no arguments. <code>--json</code> prints the whole record instead of the readable form. The record lives where <code>TAMA_ASSIGNMENT_STATE</code> names it, or beside the other Tama state.</p>
+<p><code>--session</code> is required. <code>--json</code> prints the instruction fields and Oko's report under <code>ledger</code>. The readable form also prints the standing rules. The stop refusal names the companion <code>tama-cli</code> from its own installed release, so its recovery command does not select an older executable from <code>PATH</code>.</p>
 <h2>Output and state</h2>
-<p>The readable form prints the session, when the instruction was captured, and its text exactly as it was written; the text is never summarised, because a summary is the reading model's interpretation and that is the thing this record exists to replace. Reading stamps the instruction's digest onto the record, which is what <code>block-stale-assignment</code> checks before a turn is allowed to end. A newer instruction supersedes the previous one by digest, so the stamp goes stale by itself when the operator says something new. The command exits <code>0</code>.</p>
+<p>Each session has its own captured instruction and separate read receipt under the Tama state root. <code>TAMA_ASSIGNMENT_STATE</code> selects a base filename for this namespace, not a shared assignment file. An older machine-wide record is not adopted as another session's instruction. The capture preserves whitespace, and even an identical instruction submitted in a new turn requires a new read.</p>
+<p>The reader calls <code>oko-cli transcripts tasks --session SESSION_ID --read-only --json</code>. <code>TAMA_OKO_CLI</code> selects a different Oko executable; <code>OKO_TRANSCRIPT_INDEX_PATH</code> selects the index passed as <code>--db</code>. Oko reads the fresh transcript without writing the index or waiting behind its writer. The session and task tables must already be indexed through Oko's normal writable interface.</p>
+<p>A successful read exits <code>0</code> and writes a receipt only after delivering the output. The receipt binds both the captured turn and the Oko report. <code>block-stale-assignment</code> reads Oko again before allowing the turn to end: a new instruction, changed task state or changed selected index invalidates the receipt. One session cannot acknowledge another, and a slow read cannot overwrite a newer instruction.</p>
 <h2>Refusals and failures</h2>
 <ul>
-<li>An unknown subcommand prints <code>usage: tama assignment show [--json]</code> and exits <code>2</code>.</li>
-<li>With no instruction recorded yet the command says so and exits <code>0</code>: a machine that has never seen a prompt has nothing to read, and that is not an error.</li>
-<li>A record that cannot be written back is reported as <code>cannot mark the assignment read: ...</code> and exits <code>1</code>, because a read that was not recorded would let a turn end on an unread instruction.</li>
+<li>An unknown command, unknown option, missing session or missing option value exits <code>2</code> and explains the required invocation.</li>
+<li>A missing or unreadable instruction exits <code>1</code> and names the session; check <code>record-current-assignment</code>. Another session's record is never a fallback.</li>
+<li>An unavailable Oko executable, unknown session, unreadable index or transcript, failed process or invalid report exits <code>1</code>. The diagnostic identifies the actual operation and error. Each Oko read has an eight-second deadline; a timeout is a failed read, not an empty task list.</li>
+<li>A new instruction arriving during the read requires another read. Failed output delivery or receipt writing exits <code>1</code> without acknowledging the new state.</li>
+<li>The stop guard refuses when it cannot verify the current state, rather than accepting a stale receipt. With no captured instruction it preserves the existing no-record policy; a stop event without a session identifier is refused.</li>
 </ul>
 <p>Return to <a href="../">the complete CLI tree</a>.</p>
