@@ -14,12 +14,14 @@
 <p>No other input is accepted, and no argument selects a single worktree: the
 command reports every linked worktree it finds under the given roots.</p>
 <h2>Discovery</h2>
-<p><code>tama_violations::repo_discovery</code>'s <code>discover_repos(root)</code> finds the
-owning repositories under each root; git itself is then the authority on
-worktrees, through <code>git -C &lt;repo&gt; worktree list --porcelain</code>. The
-repository's own main worktree is never reported. A worktree is dirty when
-<code>git -C &lt;worktree&gt; status --porcelain</code> prints anything; <code>locked</code> and
-<code>prunable</code> are git's own porcelain flags.</p>
+<p>The deep repository walk includes ignored dependency and build directories;
+only Git's <code>.git</code> metadata is pruned. Git supplies the registered
+worktrees through <code>git -C &lt;repo&gt; worktree list --porcelain</code>.
+Its first record identifies the primary repository even when the walk reached
+a linked checkout. Each primary repository is counted once, and its own main
+checkout is never offered for removal. A worktree is dirty when
+<code>git status --porcelain</code> reports changes; <code>locked</code> and
+<code>prunable</code> come from Git's registration.</p>
 <p>Only linked worktrees appear — a checkout whose <code>.git</code> is a file holding a
 <code>gitdir:</code> pointer into <code>&lt;owner&gt;/.git/worktrees/&lt;name&gt;</code>. A second full
 clone with its own <code>.git</code> directory is a repository copy that no repository

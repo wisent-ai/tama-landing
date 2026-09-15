@@ -4,6 +4,11 @@ deletes them. The engine is the sealed CLI's <code>copies</code> group
 (<a href="../../cli/copies/">cli/copies</a>), reached through the loopback
 backend's <code>POST /v1/copies/list</code> and <code>POST /v1/copies/remove</code>, so the
 screen and the terminal cannot disagree about what a pass would do.</p>
+<p>The inventory includes dependency checkouts under package-manager and build
+directories, submodule checkouts, and bare Git caches. A detached checkout's
+unpublished commit is protected just like a local branch. Roots contribute
+their canonical repositories together, so their order does not change
+ownership. Linked worktrees appear only once, under their primary repository.</p>
 <h2>Scope, header, refusals</h2>
 <p>The roots are scope, not a destination: <code>Add root…</code> opens a directory
 chooser, because the walk refuses a relative path and a directory that does
@@ -32,7 +37,8 @@ travel together, so claiming clears every kept mark, and the screen says so
 in both lists. Changing a mark, a root, or the override drops the preview:
 an apply must never run against a plan that no longer describes it.</p>
 <p><code>Remove past every refusal (--force)</code> is off until it is turned on, because
-it is the difference between a refusal and deleted history.</p>
+it is the difference between a safety refusal and deleted history. It does
+not override an unreadable directory, an unknown selection or a deletion error.</p>
 <h2>What the screen never removes</h2>
 <p>Linked worktrees are counted and named, not removed: git tracks those and
 the <a href="../../cli/worktrees/">Worktrees</a> surface owns them. Two
@@ -50,10 +56,10 @@ holds no second checkouts, and the answer was quoted as proof.</p>
 <p><code>Remove copies</code> is enabled only after a preview with no refusal
 outstanding. It opens a confirmation that lists exactly the paths the
 preview reported, states how much apparent size comes back, and names the
-override and every mark in force. The removal is all-or-nothing, so a
-refused pass deletes nothing and reports the refusal instead; a clean pass
-re-reads the tree afterwards and keeps the removed list on screen, because
-that tree no longer contains what went.</p>
+override and every mark in force. Refusals and unreadable directories are
+checked before any deletion starts. Nested selections are removed before
+their parents; a filesystem error is not a rollback guarantee. A clean pass
+re-reads the tree afterwards and keeps the removed list on screen.</p>
 <p>Control is required for this destination: a signed-out operator does not see
 it, rather than seeing a dead row.</p>
 <p>Return to the <a href="../../desktop/">desktop application</a> or the

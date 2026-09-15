@@ -11,7 +11,7 @@
 <tr><td><code>--except &lt;PATH&gt;</code></td><td>Repeatable. The path of one copy to leave completely alone: neither removed, nor counted as removable, nor able to refuse the pass</td></tr>
 <tr><td><code>--only &lt;PATH&gt;</code></td><td>Repeatable. Narrows the pass to the copies it names and accepts each as removable even when it is the sole checkout of its repository here. Not combinable with <code>--except</code></td></tr>
 <tr><td><code>--apply</code></td><td>Performs the removal. Without it the command previews and mutates nothing</td></tr>
-<tr><td><code>--force</code></td><td>Proceeds past every refusal, including uncommitted changes and commits on no remote. Without it any of them refuses the whole pass</td></tr>
+<tr><td><code>--force</code></td><td>Overrides copy safety refusals, including uncommitted changes and unpublished history. It never overrides an incomplete directory walk, an unknown selection, or a filesystem deletion error</td></tr>
 <tr><td><code>--json</code></td><td>Prints the exact document below instead of the text report, in both preview and applied mode</td></tr>
 </tbody>
 </table>
@@ -31,6 +31,10 @@ deletion the filesystem is checked again — the reads behind a document are
 minutes old by the time an operator types <code>--apply</code> — and a path that is a
 symlink, or that no longer lies under the roots given, is an operational
 failure rather than a deletion.</p>
+<p>When selected copies contain other selected copies, descendants are removed
+before their parents. A refusal is checked before any deletion starts;
+filesystem errors during deletion are operational failures, not rollback
+guarantees. Run <code>copies list</code> again to inspect the remaining state.</p>
 <h2>Sparing with <code>--except</code>, claiming with <code>--only</code></h2>
 <p><code>--except</code> is the operator's exclusion: an excepted copy is dropped from
 the pass before anything judges it, so a dirty copy cannot refuse a pass it
@@ -53,9 +57,9 @@ fields, with the same schema version:</p>
 the pass deliberately left alone; those copies appear in neither
 <code>removed</code> nor <code>refused</code>, in a preview and in an applied pass alike.
 <code>applied</code> is true only for an <code>--apply</code> pass that was free of refusals.
-<code>reason</code> is one of the five keys named above, and the sentence beside it is
-the one the command prints. <code>--force</code> empties <code>refused</code> in both modes,
-because nothing blocks a forced pass.</p>
+<code>reason</code> identifies the safety refusal. <code>--force</code> empties
+<code>refused</code>, but does not turn an incomplete walk or failed deletion
+into success.</p>
 <p><code>unreadableDirectories</code> is the <a href="../list/"><code>list</code></a>
 report of what the walk could not read, and it ends this pass the same way an
 outstanding refusal does: an all-or-nothing removal cannot be
@@ -80,8 +84,8 @@ tama copies does not know the copy &lt;path&gt;; --except takes the path of a co
 </code></pre>
 <p>A refused <code>--apply</code> exits one and prints every refusal to stderr; under
 <code>--json</code> it exits one with <code>"applied":false</code> and <code>"removed":[]</code>. A
-failed deletion is an operational failure, exit one. Otherwise the command
-exits zero: every preview does, and so does an applied pass that removed
-everything it selected, including the pass that found nothing to remove.</p>
+failed deletion is an operational failure, exit one. A complete preview
+exits zero even when it reports safety refusals. An applied pass exits zero
+when it removes everything selected, including an empty selection.</p>
 <p>Return to <a href="../">the copies command group</a> or the
 <a href="../../">complete CLI tree</a>.</p>

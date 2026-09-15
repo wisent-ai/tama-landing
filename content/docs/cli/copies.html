@@ -20,13 +20,11 @@ only one of them could be reclaimed:</p>
 <li>A <strong>linked worktree</strong> is a checkout whose <code>.git</code> is a <em>file</em> pointing
 into the owning repository's <code>.git/worktrees/&lt;name&gt;</code>. Git tracks it, and
 <a href="../worktrees/"><code>tama worktrees</code></a> removes it.</li>
-<li>A <strong>repository copy</strong> is a second checkout with its own <code>.git</code>
-<em>directory</em>, which a clone of a local path or a recursive copy produces.
-The original knows nothing about it, so no <code>git worktree</code> command reaches
-it — and until 2026-09-09 no command did. On the machine this group was
-written for, that meant an 8.4 GiB clone of one upstream in
-<code>backends/.work/content-platform-upstream-https</code> and 45 nested checkouts
-holding 24 GiB in total, none of them reachable by any product surface.</li>
+<li>A <strong>repository copy</strong> is another checkout, a submodule
+checkout or a bare dependency cache. Git does not register these as linked
+worktrees, so <code>git worktree remove</code> cannot reclaim them.
+The <code>copies</code> group reports them even inside ignored package-manager
+and build directories.</li>
 </ul>
 <p>A pass reports every linked worktree it crosses and never removes one, so a
 clean copies pass cannot read as "one checkout per repository" when it is not.</p>
@@ -36,8 +34,8 @@ can restore, so each candidate is judged first. In this order, one sentence
 each:</p>
 <ul>
 <li><code>uncommitted-changes</code> — <code>git status --porcelain</code> prints something.</li>
-<li><code>commits-not-on-remote</code> — <code>git log --branches --not --remotes</code> prints
-something, so history exists only there.</li>
+<li><code>commits-not-on-remote</code> — commits at <code>HEAD</code> or on local
+branches are absent from the repository's remote-tracking refs.</li>
 <li><code>no-origin-remote</code> — nothing to compare against.</li>
 <li><code>no-canonical-checkout</code> — no checkout of the same repository sits under
 the roots given, so this directory is the only one here. <code>--only</code> is how
@@ -69,15 +67,14 @@ it is a usage error, not a full-machine walk:</p>
 <p>The named root itself is a canonical checkout, never a candidate: naming one
 repository as the root reports the clones inside it, not the repository.</p>
 <h2>Discovery and authority</h2>
-<p><code>tama_violations::repo_discovery</code>'s <code>discover_every_checkout_deep(root)</code>
-walks every checkout under each root, including the ones the owning
-repository ignores, and unlike the content scan it also walks <code>vendor</code>,
-<code>target</code>, <code>build</code>, <code>.build</code> and <code>dist</code> — a pass whose purpose is
-finding second checkouts cannot inherit a speed list that hides them.
-<code>node_modules</code>, <code>Pods</code>, <code>SourcePackages</code> and <code>checkouts</code> stay pruned:
-what lives there is a package manager's working state, which it re-resolves.
-Git is then the authority on each candidate: status, unpublished commits, and
-its origin remote.</p>
+<p>The deep repository walk includes every named root and ignores no directory
+name except Git's <code>.git</code> metadata. Package-manager checkouts,
+submodules and bare Git caches are included. Content scans keep their own
+filtered walk; they do not decide what a cleanup inventory may omit.
+Canonical checkouts from all roots are collected before ownership is resolved,
+so root order cannot change whether a known canonical checkout is found.
+Git supplies working-tree state, history and origin; a <code>.git</code> file
+alone does not distinguish a submodule from a linked worktree.</p>
 <h2>Output and state</h2>
 <p>The group itself performs no action and takes no options. <code>list</code> and a bare
 <code>remove</code> mutate nothing; only <code>remove --apply</code> deletes anything, and it is

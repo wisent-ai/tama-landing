@@ -1,5 +1,5 @@
 <h1><code>tama copies list</code></h1>
-<p>Reports every second full checkout under the roots you name, with the checkout it duplicates, its apparent size and the state that would refuse its removal, and mutates nothing.</p>
+<p>Reports dependency checkouts, bare Git caches and other second repository copies under the roots you name, with their canonical checkout, apparent size and removal refusals. It mutates nothing.</p>
 <h2>Invocation</h2>
 <pre><code>tama copies list [--root &lt;PATH&gt;]... [--json]
 </code></pre>
@@ -12,16 +12,27 @@
 </tbody>
 </table>
 <h2>What counts as a copy</h2>
-<p>The named root and every checkout directly under it are canonical. A
-checkout deeper than that, with its own <code>.git</code> <em>directory</em>, is a
-candidate; a checkout whose <code>.git</code> is a <em>file</em> is a linked worktree and
-belongs to <a href="../../worktrees/list/"><code>tama worktrees list</code></a>, so
-it is counted under <code>linkedWorktrees</code> and never listed as a copy.</p>
-<p>For each candidate the command asks git three things: whether its working
-tree is dirty, whether any commit on a local branch is absent from every
-remote, and what its <code>origin</code> is. The origin is what pairs a copy with the
-canonical checkout it duplicates, including the local-path origin a
-<code>git clone /path/to/repo</code> records.</p>
+<p>The named roots and their direct child repositories are canonical. Deeper
+repositories are candidates, including ignored paths, package-manager
+<code>checkouts</code>, <code>repositories</code>, <code>node_modules</code>,
+<code>Pods</code> and build directories. Only Git's own <code>.git</code>
+metadata is pruned; a directory name never hides a dependency checkout.</p>
+<p>A <code>.git</code> file does not by itself mean a linked worktree:
+submodules also use one. Git's private and common metadata directories
+distinguish them. Linked worktrees appear once under <code>linkedWorktrees</code>
+and belong to <a href="../../worktrees/list/"><code>tama worktrees list</code></a>;
+submodule checkouts remain copy candidates. Bare repositories are recognized
+by Git and have no working-tree changes, but their history is still checked.</p>
+<p>The pass checks working-tree changes, commits at <code>HEAD</code> and on
+local branches that are absent from remote-tracking refs, and the
+<code>origin</code>. A detached checkout's unpublished commit is protected.
+Bare mirrors may lack remote-tracking refs, so their local history is
+conservatively refused without <code>--force</code>; this is not a network
+check. Ownership uses canonical checkouts from every named root, regardless
+of root order, including an origin naming a canonical checkout's local path.</p>
+<p>An initialized repository without commits is readable. Damaged metadata
+never borrows the enclosing repository's history: Git must identify the
+candidate itself, or the pass reports it under <code>unreadable</code>.</p>
 <h2>Output document</h2>
 <p>Under <code>--json</code>, exactly these fields, with the schema version the whole
 copies contract is fixed at:</p>
@@ -35,11 +46,11 @@ directory is the only checkout of its repository here — which is a refusal on
 false here and only ever true in a narrowed removal document.</p>
 <p><code>twins</code> carries checkouts of one repository that both sit directly under a
 root; the pass reports them and removes neither. <code>unreadable</code> names every
-candidate the walk found a <code>.git</code> for and git then refused to answer for:
+candidate repository git then refused to answer for:
 reported rather than dropped, because silence would be the pass claiming it
 read a checkout it never read.</p>
-<p><code>unreadableDirectories</code> names every directory the walk asked the
-operating system for and did not get, each with the reason it gave. A pass
+<p><code>unreadableDirectories</code> names every directory or entry the walk
+could not read, each with the operating system's reason. A pass
 carrying one of these cannot say the roots hold one checkout per repository,
 only that it saw no second one where it could look, so it exits <code>1</code> and
 prints <code>could not read &lt;path&gt;: &lt;reason&gt;</code> to stderr in both output
