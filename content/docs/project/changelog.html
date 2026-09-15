@@ -3,6 +3,7 @@
 <h2>0.2.0 — Unreleased</h2>
 <h3>Added</h3>
 <ul>
+<li>CUA consent recording, listing and removal through <code>tama justify --kind cua</code>, the loopback API and Justifications → CUA consent. Grants are taken from actual session user messages and validated against installed application metadata without manual protected-file edits.</li>
 <li>Product contract, onboarding, operational, core, integration, example, testing, release, security, and support documentation.</li>
 <li>Authenticated guided setup that records completion only after the sealed runtime, enabled privileged backend, and a matching live kernel-gated agent session are all observed.</li>
 <li>Desktop build provenance and immutable release packaging contract.</li>
@@ -15,6 +16,7 @@
 </ul>
 <h3>Changed</h3>
 <ul>
+<li>The file/test justification recorder uses the shared loopback operation instead of spawning a separate CLI command from the native view.</li>
 <li>Runtime installation and macOS policy registration require explicit authenticated confirmation instead of running during model initialization.</li>
 <li>Session discovery is read-only when Tama has not been configured.</li>
 <li>Session monitoring starts only while the authenticated control surface is visible.</li>

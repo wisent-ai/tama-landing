@@ -2,13 +2,39 @@
 <p>Records, reads and retires the justifications the write guards require, so a registry that a hook demands is written by a command instead of by hand.</p>
 <h2>Invocation</h2>
 <pre><code>tama justify &lt;record|show|remove|list&gt; [--file &lt;path&gt;] [--justification &lt;text&gt;]
-             [--kind file|test] [--quote &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]
+             [--kind file|test|cua] [--quote &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]
 </code></pre>
-<p><code>--kind</code> selects the registry: <code>file</code> for <code>~/.shared-hooks/file_justifications.json</code>, which the new-file rule reads, and <code>test</code> for <code>~/.shared-hooks/test_justifications.json</code>, which additionally requires <code>--quote</code>, the operator's own words asking for that test. <code>--home</code> points both registries at another home, which is how the tests drive the command against an isolated one.</p>
+<p><code>--kind file</code> selects <code>~/.shared-hooks/file_justifications.json</code>; <code>--kind test</code> selects <code>~/.shared-hooks/test_justifications.json</code> and additionally requires the operator's verbatim request in <code>--quote</code>. These entries are keyed by absolute target path. <code>--kind cua</code> selects <code>~/.shared-hooks/cua_justifications.json</code> and records application/action grants rather than file justifications. <code>--home</code> changes the registry destination only; it does not select a different consent transcript.</p>
 <h2>Why it exists</h2>
 <p>The rules that demand a justification are enforced on write, and the registries they read are long — the file registry passed seven thousand lines. A guard that refuses any edit leaving a source file over three hundred lines therefore refused every edit to the registry that another guard demanded an entry in, so the two rules together made the required entry unwritable. The command owns those files instead: it is not an exemption from either rule, it is the supported way to satisfy one of them.</p>
 <h2>Output and state</h2>
-<p><code>record</code> writes or replaces one entry keyed by the absolute path and reports which registry it wrote. <code>show</code> prints one entry, <code>list</code> prints the paths a registry holds, and <code>remove</code> retires one entry. <code>--json</code> emits the same answers as one object. Each write replaces the registry atomically, so a failed write leaves the previous content intact.</p>
+<p>For file/test entries, <code>record</code> writes or replaces the absolute path, <code>show</code> prints one entry, <code>list</code> lists paths, and <code>remove</code> retires one entry. For CUA, <code>list</code> returns <code>authorizations</code>, while <code>show --quote</code> selects entries with that exact quote and <code>remove --quote</code> removes them. Writers hold the registry lock across reading and atomic replacement. A failed write preserves the old registry.</p>
+<h2>Record consent already given in a session</h2>
+<pre><code>tama justify record --kind cua \
+  --session &lt;current-OMP-session-id&gt; --app Figma \
+  --actions list_windows,get_window_state \
+  --quote-match "Zezwalam CUA" --json
+tama justify list --kind cua --json
+tama justify show --kind cua --quote "&lt;exact recorded user message&gt;" --json
+tama justify remove --kind cua --quote "&lt;exact recorded user message&gt;" --json
+</code></pre>
+<p>The example requires a real message that directly grants CUA access to Figma and names both actions. It does not grant access by itself. Supply exactly one of <code>--quote</code>, an exact quotation, or <code>--quote-match</code>, text selecting one distinct original user message in the named session. A match preserves the complete message, including whitespace; an assistant quotation or tool result is not selected. Multiple distinct matching user messages are refused.</p>
+<p>Tama reads the installed application's bundle identifier and executable from its <code>Info.plist</code> in <code>/Applications</code> or <code>~/Applications</code>. There is no arbitrary executable, bundle-id or transcript-root CLI override. The shared hook validator checks the quotation, application, every requested action and its presence in the named session. The transcript root is the runtime's <code>TAMA_OMP_SESSION_ROOT</code>, or <code>~/.omp/agent/sessions</code> when unset.</p>
+<p>The successful response contains <code>kind</code>, <code>registry</code>, <code>sessionId</code> and <code>authorization</code>. The entry preserves the existing vTwo schema, records the exact quote and app/action scope, and sets <code>allowUntargeted: false</code> and <code>lifetime: "current OMP session"</code>. Recording the same quote for the same application replaces it without adding another entry. Other entries and registry metadata remain intact.</p>
+<p>Recording does not disable a hook, create a runtime capability, start Cua Driver or prove that a GUI operation ran. The installed hook checks the current session, action and actual target process at use. Verify the requested action through Cua Driver and inspect its result. A driver message such as <code>Cua Driver daemon is not running</code> is an execution failure, not a missing user quote. Do not rewrite the registry or broaden the recorded grant to hide it.</p>
+<h2>CUA refusals</h2>
+<p>These refuse recording with exit <code>1</code> and leave consent unchanged:</p>
+<ul>
+<li><code>sessionId must be the exact OMP session identifier</code></li>
+<li><code>supply exactly one nonempty quote or quoteMatch</code></li>
+<li><code>the quote must directly authorize CUA, the application and every requested action</code></li>
+<li><code>the quote is not a verbatim user message in OMP session &lt;id&gt; under &lt;root&gt;</code></li>
+<li><code>application &lt;app&gt; is not installed in /Applications or ~/Applications</code></li>
+<li><code>&lt;registry&gt; must contain an authorizations array; nothing was changed</code></li>
+</ul>
+<p>Missing or ambiguous message matches identify the match, session and observed count. Unreadable application metadata and registry files include the failing path and underlying error. Missing consent on show/remove returns <code>no CUA grant is recorded for that quote</code>.</p>
+<h2>Desktop and HTTP</h2>
+<p><a href="/docs/desktop/justifications/">Justifications → CUA consent</a> records, lists and removes these same grants through the <a href="/docs/cli/serve/">loopback backend</a>. The native view displays the original quote, application, executable, actions, session and lifetime, and shows the backend's refusal. No JSON has to be pasted into a protected directory.</p>
 <h2>Refusals and failures</h2>
 <p>A justification shorter than the rule's own word count is refused with the count it needs. A test justification whose <code>--quote</code> is not a verbatim user message in the stored transcripts is refused, and so is one whose justification text does not contain that quote — the same two checks the write guard performs, so the command cannot record an entry the guard would then reject. A missing <code>--file</code>, an unknown subcommand and an unreadable registry print usage and exit non-zero.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
