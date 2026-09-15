@@ -195,9 +195,13 @@ without them it uses the repository adapter and debug binary.</p>
 <h2>Completion enforcement</h2>
 <p>Prompt text does not execute a Stop rule. Enabled hook commands do.
 <code>block-stop-with-open-work</code> reconstructs the successful tracker state
-and blocks pending or in-progress items. <code>check-open-items-with-model</code>
-reads the authoritative Oko ledger for the native OMP session id. It does not
-ask a second model to reinterpret open tasks as permission to stop.</p>
+and blocks pending or in-progress items. Once that plan is clear, including
+when every local item is marked blocked, it reads the authoritative Oko ledger
+for the native OMP session id. An absent local plan does not skip this read;
+an unavailable ledger refuses Stop with its actual error.
+<code>check-open-items-with-model</code> uses the same ledger qualification
+when enabled. Neither guard asks a second model to reinterpret open tasks as
+permission to stop.</p>
 <p>Any executable task still marked <code>not done</code> blocks completion.
 The refusal names its ordinal and request, including older requests outside
 the recent conversation window. After producing and checking the real result,

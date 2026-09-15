@@ -113,13 +113,16 @@ proves the new rules ran. Reload never lifts the global emergency disable.</p>
 <p>Installed prompt text can tell an agent to keep working, but prose does not
 execute the completion contract. A completion rule runs only when its
 registered Stop hook is enabled and the runtime dispatches that event. For
-the repaired completion contract, <code>block-stop-with-open-work</code> deterministically
+the repaired completion contract, <code>block-stop-with-open-work</code> first
 replays the latest successful tracker snapshot and subsequent successful
-tracker calls, then blocks while any item remains pending or in progress.
-<code>check-open-items-with-model</code> reads the authoritative Oko task ledger
-for the native OMP session id. It does not run a second model to overrule Oko.
-Every executable task still marked <code>not done</code> blocks completion,
-including older requests outside the most recent conversation window.</p>
+tracker calls. Pending or in-progress items block Stop. An empty, completed or
+locally blocked plan then requires a fresh read of the authoritative Oko
+ledger for the native OMP session id. Every actionable task still marked
+<code>not done</code> blocks completion, including older requests outside the
+most recent conversation window. A read failure also refuses Stop and names
+the failed operation. <code>check-open-items-with-model</code> uses the same
+Oko verdicts when that existing hook is enabled; it does not ask a second
+model to overrule them. No new hook or policy enablement is required.</p>
 <p>After delivering and checking the actual result, run
 <code>oko-cli transcripts tasks verify --before-stop --session SESSION_ID</code>.
 Oko independently judges the saved answer and tool results through Brama and
