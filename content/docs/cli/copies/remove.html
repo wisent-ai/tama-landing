@@ -90,8 +90,12 @@ nothing was removed</code>, and exits <code>1</code> — in a preview as well as
 <p>The same document is served by <code>POST /v1/copies/remove</code> with body
 <code>{"roots":[String],"except":[String],"only":[String],"apply":Boolean,"force":Boolean}</code>
 on the loopback desktop backend (<a href="../../serve/"><code>tama serve</code></a>),
-where a body carrying both <code>except</code> and <code>only</code> is refused with 400. That
-route is what the <a href="../../../desktop/copies/">Copies screen</a> drives.</p>
+where a body carrying both <code>except</code> and <code>only</code>, or naming
+an unknown selection, is refused with HTTP <code>400</code>. A canonical
+checkout is not a removable copy, even with <code>force</code>. Operational
+failures return HTTP <code>500</code>; safety refusals remain HTTP <code>200</code>
+documents with <code>applied:false</code> and the actual refusal details.
+This route is what the <a href="../../../desktop/copies/">Copies screen</a> drives.</p>
 <h2>Refusal boundary</h2>
 <p>Passing no <code>--root</code> is a usage error, exit code two:</p>
 <pre><code>tama copies needs at least one --root; a machine-wide default would walk directories Tama does not own.
