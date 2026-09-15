@@ -59,7 +59,7 @@ const githubUrl = (target) => {
 };
 
 const rewriteLinks = (html, source, pageRoute) => html.replace(/href="([^"]+)"/g, (match, href) => {
-  if (/^(?:https?:|mailto:|#)/.test(href)) return match;
+  if (/^(?:https?:|mailto:|#|\/)/.test(href)) return match;
   const hashIndex = href.indexOf('#');
   const rawTarget = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
   const hash = hashIndex >= 0 ? href.slice(hashIndex) : '';
