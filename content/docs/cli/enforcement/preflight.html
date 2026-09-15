@@ -1,12 +1,13 @@
 <h1><code>tama enforcement preflight</code></h1>
 <p>Asks one installed hook whether it can work on this machine, and prints the whole exchange.</p>
 <h2>Invocation</h2>
-<pre><code>tama enforcement preflight &lt;hook-id&gt;
+<pre><code>tama enforcement preflight &lt;hook-id&gt; [--session SESSION_ID]
 </code></pre>
-<p>Takes exactly one hook id. The command reads the installed registry and runs that one hook; it never writes the machine selection, the adaptive state or the session state.</p>
+<p>Takes one hook id and an optional exact session id. The command reads the installed registry and runs that hook; it never writes the machine selection, adaptive state or session state. Completion checks need the real session id to find its transcript and Oko ledger.</p>
 <h2>Output and state</h2>
-<p>Seven lines, in order: <code>hook:</code> the id as asked; <code>catalogue:</code> whether the installed registry declares it; <code>command:</code> the command string the catalogue records, including a literal <code>$HOME</code> when that is what is stored; <code>program:</code> the path actually executed after the home directory is expanded; <code>exit:</code> the hook's exit code, or <code>spawn:</code> and the operating system error when it could not be started at all; <code>answer:</code> the first line the hook printed; and <code>verdict:</code> one of <code>usable</code>, <code>unusable: the hook cannot reach the service it needs</code>, or <code>not installed on this machine</code>.</p>
+<p>The report names <code>hook:</code>, an explicit <code>session:</code> when supplied, <code>catalogue:</code>, the recorded <code>command:</code>, the executed <code>program:</code>, <code>exit:</code> or <code>spawn:</code>, the first diagnostic line under <code>answer:</code>, and <code>verdict:</code>. The verdict distinguishes usable, unusable with the dependency failure, and not installed on this machine. An absent catalogue command returns before execution and says that nothing could be asked.</p>
 <p>The hook is asked with the same activation payload the session path sends, so a hook that already understands the session preflight answers this command the same way.</p>
+<p>For <code>check-open-items-with-model</code>, a usable response means the authoritative Oko ledger was read. Its answer separately includes <code>completionAllowed</code> and <code>pendingTasks</code>; usable does not mean unfinished work may be called complete. The actual Stop hook refuses those tasks and names the <code>oko-cli transcripts tasks verify --before-stop --session SESSION_ID</code> command for independent qualification after delivery.</p>
 <p>Exit is <code>0</code> for a usable hook, and <code>1</code> when the hook answered with an infrastructure failure or the catalogue records no command for it. An absent binary exits <code>0</code>: a hook that is not installed yet is not a broken hook.</p>
 <h2>Refusals and failures</h2>
 <p>There are no policy refusals: nothing is changed. A registry that cannot be read prints <code>enforcement: &lt;error&gt;</code> and exits <code>1</code>. An id the installed registry does not declare is still probed if the catalogue records a command for it, and the <code>catalogue:</code> line says it is unknown.</p>

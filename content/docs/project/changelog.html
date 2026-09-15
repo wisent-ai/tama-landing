@@ -27,7 +27,7 @@
 <li>Local setup and emergency commands now drain output concurrently, enforce bounded output and runtime, and terminate their process tree on timeout.</li>
 <li>Leaving the authenticated control surface cancels active repository scan or cleanup process trees and requires inspection plus a new read-only scan after partial cleanup.</li>
 <li>Product and hook-release identities are displayed separately.</li>
-<li>OMP session-control reload actions use the documented v2 identity, persist checksum-bound hook state, and schedule one native runtime reload after the active agent turn settles; the desktop waits for the matching authoritative response and distinguishes a scheduled reload from a stale or failed runtime.</li>
+<li>OMP session-control reload operations await the common native hook engine and expose its observed generation or exact failure, without inserting a prompt or restarting the agent. A legacy adapter needs one command-handler reload before it can use this path.</li>
 <li>Per-session controls now expose only policy-permitted enable operations and wait for the live supervisor response; the desktop no longer offers or optimistically reports prohibited hook disablement.</li>
 <li>The interface is organized by operator decision rather than by data container: a grouped sidebar of eight destinations, a 44 pt context bar on every screen instead of a hero header, three-zone data screens with counted facet rails and inspectors, and the repository under repair selected once in the sidebar header.</li>
 <li>Disabling every managed hook, repairing violations with a headless agent, and deactivating local enforcement now open a decision dialog that quotes the exact effect, lists what it touches, and keeps the safe verb as the primary button.</li>
@@ -35,6 +35,8 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li>Completion enforcement now reads Oko's authoritative task ledger using the native OMP session identity. It preserves every executable open request and consumes independent saved verdicts rather than allowing a second Tama model to overrule them. Activation names ledger availability and pending work separately; unavailable evidence fails closed.</li>
+<li>Real OMP completion journeys retain actual Brama exchanges, tool results, source identities and persisted task verdicts. They cover real delivery, refusal beyond the host's advisory continuation cap and explicit interruption. The host fix is a separate OMP dependency, not implied by installing hooks.</li>
 <li>OMP session records and overrides now use the documented v2 <code>agentId</code> identity, allowing the desktop to discover live sessions and exchange validated controls; a legacy-only v1 state now produces an actionable runtime-reinstall diagnostic instead of an unexplained empty session list.</li>
 <li>Session-discovery failures remain visible instead of being represented as an empty successful result.</li>
 <li>Optional violation tooling no longer depends on a hard-coded maintainer directory.</li>

@@ -99,20 +99,16 @@ session tools: <code>tama_set_session_hook</code>,
 states that session hook disablement is prohibited.</li>
 </ul>
 <h2>Reload support and refusals</h2>
-<p>The deferred reload tool requires OMP to expose <code>ctx.requestReload</code>.
-When that API is unavailable, it returns
-<code>OMP does not expose deferred runtime reload requests</code>; the runtime
-keeps <code>reloadPending: false</code> and continues using the previously loaded
-release. Installing a new release does not repair that missing API or make
-the running session use the new code.</p>
-<p>The existing <code>/tama_reload_hook_runtime</code> slash command uses OMP's
-command-handler <code>ctx.reload()</code> instead. Run it in the same session to
-reload without restarting the process; it does not enable every hook or lift
-the global emergency disable. Then read <code>tama_hook_runtime_status</code>:
-the installed and loaded release ids and checksums must match, and each
-requested hook must be present in the effective enabled ids. A queued request,
-successful installation, or unchanged process id alone does not prove that
-the new rules are running.</p>
+<p>The reload tool and slash command await the native shared engine's reload;
+they do not insert a prompt or restart OMP. Registry validation failure retains
+the preceding generation and returns the actual path and error. Installation
+does not replace JavaScript already loaded by a legacy OMP adapter. Only that
+initial transition needs <code>/tama_reload_hook_runtime</code> through OMP's
+command handler; later reloads use the native operation directly.</p>
+<p>Read <code>tama_hook_runtime_status</code> after the operation. Installed and
+loaded identities and checksums must match, and the requested hooks must be
+effectively enabled. Neither an installed file nor an unchanged process id
+proves the new rules ran. Reload never lifts the global emergency disable.</p>
 <h2>Completion hooks enabled through this control</h2>
 <p>Installed prompt text can tell an agent to keep working, but prose does not
 execute the completion contract. A completion rule runs only when its
@@ -120,24 +116,22 @@ registered Stop hook is enabled and the runtime dispatches that event. For
 the repaired completion contract, <code>block-stop-with-open-work</code> deterministically
 replays the latest successful tracker snapshot and subsequent successful
 tracker calls, then blocks while any item remains pending or in progress.
-<code>check-open-items-with-model</code> independently sends the real user messages,
-bounded current-turn tool evidence, and proposed final response to Tama's
-existing objective reviewer.</p>
-<p>The reviewer must block for even one executable unfinished item or one task
-error without later evidence of repair. It passes completed work, a requested
-read-only/direct answer, work the user explicitly stopped or restricted, and
-work whose only remainder is genuinely external and unavailable. It does not
-treat a heading, a success claim, or the proposed final response as proof.</p>
-<p>The reviewer keeps the existing settings: credentials are read through
-Skarbiec from <code>tama-objective-authority-model-router</code> and
-<code>agent:wisent-app</code>; Brama defaults to
-<code>https://brama.wisent.com/v1/chat/completions</code> with model route
-<code>-best</code>, agent identity <code>wisent-app</code>, temperature <code>0</code>,
-<code>max_tokens: 160</code>, a 3-second connect timeout, and a 25-second total
-timeout. Missing transcript or credentials, transport/HTTP failure, and an
-invalid verdict are not silent permission: the hook prints
-<code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code> and exits
-<code>70</code>.</p>
+<code>check-open-items-with-model</code> reads the authoritative Oko task ledger
+for the native OMP session id. It does not run a second model to overrule Oko.
+Every executable task still marked <code>not done</code> blocks completion,
+including older requests outside the most recent conversation window.</p>
+<p>After delivering and checking the actual result, run
+<code>oko-cli transcripts tasks verify --before-stop --session SESSION_ID</code>.
+Oko independently judges the saved answer and tool results through Brama and
+persists its verdict. A claim, heading, tracker update or operator
+acknowledgement is not a replacement. A qualified external obstacle allows an
+honest blocked report, not a claim that the work was completed.</p>
+<p>A missing session identity, transcript, ledger or valid task status prints
+<code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code>
+and exits <code>70</code>. Activation checks ledger availability separately
+from permission to finish and reports pending tasks. The hook's existing id
+is unchanged; see <a href="../../hook-system/enforcement-control.md">completion
+enforcement</a> for the real-session qualification and required OMP behavior.</p>
 <h2>Not to be confused with</h2>
 <ul>
 <li><strong>Disabling.</strong> The opposite direction exists only as the machine-global,
@@ -149,6 +143,6 @@ hooks that run. They travel in the same session record and are otherwise
 independent.</li>
 <li><strong>Installing.</strong> Outside global emergency disable, enable-all binds its
 override to the installed release and checksum, but it does not install
-anything; a session running an older release needs the reload that enable-all
-schedules, not a new install.</li>
+anything; a session running an older hook release needs the native reload,
+not a new install.</li>
 </ul>
