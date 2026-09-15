@@ -9,7 +9,7 @@
 <tbody>
 <tr><td><code>--root &lt;PATH&gt;</code></td><td>Repeatable, and required at least once. Each value is a directory whose checkouts are walked. There is deliberately no default root</td></tr>
 <tr><td><code>--except &lt;PATH&gt;</code></td><td>Repeatable. The path of one copy to leave completely alone: neither removed, nor counted as removable, nor able to refuse the pass</td></tr>
-<tr><td><code>--only &lt;PATH&gt;</code></td><td>Repeatable. Narrows the pass to the copies it names and accepts each as removable even when it is the sole checkout of its repository here. Not combinable with <code>--except</code></td></tr>
+<tr><td><code>--only &lt;PATH&gt;</code></td><td>Repeatable. Walks only the named copy subtrees and the canonical repository headers needed to identify their owners. Accepts each named copy as removable even when it is the sole checkout of its repository here. Not combinable with <code>--except</code></td></tr>
 <tr><td><code>--apply</code></td><td>Performs the removal. Without it the command previews and mutates nothing</td></tr>
 <tr><td><code>--force</code></td><td>Overrides copy safety refusals, including uncommitted changes and unpublished history. It never overrides an incomplete directory walk, an unknown selection, or a filesystem deletion error</td></tr>
 <tr><td><code>--json</code></td><td>Prints the exact document below instead of the text report, in both preview and applied mode</td></tr>
@@ -48,6 +48,24 @@ refused.</p>
 usage error, and a value of either that matches no copy the pass found is
 one too: a pass the operator believed narrowed must not quietly become a
 pass over everything.</p>
+<h2>What a named removal reads</h2>
+<p>With <code>--only</code>, Tama inspects Git headers at each root and its direct
+children to establish canonical ownership, then walks the named copy subtrees.
+It does not descend into unrelated subtrees. An unreadable cloud folder
+elsewhere under a broad root cannot prevent removal of an explicitly named,
+fully readable copy. A read failure in a selected subtree or in the required
+canonical discovery still stops the whole pass, including with
+<code>--force</code>.</p>
+<p>For example, with a canonical checkout at <code>/workspace/repo</code> and its
+dependency copy at <code>/workspace/repo/vendor/copy</code>, preview and then
+remove just that copy:</p>
+<pre><code>tama copies remove --root /workspace --only /workspace/repo/vendor/copy --json
+tama copies remove --root /workspace --only /workspace/repo/vendor/copy --apply --json
+</code></pre>
+<p>These are example paths; use existing directories on your machine.
+<code>copies list</code> and removal without <code>--only</code> still walk the
+entire named roots. A successful named removal proves nothing about copies
+outside its selected subtrees.</p>
 <h2>Output document</h2>
 <p>Under <code>--json</code>, the <a href="../list/"><code>list</code></a> document plus four
 fields, with the same schema version:</p>
@@ -60,10 +78,10 @@ the pass deliberately left alone; those copies appear in neither
 <code>reason</code> identifies the safety refusal. <code>--force</code> empties
 <code>refused</code>, but does not turn an incomplete walk or failed deletion
 into success.</p>
-<p><code>unreadableDirectories</code> is the <a href="../list/"><code>list</code></a>
-report of what the walk could not read, and it ends this pass the same way an
-outstanding refusal does: an all-or-nothing removal cannot be
-all-or-nothing over a tree it could not see, so a pass carrying one of these
+<p><code>unreadableDirectories</code> reports failures in this request's required
+walk: the full roots for an unrestricted pass, or canonical discovery and
+selected subtrees with <code>--only</code>. An all-or-nothing removal cannot be
+all-or-nothing over a selected tree it could not see, so a pass carrying one of these
 answers <code>"applied":false</code>, <code>"removed":[]</code>, prints
 <code>could not read &lt;path&gt;: &lt;reason&gt;</code> followed by <code>this pass could
 not read N directories under the roots, so it cannot say what they hold;

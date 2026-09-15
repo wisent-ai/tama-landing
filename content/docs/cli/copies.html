@@ -53,10 +53,15 @@ names and accepts them as removable even when they are the sole checkout of
 their repository here — every refusal that protects history still applies to
 them. They are two answers to the same question, so a command carrying both
 is a usage error, and so is a value that matches no copy the pass found.</p>
+<p>A named pass reads canonical repository headers at the roots and their
+direct children, then walks only the named copy subtrees. It does not descend
+into unrelated directories. Read failures within that required scope still
+prevent every deletion, even with <code>--force</code>; a successful named pass
+is not a complete inventory of the roots.</p>
 <h2>Two checkouts of one repository, both at the top</h2>
-<p>Two directories directly under a root can share an origin: on this machine
-<code>Wisent/wisent-compute</code> and <code>Wisent/stado</code> are both checkouts of
-<code>github.com/wisent-ai/stado</code>. A pass reports that pair and removes
+<p>Two directories directly under a root can share an origin: for example,
+<code>Wisent/wisent-compute</code> and <code>Wisent/stado</code> can both be checkouts
+of <code>github.com/wisent-ai/stado</code>. A pass reports that pair and removes
 neither, because which one to keep is the operator's call and a sort order
 would have deleted 69 GB of the tree the product is built from.</p>
 <h2><code>--root</code> has no default, deliberately</h2>
@@ -67,7 +72,7 @@ it is a usage error, not a full-machine walk:</p>
 <p>The named root itself is a canonical checkout, never a candidate: naming one
 repository as the root reports the clones inside it, not the repository.</p>
 <h2>Discovery and authority</h2>
-<p>The deep repository walk includes every named root and ignores no directory
+<p>For <code>list</code> and unrestricted removal, the deep repository walk includes every named root and ignores no directory
 name except Git's <code>.git</code> metadata. Package-manager checkouts,
 submodules and bare Git caches are included. Content scans keep their own
 filtered walk; they do not decide what a cleanup inventory may omit.

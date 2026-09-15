@@ -36,9 +36,14 @@ absent — the one refusal an operator can answer — and travels as
 travel together, so claiming clears every kept mark, and the screen says so
 in both lists. Changing a mark, a root, or the override drops the preview:
 an apply must never run against a plan that no longer describes it.</p>
+<p>A claimed pass reads canonical repository headers at the roots and their
+direct children, then walks only the claimed subtrees. Unrelated cloud or
+media folders are not traversed. The ordinary scan and an unclaimed removal
+still walk all roots; a successful claimed removal is not evidence that no
+other copies remain.</p>
 <p><code>Remove past every refusal (--force)</code> is off until it is turned on, because
 it is the difference between a safety refusal and deleted history. It does
-not override an unreadable directory, an unknown selection or a deletion error.</p>
+not override an unreadable directory in the required walk, an unknown selection or a deletion error.</p>
 <h2>What the screen never removes</h2>
 <p>Linked worktrees are counted and named, not removed: git tracks those and
 the <a href="../../cli/worktrees/">Worktrees</a> surface owns them. Two
