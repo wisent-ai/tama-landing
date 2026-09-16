@@ -30,6 +30,14 @@ protects dangling commits and annotated tags, not only current branches.
 A proven candidate does not need <code>--force</code> merely because its
 remote-tracking refs or origin are absent. A missing owner still requires
 <code>--only</code>; dirty files and owned worktrees remain refusals.</p>
+<p>A repository with a failed working-tree or history read remains in the inventory.
+<code>inspectionError</code> records the failed Git command and its error;
+<code>dirty</code> or <code>unpublished</code> is null when that observation failed.
+Normal removal refuses it with <code>unreadable-git-state</code>:
+<code>&lt;path&gt; has unreadable Git state; inspect the reported Git error before forcing removal.</code>
+An explicit <code>--force</code> overrides this safety refusal, including for
+a checkout whose alternate object store has disappeared. It does not override
+failure to identify the directory as a repository or filesystem errors.</p>
 <p>The pass is all-or-nothing: with any refusal outstanding an <code>--apply</code>
 removes none of the copies it selected, so Tama never deletes the first
 three and then discovers the fourth carries work. Immediately before each
@@ -38,8 +46,11 @@ dirty working tree, newly owned worktrees or lost retention proof stops
 further deletion. A symlink, a path outside the named roots or an unreadable
 Git state is an operational failure rather than a deletion.</p>
 <p>When selected copies contain other selected copies, descendants are removed
-before their parents. A refusal is checked before any deletion starts;
-filesystem errors during deletion are operational failures, not rollback
+before their parents. Shared Git checkouts are removed before selected stores
+that supply their alternate objects, including SwiftPM bare caches. Tama plans
+this order before deleting anything; cyclic dependencies refuse the pass with
+<code>selected copies have cyclic directory or Git object-store dependencies; nothing was removed</code>.
+Filesystem errors during deletion are operational failures, not rollback
 guarantees. Run <code>copies list</code> again to inspect the remaining state.</p>
 <h2>Sparing with <code>--except</code>, claiming with <code>--only</code></h2>
 <p><code>--except</code> is the operator's exclusion: an excepted copy is dropped from

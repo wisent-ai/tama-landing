@@ -31,6 +31,11 @@ command's refusal sentence. <code>Git history retained by</code> names the
 canonical checkout whose independent, referenced objects preserve that history.
 This proof removes the history and missing-origin refusals, but does not
 override dirty files or replace an explicit claim when the owner is unknown.</p>
+<p>A failed Git observation shows <code>Unreadable Git state</code>, never
+<code>Clean</code>. The inspector's <code>Git inspection error</code> field
+shows the actual failed command and error. Normal removal refuses this row;
+the explicit force override may remove it without a history or working-tree
+proof. Repository identification and filesystem errors remain failures.</p>
 <h2>Keeping and claiming</h2>
 <p><code>Keep</code> marks a copy to leave alone and travels as <code>--except</code>: it is
 neither removed nor refused. <code>Claim</code> appears only on a row whose owner is
@@ -67,8 +72,10 @@ preview reported, states how much apparent size comes back, and names the
 override and every mark in force. Refusals and unreadable directories are
 checked before any deletion starts. Each deletion checks the current Git
 state and retention proof again. Nested selections are removed before
-their parents; an operational error is not a rollback guarantee. A clean pass
-re-reads the tree afterwards and keeps the removed list on screen.</p>
+their parents, and shared checkouts before selected Git object stores.
+Cyclic dependencies refuse the pass before deletion. An operational error
+is not a rollback guarantee. A clean pass re-reads the tree afterwards
+and keeps the removed list on screen.</p>
 <p>Control is required for this destination: a signed-out operator does not see
 it, rather than seeing a dead row.</p>
 <p>Return to the <a href="../../desktop/">desktop application</a> or the
