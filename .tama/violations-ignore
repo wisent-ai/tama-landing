@@ -19,9 +19,14 @@
 src/content/
 src/styles/
 #
-# The fonts. A family ships one file per weight and width, the foundry
-# decides how many, and the CSS references each by that exact name.
+# The served files. Everything under public/ is reachable at its own URL, so a
+# file's path is its address: moving one into a sub-folder changes the link
+# that points at it. A font family ships one file per weight and width and the
+# foundry decides how many; a documentation figure or a roadmap diagram is one
+# image per thing explained, and the page that shows it names the path.
 public/fonts/
+public/docs/
+public/images/
 #
 # The page directory. Its file names are Next's contract, not a module
 # layout: layout.tsx and page.tsx are the route, robots.ts and sitemap.ts are
