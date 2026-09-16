@@ -216,6 +216,32 @@ alternatives, cause, observed state and condition for resumption. Tama rejects
 a prose-only reason, unmatched receipt, missing operation or unchecked alternative.
 The refusal names the original task and the observations still required;
 a worker's claim or local “blocked” flag never grants permission to stop.</p>
+<h3>An operator stop order</h3>
+<p>Every guard above releases the turn only through a tool call: finish the
+tracker, read the ledger, treat a denial, record evidence. When the operator
+has written <code>nie koduj</code> (or <code>do not code</code>, <code>nic nie rob</code>,
+<code>stop coding</code>, a bare <code>stop</code>), every tool call is forbidden, so on
+2026-09-16 a session answered forty turns with the same three lines while
+the guards refused each one. Since then <code>block-stop-with-open-work</code>,
+<code>block-stale-assignment</code>, <code>block-untreated-block-stop</code>,
+<code>block-stop-with-claimed-work</code>,
+<code>block-stop-after-unresolved-hook-defect</code> and
+<code>check-open-items-with-model</code> stand down while a stop order stands, and
+print <code>&lt;hook&gt;: the operator's stop order stands ("…"); ending the turn obeys it, so this guard does not refuse it.</code>
+on stderr so the release is visible in the hook evidence.</p>
+<p>The order stands from the operator's newest such message until the operator
+gives a new task — a message Oko records in the session's ledger. Questions,
+remarks and repeated stop orders in between do not lift it; a local tracker
+entry never does. Without a readable ledger only the newest operator message
+decides, so an unreadable Oko cannot revive a lifted order. Harness-injected
+user-role records (todo reminders, hook continuations, attribution
+<code>agent</code>) are not the operator speaking. The phrase list lives in
+<code>tama_hook_tools::assignment::stop_order</code>; a new form is added in a commit
+that quotes the message that needed it.</p>
+<p>The real journey is <code>tests/assignment/assignment.test.ts</code> (<code>bun run
+test:assignment</code>): an open tracker item blocks, the order lets the turn end,
+questions do not lift it, a task Oko records lifts it and the guard refuses
+again naming the item, and a missing ledger falls back to the newest message.</p>
 <p>Oko keeps diagnosis and resumption in its own ledger. Five unsuccessful rounds
 trigger diagnosis, not a demand for a person. The Tasks screen shows the same
 cause, checked operations, resumption condition and next automatic check as the CLI.
