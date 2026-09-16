@@ -23,20 +23,25 @@ distinguish them. Linked worktrees appear once under <code>linkedWorktrees</code
 and belong to <a href="../../worktrees/list/"><code>tama worktrees list</code></a>;
 submodule checkouts remain copy candidates. Bare repositories are recognized
 by Git and have no working-tree changes, but their history is still checked.</p>
-<p>The pass checks working-tree changes, commits at <code>HEAD</code> and on
-local branches that are absent from remote-tracking refs, and the
-<code>origin</code>. A detached checkout's unpublished commit is protected.
-Bare mirrors may lack remote-tracking refs, so their local history is
-conservatively refused without <code>--force</code>; this is not a network
-check. Ownership uses canonical checkouts from every named root, regardless
-of root order, including an origin naming a canonical checkout's local path.</p>
+<p>The pass checks working-tree changes, the <code>origin</code>, and every
+stored Git object, including dangling commits and annotated tags. Remote-tracking
+refs remain a local record, not a network check. When they do not retain the
+history, Tama looks for a canonical checkout whose refs reach every stored object.
+That checkout must use its own object storage, without alternates or symlinks.
+The result is named in <code>historyRetainedBy</code>; <code>null</code> means
+no such proof was established. Missing objects or failed history reads do not
+become a clean result. Git's lazy fetching is disabled.</p>
+<p>Ownership still follows origins, not merely shared history. A retention
+proof does not claim that two differently named repositories are the same.
+An owner-less candidate still needs an explicit <code>--only</code> claim.
+Canonical checkouts from every named root contribute, regardless of root order.</p>
 <p>An initialized repository without commits is readable. Damaged metadata
 never borrows the enclosing repository's history: Git must identify the
 candidate itself, or the pass reports it under <code>unreadable</code>.</p>
 <h2>Output document</h2>
 <p>Under <code>--json</code>, exactly these fields, with the schema version the whole
 copies contract is fixed at:</p>
-<pre><code>{"schemaVersion":Number,"roots":[String],"copies":[{"path":String,"owner":String|null,"origin":String|null,"bytes":Number,"dirty":Boolean,"unpublished":Boolean,"ownsWorktrees":Boolean,"named":Boolean}],"copyCount":Number,"bytes":Number,"linkedWorktrees":[String],"twins":[{"path":String,"twin":String,"origin":String}],"unreadable":[String],"unreadableDirectories":[{"path":String,"reason":String}]}
+<pre><code>{"schemaVersion":Number,"roots":[String],"copies":[{"path":String,"owner":String|null,"origin":String|null,"bytes":Number,"dirty":Boolean,"unpublished":Boolean,"historyRetainedBy":String|null,"ownsWorktrees":Boolean,"named":Boolean}],"copyCount":Number,"bytes":Number,"linkedWorktrees":[String],"twins":[{"path":String,"twin":String,"origin":String}],"unreadable":[String],"unreadableDirectories":[{"path":String,"reason":String}]}
 </code></pre>
 <p><code>roots</code> echoes the roots you passed, resolved. <code>owner</code> is the canonical
 checkout of the same repository under those roots, or <code>null</code> when this
@@ -59,8 +64,8 @@ modes.</p>
 <code>{"roots":[String]}</code> on the loopback desktop backend
 (<a href="../../serve/"><code>tama serve</code></a>).</p>
 <h2>State effect</h2>
-<p>None. The command walks directories and runs <code>git status</code>,
-<code>git log</code> and <code>git remote get-url</code>, all read-only, and it has no
+<p>None. The command walks directories and runs read-only Git status, ref,
+object and origin queries. It does not fetch missing objects, and it has no
 <code>--apply</code>, no <code>--force</code>, no <code>--except</code> and no <code>--only</code>: those belong
 to <a href="../remove/"><code>tama copies remove</code></a>, which is the only leaf
 with anything to spare, narrow or delete.</p>
@@ -71,7 +76,7 @@ with anything to spare, narrow or delete.</p>
 <p>A root that cannot be read is reported in
 <code>unreadableDirectories</code> with the operating system's own reason, and the
 command exits <code>1</code> rather than reporting a clean tree it never walked.
-This leaf has no other refusal: it never asks whether a copy may be removed,
-which is <a href="../remove/"><code>tama copies remove</code></a>'s boundary.</p>
+A failed history query is an operational error and names the actual failed read.
+Safety refusals belong to <a href="../remove/"><code>tama copies remove</code></a>.</p>
 <p>Return to <a href="../">the copies command group</a> or the
 <a href="../../">complete CLI tree</a>.</p>

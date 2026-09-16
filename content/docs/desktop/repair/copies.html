@@ -5,8 +5,8 @@ deletes them. The engine is the sealed CLI's <code>copies</code> group
 backend's <code>POST /v1/copies/list</code> and <code>POST /v1/copies/remove</code>, so the
 screen and the terminal cannot disagree about what a pass would do.</p>
 <p>The inventory includes dependency checkouts under package-manager and build
-directories, submodule checkouts, and bare Git caches. A detached checkout's
-unpublished commit is protected just like a local branch. Roots contribute
+directories, submodule checkouts, and bare Git caches. All stored Git history is
+checked, including dangling commits and annotated tags. Roots contribute
 their canonical repositories together, so their order does not change
 ownership. Linked worktrees appear only once, under their primary repository.</p>
 <h2>Scope, header, refusals</h2>
@@ -25,9 +25,12 @@ order the decision is made: <code>Add root…</code>, <code>Scan</code>, <code>P
 <p>One row per copy: its path, the checkout it duplicates (<code>OF</code>), its
 apparent size, its state, and what this pass would do with it. The state
 chip carries the same facts the refusals are made of — uncommitted changes,
-commits on no remote, no origin, only checkout here, owns worktrees — and a
-clean row reads <code>Clean</code>. The inspector adds the origin, the size and the
-command's own refusal sentence when there is one.</p>
+history not retained, no origin, only checkout here, owns worktrees — and a
+clean row reads <code>Clean</code>. The inspector adds the origin, size and
+command's refusal sentence. <code>Git history retained by</code> names the
+canonical checkout whose independent, referenced objects preserve that history.
+This proof removes the history and missing-origin refusals, but does not
+override dirty files or replace an explicit claim when the owner is unknown.</p>
 <h2>Keeping and claiming</h2>
 <p><code>Keep</code> marks a copy to leave alone and travels as <code>--except</code>: it is
 neither removed nor refused. <code>Claim</code> appears only on a row whose owner is
@@ -36,9 +39,9 @@ absent — the one refusal an operator can answer — and travels as
 travel together, so claiming clears every kept mark, and the screen says so
 in both lists. Changing a mark, a root, or the override drops the preview:
 an apply must never run against a plan that no longer describes it.</p>
-<p>A claimed pass reads canonical repository headers at the roots and their
-direct children, then walks only the claimed subtrees. Unrelated cloud or
-media folders are not traversed. The ordinary scan and an unclaimed removal
+<p>A claimed pass reads canonical repository headers and any object storage
+needed for its retention proof, then walks only the claimed subtrees.
+Unrelated working trees are not traversed. The ordinary scan and an unclaimed removal
 still walk all roots; a successful claimed removal is not evidence that no
 other copies remain.</p>
 <p><code>Remove past every refusal (--force)</code> is off until it is turned on, because
@@ -62,8 +65,9 @@ holds no second checkouts, and the answer was quoted as proof.</p>
 outstanding. It opens a confirmation that lists exactly the paths the
 preview reported, states how much apparent size comes back, and names the
 override and every mark in force. Refusals and unreadable directories are
-checked before any deletion starts. Nested selections are removed before
-their parents; a filesystem error is not a rollback guarantee. A clean pass
+checked before any deletion starts. Each deletion checks the current Git
+state and retention proof again. Nested selections are removed before
+their parents; an operational error is not a rollback guarantee. A clean pass
 re-reads the tree afterwards and keeps the removed list on screen.</p>
 <p>Control is required for this destination: a signed-out operator does not see
 it, rather than seeing a dead row.</p>

@@ -19,18 +19,24 @@
 <p>A copy goes by deleting its directory, so the pass asks git first, and each
 answer is a refusal with its own sentence:</p>
 <pre><code>&lt;path&gt; has uncommitted changes; commit them there, then run the pass again.
-&lt;path&gt; holds commits that are on no remote; push them from there, then run the pass again.
+&lt;path&gt; holds Git history without a remote-tracking or canonical retention proof; retain that history before removing this directory.
 &lt;path&gt; has no origin remote, so this pass cannot prove its history exists anywhere else.
 &lt;path&gt; is the only checkout of its repository under the roots given, so it is not a copy of anything.
 &lt;path&gt; owns linked worktrees; remove those first with 'tama worktrees remove --root &lt;PATH&gt; --apply'.
 </code></pre>
+<p><code>historyRetainedBy</code> names a canonical checkout whose independent,
+referenced Git objects retain every stored object in the candidate. This
+protects dangling commits and annotated tags, not only current branches.
+A proven candidate does not need <code>--force</code> merely because its
+remote-tracking refs or origin are absent. A missing owner still requires
+<code>--only</code>; dirty files and owned worktrees remain refusals.</p>
 <p>The pass is all-or-nothing: with any refusal outstanding an <code>--apply</code>
 removes none of the copies it selected, so Tama never deletes the first
 three and then discovers the fourth carries work. Immediately before each
-deletion the filesystem is checked again — the reads behind a document are
-minutes old by the time an operator types <code>--apply</code> — and a path that is a
-symlink, or that no longer lies under the roots given, is an operational
-failure rather than a deletion.</p>
+deletion the filesystem and Git state are checked again. A changed origin,
+dirty working tree, newly owned worktrees or lost retention proof stops
+further deletion. A symlink, a path outside the named roots or an unreadable
+Git state is an operational failure rather than a deletion.</p>
 <p>When selected copies contain other selected copies, descendants are removed
 before their parents. A refusal is checked before any deletion starts;
 filesystem errors during deletion are operational failures, not rollback
@@ -42,16 +48,15 @@ is not part of. <code>--only</code> is the opposite move: it narrows the pass to
 paths it names and answers the one question the pass cannot answer for
 itself — whether losing a directory that is the sole checkout of its
 repository here loses anything the operator wants. It answers nothing else:
-a claimed copy that is dirty, unpushed or without an origin is still
-refused.</p>
+a claimed copy with dirty files or unretained history is still refused.</p>
 <p>They are two answers to the same question, so a command carrying both is a
 usage error, and a value of either that matches no copy the pass found is
 one too: a pass the operator believed narrowed must not quietly become a
 pass over everything.</p>
 <h2>What a named removal reads</h2>
 <p>With <code>--only</code>, Tama inspects Git headers at each root and its direct
-children to establish canonical ownership, then walks the named copy subtrees.
-It does not descend into unrelated subtrees. An unreadable cloud folder
+children and, when needed, their referenced objects and object storage to prove
+retention. It walks only the named copy subtrees, not unrelated working trees. An unreadable cloud folder
 elsewhere under a broad root cannot prevent removal of an explicitly named,
 fully readable copy. A read failure in a selected subtree or in the required
 canonical discovery still stops the whole pass, including with
