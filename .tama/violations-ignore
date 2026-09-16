@@ -1,0 +1,45 @@
+# landing-cli:start
+# Written by @wisent-ai/landing-cli with the site. Audit exclusions for
+# `tama find-violations`: paths fixed by something outside this project.
+#
+# The repository root. npm reads package.json and package-lock.json, tsc
+# reads tsconfig.json, Next reads next.config.ts and rewrites next-env.d.ts
+# on every build, the design lint reads .wisent-design-lint.json, git reads
+# .gitignore, GitHub reads README.md, and landing-cli reads the brief, the
+# config, the component plan, the plan and the manifest as landing.*.json in
+# the site root. The stylesheet is emitted as parts under src/styles and the
+# page code under src/app, so nothing here is a module that could move.
+.
+#
+# The generated content. src/content holds the brief-derived JSON the page
+# reads at build time — one file per kind, each replaced whole on every run —
+# and src/styles holds the stylesheet parts. Neither is a folder somebody
+# navigates by hand, and a sixth kind of content is not a reason to invent a
+# sub-folder the reader would then have to follow.
+src/content/
+src/styles/
+#
+# The fonts. A family ships one file per weight and width, the foundry
+# decides how many, and the CSS references each by that exact name.
+public/fonts/
+#
+# The page directory. Its file names are Next's contract, not a module
+# layout: layout.tsx and page.tsx are the route, robots.ts and sitemap.ts are
+# the two files Next serves from those names, and the icons are served from
+# theirs. Nested routes are already sub-folders.
+src/app
+#
+# One stylesheet, emitted whole. A site generated before the stylesheet was
+# split into parts carries it here and its layout imports it, so its length
+# is the length of the design tokens plus the component rules that page uses.
+# A site generated now has the parts under src/styles instead and no file at
+# this path at all.
+src/app/globals.css
+#
+# The documentation. The docs pipeline shares this repository with the
+# landing page: it writes src/app/docs and the content modules under
+# src/lib/docs, where a page is a document rather than a module — its length
+# is the length of the documentation it carries, and it is replaced whole on
+# every publish. The same reasoning the operator applied to manuscripts.
+src/lib/docs/
+# landing-cli:end
