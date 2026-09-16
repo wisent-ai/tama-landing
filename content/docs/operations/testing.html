@@ -35,11 +35,17 @@ risk before the command.</p>
 <h2>Required suites</h2>
 <h3>Swift contract suite</h3>
 <p>Command, after explicit human test approval:</p>
-<pre><code class="language-bash">swift test
+<pre><code class="language-bash">wisent-products swift --package-path ~/Documents/CodingProjects/Wisent/tama-desktop test \
+  --test-product TamaDesktopPackageTests \
+  --filter 'JustificationRegistryTests|SessionControlClientTests|ViolationsClientTests'
 </code></pre>
-<p>Scope: deterministic package tests under <code>Tests/TamaDesktopTests</code>. Side effects: SwiftPM
-resolution/cache and build artifacts under <code>.build</code>. This suite proves only the four tabled
-contracts.</p>
+<p>Scope: the selected deterministic tests under
+<code>tama-desktop/Tests/TamaDesktopTests</code>. The canonical builder uses the
+existing source checkouts and writes its workspace, command records and build
+artifacts under the package's <code>.build</code> and
+<code>.wisent-output/native</code> directories. Missing canonical sources are
+refused rather than cloned. This selection proves only the four tabled
+contracts, not signed-app or SourceKit editor qualification.</p>
 <h3>Signed build contract</h3>
 <p>Command, after explicit approval and with dedicated release credentials:</p>
 <pre><code class="language-bash">TAMA_INSTALL_AFTER_BUILD=no \

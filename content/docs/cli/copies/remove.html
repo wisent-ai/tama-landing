@@ -66,6 +66,25 @@ tama copies remove --root /workspace --only /workspace/repo/vendor/copy --apply 
 <code>copies list</code> and removal without <code>--only</code> still walk the
 entire named roots. A successful named removal proves nothing about copies
 outside its selected subtrees.</p>
+<h2>Preventing Swift dependency copies from returning</h2>
+<p>Removal does not change the builder or editor that created a copy. Use
+<code>wisent-products swift --package-path PATH build</code> for canonical
+Swift builds. For a SourceKit workspace, <code>wisent-products swift
+--package-path PATH index</code> compiles the canonical dependency graph and
+writes a BSP connection plus SourceKit configuration. The editor reads actual
+compiler arguments and the shared index store; it does not resolve packages.</p>
+<p>Keep <code>.bsp/wisent-native.json</code> and
+<code>.sourcekit-lsp/config.json</code> with the workspace. If the generated
+compiler cache disappears, the provider reports the failed read and the
+<code>index</code> command needed to rebuild it. It does not fall back to
+cloning. A partial product build is refused for indexing, as is an existing
+unrelated build-server declaration. Existing editor sessions keep their
+loaded build system; the command does not restart them.</p>
+<p><code>--editor-workspace DIR</code> permits an isolated editor qualification
+workspace. <code>sourcekit-lsp debug index --project DIR</code> exercises that
+provider, but an indexing pass alone does not prove navigation, missing-cache
+recovery, or that an already running editor has changed providers. Verify the
+applicable editor behavior before deleting copies it may still use.</p>
 <h2>Output document</h2>
 <p>Under <code>--json</code>, the <a href="../list/"><code>list</code></a> document plus four
 fields, with the same schema version:</p>
