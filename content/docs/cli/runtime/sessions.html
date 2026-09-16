@@ -10,12 +10,29 @@ structured machine status and session array.</p>
 <h2>Output and state</h2>
 <p>Text mode begins
 <code>machine enforcement&#9;mode=&lt;mode&gt;&#9;selected=&lt;n&gt;/&lt;N&gt;&#9;ids=&lt;all or comma ids&gt;&#9;emergency-disabled=&lt;bool&gt;</code>,
-then prints each session's agent id, first 12 session-id characters, and
-loaded/registered hook state. JSON is
+then one row per record:
+<code>&lt;agent id&gt;&#9;&lt;first 12 session-id characters&gt;&#9;&lt;process state&gt;&#9;&lt;hook state&gt;</code>,
+and a closing
+<code>session records&#9;&lt;count&gt;&#9;running=&lt;n&gt;&#9;gone=&lt;n&gt;&#9;no-usable-pid=&lt;n&gt;&#9;no-runtime-report=&lt;n&gt;</code>.</p>
+<p>The process state is <code>running</code> when the recorded process id still
+answers <code>kill(pid, 0)</code>, <code>gone</code> when it does not, and
+<code>no usable pid</code> when the record carries no process id a kernel could
+accept. That last case is its own answer rather than <code>running</code>: an
+out-of-range identifier cast down to <code>-1</code> asks about every process the
+caller may signal, which succeeds and said nothing true.</p>
+<p>The hook state is <code>&lt;loaded&gt;/&lt;registered&gt;</code> for a session whose
+runtime published its counts, <code>allowlist: &lt;ids&gt;</code> while hooks are
+globally disabled and the session enabled some by name, and
+<code>no runtime report</code> for a record whose runtime never published any hook
+state. A session that has not reported is not a session with broken hooks, and
+the row says which one it is.</p>
+<p>JSON is
 <code>{&quot;machineEnforcement&quot;: &lt;status&gt;, &quot;sessions&quot;: [...]}</code>;
 the machine object has the same fields as
 <a href="../enforcement/status/">enforcement status</a>, and each session includes
-status, working directory, counts, enabled and disabled ids, and update time.
+status, working directory, process id, liveness mode,
+<code>processAlive</code> (<code>null</code> when no usable process id was recorded),
+<code>runtimeReported</code>, counts, enabled and disabled ids, and update time.
 The command only reads state.</p>
 <h2>Refusals and failures</h2>
 <p>A missing or unreadable control directory produces an empty result and exit <code>0</code>. An invalid individual JSON file is retained as a row with <code>parseError: true</code>; an unreadable file becomes <code>readError: true</code>. These records are surfaced rather than causing a command-wide refusal.</p>

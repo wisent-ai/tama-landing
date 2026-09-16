@@ -108,6 +108,30 @@ copy. An agent stopped by this gate owes the operator the exact command block
 rather than a description of it, and
 <a href="https://jeden.wisent.com/docs/cli/copy/"><code>jeden copy -</code></a>
 puts that block on their clipboard.</p>
+<h2>What counts as running a writer</h2>
+<p>The guard reads a shell payload the way a shell does. A payload is cut into
+commands at <code>;</code>, <code>|</code>, <code>&amp;</code> and newline only where
+those characters are outside quotes, so a sentence that names a writer inside a
+quoted argument — an evidence message, a commit body, a report of a refusal —
+runs nothing and is allowed. A token with spaces in it is an argument, not a
+program or a path, for the same reason.</p>
+<p>What still refuses: the writer as the command's program or script argument,
+including a quoted path (<code>node 'shared-hooks/generate-configs.mjs'
+--apply</code>); <code>tama install</code>, <code>tama enforcement only|all</code>
+and <code>oko-cli hooks install|pull</code> read from the program the command
+starts, with <code>env</code>, <code>sudo</code>, <code>nohup</code> and
+<code>timeout</code> stepped over; the same command inside an executor's argument
+(<code>bash -lc "tama enforcement all"</code>); and a command substitution, which
+is code even inside double quotes (<code>echo "$(tama install)"</code>).</p>
+<p>Reporting runs stay allowed and always did: <code>tama enforcement
+status</code>, <code>generate-configs.mjs</code> without <code>--apply</code>,
+<code>seal-registry.mjs --check</code>, <code>oko-cli hooks install
+--preview</code>. On 2026-09-16 the cut happened before the quotes were read, so
+a semicolon inside a quoted evidence message split the argument in half and the
+sentence arrived as command words: the guard refused an honest report of its own
+refusal. A rule nobody can satisfy by doing the right thing is a rule that gets
+worked around.</p>
+
 <h2>Repairing a recorded hook source</h2>
 <p><code>register-hook.mjs</code> derives a hook's <code>source</code> from its command: it
 takes the executable, drops the <code>tama-</code> prefix, turns hyphens into
