@@ -209,13 +209,20 @@ run <code>oko-cli transcripts tasks verify --before-stop --session SESSION_ID</c
 Oko's independent Brama judge reads recorded calls and tool results as well as
 the answer, then saves each verdict. A claim or tracker update cannot replace
 that qualification. A later operator correction takes precedence.</p>
-<p>Done and withdrawn tasks do not block. A saved, current Oko verdict for a
-concrete external obstacle allows an honest blocked report, not a completion
-claim. Missing identity, transcript, ledger, or recognized task status prints
+<p>Done and withdrawn tasks do not block. An unfinished task may pause only
+with Oko's qualified receipt: the matching task ordinal and request hash,
+transcript hash, actual failed call/result, independently checked permitted
+alternatives, cause, observed state and condition for resumption. Tama rejects
+a prose-only reason, unmatched receipt, missing operation or unchecked alternative.
+The refusal names the original task and the observations still required;
+a worker's claim or local “blocked” flag never grants permission to stop.</p>
+<p>Oko keeps diagnosis and resumption in its own ledger. Five unsuccessful rounds
+trigger diagnosis, not a demand for a person. The Tasks screen shows the same
+cause, checked operations, resumption condition and next automatic check as the CLI.
+Missing identity, transcript, ledger, or recognized task status prints
 <code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code>
-and exits <code>70</code>. Activation separately reports
-<code>taskLedger: available</code>, <code>completionAllowed</code> and
-<code>pendingTasks</code>; open work is not an unavailable dependency.</p>
+and exits <code>70</code>. Activation reports <code>taskLedger: available</code>,
+<code>completionAllowed</code> and <code>pendingTasks</code>; open work is not an unavailable dependency.</p>
 <p>The OMP adapter forwards an explicit <code>decision: block</code>. OMP must
 keep that refusal beyond its eight-round advisory continuation limit and give
 it priority over advisory <code>continue: true</code> results. Explicit user
@@ -223,14 +230,16 @@ interruption still stops the run; queued stop handlers must not restart it.
 The hook release and OMP host are separate dependencies. Updating hooks alone
 cannot repair an older host's continuation limit.</p>
 <p><code>tests/runtime_reload/completion_journey.test.ts</code> runs actual OMP
-sessions through Brama, the installed Tama release and Oko's persisted ledger.
-It verifies real file delivery before allowing completion, a refusal beyond
-eight rounds, and explicit interruption. Reports, source identity, commands,
-provider exchanges and native transcripts remain under
+sessions through Oko's authenticated Brama proxy, the installed Tama release and Oko's persisted ledger.
+It verifies real file delivery before allowing completion, refusal beyond eight
+rounds, explicit interruption and a genuine missing external input checked
+through both permitted paths before a qualified pause. Reports, source identity,
+commands, provider exchanges and native transcripts remain under
 <code>rust/target/completion-journey-evidence/</code>. Set
 <code>TAMA_TEST_HOOK_RELEASE</code> and <code>TAMA_OKO_CLI</code>; an explicitly
-selected source host uses <code>TAMA_TEST_OMP_SDK_ROOT</code>. A source-only
-pass does not claim that the installed OMP host has been updated.</p>
+selected source host uses <code>TAMA_TEST_OMP_SDK_ROOT</code>.
+The worker uses <code>codex/gpt-6-astra</code>; <code>TAMA_TEST_MODEL_ROUTE</code> selects another route already authorized for Oko. The test never grants access or substitutes a fake provider.
+A source-only pass does not claim that the installed OMP host has been updated.</p>
 <h3>Objective-authority diagnostics</h3>
 <p>The separate objective-authority hook invokes <code>stado secrets get &lt;item&gt; --field &lt;field&gt;</code>
 with an explicit <code>STADO_CREDENTIALS_ADMIN_URL</code>,
