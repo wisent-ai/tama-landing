@@ -9,6 +9,9 @@ if (menuButton && sidebar) {
   });
 }
 
+// How long the button says "Copied" before it offers to copy again.
+const COPIED_LABEL_MS = 1600;
+
 document.querySelectorAll('.doc-content pre').forEach((block) => {
   const button = document.createElement('button');
   button.type = 'button';
@@ -19,7 +22,7 @@ document.querySelectorAll('.doc-content pre').forEach((block) => {
     const code = block.querySelector('code')?.textContent ?? block.textContent;
     await navigator.clipboard.writeText(code);
     button.textContent = 'Copied';
-    window.setTimeout(() => { button.textContent = 'Copy'; }, 1600);
+    window.setTimeout(() => { button.textContent = 'Copy'; }, COPIED_LABEL_MS);
   });
   block.append(button);
 });
