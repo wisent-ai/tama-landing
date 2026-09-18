@@ -123,16 +123,28 @@ digest definition is in <a href="concepts/seal.md">concepts/seal</a>.</p>
 <code>codex-hooks/</code> and <code>repo-githooks/</code> with the trees from the hook checkout,
 rebuilding the native hook binaries into <code>bin/</code>; prints the staged path.</p>
 <pre><code>stage_live_hook_release.py [--source-root &lt;checkout&gt;] [--runtime &lt;installed-release&gt;]
-                           [--destination &lt;dir&gt;] [--replace]
+                           [--destination &lt;dir&gt;] [--include-bin &lt;name&gt;]...
+                           [--cargo &lt;path&gt;] [--codesign-identity &lt;id&gt;] [--codesign-timestamp &lt;url&gt;]
+stage_live_hook_release.py --release-root &lt;prepared-release&gt; [--include-bin &lt;name&gt;]...
 </code></pre>
 <p><code>--runtime</code> defaults to this machine's <code>hooks-runtime/current</code> and
 <code>--source-root</code> to the <code>tama</code> checkout beside this repository. Staging starts
 from an installed runtime, so a machine with none - or a wrong
 <code>--runtime</code> - is refused by name:
-<code>No installed hook runtime to stage from: &lt;path&gt;</code>. An existing explicit
-destination is refused with
-<code>Refusing to overwrite explicit staging destination: &lt;path&gt;</code> unless
-<code>--replace</code> is given. What to do with the staged tree afterwards is
+<code>No installed hook runtime to stage from: &lt;path&gt;</code>. Without
+<code>--destination</code> the tree is staged under the desktop checkout's
+<code>.work/inline-hook-release</code> and an earlier staging there is replaced; an
+explicit <code>--destination</code> that already exists is refused with
+<code>Refusing to overwrite explicit staging destination: &lt;path&gt;</code>, and there is no
+flag that lifts it - remove the directory first. (Until 2026-09-18 this page named a
+<code>--replace</code> flag the script does not have; the hand-over that trusted the
+page stopped on <code>unrecognized arguments</code>.) The native binaries packaged
+into <code>bin/</code> are every command the staged registry names plus the
+<code>--include-bin</code> names, which default to <code>tama-cli</code>,
+<code>tama-mcp-server</code> and <code>tama-run-hook</code>. <code>--release-root</code>
+packages the binaries into an already prepared release instead of staging one and
+cannot be combined with <code>--destination</code>. What to do with the staged tree
+afterwards is
 <a href="../hook-system/hook-releases.md#installing-a-staged-release-on-this-machine">hook-releases</a>.</p>
 <h3>package-release.sh</h3>
 <p>No arguments. Packages the immutable release candidate for the exact signed
