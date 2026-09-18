@@ -216,6 +216,40 @@ alternatives, cause, observed state and condition for resumption. Tama rejects
 a prose-only reason, unmatched receipt, missing operation or unchecked alternative.
 The refusal names the original task and the observations still required;
 a worker's claim or local “blocked” flag never grants permission to stop.</p>
+<h3>A report is not the work it describes</h3>
+<p><code>block-stop-on-own-work</code> reads the transcript at Stop — the final
+message, what the agent said and thought since the operator last spoke, and
+every earlier refusal — and refuses four endings, each quoted back in the
+refusal:</p>
+<ul>
+<li>a capacity, budget or clock nobody set, given as the reason the identified
+fix is not built (<code>remaining session capacity</code>, <code>brak czasu w tej
+sesji</code>); a limit the operator wrote in their own last message passes;</li>
+<li>a repository of this workshop, checked out under
+<code>~/Documents/CodingProjects/Wisent</code>, named under <em>Blokery</em> as the
+place the fix has to be made while <em>Następne kroki</em> says none — the
+refusal names the checkout path;</li>
+<li>the report a stop guard already refused, said again with a sentence moved
+(three-word runs compared; the refusal gives the share);</li>
+<li>a line under <em>Następne kroki</em> that hands the operator a decision or a
+go-ahead about the work (<code>Decyzja, czy budować te trzy zmiany</code>,
+<code>czy mam</code>, <code>potwierdź</code>, <code>whether to build</code>, <code>let me
+know</code>) or announces the agent's own next move (<code>Zbuduję</code>,
+<code>I will</code>). The refusal quotes the line:
+<code>block-stop-on-own-work: BLOCKED: under Następne kroki this report hands the operator a decision: "…". That decision is yours …</code></li>
+</ul>
+<p>What passes: <em>Następne kroki</em> naming the one thing only the operator
+can supply, with the captured error that proves it (<code>Poza sesją wyeksportuj
+DEVICE_HOOK_EDIT_APPROVED=1 …; odmowa: block-hook-config-edits-without-consent:
+BLOCKED</code>); a line that names a cost to approve, because money is the one
+boundary that holds; a report that says what changed since the refusal; and a
+quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
+which is a report, not a reason. Each refusal starts a new attempt: what the
+agent says after a refusal is judged on its own, so one sentence cannot refuse
+every attempt after it. The real-binary journey is
+<code>rust/crates/tama-hook-tools/tests/own_work_guard.rs</code>
+(<code>cargo test -p tama-hook-tools --test own_work_guard</code>): nine cases,
+the four refusals and the five passes above.</p>
 <h3>An operator stop order</h3>
 <p>Every guard above releases the turn only through a tool call: finish the
 tracker, read the ledger, treat a denial, record evidence. When the operator
@@ -225,7 +259,8 @@ has written <code>nie koduj</code> (or <code>do not code</code>, <code>nic nie r
 the guards refused each one. Since then <code>block-stop-with-open-work</code>,
 <code>block-stale-assignment</code>, <code>block-untreated-block-stop</code>,
 <code>block-stop-with-claimed-work</code>,
-<code>block-stop-after-unresolved-hook-defect</code> and
+<code>block-stop-after-unresolved-hook-defect</code>,
+<code>block-stop-on-own-work</code> and
 <code>check-open-items-with-model</code> stand down while a stop order stands, and
 print <code>&lt;hook&gt;: the operator's stop order stands ("…"); ending the turn obeys it, so this guard does not refuse it.</code>
 on stderr so the release is visible in the hook evidence.</p>
