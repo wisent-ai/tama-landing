@@ -109,6 +109,18 @@ through Brama or data the operator declared. Asked for on 2026-09-19 after
 the operator found such lists in Oko's task classifier, Tama's stop guards and
 Stado's quarantine classifier. Real-binary journey:
 <code>rust/crates/tama-hook-tools/tests/keyword_literals_guard.rs</code>.</p>
+<p>Only a run of words the program keeps is judged. A classifier binds its
+words to a name, iterates them, or asks the collection a question on the
+spot; words handed to a call are that call's data. So
+<code>run(["transcripts", "tasks", "show"])</code> and
+<code>spawn(bin, args, { stdio: ['ignore', 'pipe', 'pipe'] })</code> pass — the
+guard follows the collection outwards through brackets, braces and property
+keys and stops at the <code>(</code> that makes it an argument — while
+<code>const MARKERS = { words: ["ok", "okej", "zrobione"] }</code> and
+<code>["ok", "okej", "zrobione"].contains(reply)</code> are refused. Before this
+rule the guard reported a finding for the argument list of every command a
+journey runs, which is how a guard teaches people to ignore it.</p>
+
 <h2>Where a guard's own program names live</h2>
 <p>Tama's guards judge command lines, so they have to know what a shell, an
 interpreter, a wrapper and a cloud tool are called. Those names are not
