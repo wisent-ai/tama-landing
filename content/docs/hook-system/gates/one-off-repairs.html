@@ -21,14 +21,13 @@ once and was gone at the next sync, image refresh or build. The operator's answe
 <td><code>stado service restart &lt;NAME&gt;</code>, <code>stado service refresh-image &lt;LABEL&gt; --if-needed</code>;
 a unit that must change is redeclared with <code>stado service deploy|update</code>.</td></tr>
 <tr><td><code>skarbiec grant ensure|issue|add|widen|replace|revoke|rotate</code>,
-<code>skarbiec token-mint|token-revoke|reclaim</code></td>
+<code>skarbiec token-mint|token-revoke|reclaim</code> — a vault written past Stado, so nothing records the grant
+and the next replica sync removes it</td>
 <td><code>stado release catalog declare-publisher &lt;PRODUCT&gt; --owner &lt;VAULT HOST&gt; --client &lt;HOST&gt;</code>
 for a release publisher, <code>stado service grant-sync</code> for a service, <code>stado credentials grant item-read</code>
-for one read on the owner; a bearer through <code>stado credentials token mint</code> against the owner's vault.</td></tr>
-<tr><td><code>stado credentials|secrets token mint &lt;CONSUMER&gt;</code> typed by hand,
-<code>stado credentials|secrets grant item-read</code></td>
-<td>Declare the consumer where its product reads it — <code>declare-publisher</code>, <code>service grant-sync</code> —
-so the grant is minted from the declaration and <code>stado doctor</code> says when it is missing.</td></tr>
+for one read on the owner, <code>stado credentials token mint</code> for a bearer; each records against the owner's
+vault and each passes this gate. Oko's detector still lists a hand-typed <code>stado credentials token mint</code> as
+<code>credential-by-hand</code> for the judge; it is not refused, because it is the product's own route.</td></tr>
 <tr><td><code>cp</code>, <code>install</code>, <code>mv</code> or <code>ln -s</code> whose last argument is under
 <code>~/.local/bin</code>, <code>~/.stado/bin</code>, <code>~/.oko/bin</code>, <code>~/.cargo/bin</code>,
 <code>/usr/local/bin</code> or <code>/opt/homebrew/bin</code> (with <code>~</code>, <code>$HOME</code> and
