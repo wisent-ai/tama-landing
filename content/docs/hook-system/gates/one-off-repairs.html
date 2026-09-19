@@ -1,0 +1,58 @@
+<h1>One-off repairs: <code>block-one-off-repairs</code></h1>
+<p>A gate on <code>pre_tool_use:bash</code> (<code>tama-block-one-off-repairs</code>) that refuses three
+repairs made by hand against live machine state and names, in each refusal, the product command that
+owns the outcome. Every refusal starts <code>BLOCKED: one-off repair by hand.</code>, goes to stderr,
+and exits <code>2</code> before the command runs; a command the gate lets through prints nothing.</p>
+<h2>Why it exists</h2>
+<p>On 2026-09-19 Oko's one-off repair detector (<code>oko-cli transcripts one-offs</code>) read the
+week's native harness files: 243 commands in 21 sessions changed live state by hand instead of through
+a product path. Three shapes had no gate at all — 12 service cycles, 26 grants minted from the shell
+(the one on 2026-09-18 written to the replica the vault owner overwrote within the hour) and 18 binary
+copies, nine of them <code>cp .build/debug/oko-cli ~/.stado/bin/oko-cli</code>. Each fixed one machine
+once and was gone at the next sync, image refresh or build. The operator's answer to the fix plan was
+"to napraw to".</p>
+<h2>What is refused, and the route each refusal names</h2>
+<table>
+<thead><tr><th>Refused command</th><th>The route the refusal names</th></tr></thead>
+<tbody>
+<tr><td><code>launchctl kickstart|bootout|bootstrap|unload|load|stop|start|kill|disable|enable|remove</code>,
+<code>systemctl restart|stop|start|reload|kill|try-restart</code>, <code>kill &lt;pid&gt;</code>,
+<code>pkill</code>, <code>killall</code></td>
+<td><code>stado service restart &lt;NAME&gt;</code>, <code>stado service refresh-image &lt;LABEL&gt; --if-needed</code>;
+a unit that must change is redeclared with <code>stado service deploy|update</code>.</td></tr>
+<tr><td><code>skarbiec grant ensure|issue|add|widen|replace|revoke|rotate</code>,
+<code>skarbiec token-mint|token-revoke|reclaim</code></td>
+<td><code>stado release catalog declare-publisher &lt;PRODUCT&gt; --owner &lt;VAULT HOST&gt; --client &lt;HOST&gt;</code>
+for a release publisher, <code>stado service grant-sync</code> for a service, <code>stado credentials grant item-read</code>
+for one read on the owner; a bearer through <code>stado credentials token mint</code> against the owner's vault.</td></tr>
+<tr><td><code>stado credentials|secrets token mint &lt;CONSUMER&gt;</code> typed by hand,
+<code>stado credentials|secrets grant item-read</code></td>
+<td>Declare the consumer where its product reads it — <code>declare-publisher</code>, <code>service grant-sync</code> —
+so the grant is minted from the declaration and <code>stado doctor</code> says when it is missing.</td></tr>
+<tr><td><code>cp</code>, <code>install</code>, <code>mv</code> or <code>ln -s</code> whose last argument is under
+<code>~/.local/bin</code>, <code>~/.stado/bin</code>, <code>~/.oko/bin</code>, <code>~/.cargo/bin</code>,
+<code>/usr/local/bin</code> or <code>/opt/homebrew/bin</code> (with <code>~</code>, <code>$HOME</code> and
+<code>/Users/&lt;name&gt;</code> read as the same home)</td>
+<td><code>oko-cli install</code> for Oko, <code>stado product update &lt;PRODUCT&gt; --surface cli</code> for a catalogued
+product, <code>stado release install-local</code> for a delivered release, <code>stado host reconcile --apply</code>
+for a host behind its declaration.</td></tr>
+</tbody>
+</table>
+<h2>What passes</h2>
+<p>Reads of the same programs: <code>launchctl list|print|blame</code>, <code>kill -0 &lt;pid&gt;</code> and
+<code>kill -l</code>, <code>skarbiec grant list|show|verify</code>, any invocation carrying <code>--help</code>,
+a copy <em>out</em> of an install root (<code>cp ~/.stado/bin/oko-cli .build/before</code>), and a copy between
+build directories. The command is read the way a shell reads it — cut at separators outside quotes, quoted
+text and here-document bodies blanked, <code>env</code>, <code>sudo</code>, <code>nohup</code> and
+<code>timeout</code> stepped over — so <code>grep 'launchctl kickstart' notes.md</code> and a commit message
+that mentions <code>skarbiec grant ensure</code> run nothing and are allowed, while
+<code>cd ~ &amp;&amp; timeout 60 skarbiec grant issue …</code> is still a grant.</p>
+<h2>Where the refusal comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_one_off_repairs/mod.rs</code>; binary:
+<code>src/bin/block/ownership/block_one_off_repairs.rs</code>; the real-binary test that holds each command to its
+exit status and route: <code>rust/crates/tama-hook-tools/tests/one_off_repair_guard.rs</code>. The detector that
+counts the same three shapes after the fact, across every stored transcript, is Oko's
+<code>transcripts one-offs</code> (categories <code>service-cycle</code>, <code>credential-by-hand</code>,
+<code>binary-copy</code>); a refusal here is recorded there as <code>refused by hook</code>. Registration
+follows <a href="/docs/hook-management/">hook management</a>: the catalogue entry, the registry entry,
+a reseal, and the owner's <code>DEVICE_HOOK_EDIT_APPROVED=1</code> outside any agent session.</p>
