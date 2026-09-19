@@ -109,6 +109,32 @@ through Brama or data the operator declared. Asked for on 2026-09-19 after
 the operator found such lists in Oko's task classifier, Tama's stop guards and
 Stado's quarantine classifier. Real-binary journey:
 <code>rust/crates/tama-hook-tools/tests/keyword_literals_guard.rs</code>.</p>
+<h2>Where a guard's own program names live</h2>
+<p>Tama's guards judge command lines, so they have to know what a shell, an
+interpreter, a wrapper and a cloud tool are called. Those names are not
+written into the guards. They are declared as JSON the product compiles in:
+<code>ports/shell_text/vocabulary/shells.json</code>,
+<code>interpreters.json</code>, <code>wrappers.json</code>,
+<code>source_extensions.json</code>,
+<code>ports/pre_bash/vocabulary/cloud_clis.json</code> and
+<code>ports/block_background_execution/detaching.json</code>. Each file says in a
+<code>why</code> field what the family is. <code>ports::shell_text</code> turns a
+family into a regex branch — <code>shell_alternation</code>,
+<code>javascript_alternation</code>, <code>scripting_alternation</code>,
+<code>eval_flag_alternation</code>, <code>awk_alternation</code>,
+<code>source_extension_alternation</code>, <code>wrapper_alternation</code> — and a
+guard composes its pattern from those, so adding a shell is one edit to data
+rather than four edits to regexes.</p>
+<p>Two consequences are visible in refusals. A guard that refuses one shell
+refuses all of them: <code>ksh -c '…'</code> and <code>fish -c '…'</code> earn the same
+inline-execution refusal as <code>bash -c '…'</code>, and the background guard reads
+the inner command of any of them. A guard that looks past a wrapper looks past
+every declared wrapper, <code>xargs</code> included. Where the list was a guess at
+somebody else's vocabulary, the guard matches the shape instead:
+<code>--provider &lt;name&gt;</code> is recognised for any provider Stado offers, the
+Weles keeper entry point for any action Weles adds, and <code>node --check</code>
+for any JavaScript suffix.</p>
+
 <h2>Catalogue access</h2>
 <p>The full catalogue remains structured in <code>shared-hooks/registry.json</code>.
 Use <code>tama list --json</code>, <code>tama show &lt;hook-id&gt; --json</code>, and
