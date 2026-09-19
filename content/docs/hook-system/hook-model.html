@@ -82,6 +82,33 @@ declares <code>kind</code>, <code>title</code>, <code>registryPath</code> (a <co
 registries and shows every entry with its word count, its <code>expires_at</code>
 expiry, and whether the target it justifies still exists — expired or
 missing-target entries are the ones to renew or remove.</p>
+<h2>Provenance-gated literals: numbers and words</h2>
+<p>Two write-time guards refuse a literal in a code file unless the operator
+asked for it, in their own words, in a real transcript message.
+<code>block-numeric-literals</code> refuses a bare number; numbers live only in
+<code>numeric-provenance.json</code>, each as <code>{"value": n, "user_said": "…"}</code>.
+<code>block-keyword-literals</code> does the same for words: a run of three or more
+quoted words separated only by commas (<code>["ok", "okej", "zrobione"]</code>,
+<code>&amp;["stop", "przestan", "zatrzymaj sie"]</code>, a Python list) or a regex
+alternation of three or more words (<code>(likely|probably|might)</code>,
+<code>"cannot be decrypted|spawn gpg|no route"</code>) is a classifier nobody asked for,
+and is refused with the file, the line, the words and the undeclared ones:</p>
+<pre><code>block-keyword-literals: BLOCKED: a keyword list is a classifier nobody asked for. Decide with a model judgement through Brama, or with data the operator declared; a word may live in code only under keyword-provenance.json with the operator's verbatim quote that asked for it.
+  src/words.rs:1: a list of 3 words decides something by keyword ("ok", "okej", "zrobione"); undeclared: "ok", "okej", "zrobione"</code></pre>
+<p>A word is letters only, or several joined by single spaces; <code>tool_name</code>,
+<code>/dev/null</code>, <code>--json</code> and two-member runs are not judged, comments are
+blanked first, and only code files (the extensions the numeric guard scans) are
+read — prose and JSON are not. Words live only in <code>keyword-provenance.json</code>,
+looked up from the written file's directory upward, each entry exactly
+<code>{"words": ["…"], "user_said": "…"}</code>; writing that file is itself judged: the
+quote must be a verbatim <code>role=user</code> message in Oko's transcript index
+(<code>oko-cli transcripts reindex --path &lt;session&gt;</code> refreshes it) and must
+contain every word. The guard certifies that the operator said the words, not
+that the classifier is right; the route it points to is a model judgement
+through Brama or data the operator declared. Asked for on 2026-09-19 after
+the operator found such lists in Oko's task classifier, Tama's stop guards and
+Stado's quarantine classifier. Real-binary journey:
+<code>rust/crates/tama-hook-tools/tests/keyword_literals_guard.rs</code>.</p>
 <h2>Catalogue access</h2>
 <p>The full catalogue remains structured in <code>shared-hooks/registry.json</code>.
 Use <code>tama list --json</code>, <code>tama show &lt;hook-id&gt; --json</code>, and
