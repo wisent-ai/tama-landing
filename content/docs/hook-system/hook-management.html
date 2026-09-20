@@ -123,6 +123,15 @@ nothing installed the engine at all, so the copy in <code>~/.local/bin</code>
 kept whatever build last happened to write it — on one machine six days
 behind the engine the sealed release was already running, which is how a fix
 can be live on one path and absent on the other.</p>
+<p>Which checkout a <code>tama hooks</code> command reads is decided in this
+order: an explicit <code>--root</code>, then <code>TAMA_ROOT</code>, then the
+first directory at or above the working directory that holds
+<code>shared-hooks/registry.json</code>. The path compiled into the binary is
+the last resort, and it has to be: the installed CLI is built inside the
+release's export tree, which the release deletes when the build ends, so
+before 2026-09-20 every <code>tama hooks</code> run from the installed copy
+refused with <code>names no hook binary of ours</code> against a directory
+that no longer existed.</p>
 
 <h2>Warming the hook binaries</h2>
 <p>A hook binary that has never been executed still owes macOS its first-run
