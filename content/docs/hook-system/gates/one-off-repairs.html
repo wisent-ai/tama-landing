@@ -45,12 +45,24 @@ renamed it back; the write gate reads write and edit payloads, not a shell renam
 machine runs; a hook's source is changed with <code>tama adaptive repair &lt;hook-id&gt; --patch-file &lt;path&gt;</code>
 and <code>DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;</code>; the installed release is
 rebuilt with <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>.</td></tr>
+<tr><td><code>psql</code>, <code>sqlite3</code>, <code>mysql</code>, <code>mariadb</code>, <code>duckdb</code> or
+<code>clickhouse-client</code> whose quoted statement begins with <code>insert</code>, <code>update</code>,
+<code>delete</code>, <code>drop</code>, <code>alter</code>, <code>truncate</code>, <code>upsert</code>,
+<code>grant</code>, <code>revoke</code> or <code>create</code>. The statement is read from the original
+command — quoted text is blanked everywhere else, and a statement is exactly a quoted argument — and only
+after the program itself parses as a database client, so a sentence naming <code>psql</code> still runs
+nothing</td>
+<td>The command that owns those rows: <code>oko-cli transcripts reindex</code> and
+<code>oko-cli transcripts tasks …</code> for Oko's catalogue, a service's own CLI for its store. A change of
+shape belongs in a migration that ships with the product and runs on every host, not in one shell.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
 <p>Reads of the same programs: <code>launchctl list|print|blame</code>, <code>kill -0 &lt;pid&gt;</code> and
 <code>kill -l</code>, <code>skarbiec grant list|show|verify</code>, any invocation carrying <code>--help</code>,
-a copy <em>out</em> of an install or hook root (<code>cp ~/.stado/bin/oko-cli .build/before</code>,
+a query or a schema read (<code>sqlite3 ~/.oko/index.sqlite "SELECT COUNT(*) FROM sessions"</code>,
+<code>sqlite3 … .schema</code>), a copy <em>out</em> of an install or hook root
+(<code>cp ~/.stado/bin/oko-cli .build/before</code>,
 <code>cp ~/.shared-hooks/registry.json rust/target/registry-before.json</code>), a read of either
 (<code>cat ~/.shared-hooks/registry.json</code>, <code>ls -la ~/.shared-hooks</code>), and a copy between
 build directories. The command is read the way a shell reads it — cut at separators outside quotes, quoted
@@ -61,9 +73,13 @@ that mentions <code>skarbiec grant ensure</code> run nothing and are allowed, wh
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_one_off_repairs/mod.rs</code>; binary:
 <code>src/bin/block/ownership/block_one_off_repairs.rs</code>; the real-binary test that holds each command to its
-exit status and route: <code>rust/crates/tama-hook-tools/tests/one_off_repair_guard.rs</code>. The detector that
-counts the same three shapes after the fact, across every stored transcript, is Oko's
-<code>transcripts one-offs</code> (categories <code>service-cycle</code>, <code>credential-by-hand</code>,
-<code>binary-copy</code>); a refusal here is recorded there as <code>refused by hook</code>. Registration
-follows <a href="/docs/hook-management/">hook management</a>: the catalogue entry, the registry entry,
-a reseal, and the owner's <code>DEVICE_HOOK_EDIT_APPROVED=1</code> outside any agent session.</p>
+exit status and route: <code>rust/crates/tama-hook-tools/tests/one_off_repair_guard.rs</code>; the declaration
+the registration reads: <code>hook-declarations/block-one-off-repairs.json</code>. The detector that counts the
+same shapes after the fact, across every stored transcript, is Oko's <code>transcripts one-offs</code>
+(categories <code>service-cycle</code>, <code>credential-by-hand</code>, <code>binary-copy</code>,
+<code>data-by-hand</code>, and <code>live-config-edit</code> for a hook's own file); a refusal here is recorded
+there as <code>refused by hook</code>. Registration is
+<a href="/docs/hook-management/">two commands</a>:
+<code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/block-one-off-repairs.json</code>
+for the catalogue entry, the registry entry and the reseal, and
+<code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code> for the binary and the installed release.</p>
