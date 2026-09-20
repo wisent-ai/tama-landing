@@ -35,12 +35,24 @@ vault and each passes this gate. Oko's detector still lists a hand-typed <code>s
 <td><code>oko-cli install</code> for Oko, <code>stado product update &lt;PRODUCT&gt; --surface cli</code> for a catalogued
 product, <code>stado release install-local</code> for a delivered release, <code>stado host reconcile --apply</code>
 for a host behind its declaration.</td></tr>
+<tr><td><code>mv</code>, <code>cp</code>, <code>install</code> or <code>ln</code> landing under a hook root, and
+<code>rm</code>, <code>chmod</code>, <code>truncate</code> or <code>chown</code> naming a path under one:
+<code>~/.shared-hooks</code>, the installed <code>Tama/hooks-runtime</code> release,
+<code>~/.claude/hooks</code>, <code>~/.config/tama/hooks</code>. On 2026-07-31 a session renamed
+<code>~/.shared-hooks/block_browser_usage.sh</code> to <code>.paused</code>, ran what that gate forbids and
+renamed it back; the write gate reads write and edit payloads, not a shell rename, so nothing refused it</td>
+<td><code>tama enforcement only &lt;hook-id&gt;…</code> and <code>tama enforcement status</code> decide what this
+machine runs; a hook's source is changed with <code>tama adaptive repair &lt;hook-id&gt; --patch-file &lt;path&gt;</code>
+and <code>DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;</code>; the installed release is
+rebuilt with <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
 <p>Reads of the same programs: <code>launchctl list|print|blame</code>, <code>kill -0 &lt;pid&gt;</code> and
 <code>kill -l</code>, <code>skarbiec grant list|show|verify</code>, any invocation carrying <code>--help</code>,
-a copy <em>out</em> of an install root (<code>cp ~/.stado/bin/oko-cli .build/before</code>), and a copy between
+a copy <em>out</em> of an install or hook root (<code>cp ~/.stado/bin/oko-cli .build/before</code>,
+<code>cp ~/.shared-hooks/registry.json rust/target/registry-before.json</code>), a read of either
+(<code>cat ~/.shared-hooks/registry.json</code>, <code>ls -la ~/.shared-hooks</code>), and a copy between
 build directories. The command is read the way a shell reads it — cut at separators outside quotes, quoted
 text and here-document bodies blanked, <code>env</code>, <code>sudo</code>, <code>nohup</code> and
 <code>timeout</code> stepped over — so <code>grep 'launchctl kickstart' notes.md</code> and a commit message
