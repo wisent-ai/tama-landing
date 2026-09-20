@@ -152,6 +152,15 @@ release's export tree, which the release deletes when the build ends, so
 before 2026-09-20 every <code>tama hooks</code> run from the installed copy
 refused with <code>names no hook binary of ours</code> against a directory
 that no longer existed.</p>
+<p>Both the plan and a finished release now print where the sealed runtime on
+this machine was built from, read from
+<code>native-hook-binaries.json</code>: the revision, and whether the
+checkout held uncommitted changes when it was staged. The hook binaries a
+release installs come from <code>origin/main</code>, but the sealed runtime
+is staged by a script that compiles the working tree, and this checkout is
+shared — on 2026-09-20 the live engine carried <code>"dirty": true</code>,
+so the gates enforcing policy contained code nobody had committed. The fact
+was recorded and never shown; now every release says it out loud.</p>
 
 <h2>Warming the hook binaries</h2>
 <p>A hook binary that has never been executed still owes macOS its first-run
