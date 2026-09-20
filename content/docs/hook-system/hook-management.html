@@ -116,6 +116,26 @@ the hooks it would build, and whether the selection would change. A repeat run
 installs only what differs. Both halves refuse without
 <code>DEVICE_HOOK_EDIT_APPROVED=1</code> and the refusal prints the exact command
 to run, in the checkout, outside any agent session.</p>
+<h2>Why a gate decided what it decided</h2>
+<p>A verdict nobody can read is a verdict nobody can repair, and the way that
+used to be answered was a throwaway program that read the same transcript a
+second way — the shape of repair these rules forbid, and one the write gate
+refuses outright. So the reading belongs to the gate. Each hook binary takes the
+payload it is given on stdin and answers about it; with <code>--explain</code> it
+prints what it read and decides nothing:</p>
+<pre><code>echo '{"session_id":"&lt;id&gt;","last_assistant_message":"&lt;text&gt;"}' \
+  | tama-block-unprompted-topics --explain</code></pre>
+<p>For <code>block-unprompted-topics</code> that is the transcript it found, how
+many records it read, how many terms the operator's own words and this turn's
+results ground, the most ungrounded paragraph the session already accepted, and
+every block of the message with its counts and the words that have no provenance.
+A hook that answers this way is also a hook whose cost is visible: the same guard
+rebuilt the whole session's vocabulary at every assistant message until
+2026-09-20, which is quadratic, and at 17 MB it spent longer than the ten seconds
+a hook gets and gated nothing at all. Its test now judges a long session inside a
+fraction of that budget, so the regression is a failing test rather than a silent
+timeout.</p>
+
 <p>A release also installs the two programs a machine runs beside its hooks,
 from the same build: <code>tama-run-hook</code>, the engine a provider
 dispatcher executes, and <code>tama-cli</code> itself. Until 2026-09-20
