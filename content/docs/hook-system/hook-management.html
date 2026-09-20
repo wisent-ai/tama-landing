@@ -78,6 +78,35 @@ side effects from the metadata entry, so those are written once.</li>
 <li>Exercise the real runtime path that claims enforcement. Synthetic payload replay, mocks, and dry-run-only evidence do not prove live blocking.</li>
 <li>Keep commits limited to hook source, structured catalogue/configuration, and applicable product checks. Exclude runtime state, credentials, logs, profiles, and caches.</li>
 </ol>
+<h2>Adding a hook with one command</h2>
+<p>The steps above are what the two <code>tama hooks</code> commands run, in that
+order, so a new or changed hook does not need a shell file written for the
+occasion. Describe the hook once, as data in the repository under
+<code>hook-declarations/&lt;id&gt;.json</code>:</p>
+<pre><code>{
+  "id": "block-one-off-repairs",
+  "category": "shell discipline",
+  "description": "…", "why": "…", "sideEffects": "…",
+  "command": "$HOME/.local/bin/tama-block-one-off-repairs",
+  "events": [{ "event": "pre_tool_use:bash", "timeout": 10 }]
+}</code></pre>
+<p>Then the repository half, which records the catalogue entry, writes each
+registry binding it does not already have, reconciles the sources and reseals:</p>
+<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
+<p>And the machine half, which builds every native hook the registry names from
+<code>origin/main</code> — never from the working tree, because a shared checkout
+carries other sessions' uncommitted edits and a live gate is code that was
+reviewed and pushed — installs the binaries whose bytes changed, then stages,
+seals and installs the live release:</p>
+<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release --enforce &lt;hook-id&gt;[,&lt;hook-id&gt;…]</code></pre>
+<p><code>--enforce</code> adds those ids to this machine's selection and keeps the
+ones already chosen; without it the selection is left alone and the command says
+so. <code>--dry-run</code> prints the plan, needs no consent and changes nothing:
+the hooks it would build, and whether the selection would change. A repeat run
+installs only what differs. Both halves refuse without
+<code>DEVICE_HOOK_EDIT_APPROVED=1</code> and the refusal prints the exact command
+to run, in the checkout, outside any agent session.</p>
+
 <h2>Owner consent for a hook change</h2>
 <p>Hook source and structured configuration are protected at device level. Inside
 an agent session <code>block-hook-config-edits-without-consent</code> refuses any
