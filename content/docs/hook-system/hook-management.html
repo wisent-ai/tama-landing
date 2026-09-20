@@ -116,6 +116,13 @@ the hooks it would build, and whether the selection would change. A repeat run
 installs only what differs. Both halves refuse without
 <code>DEVICE_HOOK_EDIT_APPROVED=1</code> and the refusal prints the exact command
 to run, in the checkout, outside any agent session.</p>
+<p>A release also installs the two programs a machine runs beside its hooks,
+from the same build: <code>tama-run-hook</code>, the engine a provider
+dispatcher executes, and <code>tama-cli</code> itself. Until 2026-09-20
+nothing installed the engine at all, so the copy in <code>~/.local/bin</code>
+kept whatever build last happened to write it — on one machine six days
+behind the engine the sealed release was already running, which is how a fix
+can be live on one path and absent on the other.</p>
 
 <h2>Warming the hook binaries</h2>
 <p>A hook binary that has never been executed still owes macOS its first-run
