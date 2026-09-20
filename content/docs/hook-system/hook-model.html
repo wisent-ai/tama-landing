@@ -121,6 +121,26 @@ keys and stops at the <code>(</code> that makes it an argument — while
 rule the guard reported a finding for the argument list of every command a
 journey runs, which is how a guard teaches people to ignore it.</p>
 
+<h2>Asking a model, when shape cannot decide</h2>
+<p>Some rules are not about shape: whether a claim is grounded, whether a
+closing report hands work back to the operator. The decider there is a model,
+and on this fleet every model call goes through Brama.
+<code>ports::model_judgement</code> is the one route:
+<code>model_judgement::ask(prompt)</code> sends the prompt through the
+product's own one-shot call, <code>oko-cli proxy-call</code>, which carries
+Oko's signed bearer to the gateway, and returns
+<code>Judgement::Answered(text)</code> or
+<code>Judgement::Unavailable(reason)</code>. A judgement nobody could obtain
+is never a denial: <code>answer()</code> is <code>None</code> for an
+unavailable one, so a guard that denies on a verdict lets the turn through
+and logs the gateway's own words — <code>no judgement: Brama refused the
+call: HTTP 503 … subscription_reauthorization_required</code>.</p>
+<p><code>check-substantiation-with-model</code> uses it.
+It used to spawn a vendor CLI, which asked a provider past the gateway and
+did not run at all on a machine without that vendor's binary. This is the
+route <code>block-keyword-literals</code> points at when it refuses a
+classifier: a list that decides something about prose has somewhere to go.</p>
+
 <h2>Where a guard's own program names live</h2>
 <p>Tama's guards judge command lines, so they have to know what a shell, an
 interpreter, a wrapper and a cloud tool are called. Those names are not
