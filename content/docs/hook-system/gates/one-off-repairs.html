@@ -72,11 +72,13 @@ janitor measures against, <code>stado space work-root &lt;HOST&gt;</code> says w
 accumulate. <code>stado space report &lt;HOST&gt;</code> reads without changing anything.</td></tr>
 <tr><td><code>stado release submit</code>: a release built from whatever the shell's working copy happens
 to hold, at the moment somebody typed it, so the next commit needs the same person again</td>
-<td>A recipe publishes every new commit: <code>stado builds add &lt;RECIPE&gt; --repo &lt;URL&gt; --branch
-main</code>, <code>stado builds enable &lt;RECIPE&gt;</code> to start the control-plane poller,
-<code>stado builds status &lt;RECIPE&gt;</code> to read it, <code>stado builds run &lt;RECIPE&gt;</code> to
-enqueue one now. A publication that stopped part-way is continued with <code>stado release resume
-&lt;ID&gt;</code>.</td></tr>
+<td>A recipe builds every new commit: <code>stado builds add --name &lt;RECIPE&gt; --repo &lt;URL&gt;
+--branch main --command &lt;BUILD&gt; --artifact &lt;PATH&gt; --platform &lt;PLATFORM&gt;</code>,
+<code>stado builds enable &lt;RECIPE&gt;</code> to start the control-plane poller,
+<code>stado builds status &lt;RECIPE&gt;</code> to read its per-platform jobs,
+<code>stado builds run &lt;RECIPE&gt;</code> to enqueue one now. Bytes a recipe already qualified are
+promoted with <code>stado release promote</code>, and a publication that stopped part-way is continued
+with <code>stado release resume &lt;ID&gt;</code>.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
