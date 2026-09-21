@@ -1,0 +1,87 @@
+<h1>Build and restart registry: <code>block-unregistered-build-or-restart</code></h1>
+<p>A gate on <code>pre_tool_use:bash</code> (<code>tama-block-unregistered-build-or-restart</code>) that
+refuses a command which would build a product or restart a service while the registry holds no open entry
+for it. Every refusal starts <code>BLOCKED: unregistered build:</code> or
+<code>BLOCKED: unregistered restart:</code>, goes to stderr, and exits <code>2</code> before the command
+runs. The registry is <code>~/.shared-hooks/build_restart_registry.json</code>, and the only writer is
+<code>tama-cli build</code>.</p>
+
+<h2>Why it exists</h2>
+<p>On 2026-09-20 a single session submitted Brama 0.4.39, 0.4.40, 0.4.41, 0.4.42, 0.4.43 and 0.4.46,
+Stado 0.21.33, Weles 0.7.16 and 0.7.28 and Skarbiec 0.3.11. Several died after twenty to forty minutes in
+the builder queue on <code>cargo fmt --check</code>, on one clippy lint, or on a rollback declaration that
+was missing — each of them checkable locally in under a minute. The same session installed a launchd unit,
+restarted it, and retired it again; nobody had asked for it. The operator's words that evening were that
+his time went into incomplete builds.</p>
+<p>A build spends a fleet builder, of which there are two for <code>darwin-arm64</code>, and a restart
+spends a service that other work is reading. So each is stated before it runs: what it is for, which
+revision it carries, and when the authorization stops.</p>
+
+<h2>The registry</h2>
+<p>One entry authorizes one kind against one target, and expires:</p>
+<pre><code>tama-cli build record --kind build --target skarbiec \
+  --reason "identity kind and duplicate refusal, suite green locally" \
+  --revision 45a5c678042147f76241adf76fb7cf217e121ca6
+
+tama-cli build record --kind restart --target brama-desktop-model-router \
+  --reason "the router holds a revoked credential and reads it once at start" \
+  --minutes 30
+
+tama-cli build list
+tama-cli build close --kind build --target skarbiec</code></pre>
+<table>
+<thead><tr><th>Field</th><th>What the command demands</th></tr></thead>
+<tbody>
+<tr><td><code>--kind</code></td><td><code>build</code> or <code>restart</code>. Nothing else is an entry.</td></tr>
+<tr><td><code>--target</code></td><td>The product for a build, the service or unit for a restart. A build
+whose command names no target of its own — <code>stado release submit --source .</code>,
+<code>cargo build</code> — is registered against the repository the command runs in.</td></tr>
+<tr><td><code>--reason</code></td><td>At least eight words. A reason of one word is refused, because the
+entry exists to be read later by somebody who was not there.</td></tr>
+<tr><td><code>--revision</code></td><td>Required for a build, and it must be a full forty-character source
+revision. A build that cannot name what it carries is not recorded.</td></tr>
+<tr><td><code>--minutes</code></td><td>How long the entry stays open: one to two hundred forty minutes,
+sixty by default. Past that it authorizes nothing, so an entry that is never closed cannot become a
+standing permission.</td></tr>
+</tbody>
+</table>
+<p>A registry file that is missing, empty or malformed holds no entries, which refuses every build and
+restart rather than letting them all through.</p>
+
+<h2>What is refused</h2>
+<table>
+<thead><tr><th>Kind</th><th>Commands</th></tr></thead>
+<tbody>
+<tr><td>build</td><td><code>stado release submit|prepare|resume|rollback|promote-version</code>,
+<code>cargo build</code>, <code>cargo install</code>, <code>swift build</code>, <code>xcodebuild</code>,
+<code>npm run build</code>, <code>bun run build</code></td></tr>
+<tr><td>restart</td><td><code>stado service restart|ensure|deploy|stop|bootout|refresh-image</code>,
+<code>stado host reboot</code>, <code>launchctl kickstart|bootout|bootstrap|load|unload</code>,
+<code>systemctl restart|start|stop</code>, <code>brew services restart|start|stop</code></td></tr>
+</tbody>
+</table>
+<p>The refusal prints the <code>tama-cli build record</code> line for that exact kind and target, so the
+route out of it is the command itself.</p>
+
+<h2>What passes</h2>
+<p>Reads of the same programs: <code>stado release status</code>, <code>stado service list</code>,
+<code>launchctl list|print</code>, any invocation carrying <code>--help</code>, <code>cargo test</code>,
+<code>cargo fmt --check</code> and <code>cargo clippy</code> — the local gates a build fails on are never
+themselves gated. The command is read the way a shell reads it, cut at separators outside quotes with
+quoted text blanked and <code>env</code>, <code>sudo</code>, <code>nohup</code> and <code>timeout</code>
+stepped over, so <code>grep 'cargo build' notes.md</code> and a commit message that mentions a restart run
+nothing and are allowed.</p>
+
+<h2>Where the refusal comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_unregistered_build_or_restart/mod.rs</code>,
+with the command vocabulary as data in <code>vocabulary.json</code> beside it and the registry reader in
+<code>registry.rs</code>; binary:
+<code>src/bin/block/safety/execution/block_unregistered_build_or_restart.rs</code>; the writer:
+<code>rust/crates/tama-cli/src/builds/mod.rs</code>; the real-binary test that drives the gate and the real
+<code>tama-cli</code> against a disposable registry:
+<code>rust/crates/tama-hook-tools/tests/build_registry_guard.rs</code>; the declaration the registration
+reads: <code>hook-declarations/block-unregistered-build-or-restart.json</code>. Registration is
+<a href="/docs/hook-management/">two commands</a>:
+<code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/block-unregistered-build-or-restart.json</code>
+for the catalogue entry, the registry entry and the reseal, and
+<code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code> for the binary and the installed release.</p>

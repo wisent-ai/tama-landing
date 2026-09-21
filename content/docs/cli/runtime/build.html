@@ -1,0 +1,55 @@
+<h1><code>tama-cli build</code></h1>
+<p>Writes and reads the build and restart registry, <code>~/.shared-hooks/build_restart_registry.json</code>.
+The gate <a href="/docs/build-restart-registry/"><code>block-unregistered-build-or-restart</code></a>
+refuses a build or a restart that has no open entry here, and this command is the only writer.</p>
+
+<h2>Record an intent</h2>
+<pre><code>tama-cli build record --kind build --target skarbiec \
+  --reason "identity kind and duplicate refusal, suite green locally" \
+  --revision 45a5c678042147f76241adf76fb7cf217e121ca6 [--minutes 60] [--json]
+
+tama-cli build record --kind restart --target brama-desktop-model-router \
+  --reason "the router holds a revoked credential and reads it once at start" \
+  --minutes 30</code></pre>
+<table>
+<thead><tr><th>Option</th><th>Meaning and refusal</th></tr></thead>
+<tbody>
+<tr><td><code>--kind</code></td><td><code>build</code> or <code>restart</code>. Any other word is refused
+by name.</td></tr>
+<tr><td><code>--target</code></td><td>The product for a build, the service or unit for a restart. A build
+command that names no target of its own — <code>stado release submit --source .</code>,
+<code>cargo build</code> — is registered against the repository it runs in, which is the directory name
+the gate reports in its refusal.</td></tr>
+<tr><td><code>--reason</code></td><td>At least eight words, because the entry is read later by somebody
+who was not there. A shorter reason is refused and the word count is named.</td></tr>
+<tr><td><code>--revision</code></td><td>Required for <code>--kind build</code>, and it must be a full
+forty-character source revision. A build that cannot say what it carries is not recorded.</td></tr>
+<tr><td><code>--minutes</code></td><td>How long the entry authorizes: one to two hundred forty minutes,
+sixty by default. A longer window is refused, so an entry nobody closes cannot become standing
+permission.</td></tr>
+<tr><td><code>--home</code></td><td>The home whose registry is written. Present so a test can drive the
+real command against a disposable registry instead of the operator's.</td></tr>
+</tbody>
+</table>
+<p>Recording the same kind and target again replaces that entry and reports the new expiry; entries for
+other targets keep their bytes.</p>
+
+<h2>Read and close</h2>
+<pre><code>tama-cli build list [--json]
+tama-cli build close --kind build --target skarbiec [--json]</code></pre>
+<p><code>list</code> prints every entry with its kind, target, reason, revision, who recorded it and how
+many minutes it still authorizes; an expired entry is shown as expired, because the file keeps it until it
+is overwritten and it authorizes nothing. <code>close</code> removes one entry, which is what ends an
+authorization early; closing an entry that is not there is reported, not an error.</p>
+
+<h2>What the refusal looks like</h2>
+<pre><code>BLOCKED: unregistered build: `stado release submit --source . --version 0.3.11` would
+build skarbiec, and ~/.shared-hooks/build_restart_registry.json holds no open entry for
+it. A build spends a builder the fleet has two of and a restart spends a service other
+work depends on, so each is stated before it runs. Record the intent, then run the
+command again:
+  tama-cli build record --kind build --target skarbiec --reason "&lt;what this build is
+  for&gt;" --revision &lt;source revision this build carries&gt;</code></pre>
+<p>Source: <code>rust/crates/tama-cli/src/builds/mod.rs</code>. The real-binary test that drives this
+command and the gate together against a disposable registry:
+<code>rust/crates/tama-hook-tools/tests/build_registry_guard.rs</code>.</p>
