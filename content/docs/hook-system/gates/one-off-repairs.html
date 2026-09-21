@@ -55,6 +55,28 @@ nothing</td>
 <td>The command that owns those rows: <code>oko-cli transcripts reindex</code> and
 <code>oko-cli transcripts tasks …</code> for Oko's catalogue, a service's own CLI for its store. A change of
 shape belongs in a migration that ships with the product and runs on every host, not in one shell.</td></tr>
+<tr><td><code>sleep</code>, with any interval: time passed by hand in place of an outcome observed. A
+session on 2026-09-21 ran <code>sleep 420</code> before reading one rollout and <code>sleep 240</code>
+before retrying a publication; either read could as easily have returned the state from before the
+wait</td>
+<td>The command that owns the outcome reports it: <code>stado job watch &lt;ID&gt; --follow</code> to a
+terminal state, <code>stado release doctor &lt;PRODUCT&gt; --target &lt;HOST&gt;</code> for one rollout
+verdict, <code>stado release status &lt;PRODUCT&gt;</code> for the register of attempts,
+<code>stado space report &lt;HOST&gt;</code> for a host's own reading. Where no such read exists, the
+missing read is the defect to build.</td></tr>
+<tr><td><code>stado space reclaim</code>: a sweep that frees one host this once. The same session ran it
+three times in one day and the host was back under its watermark after the next builds</td>
+<td>What a host reclaims on its own is declared: <code>stado space cleaners &lt;HOST&gt; --declare
+&lt;CLEANER&gt;</code> adds the stage, <code>stado space watermark &lt;HOST&gt;</code> sets the level the
+janitor measures against, <code>stado space work-root &lt;HOST&gt;</code> says where the fleet's work may
+accumulate. <code>stado space report &lt;HOST&gt;</code> reads without changing anything.</td></tr>
+<tr><td><code>stado release submit</code>: a release built from whatever the shell's working copy happens
+to hold, at the moment somebody typed it, so the next commit needs the same person again</td>
+<td>A recipe publishes every new commit: <code>stado builds add &lt;RECIPE&gt; --repo &lt;URL&gt; --branch
+main</code>, <code>stado builds enable &lt;RECIPE&gt;</code> to start the control-plane poller,
+<code>stado builds status &lt;RECIPE&gt;</code> to read it, <code>stado builds run &lt;RECIPE&gt;</code> to
+enqueue one now. A publication that stopped part-way is continued with <code>stado release resume
+&lt;ID&gt;</code>.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
@@ -69,7 +91,10 @@ build directories. The command is read the way a shell reads it — cut at separ
 text and here-document bodies blanked, <code>env</code>, <code>sudo</code>, <code>nohup</code> and
 <code>timeout</code> stepped over — so <code>grep 'launchctl kickstart' notes.md</code> and a commit message
 that mentions <code>skarbiec grant ensure</code> run nothing and are allowed, while
-<code>cd ~ &amp;&amp; timeout 60 skarbiec grant issue …</code> is still a grant.</p>
+<code>cd ~ &amp;&amp; timeout 60 skarbiec grant issue …</code> is still a grant. The reads that replace a
+wait pass with everything else: <code>stado job watch &lt;ID&gt; --follow</code>,
+<code>stado release status</code>, <code>stado space report &lt;HOST&gt;</code>,
+<code>stado builds run &lt;RECIPE&gt;</code> and <code>stado release resume &lt;ID&gt;</code>.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_one_off_repairs/mod.rs</code>; binary:
 <code>src/bin/block/ownership/block_one_off_repairs.rs</code>; the real-binary test that holds each command to its
