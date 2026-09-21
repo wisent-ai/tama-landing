@@ -1,0 +1,52 @@
+<h1>Work outside the task</h1>
+<p><code>block-off-task-work</code> refuses a change to a repository the session never said the operator's current
+instruction touches. It runs on the tools that change or publish a file — write, edit, refactor, apply_patch, and a
+<code>git commit</code> or <code>git push</code> in bash. Reads are never refused.</p>
+<h2>Why it exists</h2>
+<p>On 2026-09-21 a session was asked for one thing — a gate against one-off commands — delivered it, and then spent the
+next hour repairing an installer, a gateway, a credential pool and a provider sign-in, and starting fleet builds, none
+of which anybody had asked for. Every one of those things was really broken, which is what makes the drift invisible
+from inside: the work looks like work. The operator, reading the queue: <em>dlaczego pracujesz nad czyms co nie jest
+Twoim zadaniem</em>, and then <em>to teraz dodajmy mechanizm ktory blokuje jakiekolwiek akcje niezwiazane z
+zadaniem</em>.</p>
+<p>Relatedness is not guessed. A gate that guessed it would be wrong in both directions — refusing a repair the
+instruction plainly needs, and waving through an hour of unrelated work because it looked useful. So it is declared,
+once per instruction, and checked mechanically.</p>
+<h2>Declaring what the instruction touches</h2>
+<pre><code>tama task scope set --session &lt;SESSION&gt; --repository tama --repository tama-landing
+tama task scope show --session &lt;SESSION&gt; [--json]
+tama task scope clear --session &lt;SESSION&gt;</code></pre>
+<p><code>set</code> copies the task text from Tama's own verbatim capture of the operator's prompt — it is never
+retyped from memory — and binds the declaration to that prompt's digest. <code>show</code> reads it back and says
+whether it still serves the instruction being worked on. A scope with no repository is refused: a task that touches
+nothing changes nothing.</p>
+<h2>What is refused</h2>
+<table>
+<thead><tr><th>Situation</th><th>What the session is told</th></tr></thead>
+<tbody>
+<tr><td>Nothing declared for the current instruction</td>
+<td>The change is refused until the session says which repositories the instruction touches. It costs one command, and
+it makes the answer to "what is your task" something the machine holds rather than something a model remembers.</td></tr>
+<tr><td>A repository outside the declaration</td>
+<td>The refusal names the instruction being served and the repositories it was declared to touch. Something really
+being broken is not the same as being asked to fix it: record it with <code>oko-cli defects record</code> and say so in
+the answer.</td></tr>
+<tr><td>A scope declared for an earlier instruction</td>
+<td>Refused as undeclared. The operator has spoken since, and that is exactly where a session drifts — one reasonable
+step at a time, under a scope nobody granted for the new prompt.</td></tr>
+</tbody>
+</table>
+<h2>What passes</h2>
+<p>Every read. Every change inside the declared repositories. Everything outside
+<code>~/Documents/CodingProjects/Wisent</code> — an installed program, the operator's own state, a build directory —
+which is other gates' subject: <a href="/docs/one-off-repairs">one-off repairs</a> owns those.</p>
+<h2>Where the refusal comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_off_task_work/mod.rs</code>; the declaration CLI:
+<code>rust/crates/tama-hook-tools/src/ports/block_off_task_work/scope_cli.rs</code>; binary:
+<code>src/bin/block/ownership/block_off_task_work.rs</code>; the real-binary journey that drives the gate with a real
+captured instruction, a real scope file and a real home:
+<code>tests/assignment/assignment.test.ts</code>; the declaration:
+<code>hook-declarations/block-off-task-work.json</code>. Declared with
+<code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file &lt;declaration&gt;</code> and installed with
+<code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>; which hooks this machine runs is decided by
+<code>tama enforcement only &lt;hook-id&gt;…</code>, which has to be run outside an agent session.</p>
