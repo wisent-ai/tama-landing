@@ -10,14 +10,39 @@ runs. The registry is <code>~/.shared-hooks/build_restart_registry.json</code>, 
 <p>On 2026-09-20 a single session submitted Brama 0.4.39, 0.4.40, 0.4.41, 0.4.42, 0.4.43 and 0.4.46,
 Stado 0.21.33, Weles 0.7.16 and 0.7.28 and Skarbiec 0.3.11. Several died after twenty to forty minutes in
 the builder queue on <code>cargo fmt --check</code>, on one clippy lint, or on a rollback declaration that
-was missing — each of them checkable locally in under a minute. The same session installed a launchd unit,
-restarted it, and retired it again; nobody had asked for it. The operator's words that evening were that
-his time went into incomplete builds.</p>
+was missing — each of them checkable locally in under a minute. The same session installed a launchd
+unit, restarted it, and retired it again; nobody had asked for it. The operator's words the next day
+named the shape underneath: an agent makes a minimal change, submits, waits forty minutes for the
+builder, reads the failure and makes another minimal change.</p>
 <p>A build spends a fleet builder, of which there are two for <code>darwin-arm64</code>, and a restart
-spends a service that other work is reading. So each is stated before it runs: what it is for, which
-revision it carries, and when the authorization stops.</p>
+spends a service that other work is reading. So each is stated before it runs — what it is for, which
+revision it carries, when the authorization stops — and the entries are rationed: three builds in any
+24 hours, and a build has to carry a change worth a builder.</p>
 
-<h2>The registry</h2>
+<h2>The ration</h2>
+<table>
+<thead><tr><th>Limit</th><th>Value in code</th><th>What it stops</th></tr></thead>
+<tbody>
+<tr><td><code>builds_per_day</code></td><td>3</td><td>A fourth build inside a rolling 24 hours is
+refused, naming the targets that spent the first three and how many minutes until the next one frees.
+A retry after a failed build spends a slot, which is the point: the local gates cost a minute.</td></tr>
+<tr><td><code>restarts_per_day</code></td><td>10</td><td>Counted separately, so a spent build
+allowance never holds back a service that has to come back.</td></tr>
+<tr><td><code>minimum_changed_lines</code></td><td>30</td><td>A build is measured with git against the
+revision the last recorded build of that target carried. Under the threshold it is refused and told to
+travel with the next serious change; the same revision twice is refused as a build of nothing.</td></tr>
+<tr><td><code>window_minutes</code></td><td>60</td><td>How long one recorded intent authorizes, and the
+ceiling on <code>--minutes</code>. Four hours is the hard maximum whatever the file says.</td></tr>
+</tbody>
+</table>
+<p>The limits live in <code>~/.shared-hooks/build_restart_policy.json</code> and are read with
+<code>tama-cli build policy</code>. A machine with no policy file is still rationed by the values in
+code. Tightening a limit needs nothing; loosening one — more builds a day, a smaller change, a longer
+window — needs <code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session, because an agent
+that can raise its own allowance has none. The rolling 24 hours is counted from
+<code>~/.shared-hooks/build_restart_ledger.json</code>, which keeps every recorded intent for thirty
+days, so closing an entry ends the authorization and does not give the build back. A ledger or policy
+that cannot be read refuses the build instead of counting the day as unspent.</p>
 <p>One entry authorizes one kind against one target, and expires:</p>
 <pre><code>tama-cli build record --kind build --target skarbiec \
   --reason "identity kind and duplicate refusal, suite green locally" \
@@ -28,7 +53,9 @@ tama-cli build record --kind restart --target brama-desktop-model-router \
   --minutes 30
 
 tama-cli build list
-tama-cli build close --kind build --target skarbiec</code></pre>
+tama-cli build close --kind build --target skarbiec
+tama-cli build policy
+tama-cli build policy --builds-per-day 2 --minimum-changed-lines 80</code></pre>
 <table>
 <thead><tr><th>Field</th><th>What the command demands</th></tr></thead>
 <tbody>
@@ -40,9 +67,11 @@ whose command names no target of its own — <code>stado release submit --source
 entry exists to be read later by somebody who was not there.</td></tr>
 <tr><td><code>--revision</code></td><td>Required for a build, and it must be a full forty-character source
 revision. A build that cannot name what it carries is not recorded.</td></tr>
-<tr><td><code>--minutes</code></td><td>How long the entry stays open: one to two hundred forty minutes,
-sixty by default. Past that it authorizes nothing, so an entry that is never closed cannot become a
-standing permission.</td></tr>
+<tr><td><code>--repository</code></td><td>Where the change is measured for a build. Without it, the
+repository the command runs in.</td></tr>
+<tr><td><code>--minutes</code></td><td>How long the entry stays open: one to the policy's window,
+sixty by default, four hours at the very most. Past that it authorizes nothing, so an entry that is
+never closed cannot become a standing permission.</td></tr>
 </tbody>
 </table>
 <p>A registry file that is missing, empty or malformed holds no entries, which refuses every build and

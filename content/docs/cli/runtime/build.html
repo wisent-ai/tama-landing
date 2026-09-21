@@ -24,16 +24,46 @@ the gate reports in its refusal.</td></tr>
 who was not there. A shorter reason is refused and the word count is named.</td></tr>
 <tr><td><code>--revision</code></td><td>Required for <code>--kind build</code>, and it must be a full
 forty-character source revision. A build that cannot say what it carries is not recorded.</td></tr>
-<tr><td><code>--minutes</code></td><td>How long the entry authorizes: one to two hundred forty minutes,
-sixty by default. A longer window is refused, so an entry nobody closes cannot become standing
-permission.</td></tr>
+<tr><td><code>--minutes</code></td><td>How long the entry authorizes: one to the policy's window,
+sixty by default, four hours at the very most. A longer window is refused, so an entry nobody closes
+cannot become standing permission.</td></tr>
+<tr><td><code>--repository</code></td><td>Where a build's change is measured. Without it, the
+repository the command runs in; a directory in no repository is refused by name.</td></tr>
 <tr><td><code>--home</code></td><td>The home whose registry is written. Present so a test can drive the
 real command against a disposable registry instead of the operator's.</td></tr>
 </tbody>
 </table>
-<p>Recording the same kind and target again replaces that entry and reports the new expiry; entries for
-other targets keep their bytes.</p>
 
+<h2>The ration</h2>
+<p>Recording is not paperwork, it is an allowance. A build is refused when the day's allowance is
+spent or when the change it carries is too small to be worth a builder:</p>
+<pre><code>the policy allows 3 builds in any 24 hours and this machine has spent all 3
+(skarbiec, brama, tama). The next one is authorized in 412 min. Gather the work
+into one build instead, or have the operator raise the limit with
+`tama build policy --builds-per-day &lt;n&gt;` and DEVICE_HOOK_EDIT_APPROVED set
+outside the agent session.
+
+this build carries 2 changed lines against 45a5c678…, the revision the last
+recorded build of skarbiec carried, and the policy calls a build serious at 30
+lines. A build spends forty minutes of a builder the fleet has two of, so small
+changes travel together: keep working and record the build once the change is
+worth it.</code></pre>
+<p>The count comes from <code>~/.shared-hooks/build_restart_ledger.json</code>, which keeps every
+recorded intent for thirty days, so <code>close</code> ends an authorization and does not give the
+build back. A retry after a failed build spends a slot. A restart is counted separately, ten in a
+rolling day, so a spent build allowance never holds back a service that has to come back.</p>
+
+<h2>Read the limits, and change them</h2>
+<pre><code>tama-cli build policy [--json]
+tama-cli build policy --builds-per-day 2 --restarts-per-day 6 \
+  --minimum-changed-lines 80 --window-minutes 45</code></pre>
+<p>Without options it prints the file and the sentence: <em>3 builds and 10 restarts in any 24 hours;
+a build carries at least 30 changed lines; one recorded intent authorizes 60 minutes</em>. Those are
+the values in code, so a machine with no policy file is still rationed. Tightening a limit needs
+nothing. Loosening one — more builds a day, a smaller minimum change, a longer window — is refused
+unless <code>DEVICE_HOOK_EDIT_APPROVED=1</code> is set outside the agent session, because an agent
+that can raise its own allowance has none. A policy or ledger that cannot be parsed refuses the build
+and names the file, rather than counting the day as unspent.</p>
 <h2>Read and close</h2>
 <pre><code>tama-cli build list [--json]
 tama-cli build close --kind build --target skarbiec [--json]</code></pre>
