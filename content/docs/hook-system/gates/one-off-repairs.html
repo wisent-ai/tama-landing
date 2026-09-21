@@ -79,6 +79,15 @@ to hold, at the moment somebody typed it, so the next commit needs the same pers
 <code>stado builds run &lt;RECIPE&gt;</code> to enqueue one now. Bytes a recipe already qualified are
 promoted with <code>stado release promote</code>, and a publication that stopped part-way is continued
 with <code>stado release resume &lt;ID&gt;</code>.</td></tr>
+<tr><td><code>timeout</code> or <code>gtimeout</code> in front of another command: a number of seconds
+nobody measured, standing in for the answer the command was going to give. The command killed at it
+reports a failure it did not have, and why it was slow is thrown away with it. Tama's own engines carried
+the same guess until 2026-09-21, when a gate that answers in four milliseconds was killed at ten seconds
+while it paid the operating system's first-run assessment</td>
+<td>Let the command answer and read what it says. Where an outcome genuinely has to be waited for, the
+product that owns it waits: <code>stado job watch &lt;ID&gt; --follow</code>,
+<code>stado release status &lt;PRODUCT&gt;</code>, <code>oko-cli transcripts tasks --session
+&lt;ID&gt;</code>.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
@@ -90,11 +99,12 @@ a query or a schema read (<code>sqlite3 ~/.oko/index.sqlite "SELECT COUNT(*) FRO
 <code>cp ~/.shared-hooks/registry.json rust/target/registry-before.json</code>), a read of either
 (<code>cat ~/.shared-hooks/registry.json</code>, <code>ls -la ~/.shared-hooks</code>), and a copy between
 build directories. The command is read the way a shell reads it — cut at separators outside quotes, quoted
-text and here-document bodies blanked, <code>env</code>, <code>sudo</code>, <code>nohup</code> and
-<code>timeout</code> stepped over — so <code>grep 'launchctl kickstart' notes.md</code> and a commit message
-that mentions <code>skarbiec grant ensure</code> run nothing and are allowed, while
-<code>cd ~ &amp;&amp; timeout 60 skarbiec grant issue …</code> is still a grant. The reads that replace a
-wait pass with everything else: <code>stado job watch &lt;ID&gt; --follow</code>,
+text and here-document bodies blanked, <code>env</code>, <code>sudo</code> and <code>nohup</code> stepped
+over — so <code>grep 'launchctl kickstart' notes.md</code> and a commit message that mentions
+<code>skarbiec grant ensure</code> run nothing and are allowed. A deadline wrapper is stepped over the same
+way when the guard reads which program a line runs, and then refused on its own: it is the duration after
+it that gives it away, so <code>--field timeout</code> and a path that ends in the word pass.
+The reads that replace a wait pass with everything else: <code>stado job watch &lt;ID&gt; --follow</code>,
 <code>stado release status</code>, <code>stado space report &lt;HOST&gt;</code>,
 <code>stado builds run &lt;RECIPE&gt;</code> and <code>stado release resume &lt;ID&gt;</code>.</p>
 <h2>Where the refusal comes from</h2>

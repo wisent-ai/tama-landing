@@ -79,7 +79,7 @@ nothing; <code>--check</code> writes nothing and exits non-zero when the entry i
 absent or differs, naming the field that differs; refusals exit <code>2</code>. It
 never opens <code>registry.json</code>.
 Then <code>shared-hooks/register-hook.mjs</code> writes <code>registry.json</code> —
-identity, event, command, timeout, blocking mode, runtime placement — and
+identity, event, command, blocking mode, runtime placement — and
 reseals it. That order is not a preference: before it writes anything
 <code>register-hook.mjs</code> reads the catalogue and refuses a hook with no entry
 there, printing <code>catalog-metadata.json has no entry for &lt;id&gt;</code> and exiting
@@ -98,7 +98,7 @@ occasion. Describe the hook once, as data in the repository under
   "category": "shell discipline",
   "description": "…", "why": "…", "sideEffects": "…",
   "command": "$HOME/.local/bin/tama-block-one-off-repairs",
-  "events": [{ "event": "pre_tool_use:bash", "timeout": 10 }]
+  "events": [{ "event": "pre_tool_use:bash" }]
 }</code></pre>
 <p>Then the repository half, which records the catalogue entry, writes each
 registry binding it does not already have, reconciles the sources and reseals:</p>
@@ -131,10 +131,9 @@ results ground, the most ungrounded paragraph the session already accepted, and
 every block of the message with its counts and the words that have no provenance.
 A hook that answers this way is also a hook whose cost is visible: the same guard
 rebuilt the whole session's vocabulary at every assistant message until
-2026-09-20, which is quadratic, and at 17 MB it spent longer than the ten seconds
-a hook gets and gated nothing at all. Its test now judges a long session inside a
-fraction of that budget, so the regression is a failing test rather than a silent
-timeout.</p>
+2026-09-20, which is quadratic, and at 17 MB it spent minutes deciding nothing at
+all. Its test now judges a long session in milliseconds, so the regression is a
+failing test rather than a gate everybody waits for.</p>
 
 <p>A release also installs the two programs a machine runs beside its hooks,
 from the same build: <code>tama-run-hook</code>, the engine a provider
@@ -168,25 +167,32 @@ work: the system assesses the executable's signature before it runs, that
 assessment reaches Apple over the network, and XProtect scans the image.
 Measured on 2026-09-20, the first run of a freshly installed
 <code>tama-block-delegating-own-work</code> took 147 seconds and every run
-after it took under 5 milliseconds. The hook's timeout is 10 seconds, a hook
-that times out is treated as blocking, and so a cold cache refused a finished
-turn with <code>block-delegating-own-work timed out after 10s</code> — a
-refusal nobody wrote.</p>
-<p><code>tama hooks release</code> now runs every binary the registry names
-once, right after installing, and prints what each one cost. Run the same step
-on its own when binaries arrived another way, or to see where this machine
-stands:</p>
+after it took under 5 milliseconds. At the time each binding carried a number
+of seconds and the engine killed the hook at it, so a cold cache refused a
+finished turn with <code>block-delegating-own-work timed out after 10s</code>
+— a refusal nobody wrote.</p>
+<p>The engine no longer counts seconds. A hook is waited for and its own answer
+decides the event, because the number was a guess at how long an answer may
+take and the hook killed at it reported a failure it never had. Nothing in the
+registry carries a <code>timeout</code>, and no run is killed for being slow:
+a slow gate is found by what it costs, not replaced by a verdict it never
+gave. Waiting is not free, though — 147 seconds inside a live event is 147
+seconds somebody sits through — so the first-run cost is paid deliberately,
+outside the event.</p>
+<p><code>tama hooks release</code> runs every binary the registry names once,
+right after installing, and prints what each one cost. Run the same step on its
+own when binaries arrived another way, or to see where this machine stands:</p>
 <pre><code>tama hooks warm
 tama hooks warm --only &lt;hook-id&gt;[,&lt;hook-id&gt;…] --json</code></pre>
 <p>Each line carries the state, the measured milliseconds, the hook id and the
-path: <code>warm</code> finished inside the timeout its bindings allow,
-<code>cold</code> finished slower than that — this run paid the cost a live
-event would have paid — <code>missing</code> is a registry entry with no
-binary at that path, and <code>stuck</code> never finished at all. The command
-exits non-zero when a binary is missing or stuck, because a live event would
-refuse on it. <code>--json</code> prints one document with the same rows plus
-<code>warmed</code>, <code>cold</code> and <code>unusable</code> counts. An id
-the registry does not name is refused by name and exits <code>2</code>.</p>
+path: <code>warm</code> ran and exited, <code>missing</code> is a registry
+entry with no binary at that path. The summary names the binary that cost the
+most, which is the one to look at. The command exits non-zero when a binary is
+missing, because a live event would have nothing to run. <code>--json</code>
+prints one document with the same rows plus <code>warmed</code> and
+<code>unusable</code> counts and the <code>slowest</code> hook with its
+<code>slowestMs</code>. An id the registry does not name is refused by name and
+exits <code>2</code>.</p>
 <p>The run is inert: each binary receives an empty JSON object on standard
 input, which every hook reads as "no input, decide nothing", and
 <code>HOME</code> points at a scratch directory inside the checkout's ignored
@@ -197,10 +203,6 @@ a <strong>Hook binaries</strong> panel with a <strong>Warm hook binaries</strong
 button, the count it warmed, and a row for every binary that was slow or could
 not run. Both surfaces call the same <code>POST /v1/hooks/warm</code> route on
 the local backend and read the same document.</p>
-<p>When a hook does time out, the refusal now says what happened rather than
-only what the limit was: the command that was killed, how long it actually ran,
-and that <code>tama hooks warm</code> pays a first-run cost outside a live
-event.</p>
 <h2>Owner consent for a hook change</h2>
 <p>Hook source and structured configuration are protected at device level. Inside
 an agent session <code>block-hook-config-edits-without-consent</code> refuses any

@@ -12,13 +12,13 @@ fields (read from the sealed registry):</p>
 | <code>id</code> | Stable identity, e.g. <code>block-inline-execution</code> |
 | <code>command</code> | The exact command the runtime executes (Node commands are pinned at install time) |
 | <code>source</code> | The hook's source file; empty for hooks compiled into the sealed Rust backend |
-| <code>occurrences[]</code> | Every event binding: <code>event</code>, <code>blocking</code>, <code>timeout</code>, <code>statusMessage</code> |
+| <code>occurrences[]</code> | Every event binding: <code>event</code>, <code>blocking</code>, <code>statusMessage</code> |
 | <code>category</code> | Policy area, e.g. <code>git safety</code>, <code>credential safety</code> |
 | <code>status</code> | Lifecycle state (<code>active</code>) |
 | <code>description</code>, <code>why</code>, <code>sideEffects</code> | The human record |
 | <code>aliases</code> | Alternate ids the runtime accepts |</p>
-<p>A binding with <code>blocking: true</code> can refuse the action; <code>timeout</code> is its
-execution budget in seconds; <code>statusMessage</code> is what the agent surface shows
+<p>A binding with <code>blocking: true</code> can refuse the action;
+<code>statusMessage</code> is what the agent surface shows
 while it runs. Hooks read a JSON payload on stdin and fail closed: a
 blocking hook exits non-zero or returns a deny decision when its invariant
 is violated. One real hook, from the sealed CLI:</p>
@@ -82,7 +82,7 @@ per-hook uninstall: removing a hook means shipping a new release without it.</p>
 <h2>Not to be confused with</h2>
 <ul>
 <li><strong>An event.</strong> One hook binds to many events with independent blocking
-flags and timeouts; &quot;the hook fired&quot; is meaningless without naming the
+flags; &quot;the hook fired&quot; is meaningless without naming the
 binding.</li>
 <li><strong>A Git hook dispatcher.</strong> The installed <code>pre-commit</code>/<code>pre-push</code> files are
 generated dispatchers that chain repository hooks, archived hooks, and a

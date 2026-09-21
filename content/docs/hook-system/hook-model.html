@@ -48,16 +48,16 @@ an error and also resolves to <code>all</code>, so state failure never weakens p
 | <code>id</code> | Stable hook identity, e.g. <code>block-inline-execution</code> |
 | <code>command</code> | The exact command the runtime executes |
 | <code>source</code> | The hook's source file inside the release |
-| <code>occurrences[]</code> | Every event binding: <code>event</code>, <code>blocking</code>, <code>timeout</code>, <code>statusMessage</code> |
+| <code>occurrences[]</code> | Every event binding: <code>event</code>, <code>blocking</code>, <code>statusMessage</code> |
 | <code>category</code> | Policy area, e.g. <code>git safety</code>, <code>credential safety</code>, <code>edit safety</code> |
 | <code>status</code> | Lifecycle state (<code>active</code>) |
 | <code>description</code>, <code>why</code>, <code>sideEffects</code> | What it does, the justification for it, and what it touches |
 | <code>aliases</code> | Alternate ids the runtime accepts |</p>
 <p>Events are names like <code>pre_tool_use:bash</code>, <code>pre_tool_use:write</code>,
 <code>user_prompt_submit</code>, or <code>stop</code>. A binding with <code>blocking: true</code> can refuse
-the action; its <code>timeout</code> is the hook's execution budget in seconds and
-<code>statusMessage</code> is what the agent surface shows while it runs. Hooks read a
-JSON payload from stdin and fail closed: a blocking hook exits non-zero or
+the action and <code>statusMessage</code> is what the agent surface shows while it runs; nothing
+in a binding bounds how long the hook may take, because the engine waits for its answer.
+Hooks read a JSON payload from stdin and fail closed: a blocking hook exits non-zero or
 returns a deny decision when its invariant is violated.</p>
 <h2>The desktop's catalog snapshot</h2>
 <p>The app does not parse the registry directly. At build time,
