@@ -1,0 +1,15 @@
+<h1><code>tama declare-root</code></h1>
+<p>Declares a repository root to the audit when every file it holds is fixed there by somebody else's tooling, and refuses while anything movable is still in it.</p>
+<h2>Invocation</h2>
+<pre><code>tama declare-root (--repo &lt;path&gt; | --tree &lt;dir&gt;) [...] [--apply] [--commit] [--push] [--json]
+</code></pre>
+<p><code>--repo</code> names one checkout and <code>--tree</code> walks every Git checkout under a directory, so a workshop of two hundred repositories is one command. Without <code>--apply</code> the run is a report. <code>--commit</code> records what it wrote in the repository that received it, <code>--push</code> publishes that commit, and both also finish a declaration an earlier run left uncommitted in a working tree.</p>
+<h2>Why a root is different</h2>
+<p>The five-files-per-folder rule holds wherever a person decides the layout. A repository root is not such a place: npm reads <code>package.json</code> and <code>package-lock.json</code> there, cargo reads <code>Cargo.toml</code> and <code>Cargo.lock</code> there, SwiftPM reads <code>Package.swift</code> there, git reads <code>.gitignore</code> there, GitHub shows <code>README.md</code> and the licence from there, and the release tooling reads <code>.wisent-release.json</code> there. Six such files already exceed the limit and no arrangement of folders can help, so the audit's own answer is the <code>.</code> entry in <code>.tama/violations-ignore</code>. Writing that by hand once per repository is the one-off repair this workshop refuses; this command is its repeatable form.</p>
+<h2>What it refuses</h2>
+<p>A root that still holds a file a person could move into a folder is not declared, and the refusal names those files: they belong in a folder, not in a declaration. A root holding something nothing reads at all — <code>.DS_Store</code>, <code>Thumbs.db</code>, <code>desktop.ini</code> — is refused with a different sentence, because those are deleted rather than moved. Neither refusal writes anything, so the declaration can never launder ordinary clutter into an exemption.</p>
+<h2>What it writes</h2>
+<p>The entry is appended to <code>.tama/violations-ignore</code>, never replacing what a repository already declares, and it carries a comment naming every root file with the tool that fixes it there. A second run reports <code>the root is already declared</code> and changes nothing.</p>
+<h2>Output and state</h2>
+<p>Text mode prints one line per repository and ends with how many roots were declared; with a single target it also lists the files and their tools. JSON returns an array of reports with <code>fixed</code>, <code>movable</code>, <code>junk</code>, <code>declared</code>, <code>reason</code> and the commit <code>revision</code> when one was made. Exit <code>1</code> means at least one root was not declared; missing paths and unknown arguments print usage and exit <code>2</code>.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>
