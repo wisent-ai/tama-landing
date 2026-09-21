@@ -13,20 +13,28 @@ zadaniem</em>.</p>
 instruction plainly needs, and waving through an hour of unrelated work because it looked useful. So it is declared,
 once per instruction, and checked mechanically.</p>
 <h2>Declaring what the instruction touches</h2>
-<pre><code>tama task scope set --session &lt;SESSION&gt; --repository tama --repository tama-landing
+<pre><code>tama task scope set --session &lt;SESSION&gt; --repository tama --repository tama-landing --defect df0d9346
+tama task scope set --session &lt;SESSION&gt; --repository oko --task task-0d468fb998d4df51
 tama task scope show --session &lt;SESSION&gt; [--json]
 tama task scope clear --session &lt;SESSION&gt;</code></pre>
 <p><code>set</code> copies the task text from Tama's own verbatim capture of the operator's prompt — it is never
-retyped from memory — and binds the declaration to that prompt's digest. <code>show</code> reads it back and says
-whether it still serves the instruction being worked on. A scope with no repository is refused: a task that touches
-nothing changes nothing.</p>
+retyped from memory — and binds the declaration to that prompt's digest. Every scope must name the work it belongs to:
+<code>--defect</code> is an identifier from Oko's defect register and <code>--task</code> one from its task register.
+The identifier is checked against the register, not against the session's memory of it: a defect nobody recorded is
+refused, and so is one already closed by a revision — record what is wrong now with <code>oko-cli defects record</code>
+and declare that. <code>show</code> reads the scope back and says whether it still serves the instruction being worked
+on. A scope with no repository is refused: work that touches nothing changes nothing.</p>
 <h2>What is refused</h2>
 <table>
 <thead><tr><th>Situation</th><th>What the session is told</th></tr></thead>
 <tbody>
 <tr><td>Nothing declared for the current instruction</td>
-<td>The change is refused until the session says which repositories the instruction touches. It costs one command, and
-it makes the answer to "what is your task" something the machine holds rather than something a model remembers.</td></tr>
+<td>The change is refused until the session says which defect or task the instruction is and which repositories it
+touches. It costs one command, and it makes the answer to "what are you working on" something the machine holds rather
+than something a model remembers.</td></tr>
+<tr><td>A scope that names no defect and no task</td>
+<td>Refused. A repository is not a subject: until an entry in Oko's registers stands for the work, nothing says the
+change is part of anything.</td></tr>
 <tr><td>A repository outside the declaration</td>
 <td>The refusal names the instruction being served and the repositories it was declared to touch. Something really
 being broken is not the same as being asked to fix it: record it with <code>oko-cli defects record</code> and say so in
