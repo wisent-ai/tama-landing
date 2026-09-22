@@ -44,8 +44,9 @@ does not authorize an exception.</td></tr>
 <code>stado queue budget --json</code>: the fleet's UTC-day budget. Otherwise Tama uses its local
 rolling 24-hour ledger. Restarts always use the local ledger. A build is refused when the applicable
 allowance is spent without a recorded user exception, or when its change is too small:</p>
-<pre><code>the policy allows 3 builds in any 24 hours and this machine has spent all 3
-(skarbiec, brama, tama). The next one is authorized in 412 min. Gather the work
+<pre><code>the policy allows 3 builds in any 24 hours and this machine has recorded 5
+in that window (skarbiec, brama, tama, stado, oko). The local daily allowance
+has a slot in 412 min if no further intents are recorded. Gather the work
 into one build instead, or have the operator raise the limit with
 `tama build policy --builds-per-day &lt;n&gt;` and DEVICE_HOOK_EDIT_APPROVED set
 outside the agent session.
@@ -59,6 +60,14 @@ worth it.</code></pre>
 are retained for thirty days; entries containing user approval are retained as audit evidence without
 that expiry. <code>close</code> ends an authorization and does not give the build back. A retry is a
 different build attempt. Restarts are counted separately, ten in a rolling day.</p>
+<p>The rolling-window forecast waits until enough entries have expired to put usage below the
+current limit, not merely until the oldest entry expires. This matters after a limit is lowered or
+approved exceptions have left usage above it. An entry at the exact boundary still counts. A zero
+limit has no timed reset. The forecast concerns the count only, assumes no further recorded intents,
+and is not a promise that change-size, source, resource or publication checks will pass.</p>
+<p>The unregistered-build gate does not estimate usage from open authorizations: that would forget
+closed intents and disagree with the actual allowance. The recording command gives the authoritative
+refusal. Tama Desktop displays that same refusal from the shared backend.</p>
 
 <h2>A user-approved exception</h2>
 <p>An exception changes neither the default limit nor the policy file. Record it before submitting
@@ -89,9 +98,9 @@ Read fleet charges and approval receipts with <code>stado queue budget --json</c
 <p>This flow requires both Tama's <code>build approval</code> command and Stado's approval consumer.
 An older release reporting <code>unknown action approval</code> does not support the exception;
 recording an ordinary intent is not evidence that consent was stored or consumed.</p>
-<p><strong>Availability:</strong> the approval implementation is in source. Native release,
-real-fleet consumption and desktop visual qualification are still pending; this page is not
-evidence that the installed release supports it.</p>
+<p><strong>Availability:</strong> the approval flow and corrected rolling-window forecast are in
+source. Native release, real-fleet consumption and desktop visual qualification are still pending;
+this page is not evidence that the installed release supports them.</p>
 
 <h2>Tama Desktop</h2>
 <p>Open <strong>Policy → Build registry</strong>. Enter the product, full revision, repository and

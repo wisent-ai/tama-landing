@@ -44,6 +44,12 @@ that can raise its own allowance has none. The local rolling count comes from
 <code>~/.shared-hooks/build_restart_ledger.json</code>. Ordinary intents are retained for thirty days;
 approved exceptions remain as audit evidence. Closing an entry ends the authorization and does not
 refund it or renew its consent. A ledger or policy that cannot be read refuses the build.</p>
+<p>The recorder's local forecast waits until usage drops below the current limit, including when
+approved exceptions or a lowered limit have left usage above it. A zero limit has no timed reset.
+The gate does not infer spent usage from open entries, because closing an authorization does not
+refund an intent. The CLI and desktop backend share the recorder's refusal. These corrected
+diagnostics require the updated native release described in the <a href="/docs/cli/build/">build
+command</a>.</p>
 <p>One entry authorizes one kind against one target, and expires:</p>
 <pre><code>tama-cli build record --kind build --target skarbiec \
   --reason "Validate the committed identity checks in the shared build" \
