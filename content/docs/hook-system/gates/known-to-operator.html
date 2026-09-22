@@ -1,0 +1,57 @@
+<h1>What the operator already knows</h1>
+<p><code>block-known-to-operator</code> is a Stop gate that refuses a final message telling the operator what he
+already knows: what this session already told him, or what he himself decided — a refusal from his own hooks, a limit
+he set, a rule he stated — handed back to him as a blocker, a limitation, a reason the work stopped, or as news.</p>
+<h2>Why it exists</h2>
+<p>On 2026-09-22 a session ended its answer with a blocker section reporting that <code>cargo build</code>,
+<code>cargo check</code>, <code>cargo test</code> and <code>npm test</code> had been refused by the machine's own gates
+(<a href="/docs/one-off-repairs">one-off repairs</a>) and that <code>tama build record</code> had answered the day's
+three builds were spent. Every one of those refusals is the operator's own policy, installed on his instruction, and
+the ration had been explained to him earlier in the same session. His words: <em>the user does not need this
+information. this is intential. a model should not be able to provide irrelevant information to the user. especially
+information that a. was already communicated before b. the user has decidedly asked for</em>. No stop gate read what
+the session had already told him or what he had decided; <code>block-repeated-blocker</code> knows only the defect
+register. Defect 5db63149.</p>
+<h2>How it decides</h2>
+<p>Shape cannot decide this — whether a sentence restates an earlier answer, or reports the operator's own decision back
+to him, is a reading of two texts against a third — so the decider is a model, asked through Brama by the product's
+one route for that, <code>ports::model_judgement</code> (<code>oko-cli proxy-call</code>). The session is the memory.
+The gate reads the live transcript the stop payload names, or the newest transcript of the payload's session id, and
+puts three texts in front of the model: every message the operator wrote this session, every earlier answer the agent
+gave him, and the answer about to be sent. The model answers <code>PASS</code>, or <code>BLOCK:</code> followed by each
+offending sentence quoted verbatim and one clause saying whether it was told before or is his own decision.</p>
+<h2>What is refused</h2>
+<table>
+<thead><tr><th>Sentence of the answer</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>Tells him in substance what an earlier answer of this session already told him — the same fact, failure,
+refusal or explanation, reworded or repeated</td>
+<td>Refused: what this session already told him is not news.</td></tr>
+<tr><td>Reports back to him something he decided, asked for or installed — a refusal by his own hooks, gates or policy,
+a limit, quota or ration he set, a rule he stated, a choice he made — as a blocker, a limitation, a reason the work
+stopped, or as news</td>
+<td>Refused: what he decided is his intention, not the session's obstacle, and never needs telling.</td></tr>
+</tbody>
+</table>
+<p>The refusal is one <code>{"decision":"block"}</code> document on stdout. It names the gate, quotes the sentences the
+model named, quotes his rule verbatim, and says: <em>A gate of his that refused you is his decision, not your blocker;
+what this session already told him is not news. Delete those sentences and answer with the work.</em></p>
+<h2>What passes</h2>
+<p>The results of the work he asked for. A direct answer to a question he asked. A defect identifier named in one
+clause. A failure outside his own decisions that no earlier answer mentioned. A sentence that only names what he must
+do or decide next, without explaining his own policy to him. A turn under <code>stop_hook_active</code>.</p>
+<p>A session with no operator words and no earlier answer has nothing to be known yet: the model is not asked and the
+turn passes at no cost. A judgement nobody could obtain is never a denial: an absent Oko CLI, a refused gateway, an
+unreadable transcript or an empty reply is written to stderr as <code>block-known-to-operator: no judgement: …</code>
+and the turn passes, the same rule every model-judged gate follows.</p>
+<h2>Where the refusal comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/mod.rs</code> (the judgement) and
+<code>session.rs</code> (the transcript reading); binary:
+<code>src/bin/block/completion/block_known_to_operator.rs</code>; the real-binary journey that drives the gate over
+real session transcripts with a real judgement from Brama — the incident's own answer refused, the same work reported
+without it passed, a silent session never asked, a machine without Oko refusing nothing —
+<code>rust/crates/tama-hook-tools/tests/known_to_operator_guard.rs</code>; the declaration:
+<code>hook-declarations/answer-discipline/block-known-to-operator.json</code>. Declared with
+<code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file &lt;declaration&gt;</code> and installed with
+<code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>; which hooks this machine runs is decided by
+<code>tama enforcement only &lt;hook-id&gt;…</code>, which has to be run outside an agent session.</p>

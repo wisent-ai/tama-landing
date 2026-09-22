@@ -74,6 +74,7 @@
   {"route":"one-off-repairs","source":"content/docs/hook-system/gates/one-off-repairs.html","content":"content/docs/hook-system/gates/one-off-repairs.html","category":"Reference"},
   {"route":"off-task-work","source":"content/docs/hook-system/gates/off-task-work.html","content":"content/docs/hook-system/gates/off-task-work.html","category":"Reference"},
   {"route":"build-restart-registry","source":"content/docs/hook-system/gates/build-restart-registry.html","content":"content/docs/hook-system/gates/build-restart-registry.html","category":"Reference"},
+  {"route":"known-to-operator","source":"content/docs/hook-system/gates/known-to-operator.html","content":"content/docs/hook-system/gates/known-to-operator.html","category":"Reference"},
   {"route":"hook-releases","source":"docs/hook-releases.md","content":"content/docs/hook-system/hook-releases.html","category":"Reference"},
   {"route":"integrations","source":"docs/integrations.md","content":"content/docs/reference/integrations.html","category":"Reference"},
   {"route":"operations","source":"docs/operations.md","content":"content/docs/operations/operations.html","category":"Reference"},
