@@ -100,8 +100,12 @@ occasion. Describe the hook once, as data in the repository under
   "command": "$HOME/.local/bin/tama-block-one-off-repairs",
   "events": [{ "event": "pre_tool_use:bash" }]
 }</code></pre>
-<p>Then the repository half, which records the catalogue entry, writes each
-registry binding it does not already have, reconciles the sources and reseals:</p>
+<p>A binding may carry <code>"timeout"</code>, the seconds the runtime waits
+for the hook on that event, for a hook that asks a model; the registry's
+default is ten. Then the repository half, which records the catalogue entry,
+writes each registry binding it does not already have — or already has with
+another timeout, which it unbinds and binds again as declared — reconciles the
+sources and reseals:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
 <p>And the machine half, which builds every native hook the registry names from
 <code>origin/main</code> — never from the working tree, because a shared checkout

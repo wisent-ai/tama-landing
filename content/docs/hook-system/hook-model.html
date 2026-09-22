@@ -135,6 +135,18 @@ is never a denial: <code>answer()</code> is <code>None</code> for an
 unavailable one, so a guard that denies on a verdict lets the turn through
 and logs the gateway's own words — <code>no judgement: Brama refused the
 call: HTTP 503 … subscription_reauthorization_required</code>.</p>
+<p>A judge Oko has recorded as not answering is not asked. Oko writes that
+record — <code>judge-health.json</code> beside its transcript index — from
+every verification pass and from <code>oko-cli transcripts tasks judge
+--probe</code>, and the same probe lifts it. <code>ask</code> reads it first
+and returns <code>Unavailable</code> with <code>Oko last saw the judge
+refuse at …: …; not asked again from a hook</code>, because asking anyway
+costs Brama's whole retry wait inside a hook's budget: on 2026-09-22 one
+refused <code>proxy-call</code> took 27 seconds and the stop gate that asked
+it timed out at ten, which is a gate that gates nothing. A gate that asks a
+model is also bound with more than the registry's default ten seconds: its
+declaration names <code>"timeout"</code> on the event, thirty for the two
+stop gates that judge an answer.</p>
 <p><code>check-substantiation-with-model</code> uses it.
 It used to spawn a vendor CLI, which asked a provider past the gateway and
 did not run at all on a machine without that vendor's binary. This is the

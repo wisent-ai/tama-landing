@@ -41,9 +41,12 @@ what this session already told him is not news. Delete those sentences and answe
 clause. A failure outside his own decisions that no earlier answer mentioned. A sentence that only names what he must
 do or decide next, without explaining his own policy to him. A turn under <code>stop_hook_active</code>.</p>
 <p>A session with no operator words and no earlier answer has nothing to be known yet: the model is not asked and the
-turn passes at no cost. A judgement nobody could obtain is never a denial: an absent Oko CLI, a refused gateway, an
-unreadable transcript or an empty reply is written to stderr as <code>block-known-to-operator: no judgement: …</code>
-and the turn passes, the same rule every model-judged gate follows.</p>
+turn passes at no cost. A judgement nobody could obtain is never a denial: a judge Oko has recorded as not answering
+(<code>judge-health.json</code>, lifted by <code>oko-cli transcripts tasks judge --probe</code>) is not asked at all,
+and an absent Oko CLI, a refused gateway, an unreadable transcript or an empty reply is written to stderr as
+<code>block-known-to-operator: no judgement: …</code> and the turn passes, the same rule every model-judged gate
+follows. The binding carries a thirty-second timeout, as the other model-judged stop gate does: the first
+installation ran on the registry's default ten and timed out before the model answered (defect fc808d09).</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/mod.rs</code> (the judgement) and
 <code>session.rs</code> (the transcript reading); binary:
