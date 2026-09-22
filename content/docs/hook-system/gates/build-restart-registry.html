@@ -3,8 +3,8 @@
 refuses a command which would build a product or restart a service while the registry holds no open entry
 for it. Every refusal starts <code>BLOCKED: unregistered build:</code> or
 <code>BLOCKED: unregistered restart:</code>, goes to stderr, and exits <code>2</code> before the command
-runs. The registry is <code>~/.shared-hooks/build_restart_registry.json</code>, and the only writer is
-<code>tama-cli build</code>.</p>
+runs. The registry is <code>~/.shared-hooks/build_restart_registry.json</code>. The CLI
+<code>tama-cli build</code> and Tama Desktop share its writer.</p>
 
 <h2>Why it exists</h2>
 <p>On 2026-09-20 a single session submitted Brama 0.4.39, 0.4.40, 0.4.41, 0.4.42, 0.4.43 and 0.4.46,
@@ -16,16 +16,17 @@ named the shape underneath: an agent makes a minimal change, submits, waits fort
 builder, reads the failure and makes another minimal change.</p>
 <p>A build spends a fleet builder, of which there are two for <code>darwin-arm64</code>, and a restart
 spends a service that other work is reading. So each is stated before it runs — what it is for, which
-revision it carries, when the authorization stops — and the entries are rationed: three builds in any
-24 hours, and a build has to carry a change worth a builder.</p>
+revision it carries, when the authorization stops — and entries are rationed. Builds use Stado's
+fleet budget when available, or Tama's local rolling allowance otherwise. A user-approved exception
+can exceed the daily count without changing the default policy; change-size checks still apply.</p>
 
 <h2>The ration</h2>
 <table>
 <thead><tr><th>Limit</th><th>Value in code</th><th>What it stops</th></tr></thead>
 <tbody>
-<tr><td><code>builds_per_day</code></td><td>3</td><td>A fourth build inside a rolling 24 hours is
-refused, naming the targets that spent the first three and how many minutes until the next one frees.
-A retry after a failed build spends a slot, which is the point: the local gates cost a minute.</td></tr>
+<tr><td><code>builds_per_day</code></td><td>3 locally</td><td>The local fallback refuses another build
+after this count in rolling 24 hours. When Stado answers, its UTC-day fleet budget is authoritative.
+An explicitly approved and audited exception may exceed the count, not the other checks.</td></tr>
 <tr><td><code>restarts_per_day</code></td><td>10</td><td>Counted separately, so a spent build
 allowance never holds back a service that has to come back.</td></tr>
 <tr><td><code>minimum_changed_lines</code></td><td>30</td><td>A build is measured with git against the
@@ -39,13 +40,13 @@ ceiling on <code>--minutes</code>. Four hours is the hard maximum whatever the f
 <code>tama-cli build policy</code>. A machine with no policy file is still rationed by the values in
 code. Tightening a limit needs nothing; loosening one — more builds a day, a smaller change, a longer
 window — needs <code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session, because an agent
-that can raise its own allowance has none. The rolling 24 hours is counted from
-<code>~/.shared-hooks/build_restart_ledger.json</code>, which keeps every recorded intent for thirty
-days, so closing an entry ends the authorization and does not give the build back. A ledger or policy
-that cannot be read refuses the build instead of counting the day as unspent.</p>
+that can raise its own allowance has none. The local rolling count comes from
+<code>~/.shared-hooks/build_restart_ledger.json</code>. Ordinary intents are retained for thirty days;
+approved exceptions remain as audit evidence. Closing an entry ends the authorization and does not
+refund it or renew its consent. A ledger or policy that cannot be read refuses the build.</p>
 <p>One entry authorizes one kind against one target, and expires:</p>
 <pre><code>tama-cli build record --kind build --target skarbiec \
-  --reason "identity kind and duplicate refusal, suite green locally" \
+  --reason "Validate the committed identity checks in the shared build" \
   --revision 45a5c678042147f76241adf76fb7cf217e121ca6
 
 tama-cli build record --kind restart --target brama-desktop-model-router \
@@ -72,10 +73,26 @@ repository the command runs in.</td></tr>
 <tr><td><code>--minutes</code></td><td>How long the entry stays open: one to the policy's window,
 sixty by default, four hours at the very most. Past that it authorizes nothing, so an entry that is
 never closed cannot become a standing permission.</td></tr>
+<tr><td><code>--approval-session</code>, <code>--approval-quote</code></td><td>For builds only, together.
+The quote must match Tama's captured current user message, and Brama must verify explicit permission
+to exceed the daily count for the named product or batch. A request to add this mechanism is not
+permission to use it. The entry retains the original message, its digest, session, capture time,
+product, revision and verdict.</td></tr>
 </tbody>
 </table>
 <p>A registry file that is missing, empty or malformed holds no entries, which refuses every build and
 restart rather than letting them all through.</p>
+<p>The CLI <code>build approval --target NAME --revision FULL_SHA --json</code> returns an unexpired
+entry only when its evidence also exists in the audit ledger. Stado reads it before charging an
+over-limit native build and stores the evidence with the run and platform in its canonical registry.
+The same message cannot grant another Tama intent for that product, and the same approval cannot
+charge another Stado run for that platform. The default count, expiry, duplicate-revision refusal,
+minimum change, host admission and publication permissions are unchanged.</p>
+<p>Tama Desktop exposes recording, refusals, retained approval history and closing in
+<strong>Policy → Build registry</strong>. Closing blocks subsequent approval reads; it does not
+cancel an already accepted job. See the <a href="/docs/cli/build/">build command</a> for
+the complete flow and HTTP fields. Older Tama and Stado releases without the approval writer,
+reader and consumer cannot grant this exception.</p>
 
 <h2>What is refused</h2>
 <table>
@@ -95,8 +112,9 @@ route out of it is the command itself.</p>
 <h2>What passes</h2>
 <p>Reads of the same programs: <code>stado release status</code>, <code>stado service list</code>,
 <code>launchctl list|print</code>, any invocation carrying <code>--help</code>, <code>cargo test</code>,
-<code>cargo fmt --check</code> and <code>cargo clippy</code> — the local gates a build fails on are never
-themselves gated. The command is read the way a shell reads it, cut at separators outside quotes with
+<code>cargo fmt --check</code> and <code>cargo clippy</code> are not build commands for this gate.
+Other gates may still refuse hand-run compilation or tests; passing this gate is not permission to
+bypass the shared build process. The command is read the way a shell reads it, cut at separators outside quotes with
 quoted text blanked and <code>env</code>, <code>sudo</code>, <code>nohup</code> and <code>timeout</code>
 stepped over, so <code>grep 'cargo build' notes.md</code> and a commit message that mentions a restart run
 nothing and are allowed.</p>

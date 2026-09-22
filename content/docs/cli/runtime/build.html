@@ -1,11 +1,11 @@
 <h1><code>tama-cli build</code></h1>
 <p>Writes and reads the build and restart registry, <code>~/.shared-hooks/build_restart_registry.json</code>.
 The gate <a href="/docs/build-restart-registry/"><code>block-unregistered-build-or-restart</code></a>
-refuses a build or a restart that has no open entry here, and this command is the only writer.</p>
+refuses a build or a restart that has no open entry here. The CLI and Tama Desktop use the same registry operations.</p>
 
 <h2>Record an intent</h2>
 <pre><code>tama-cli build record --kind build --target skarbiec \
-  --reason "identity kind and duplicate refusal, suite green locally" \
+  --reason "Validate the committed identity checks in the shared build" \
   --revision 45a5c678042147f76241adf76fb7cf217e121ca6 [--minutes 60] [--json]
 
 tama-cli build record --kind restart --target brama-desktop-model-router \
@@ -31,12 +31,19 @@ cannot become standing permission.</td></tr>
 repository the command runs in; a directory in no repository is refused by name.</td></tr>
 <tr><td><code>--home</code></td><td>The home whose registry is written. Present so a test can drive the
 real command against a disposable registry instead of the operator's.</td></tr>
+<tr><td><code>--approval-session</code>, <code>--approval-quote</code></td><td>Optional, together, for
+builds only. The session identifies Tama's captured current user message; the quote must equal that
+whole message verbatim. Tama verifies explicit permission to exceed the daily count for this product
+or a batch containing it. Missing capture, a different quote, refusal, or an unavailable verifier
+does not authorize an exception.</td></tr>
 </tbody>
 </table>
 
 <h2>The ration</h2>
-<p>Recording is not paperwork, it is an allowance. A build is refused when the day's allowance is
-spent or when the change it carries is too small to be worth a builder:</p>
+<p>Recording is not paperwork, it is an allowance. When Stado is available, the build count comes from
+<code>stado queue budget --json</code>: the fleet's UTC-day budget. Otherwise Tama uses its local
+rolling 24-hour ledger. Restarts always use the local ledger. A build is refused when the applicable
+allowance is spent without a recorded user exception, or when its change is too small:</p>
 <pre><code>the policy allows 3 builds in any 24 hours and this machine has spent all 3
 (skarbiec, brama, tama). The next one is authorized in 412 min. Gather the work
 into one build instead, or have the operator raise the limit with
@@ -48,10 +55,56 @@ recorded build of skarbiec carried, and the policy calls a build serious at 30
 lines. A build spends forty minutes of a builder the fleet has two of, so small
 changes travel together: keep working and record the build once the change is
 worth it.</code></pre>
-<p>The count comes from <code>~/.shared-hooks/build_restart_ledger.json</code>, which keeps every
-recorded intent for thirty days, so <code>close</code> ends an authorization and does not give the
-build back. A retry after a failed build spends a slot. A restart is counted separately, ten in a
-rolling day, so a spent build allowance never holds back a service that has to come back.</p>
+<p>The local count comes from <code>~/.shared-hooks/build_restart_ledger.json</code>. Ordinary intents
+are retained for thirty days; entries containing user approval are retained as audit evidence without
+that expiry. <code>close</code> ends an authorization and does not give the build back. A retry is a
+different build attempt. Restarts are counted separately, ten in a rolling day.</p>
+
+<h2>A user-approved exception</h2>
+<p>An exception changes neither the default limit nor the policy file. Record it before submitting
+the build. Replace the session, revision and message placeholders with the actual captured approval;
+an example in documentation is not user consent.</p>
+<pre><code>tama-cli build record --kind build --target skarbiec --revision FULL_SHA \
+  --reason "Build the committed change after explicit permission from the user" \
+  --approval-session SESSION_ID --approval-quote 'VERBATIM_USER_MESSAGE' --json
+tama-cli build approval --target skarbiec --revision FULL_SHA --json
+tama-cli build list --json</code></pre>
+<p>The message must explicitly authorize exceeding the daily build count for the named product or
+batch. A normal build request, a request to implement this mechanism, hypothetical consent, and an
+agent's assertion are not consent. Tama checks the message through Brama and refuses if it cannot
+obtain an accepting verdict. It rechecks that the captured message has not changed before writing.</p>
+<p>The entry stores <code>user_approval</code>: the exact quote, session, message digest, capture time,
+product, revision and verification verdict. The audit ledger is written before the open registry.
+If the latter write fails, the error is returned and the auditable intent remains spent; it is not
+silently granted or erased. The same captured message cannot authorize another intent for this
+product. A batch approval may cover different products, each with its own recorded intent.</p>
+<p>The exception bypasses only the daily count. The same-revision refusal, minimum change size,
+expiry, source checks, resource admission and publication permissions remain in force. It cannot
+authorize a restart. <code>approval</code> returns only a matching, unexpired entry also present in
+the audit history; it refuses a missing entry, a different revision, or a closed authorization.</p>
+<p>Stado's native build submission reads that entry when its fleet budget is exhausted and retains
+the evidence with the charged run and platform in its canonical registry. One approval cannot charge
+another run for the same product and platform. Raw queue submissions cannot claim this exception.
+Read fleet charges and approval receipts with <code>stado queue budget --json</code>.</p>
+<p>This flow requires both Tama's <code>build approval</code> command and Stado's approval consumer.
+An older release reporting <code>unknown action approval</code> does not support the exception;
+recording an ordinary intent is not evidence that consent was stored or consumed.</p>
+<p><strong>Availability:</strong> the approval implementation is in source. Native release,
+real-fleet consumption and desktop visual qualification are still pending; this page is not
+evidence that the installed release supports it.</p>
+
+<h2>Tama Desktop</h2>
+<p>Open <strong>Policy → Build registry</strong>. Enter the product, full revision, repository and
+reason. For an exception, enable <strong>Use recorded user consent for a daily-limit exception</strong>
+and supply the session and verbatim current message. <strong>Record build</strong> records permission;
+it does not start compilation. The screen shows the backend's refusal, current entries, local intent
+counts and retained approval history. <strong>Close</strong> removes the current authorization but
+keeps its approval history. It does not cancel jobs Stado has already accepted.</p>
+<p>The same operations are <code>GET /v1/builds</code>, <code>POST /v1/builds/record</code> and
+<code>POST /v1/builds/close</code>. Recording uses <code>kind</code>, <code>target</code>,
+<code>reason</code>, optional <code>revision</code>, <code>repository</code>, <code>minutes</code>,
+and paired <code>approvalSession</code>/<code>approvalQuote</code>. Closing uses <code>kind</code>
+and <code>target</code>. Unknown request fields are refused.</p>
 
 <h2>Read the limits, and change them</h2>
 <pre><code>tama-cli build policy [--json]
@@ -70,7 +123,8 @@ tama-cli build close --kind build --target skarbiec [--json]</code></pre>
 <p><code>list</code> prints every entry with its kind, target, reason, revision, who recorded it and how
 many minutes it still authorizes; an expired entry is shown as expired, because the file keeps it until it
 is overwritten and it authorizes nothing. <code>close</code> removes one entry, which is what ends an
-authorization early; closing an entry that is not there is reported, not an error.</p>
+authorization early; closing an entry that is not there is an error. JSON output includes
+<code>approval_history</code>, including approvals whose current entry has been closed or replaced.</p>
 
 <h2>What the refusal looks like</h2>
 <pre><code>BLOCKED: unregistered build: `stado release submit --source . --version 0.3.11` would
@@ -80,6 +134,31 @@ work depends on, so each is stated before it runs. Record the intent, then run t
 command again:
   tama-cli build record --kind build --target skarbiec --reason "&lt;what this build is
   for&gt;" --revision &lt;source revision this build carries&gt;</code></pre>
+<h2>Run the approval journeys</h2>
+<pre><code>TAMA_TEST_BINS=/path/to/the/release/bin npm run test:build-approval-release</code></pre>
+<p>Run this in the Tama checkout with Node.js 24 or newer. The release must contain
+<code>tama-cli</code> and <code>tama-record-current-assignment</code>. The test uses the real
+assignment capture, CLI, desktop HTTP backend and Brama consent verifier. It creates its own
+registry under <code>.wisent-output/build-approval/&lt;run&gt;</code>; its fixture messages never
+grant permission in the operator's registry. It checks exhausted limits, missing and altered
+consent, restart refusal, positive permission, revision matching, closing, replay and a request
+to implement permission rather than grant it. The default policy must stay unchanged.</p>
+<p>The run retains the source revision and patch, binary and test hashes, command arguments,
+exit statuses, HTTP responses and backend output. Brama uses the existing Tama credential
+and connection; an unavailable dependency is a failed or blocked run, not a passing substitute.
+This journey does not prove that Stado consumed permission for a real build, nor does it
+replace a visual check of Tama Desktop.</p>
+<h2>Package a matching desktop backend</h2>
+<p>In the Tama Desktop checkout, pin the pushed Tama commit before releasing the app:</p>
+<pre><code>python3 Scripts/hook_source/__main__.py pin --revision FULL_TAMA_COMMIT
+python3 Scripts/hook_source/__main__.py verify
+python3 tests/builds/source_pin.test.py</code></pre>
+<p>The producer updates <code>Release/tama-revision</code> and its immutable archive and checksum.
+Both release lanes use that revision. Stado unpacks the verified archive with its recorded origin;
+native packaging and sealing refuse changed, missing or additional source inputs rather than
+treating the enclosing desktop checkout as the backend's revision. The regression journey retains
+its commands, source and tool hashes, and verdict under <code>.build/source-proof/&lt;run&gt;</code>.
+It proves source handling only, not a compiled or published desktop release.</p>
 <p>Source: <code>rust/crates/tama-cli/src/builds/mod.rs</code>. The real-binary test that drives this
 command and the gate together against a disposable registry:
 <code>rust/crates/tama-hook-tools/tests/build_registry_guard.rs</code>.</p>
