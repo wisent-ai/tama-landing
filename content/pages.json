@@ -79,7 +79,8 @@
   {"route":"integrations","source":"docs/integrations.md","content":"content/docs/reference/integrations.html","category":"Reference"},
   {"route":"operations","source":"docs/operations.md","content":"content/docs/operations/operations.html","category":"Reference"},
   {"route":"releases","source":"docs/releases.md","content":"content/docs/operations/releases.html","category":"Reference"},
-  {"route":"runbook","source":"docs/runbook.md","content":"content/docs/operations/runbook.html","category":"Reference"},
+  {"route":"runbook","source":"docs/runbook.md","content":"content/docs/operations/runbook/runbook.html","category":"Reference"},
+  {"route":"runbook-copies","source":"docs/runbook-copies.md","content":"content/docs/operations/runbook/repository-copies.html","category":"Reference"},
   {"route":"scripts","source":"docs/scripts.md","content":"content/docs/operations/scripts.html","category":"Reference"},
   {"route":"testing","source":"docs/testing.md","content":"content/docs/operations/testing.html","category":"Reference"},
 
