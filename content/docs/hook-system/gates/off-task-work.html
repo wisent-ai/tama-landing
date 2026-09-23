@@ -15,6 +15,7 @@ once per instruction, and checked mechanically.</p>
 <h2>Declaring what the instruction touches</h2>
 <pre><code>tama task scope set --session &lt;SESSION&gt; --repository tama --repository tama-landing --defect df0d9346
 tama task scope set --session &lt;SESSION&gt; --repository oko --task task-0d468fb998d4df51
+tama task scope set --session &lt;SESSION&gt; --task task-0d468fb998d4df51
 tama task scope show --session &lt;SESSION&gt; [--json]
 tama task scope clear --session &lt;SESSION&gt;</code></pre>
 <p><code>set</code> copies the task text from Tama's own verbatim capture of the operator's prompt — it is never
@@ -23,7 +24,15 @@ retyped from memory — and binds the declaration to that prompt's digest. Every
 The identifier is checked against the register, not against the session's memory of it: a defect nobody recorded is
 refused, and so is one already closed by a revision — record what is wrong now with <code>oko-cli defects record</code>
 and declare that. <code>show</code> reads the scope back and says whether it still serves the instruction being worked
-on. A scope with no repository is refused: work that touches nothing changes nothing.</p>
+on.</p>
+<p>A task's scope lives in its Oko contract, not in the session. With <code>--task</code> and no
+<code>--repository</code>, <code>set</code> takes the repositories the contract lists
+(<code>oko-cli transcripts tasks show &lt;task&gt; --json</code>, field <code>current.contract.terms.scope</code>). Given
+repositories that differ from the contract's are written back into it with
+<code>oko-cli transcripts tasks state &lt;task&gt; --scope &lt;repo&gt;… --by &lt;SESSION&gt;</code>, so the next session
+handed the same task declares the same scope, and the change appears in the contract's history. If Oko refuses that
+write, <code>set</code> fails with Oko's sentence and declares nothing. A scope with no repository — none given and
+none in the contract — is refused: work that touches nothing changes nothing.</p>
 <h2>What is refused</h2>
 <table>
 <thead><tr><th>Situation</th><th>What the session is told</th></tr></thead>
