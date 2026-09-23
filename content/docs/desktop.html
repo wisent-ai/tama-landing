@@ -54,18 +54,21 @@ would edit and rescans afterwards (<a href="onboarding.md">onboarding</a>).</p>
 privileged backend status with <em>Approval settings</em> and <em>Full Disk Access</em>
 shortcuts) and the build identity, and owns the confirmed
 <em>Deactivate everything</em> teardown.</p>
-<h2>The loopback backend</h2>
-<p>Reads that belong to the sealed CLI — coverage, install plan, MCP snippet,
-violation scan and cleanup — go through one child process the app spawns
-lazily: <code>tama-cli serve --port 0 --root &lt;bundled release&gt;</code>, which binds
-<code>127.0.0.1</code> on an ephemeral port, prints a single ready line
-<code>{&quot;ready&quot;:true,&quot;port&quot;:N}</code>, and serves <code>/v1</code> HTTP endpoints until the app
-kills it on quit. Reads are plain GETs (<code>/v1/coverage</code>, <code>/v1/install-plan</code>,
-<code>/v1/mcp-config</code>); long-running jobs POST and stream NDJSON
-(<code>/v1/violations/scan</code>, <code>/v1/violations/clean</code>), where <code>log</code> events carry
-the job's own output and one <code>result</code> event carries the exit status and
-document. A non-2xx answer is the backend's own refusal sentence in an
-<code>{&quot;error&quot;: &quot;…&quot;}</code> envelope, surfaced verbatim. The full command surface is
+<h2>How the app reaches the sealed CLI</h2>
+<p>Reads and jobs that belong to the sealed CLI — coverage, install plan, MCP
+snippet, policy bundles, enforcement, hook warming, violation scan and cleanup,
+worktrees, copies, builds and justifications — each run one process:
+<code>tama-cli request &lt;operation&gt; --root &lt;bundled release&gt;</code>, with the
+request body on stdin. It prints NDJSON on stdout and exits once it has
+answered, so no Tama process stays running between two operations and no port
+is opened. A bounded operation prints one <code>response</code> event carrying
+its status and document; a long-running job (<code>violations/scan</code>,
+<code>violations/clean</code>) prints <code>log</code> events with its own output and
+one <code>result</code> event carrying the exit status and document. A refusal is
+the product's own sentence in an <code>{&quot;error&quot;: &quot;…&quot;}</code>
+envelope, surfaced verbatim. Cancelling a scan or cleanup, or quitting the app,
+ends that process and everything it started. The full contract is
+<a href="/docs/cli/request/">tama request</a>; the full command surface is
 <a href="cli.md">cli</a>.</p>
 <h2>Privileged backend</h2>
 <p><strong>Register privileged backend</strong> (in <a href="desktop/settings.md">Settings</a>)

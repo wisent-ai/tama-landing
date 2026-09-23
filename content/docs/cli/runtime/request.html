@@ -1,0 +1,53 @@
+<h1><code>tama request</code></h1>
+<p>Answers one Tama Desktop request and exits: the JSON body on stdin, NDJSON events on stdout. Tama Desktop runs one <code>tama-cli request</code> process per operation, so no Tama process stays running between two operations and no port is opened.</p>
+<h2>Invocation</h2>
+<pre><code>tama request &lt;operation&gt; [--root &lt;release-path&gt;]
+</code></pre>
+<p><code>&lt;operation&gt;</code> names one operation from the table below. <code>--root</code> selects the sealed hook release the operation reads; the desktop passes the release bundled into the app. The body is read from stdin to its end before anything runs, and an empty body is <code>{}</code>, so an operation that takes no fields needs no input: <code>tama request coverage &lt; /dev/null</code>.</p>
+<h2>Operations</h2>
+<table>
+<thead><tr><th>Operation</th><th>Body</th><th>Answer</th></tr></thead>
+<tbody>
+<tr><td><code>coverage</code></td><td>none</td><td>Registry-declared provider coverage, the document <a href="/docs/desktop/coverage/">Coverage</a> reads</td></tr>
+<tr><td><code>install-plan</code></td><td>none</td><td>The document <code>tama install-plan --json</code> prints</td></tr>
+<tr><td><code>mcp-config</code></td><td>none</td><td>The document <code>tama mcp-config</code> prints</td></tr>
+<tr><td><code>enforcement</code></td><td>none</td><td>The machine hook selection <code>tama enforcement status --json</code> prints</td></tr>
+<tr><td><code>enforcement/update</code></td><td><code>{mode, enabled}</code>: <code>mode</code> is <code>all</code> with no <code>enabled</code>, or <code>only</code> with a non-empty array of hook ids</td><td>The selection after the change</td></tr>
+<tr><td><code>hooks/warm</code></td><td><code>{only?}</code>: hook ids; empty or absent warms every hook</td><td>The report <code>tama hooks warm --json</code> prints</td></tr>
+<tr><td><code>policy-bundles</code></td><td>none</td><td>Retained inactive source identities</td></tr>
+<tr><td><code>policy-bundles/import</code></td><td><code>{sourcePath, replace?}</code></td><td>The same validating transaction as <code>tama policy import</code>; it never enables hooks</td></tr>
+<tr><td><code>violations/scan</code></td><td><code>{repo}</code></td><td>A streamed job: <code>tama find-violations --repo &lt;repo&gt; --json</code></td></tr>
+<tr><td><code>violations/clean</code></td><td><code>{repo}</code></td><td>A streamed job: <code>tama clean --repo &lt;repo&gt;</code> with its defaults; it may modify the repository</td></tr>
+<tr><td><code>worktrees/list</code>, <code>worktrees/remove</code></td><td><code>{roots}</code>; removal adds <code>{except?, apply?, force?}</code></td><td>The documents <a href="/docs/cli/worktrees/">tama worktrees</a> prints under <code>--json</code></td></tr>
+<tr><td><code>copies/list</code>, <code>copies/remove</code></td><td><code>{roots}</code>; removal adds <code>{except?, only?, apply?, force?}</code></td><td>The documents <a href="/docs/cli/copies/">tama copies</a> prints under <code>--json</code></td></tr>
+<tr><td><code>builds</code>, <code>builds/record</code>, <code>builds/close</code></td><td>none; <code>{kind, target, reason, revision?, repository?, minutes?, approvalSession?, approvalQuote?}</code>; <code>{kind, target}</code></td><td>The registry and entries <a href="/docs/cli/build/">tama build</a> reads and writes</td></tr>
+<tr><td><code>justifications/cua</code></td><td>none</td><td><code>{kind, registry, authorizations}</code></td></tr>
+<tr><td><code>justifications/cua/record</code></td><td><code>{sessionId, app, actions, quote}</code> or <code>{sessionId, app, actions, quoteMatch}</code>, with <code>actions</code> an array of strings</td><td><code>{kind, registry, sessionId, authorization}</code></td></tr>
+<tr><td><code>justifications/cua/remove</code></td><td><code>{quote}</code></td><td><code>{kind, registry, removed, count}</code></td></tr>
+<tr><td><code>justifications/record</code></td><td><code>{kind, file, justification, quote?, expiresAt?}</code>, where <code>kind</code> is <code>file</code> or <code>test</code></td><td><code>{recorded, kind, registry}</code></td></tr>
+</tbody>
+</table>
+<p>The justification operations reuse <a href="/docs/cli/justify/">tama justify</a> validation and registry transactions. They use the process's home and runtime transcript directory; a request cannot choose another home or transcript source. Recording requests reject unknown fields, and none of these operations issues capabilities, enables hooks or starts Cua Driver.</p>
+<h2>Output and state</h2>
+<p>stdout carries only NDJSON events. A bounded operation prints exactly one:</p>
+<pre><code>{"type":"response","status":&lt;status&gt;,"json":{…}}
+</code></pre>
+<p><code>status</code> is <code>200</code> for an answer, and <code>json</code> is the document the matching command prints. Any other status is a refusal named in HTTP's vocabulary — <code>400</code> a request the operation refuses, <code>403</code> an operation disabled on this machine, <code>404</code> an unknown operation, <code>500</code> a failure while it ran — and its <code>json</code> is <code>{"error": "&lt;one sentence&gt;"}</code>, the product's own refusal, verbatim.</p>
+<p>A streamed job (<code>violations/scan</code>, <code>violations/clean</code>) prints its own output as it happens, then one result:</p>
+<pre><code>{"type":"log","stream":"stdout"|"stderr","chunk":"…"}   (zero or more)
+{"type":"result","status":&lt;exit-code&gt;,"json":{…}}       (exactly one, last)
+</code></pre>
+<p>The result's <code>status</code> is the exit code the command would have ended with — for a scan, <code>1</code> means violations were found, not that the scan failed — and <code>json</code> is its document. A job refused before it starts prints one <code>response</code> instead. The process exits <code>0</code> after a <code>200</code> response, <code>1</code> after any other response, and with the job's own status after a result. Tama keeps no state of its own for a request; the operation writes what the matching command writes, and cleanup may modify the requested repository.</p>
+<h2>Refusals and failures</h2>
+<ul>
+<li>No operation: <code>request requires an operation</code>, exit <code>2</code>, nothing on stdout.</li>
+<li>A second positional argument: <code>unexpected request argument: &lt;argument&gt;</code>, exit <code>2</code>.</li>
+<li>Any option but <code>--root</code>: <code>unknown request option: &lt;option&gt;</code>, and <code>missing value for --root</code> for a bare <code>--root</code>; both exit <code>2</code>.</li>
+<li>An unknown operation: a <code>404</code> response, <code>unknown operation: &lt;operation&gt;</code>.</li>
+<li>A body that does not parse: a <code>400</code> response, <code>request body is not valid JSON</code>.</li>
+<li>Unreadable stdin: <code>failed to read the request body from stdin: &lt;reason&gt;</code> on stderr, exit <code>1</code>, nothing on stdout.</li>
+<li>A missing <code>HOME</code> for the build and justification operations: a <code>500</code> response, <code>HOME is not set</code>.</li>
+<li>Policy import requires a nonempty <code>sourcePath</code> and a supported bundle. Invalid input returns the core refusal; conflict and rejected results remain structured documents with no partial writes.</li>
+<li>A reader that closes stdout ends the process at its next event. Tama Desktop ends the whole process tree when a scan or cleanup is cancelled or the app quits.</li>
+</ul>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

@@ -86,8 +86,8 @@ conflating them: hook and orphan-source counts first, one <code>WARN &lt;id&gt;:
 for the current user's provider configurations (<code>~/.claude/settings.json</code>,
 <code>~/.codex/hooks.json</code>) — non-material drift warns, material drift makes the exit status
 nonzero. <code>tama sessions [--home &lt;path&gt;]</code> reads exactly one explicit home's session
-records and prints nothing (exit 0) when none are live. Provider coverage is served
-read-only at <code>/v1/coverage</code> and states its own evidence in every row:
+records and prints nothing (exit 0) when none are live. Provider coverage is answered
+read-only by <code>tama request coverage</code> and states its own evidence in every row:
 <code>Registry-declared mappings; not live execution evidence.</code></p>
 <p>Hook inspection is read-only: <code>list</code>, <code>show</code>, and <code>docs</code> render the sealed catalog and
 never write. The sealed CLI carries no registry mutation — adding or removing a hook is

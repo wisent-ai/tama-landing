@@ -179,11 +179,15 @@ absolute, not a directory, or no <code>.git</code>.</li>
 <li><code>Codex is unavailable. Install and authenticate Codex before confirming cleanup.</code> — repair needs the local headless agent; scan does not.</li>
 <li><code>The clean command was cancelled. Partial working-tree edits remain visible; inspect them and complete a read-only scan before retrying.</code></li>
 </ul>
-<p>The loopback backend's own refusals arrive verbatim in <code>{&quot;error&quot;: &quot;…&quot;}</code>
-envelopes — captured live: <code>{&quot;error&quot;:&quot;unknown endpoint: GET /v1/nope&quot;}</code>
-(404), <code>{&quot;error&quot;:&quot;repo not found: /nonexistent&quot;}</code> (400)
-(<a href="cli.md#the-desktop-backend">cli</a>). A backend that cannot start reports
-<code>The Tama backend did not start.</code> (with stderr detail when there is any) or
+<p>Refusals from <code>tama-cli request</code> arrive verbatim in <code>{&quot;error&quot;: &quot;…&quot;}</code>
+envelopes on its one <code>response</code> event: an unknown operation is status
+<code>404</code> with <code>unknown operation: &lt;operation&gt;</code>, and a scan of a path that
+does not exist is status <code>400</code> with <code>repo not found: &lt;path&gt;</code>
+(<a href="/docs/cli/request/">tama request</a>). A request process that cannot start reports
+<code>The Tama backend did not start.</code> (with the launch error when there is one); one
+that ends without answering reports
+<code>The Tama backend ended with status &lt;status&gt; before it answered.</code> followed by
+its stderr; a build without the sealed binary reports
 <code>The Tama backend is missing from this build at &lt;path&gt;. Rebuild with Scripts/build-app.sh.</code></p>
 <h2>The privileged backend is not <code>Enabled</code></h2>
 <p>Statuses are macOS's answers, mapped verbatim by

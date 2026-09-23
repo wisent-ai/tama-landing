@@ -11,10 +11,11 @@ release in Finder); without, <code>Sign in for controls</code>.</p>
 <p><strong>Import policy bundle</strong> selects a self-contained Tama policy
 bundle or sealed release directory containing
 <code>shared-hooks/registry.json</code>. The native app
-sends the path to <code>POST /v1/policy-bundles/import</code>; Tama core parses,
-validates every registered source, verifies <code>release.json</code> when a
-sealed release is selected, and transactionally copies the bundle. Swift does
-not parse files or invoke an import command.</p>
+sends the path as the body of <code>tama-cli request policy-bundles/import</code>,
+one process that exits once it has answered; Tama core parses, validates every
+registered source, verifies <code>release.json</code> when a sealed release is
+selected, and transactionally copies the bundle. Swift does not parse files or
+build a command line for <code>tama policy import</code>.</p>
 <p>The screen shows imported, unchanged, removed, conflicting, rejected, and
 ignored results. Every conflict and rejection stays visible. The default writes
 nothing when stored content differs; <strong>Replace these reviewed bundle

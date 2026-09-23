@@ -109,11 +109,12 @@ and supply the session and verbatim current message. <strong>Record build</stron
 it does not start compilation. The screen shows the backend's refusal, current entries, local intent
 counts and retained approval history. <strong>Close</strong> removes the current authorization but
 keeps its approval history. It does not cancel jobs Stado has already accepted.</p>
-<p>The same operations are <code>GET /v1/builds</code>, <code>POST /v1/builds/record</code> and
-<code>POST /v1/builds/close</code>. Recording uses <code>kind</code>, <code>target</code>,
-<code>reason</code>, optional <code>revision</code>, <code>repository</code>, <code>minutes</code>,
-and paired <code>approvalSession</code>/<code>approvalQuote</code>. Closing uses <code>kind</code>
-and <code>target</code>. Unknown request fields are refused.</p>
+<p>The screen runs the same operations as <code>tama request builds</code>,
+<code>tama request builds/record</code> and <code>tama request builds/close</code>
+(<a href="/docs/cli/request/">tama request</a>). Recording uses <code>kind</code>,
+<code>target</code>, <code>reason</code>, optional <code>revision</code>, <code>repository</code>,
+<code>minutes</code>, and paired <code>approvalSession</code>/<code>approvalQuote</code>.
+Closing uses <code>kind</code> and <code>target</code>. Unknown request fields are refused.</p>
 
 <h2>Read the limits, and change them</h2>
 <pre><code>tama-cli build policy [--json]

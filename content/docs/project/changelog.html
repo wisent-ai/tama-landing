@@ -3,11 +3,11 @@
 <h2>0.2.0 — Unreleased</h2>
 <h3>Added</h3>
 <ul>
-<li>CUA consent recording, listing and removal through <code>tama justify --kind cua</code>, the loopback API and Justifications → CUA consent. Grants are taken from actual session user messages and validated against installed application metadata without manual protected-file edits.</li>
+<li>CUA consent recording, listing and removal through <code>tama justify --kind cua</code>, <code>tama request</code> and Justifications → CUA consent. Grants are taken from actual session user messages and validated against installed application metadata without manual protected-file edits.</li>
 <li>Product contract, onboarding, operational, core, integration, example, testing, release, security, and support documentation.</li>
 <li>Authenticated guided setup that records completion only after the sealed runtime, enabled privileged backend, and a matching live kernel-gated agent session are all observed.</li>
 <li>Desktop build provenance and immutable release packaging contract.</li>
-<li>Public Tama CLI for catalog listing and validation with opt-in local install-drift checks, exact hook inspection, live session state, registry-declared provider coverage, Git dispatcher installation, repository scans and cleanup, adaptive recovery, MCP configuration, and the loopback desktop backend.</li>
+<li>Public Tama CLI for catalog listing and validation with opt-in local install-drift checks, exact hook inspection, live session state, registry-declared provider coverage, Git dispatcher installation, repository scans and cleanup, adaptive recovery, MCP configuration, and <code>tama request</code>, the per-operation entry point the desktop runs.</li>
 <li>Runnable <code>examples/</code> shell commands with inline risk, required-input, side-effect, and rollback comments; CLI link installation is retry-safe, and prose runbooks plus the Markdown coverage matrix were removed.</li>
 <li>Session destination that renders the capability a supervised session holds — lifetime, expiry, remaining uses and every tool grant — together with the register of semantic decisions that session published.</li>
 <li>Coverage destination for registry-declared provider coverage, and an Install plan destination that states each scope's target paths, the exact commands that write them, and the MCP server snippet.</li>
@@ -16,7 +16,8 @@
 </ul>
 <h3>Changed</h3>
 <ul>
-<li>The file/test justification recorder uses the shared loopback operation instead of spawning a separate CLI command from the native view.</li>
+<li>Every backend operation runs as one <code>tama-cli request &lt;operation&gt;</code> process that exits once it has answered, instead of a resident <code>tama-cli serve</code> loopback server kept alive for the whole session; cancelling a scan or cleanup, or quitting the app, ends that operation's process tree.</li>
+<li>The file/test justification recorder uses the shared <code>justifications/record</code> operation instead of spawning a separate CLI command from the native view.</li>
 <li>Runtime installation and macOS policy registration require explicit authenticated confirmation instead of running during model initialization.</li>
 <li>Session discovery is read-only when Tama has not been configured.</li>
 <li>Session monitoring starts only while the authenticated control surface is visible.</li>

@@ -60,9 +60,9 @@ carrying one of these cannot say the roots hold one checkout per repository,
 only that it saw no second one where it could look, so it exits <code>1</code> and
 prints <code>could not read &lt;path&gt;: &lt;reason&gt;</code> to stderr in both output
 modes.</p>
-<p>The same document is served by <code>POST /v1/copies/list</code> with body
-<code>{"roots":[String]}</code> on the loopback desktop backend
-(<a href="../../serve/"><code>tama serve</code></a>).</p>
+<p>The same document is the answer of <code>tama request copies/list</code> with body
+<code>{"roots":[String]}</code>, the operation Tama Desktop runs
+(<a href="../../request/"><code>tama request</code></a>).</p>
 <h2>State effect</h2>
 <p>None. The command walks directories and runs read-only Git status, ref,
 object and origin queries. It does not fetch missing objects, and it has no

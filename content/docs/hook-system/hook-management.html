@@ -205,8 +205,8 @@ required, because nothing about the machine's policy changes.</p>
 <p>Tama Desktop carries the same step: the <strong>Hooks</strong> screen shows
 a <strong>Hook binaries</strong> panel with a <strong>Warm hook binaries</strong>
 button, the count it warmed, and a row for every binary that was slow or could
-not run. Both surfaces call the same <code>POST /v1/hooks/warm</code> route on
-the local backend and read the same document.</p>
+not run. Both surfaces run the same warm pass — the window through
+<code>tama-cli request hooks/warm</code> — and read the same document.</p>
 <h2>Owner consent for a hook change</h2>
 <p>Hook source and structured configuration are protected at device level. Inside
 an agent session <code>block-hook-config-edits-without-consent</code> refuses any

@@ -21,7 +21,7 @@ const commands = [
   "/docs/cli/enforcement/only",
   "/docs/cli/enforcement/preflight",
   "/docs/cli/enforcement/all",
-  "/docs/cli/serve",
+  "/docs/cli/request",
   "/docs/cli/adaptive",
   "/docs/cli/adaptive/status",
   "/docs/cli/adaptive/drift",

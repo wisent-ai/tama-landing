@@ -77,9 +77,9 @@ registry, executes hooks per event, and publishes its session record —
 identity, hook counts, capability, recent decisions — under
 <code>session-control/</code>.</li>
 <li><strong>Observation time.</strong> The desktop polls records once per second while
-authorized; the sealed CLI answers the same from <code>sessions</code>; the
-loopback backend serves catalog-derived reads
-(<a href="cli.md#the-desktop-backend">cli</a>).</li>
+authorized; the sealed CLI answers the same from <code>sessions</code>; catalog-derived
+reads are one <code>tama-cli request</code> process each
+(<a href="/docs/cli/request/">tama request</a>).</li>
 <li><strong>Control time.</strong> Enables travel as private request files the supervisor
 validates (<a href="concepts/session-enable.md">concepts/session-enable</a>);
 disable is the operator-owned global switch
@@ -92,7 +92,7 @@ disable is the operator-owned global switch
 | App ↔ operator | Wisent role (<code>owner</code>/<code>admin</code>/<code>member</code>) constructs the mutation-capable model; confirmation dialogs and macOS approvals gate each mutation |
 | Tama ↔ session | The 64-hex <code>controlKey</code> names the session's private request channel; the supervisor validates every envelope and applies overrides itself |
 | Session ↔ machine | The privileged daemon (<code>ai.wisent.tama.system-policy</code>) and Network Extension (<code>ai.wisent.tama.network-filter</code>) enforce kernel-gated process and socket policy; approval-pending is a distinct state, never success |
-| Desktop ↔ sealed logic | Catalog reads, install plans, scans, and cleanup go through one loopback child (<code>tama-cli serve --port 0 --root &lt;release&gt;</code>) on <code>127.0.0.1</code> — the binary the app runs is the one the build sealed |
+| Desktop ↔ sealed logic | Catalog reads, install plans, scans, and cleanup each run one <code>tama-cli request &lt;operation&gt; --root &lt;release&gt;</code> process that exits once it has answered; no port is opened — the binary the app runs is the one the build sealed |
 | Runtime ↔ Node.js | The installer canonicalizes and pins one Node ≥ 20 executable into every Node-based command with a preflight guard; the generated launcher fails closed (exit 66) when either moves |</p>
 <h2>Failure posture</h2>
 <p>Fail closed, roll back, keep evidence. The installer is transactional with

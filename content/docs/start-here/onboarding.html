@@ -119,8 +119,9 @@ source directory. <strong>Skip</strong> leaves an empty, usable Tama.</p>
 </ol>
 <p>The control interface opens on <strong>Posture</strong>, the default destination. That visible, matching setup evidence is the first successful product outcome. An acknowledgement, successful login, install exit code, or partial backend registration is not sufficient.</p>
 <h2>Machine onboarding</h2>
-<p>Tama does not expose an unattended enforcement-setup API. Its loopback API
-can adopt an inactive policy bundle, but cannot install or enable that bundle.
+<p>Tama does not expose an unattended enforcement-setup API. Its
+<code>tama request policy-bundles/import</code> operation can adopt an inactive
+policy bundle, but nothing can install or enable that bundle without a person.
 Automation may read published provenance and hook-release manifests, while a
 human must verify the artifact, sign in, confirm runtime installation, and
 approve every privileged macOS component.

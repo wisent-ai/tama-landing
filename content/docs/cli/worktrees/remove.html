@@ -84,13 +84,13 @@ followed by <code>this pass could not read N directories under the roots, so it
 cannot say what they hold; nothing was removed</code>, and exits <code>1</code>. This
 holds for a preview too, because neither answer covers the tree the operator
 named.</p>
-<p>The same document is served by <code>POST /v1/worktrees/remove</code> with body
+<p>The same document is the answer of <code>tama request worktrees/remove</code> with body
 <code>{&quot;roots&quot;:[String],&quot;except&quot;:[String],&quot;apply&quot;:Boolean,&quot;force&quot;:Boolean}</code>
-on the loopback desktop backend
-(<a href="../../serve/"><code>tama serve</code></a>), where <code>except</code> is
-optional and defaults to empty. An empty <code>roots</code> array answers
-<code>400</code> with the missing-root sentence below; a refused pass answers
-<code>200</code> with the refusal document, where the CLI exits <code>1</code>.</p>
+(<a href="../../request/"><code>tama request</code></a>), where <code>except</code> is
+optional and defaults to empty. An empty <code>roots</code> array answers status
+<code>400</code> with the missing-root sentence below; a refused pass answers status
+<code>200</code> with the refusal document and the request exits <code>0</code>, where
+the CLI exits <code>1</code>.</p>
 <h2>State effect</h2>
 <p>A bare <code>remove</code> changes nothing: it is a preview, and it exits
 <code>0</code> even when its <code>refused</code> array is non-empty, because a preview

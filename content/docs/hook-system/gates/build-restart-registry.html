@@ -47,7 +47,7 @@ refund it or renew its consent. A ledger or policy that cannot be read refuses t
 <p>The recorder's local forecast waits until usage drops below the current limit, including when
 approved exceptions or a lowered limit have left usage above it. A zero limit has no timed reset.
 The gate does not infer spent usage from open entries, because closing an authorization does not
-refund an intent. The CLI and desktop backend share the recorder's refusal. These corrected
+refund an intent. The CLI and <code>tama request builds/record</code> share the recorder's refusal. These corrected
 diagnostics require the updated native release described in the <a href="/docs/cli/build/">build
 command</a>.</p>
 <p>One entry authorizes one kind against one target, and expires:</p>

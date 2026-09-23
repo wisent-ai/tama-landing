@@ -36,9 +36,9 @@ entry per owning repository that has at least one linked worktree, and
 <code>branch</code> is <code>null</code> for a detached head. <code>worktreeCount</code> is the total
 across every repository, so an empty machine answers
 <code>&quot;worktreeCount&quot;:0</code> with an empty <code>repositories</code> array. The same
-document is served by <code>POST /v1/worktrees/list</code> with body
-<code>{&quot;roots&quot;:[String]}</code> on the loopback desktop backend
-(<a href="../../serve/"><code>tama serve</code></a>).</p>
+document is the answer of <code>tama request worktrees/list</code> with body
+<code>{&quot;roots&quot;:[String]}</code>, the operation Tama Desktop runs
+(<a href="../../request/"><code>tama request</code></a>).</p>
 <p><code>unreadable</code> names every candidate the walk found a <code>.git</code> for
 and git then refused to answer for as a repository. It is reported rather
 than dropped, because silence would be the pass claiming it read a checkout

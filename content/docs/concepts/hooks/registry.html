@@ -54,7 +54,7 @@ identity comparison never assumes the rewrite happened correctly.</p>
 registry (<code>AGENT_HOOK_REGISTRY</code> overrides the default
 <code>~/.shared-hooks/registry.json</code> for the OMP adapter).</li>
 <li>The sealed CLI answers <code>list</code>, <code>show</code>, <code>validate</code>, <code>docs</code>, <code>install-plan</code>,
-and the <code>/v1/coverage</code> endpoint from the release's registry
+and <code>tama request coverage</code> from the release's registry
 (<a href="../cli.md">cli</a>).</li>
 <li>The desktop never parses the registry directly: it loads the build-time
 snapshot <code>tama-catalog.json</code>, rendered by <code>Scripts/export-catalog.mjs</code>

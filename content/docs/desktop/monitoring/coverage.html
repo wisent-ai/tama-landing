@@ -11,8 +11,8 @@ Tama's entries from <code>~/.claude/settings.json</code> and <code>~/.codex/hook
 so both providers ran no policy at all while this screen showed full declared
 coverage (<a href="../hook-releases.md#installation">hook-releases</a>).</p>
 <h2>Where the data comes from</h2>
-<p>A plain GET of <code>/v1/coverage</code> on the loopback backend
-(<a href="../cli.md#the-desktop-backend">cli</a>), read on first visit and re-read
+<p>One <code>tama-cli request coverage</code> process
+(<a href="/docs/cli/request/">tama request</a>), run on first visit and re-run
 only on demand — coverage is registry content, so polling it would imply it
 changes. Against the release sealed on 2026-09-07 (source revision
 <code>2b50253</code>), the <code>claude</code> provider reports adapter
@@ -45,7 +45,7 @@ providers whose config Tama writes, counted by matching each declared
 mapping against the commands in that config, and <code>no config Tama writes</code>
 for OMP, Git, the editor adapters and kimi — where the question has no
 answer rather than the answer zero. The same numbers come from
-<code>/v1/coverage</code> as <code>mappingCount</code> and <code>installedMappingCount</code>, and
+<code>tama request coverage</code> as <code>mappingCount</code> and <code>installedMappingCount</code>, and
 <code>tama validate</code> turns a shortfall into one <code>install drift</code> line per missing
 mapping.</p>
 <p>Coverage is what <em>should</em> dispatch; what is loaded and deciding right now is

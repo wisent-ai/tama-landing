@@ -85,10 +85,10 @@ alone does not distinguish a submodule from a linked worktree.</p>
 <code>remove</code> mutate nothing; only <code>remove --apply</code> deletes anything, and it is
 all-or-nothing: a pass with any refusal outstanding removes none of the
 copies it selected. Both leaves print a text report by default and an exact
-JSON document under <code>--json</code>, and both are also reachable on the loopback
-desktop backend as <code>POST /v1/copies/list</code> and <code>POST /v1/copies/remove</code>
-(<a href="../serve/"><code>tama serve</code></a>), which is what the
-<a href="../../desktop/copies/">Copies screen</a> of Tama Desktop drives.</p>
+JSON document under <code>--json</code>, and both are also answered by
+<code>tama request copies/list</code> and <code>tama request copies/remove</code>
+(<a href="../request/"><code>tama request</code></a>), which is what the
+<a href="../../desktop/copies/">Copies screen</a> of Tama Desktop runs.</p>
 <h2>Refusals and failures</h2>
 <p>Exit <code>0</code> is success, exit <code>1</code> is an operational failure or a refused
 <code>--apply</code>, and exit <code>2</code> is a usage error — a missing or unknown leaf, a

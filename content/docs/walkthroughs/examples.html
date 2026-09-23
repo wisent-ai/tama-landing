@@ -15,7 +15,7 @@ release inside <code>.build/Tama.app</code>.</p>
 | <code>integrity/verify-release-seal.sh</code> | reads | A release tree digested against its recorded <code>releaseId</code>, with drift attribution (<a href="../docs/walkthrough-verify-release.md">walkthrough</a>) |
 | <code>integrity/runtime-status.sh</code> | reads | Live sessions plus every installed release verified against its content-addressed name (<a href="../docs/walkthrough-runtime-status.md">walkthrough</a>) |
 | <code>core/hooks-list.sh</code> | reads | The hook catalog, then one exact hook |
-| <code>core/provider-coverage.sh</code> | reads | Registry-declared provider coverage from the loopback backend |
+| <code>core/provider-coverage.sh</code> | reads | Registry-declared provider coverage from <code>tama request coverage</code> |
 | <code>core/scan-repository.sh</code> | reads | First rule violation per file in one owned repository |
 | <code>core/clean-repository.sh</code> | mutates (working tree, external provider) | Headless-agent repair with a final independent rescan |
 | <code>operations/mcp-config.sh</code> | reads | The exact MCP server fragment for this release |

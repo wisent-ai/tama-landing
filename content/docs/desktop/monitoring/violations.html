@@ -4,7 +4,9 @@ Scan is read-only and replays the release's real pre-write hook; <em>Repair</em>
 hands the working tree to one headless external agent behind a confirmed
 dialog and trusts only the final rescan. The engine is the sealed CLI's
 <code>find-violations</code> / <code>clean</code> (<a href="../cli.md#repository-scans-and-cleanup">cli</a>),
-reached through the loopback backend's streaming endpoints.</p>
+run as the streamed jobs <code>tama-cli request violations/scan</code> and
+<code>tama-cli request violations/clean</code>, one process each; <em>Stop</em> ends the
+job's whole process tree.</p>
 <h2>Scope, header, refusals</h2>
 <p>The repository is scope, not a destination: the sidebar's <code>REPOSITORY IN VIEW</code> picker (<code>Choose a repository</code>; the clear button's help reads <code>Clear the repository scope</code>) names the tree every count on this screen describes.
 Title <code>Violations</code>; scope is the repository's directory name; freshness

@@ -12,7 +12,7 @@ test('consent documentation keeps site links on their real published routes', ()
   assert.equal(build.status, 0, build.stderr);
   const pages = JSON.parse(readFileSync(join(root, 'content/pages.json'), 'utf8'));
   const checked = [];
-  for (const route of ['cli/justify', 'cli/serve', 'desktop/justifications']) {
+  for (const route of ['cli/justify', 'cli/request', 'desktop/justifications']) {
     const page = pages.find(page => page.route === route);
     assert.ok(page, route);
     const source = readFileSync(join(root, page.content), 'utf8');
