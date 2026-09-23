@@ -50,7 +50,7 @@ switch (<code>emergency_disable_hooks</code>), and the generated launchers:</p>
 | <code>TAMA_NODE_EXECUTABLE</code>, <code>TAMA_NODE_PREFLIGHT</code> | exported by the launcher | The pinned Node executable and version guard, for semantic dispatch |
 | <code>AGENT_HOOK_REGISTRY</code> | OMP adapter | Registry path override; defaults to <code>~/.shared-hooks/registry.json</code> |
 | <code>TAMA_CLEAN_DISABLED</code> | <code>tama-cli clean</code> | <code>1</code> disables the cleanup command entirely |
-| <code>TAMA_HOOK_SOURCE_ROOT</code> | <code>Scripts/stage_live_hook_release.py</code> | Hook source tree for staging a developer release |</p>
+| <code>TAMA_HOOK_SOURCE_ROOT</code> | <code>Scripts/hook_release/stage_live_hook_release.py</code> | Hook source tree for staging a developer release |</p>
 <p>Debug-only seams (<code>TAMA_HOOK_ROOT</code> for the catalog root, <code>TAMA_TEST_IDENTITY</code>
 for UI tests) are compiled out of distributed builds
 (<a href="operations.md">operations</a>).</p>

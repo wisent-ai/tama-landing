@@ -61,7 +61,7 @@ Hooks read a JSON payload from stdin and fail closed: a blocking hook exits non-
 returns a deny decision when its invariant is violated.</p>
 <h2>The desktop's catalog snapshot</h2>
 <p>The app does not parse the registry directly. At build time,
-<code>Scripts/export-catalog.mjs</code> renders it into <code>tama-catalog.json</code> inside the
+<code>Scripts/app_build/export-catalog.mjs</code> renders it into <code>tama-catalog.json</code> inside the
 app resources: <code>version</code>, <code>generatedAt</code>, <code>hooks[]</code>, <code>orphanSources[]</code>
 (source files no hook references), and <code>repoGitHooks[]</code> (<code>project</code>, <code>event</code>,
 <code>sourcePath</code>). Each snapshot hook carries <code>id</code>, <code>type</code>, <code>command</code>,

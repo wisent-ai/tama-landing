@@ -26,7 +26,7 @@ to:</p>
 itself — relative path, permission bits, and bytes, each length-framed
 (<a href="concepts/seal.md">concepts/seal</a>).</p>
 <h2>2. Verify the intact release</h2>
-<pre><code class="language-console">$ python3 Scripts/verify_hook_release.py
+<pre><code class="language-console">$ python3 Scripts/integrity/verify_hook_release.py
 release root: ~/Documents/CodingProjects/Wisent/tama-desktop/.build/Tama.app/Contents/Resources/hooks-release
 recorded releaseId: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
 actual tree digest: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
@@ -37,7 +37,7 @@ result: intact
 <p><code>report_hook_release_integrity.py</code> answers the same question with the
 installer's own digest implementation imported directly, so the two can
 never describe different rules:</p>
-<pre><code class="language-console">$ python3 Scripts/report_hook_release_integrity.py
+<pre><code class="language-console">$ python3 Scripts/integrity/report_hook_release_integrity.py
 root:   ~/Documents/CodingProjects/Wisent/tama-desktop/.build/Tama.app/Contents/Resources/hooks-release
 sealed: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
 actual: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
@@ -48,7 +48,7 @@ verdict: intact
 (<a href="hook-releases.md#verifying-a-release-by-hand">hook-releases</a>):</p>
 <pre><code class="language-console">$ cp -pR .build/Tama.app/Contents/Resources/hooks-release &quot;$TMP/hooks-release&quot;
 $ printf '\n' &gt;&gt; &quot;$TMP/hooks-release/shared-hooks/block_inline_execution.sh&quot;
-$ python3 Scripts/verify_hook_release.py &quot;$TMP/hooks-release&quot;
+$ python3 Scripts/integrity/verify_hook_release.py &quot;$TMP/hooks-release&quot;
 release root: $TMP/hooks-release
 recorded releaseId: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
 actual tree digest: f6048ed4d7d9d6d4af43334005be351ec467e16a0743d6741fc4f65aa7ea1398
@@ -63,7 +63,7 @@ one file written after <code>sealedAt</code>. The installer meeting this tree wo
 refuse with <code>Bundled Tama hook release failed its integrity check</code>
 (<a href="runbook.md#bundled-tama-hook-release-failed-its-integrity-check">runbook</a>);
 this walkthrough is how you find out <em>which file</em> earned that refusal.</p>
-<pre><code class="language-console">$ python3 Scripts/report_hook_release_integrity.py &quot;$TMP/hooks-release&quot;
+<pre><code class="language-console">$ python3 Scripts/integrity/report_hook_release_integrity.py &quot;$TMP/hooks-release&quot;
 root:   $TMP/hooks-release
 sealed: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
 actual: f6048ed4d7d9d6d4af43334005be351ec467e16a0743d6741fc4f65aa7ea1398
@@ -81,7 +81,7 @@ still drift — the case least likely to be guessed from a byte-comparison
 mental model:</p>
 <pre><code class="language-console">$ cp -pR .build/Tama.app/Contents/Resources/hooks-release &quot;$TMP2/hooks-release&quot;
 $ chmod 755 &quot;$TMP2/hooks-release/shared-hooks/registry.json&quot;
-$ python3 Scripts/verify_hook_release.py &quot;$TMP2/hooks-release&quot;
+$ python3 Scripts/integrity/verify_hook_release.py &quot;$TMP2/hooks-release&quot;
 release root: $TMP2/hooks-release
 recorded releaseId: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
 actual tree digest: d052632e333e4bac5799da220b311e017457ade575bc24083425c7fbdab226c3

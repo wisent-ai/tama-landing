@@ -39,14 +39,14 @@ whose runtime has not reported hook counts.</p>
 claimed digest, so verification needs no manifest
 (<a href="hook-releases.md#installation">hook-releases</a>). On a home where Tama has
 never installed anything:</p>
-<pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/verify_installed_releases.py
+<pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/integrity/verify_installed_releases.py
 releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: False
 nothing installed
 </code></pre>
 <p>Simulate an installed runtime by copying the sealed release to its
 content-addressed landing path and pointing <code>current</code> at it — exactly the
 layout <code>install_hook_release.py</code> produces:</p>
-<pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/verify_installed_releases.py
+<pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/integrity/verify_installed_releases.py
 releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: True
 current: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
   35204a128363 intact &lt;- current
@@ -65,7 +65,7 @@ cannot fail on it.</p>
 <h2>3. The state an enable would refuse</h2>
 <p>Change one permission bit inside the installed copy and re-read:</p>
 <pre><code class="language-console">$ chmod 700 &quot;$H/Library/Application Support/Tama/hooks-runtime/releases/35204a…/shared-hooks/registry.json&quot;
-$ TAMA_HOME=&quot;$H&quot; python3 Scripts/verify_installed_releases.py
+$ TAMA_HOME=&quot;$H&quot; python3 Scripts/integrity/verify_installed_releases.py
 releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: True
 current: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
   35204a128363 DRIFTED &lt;- current

@@ -8,7 +8,7 @@ computed in one place, enforced at three moments.</p>
 enter the hash: the relative POSIX path, the permission bits
 (<code>mode &amp; 0o777</code>, 4 bytes big-endian), and the raw bytes. The definition
 lives in exactly two places that must agree by construction:
-<code>Scripts/seal_hook_release.py::tree_digest</code> (writer) and
+<code>Scripts/hook_release/seal_hook_release.py::tree_digest</code> (writer) and
 <code>install_hook_release.py::tree_digest</code> (enforcer); the three read-only
 reporters import the installer's copy rather than restating the rule
 (<a href="../scripts.md#read-only-integrity-reporters">scripts</a>).</p>
@@ -23,7 +23,7 @@ reporters import the installer's copy rather than restating the rule
 tree is the evidence.</li>
 </ul>
 <h2>Who declares it</h2>
-<p><code>Scripts/seal_hook_release.py</code>, run once by <code>Scripts/build-app.sh</code> after the
+<p><code>Scripts/hook_release/seal_hook_release.py</code>, run once by <code>Scripts/build-app.sh</code> after the
 release tree is staged and pruned. The digest becomes <code>releaseId</code> in
 <code>release.json</code> (schema <code>ai.wisent.tama.hook-release.v1</code>), beside
 <code>packageVersion</code>, <code>catalogVersion</code>, <code>catalogUpdatedAt</code>, <code>sourceDirty</code>,

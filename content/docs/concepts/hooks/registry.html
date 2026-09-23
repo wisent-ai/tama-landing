@@ -57,7 +57,7 @@ registry (<code>AGENT_HOOK_REGISTRY</code> overrides the default
 and <code>tama request coverage</code> from the release's registry
 (<a href="../cli.md">cli</a>).</li>
 <li>The desktop never parses the registry directly: it loads the build-time
-snapshot <code>tama-catalog.json</code>, rendered by <code>Scripts/export-catalog.mjs</code>
+snapshot <code>tama-catalog.json</code>, rendered by <code>Scripts/app_build/export-catalog.mjs</code>
 running <code>tama-cli list --json</code> (<a href="../hook-model.md#the-desktops-catalog-snapshot">hook-model</a>).</li>
 <li>The emergency switch reads the <em>installed</em> registry's <code>catalog.gitHooks[]</code>
 to know which Git entrypoints to move aside

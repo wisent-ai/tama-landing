@@ -72,9 +72,9 @@ directory name — no manifest needed, because the name is the claim.</li>
 | <code>~/Library/Application Support/Tama/hooks-runtime/current</code> | Atomic symlink to the active release |
 | <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, <code>~/.local/bin/tama-agent</code>, Git hook paths | The installed entrypoints generated <em>from</em> the release |</p>
 <h2>Commands</h2>
-<pre><code class="language-bash">python3 Scripts/verify_hook_release.py                       # bundled tree vs its seal
-python3 Scripts/report_hook_release_integrity.py             # same, with residue attribution
-python3 Scripts/verify_installed_releases.py                 # every installed tree vs its name
+<pre><code class="language-bash">python3 Scripts/integrity/verify_hook_release.py                       # bundled tree vs its seal
+python3 Scripts/integrity/report_hook_release_integrity.py             # same, with residue attribution
+python3 Scripts/integrity/verify_installed_releases.py                 # every installed tree vs its name
 Tama.app/Contents/Resources/hooks-release/bin/tama-cli list  # what the release declares
 </code></pre>
 <h2>Not to be confused with</h2>

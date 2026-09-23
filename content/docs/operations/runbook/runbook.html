@@ -14,7 +14,7 @@ runtime install, an emergency disable (which installs session controllers),
 or a re-enable. The message names no file on purpose — it is a gate, not a
 report.</p>
 <p>First command:</p>
-<pre><code class="language-bash">python3 Scripts/report_hook_release_integrity.py &lt;release-root&gt;
+<pre><code class="language-bash">python3 Scripts/integrity/report_hook_release_integrity.py &lt;release-root&gt;
 </code></pre>
 <p>It prints the sealed and actual digests and two attribution lists: files the
 digest covers but the installer never installs (build residue such as
@@ -32,7 +32,7 @@ checking, so meeting this sentence means the <em>fresh copy</em> failed — a
 filesystem-level problem (full disk, interference mid-copy), not stale
 state.</p>
 <p>First command:</p>
-<pre><code class="language-bash">python3 Scripts/verify_installed_releases.py
+<pre><code class="language-bash">python3 Scripts/integrity/verify_installed_releases.py
 </code></pre>
 <p>It digests every installed tree against its directory name, marks <code>current</code>,
 and answers which of the two identically worded failures an emergency

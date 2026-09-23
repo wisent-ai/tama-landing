@@ -22,7 +22,7 @@ selected by <code>TAMA_HOOK_ROOT</code>:</p>
 <p>Generator files (<code>generate-configs.mjs</code>, <code>providers.json</code>,
 <code>run-one-session-hook.js</code>) and Python bytecode are pruned before sealing.</p>
 <h2>Sealing</h2>
-<p><code>Scripts/seal_hook_release.py</code> computes the tree digest: every file except
+<p><code>Scripts/hook_release/seal_hook_release.py</code> computes the tree digest: every file except
 <code>release.json</code>, in sorted path order, hashing each file's relative path, its
 permission bits, and its bytes, each length-framed. A <code>chmod</code> therefore
 drifts a release exactly as a rewrite does. The digest becomes <code>releaseId</code>
@@ -46,8 +46,8 @@ identity again before publishing <code>release.json</code>; it never substitutes
 variables, when present, are checked expectations, not the source of the fields.
 Script-only releases without a native manifest derive identity directly from Git.</p>
 <p>From the <code>tama-desktop</code> checkout, the maintainer flow is:</p>
-<pre><code>python3 Scripts/stage_live_hook_release.py --source-root ../tama
-python3 Scripts/seal_hook_release.py --source-root ../tama .work/inline-hook-release
+<pre><code>python3 Scripts/hook_release/stage_live_hook_release.py --source-root ../tama
+python3 Scripts/hook_release/seal_hook_release.py --source-root ../tama .work/inline-hook-release
 swift test --filter HookReleaseSealTests --disable-automatic-resolution</code></pre>
 <p>A missing Git revision reports the failed Git operation and checkout path.
 <code>Hook source changed after staging</code> or
@@ -146,14 +146,14 @@ configs and an empty drift report.</p>
 <p>Three read-only maintainer scripts answer <em>which file drifted</em>, not just
 that one did:</p>
 <ul>
-<li><code>Scripts/verify_hook_release.py [root]</code> — recomputes the bundled tree
+<li><code>Scripts/integrity/verify_hook_release.py [root]</code> — recomputes the bundled tree
 digest, prints recorded vs actual, and lists every file written after
 <code>sealedAt</code>;</li>
-<li><code>Scripts/verify_installed_releases.py</code> — digests every tree under
+<li><code>Scripts/integrity/verify_installed_releases.py</code> — digests every tree under
 <code>hooks-runtime/releases/</code> against its directory name, marks the <code>current</code>
 one, and reports which of the two identically worded install failures an
 emergency enable would hit;</li>
-<li><code>Scripts/report_hook_release_integrity.py [root]</code> — on mismatch, also
+<li><code>Scripts/integrity/report_hook_release_integrity.py [root]</code> — on mismatch, also
 lists files the digest covers that the installer never installs (build
 residue such as bytecode).</li>
 </ul>
