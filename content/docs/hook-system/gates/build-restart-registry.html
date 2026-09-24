@@ -7,6 +7,10 @@ and intent. A restart still needs an open entry but no task statement. Refusals 
 and exit <code>2</code> before the command runs. The registry is
 <code>~/.shared-hooks/build_restart_registry.json</code>; <code>tama-cli build</code> and Tama
 Desktop share its writer.</p>
+<p><strong>Availability:</strong> this completion check is in source, not yet in
+the installed hook release. Registration and installation require the device
+owner's protected hook-release action. An old CLI may still record a build
+without <code>completed_task</code>; that is not evidence of this gate running.</p>
 
 <h2>Why it exists</h2>
 <p>On 2026-09-20 a single session submitted Brama 0.4.39, 0.4.40, 0.4.41, 0.4.42, 0.4.43 and 0.4.46,

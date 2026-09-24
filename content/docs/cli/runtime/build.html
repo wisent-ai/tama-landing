@@ -155,12 +155,14 @@ its entry once. Record the completed task and intent, then run the command again
 <h2>Run the approval journeys</h2>
 <pre><code>TAMA_TEST_BINS=/path/to/the/release/bin npm run test:build-approval-release</code></pre>
 <p>Run this in the Tama checkout with Node.js 24 or newer. The release must contain
-<code>tama-cli</code> and <code>tama-record-current-assignment</code>. The test uses the real
-assignment capture, CLI, desktop HTTP backend and Brama consent verifier. It creates its own
-registry under <code>.wisent-output/build-approval/&lt;run&gt;</code>; its fixture messages never
-grant permission in the operator's registry. It checks exhausted limits, missing and altered
-consent, restart refusal, positive permission, revision matching, closing, replay and a request
-to implement permission rather than grant it. The default policy must stay unchanged.</p>
+<code>tama-cli</code>, <code>tama-record-current-assignment</code> and
+<code>tama-block-unregistered-build-or-restart</code>. The test uses the real
+assignment capture, CLI, build gate, desktop request backend and Brama consent
+verifier. It creates its own registry under
+<code>.wisent-output/build-approval/&lt;run&gt;</code>; fixture messages never
+grant permission in the operator's registry. It checks missing task statements,
+one-use build entries, exhausted limits, missing and altered consent, restart
+refusal, positive permission, revision matching, closing and replay.</p>
 <p>The run retains the source revision and patch, binary and test hashes, command arguments,
 exit statuses, HTTP responses and backend output. Brama uses the existing Tama credential
 and connection; an unavailable dependency is a failed or blocked run, not a passing substitute.
