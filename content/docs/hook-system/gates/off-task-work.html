@@ -18,13 +18,16 @@ tama task scope set --session &lt;SESSION&gt; --repository oko --task task-0d468
 tama task scope set --session &lt;SESSION&gt; --task task-0d468fb998d4df51
 tama task scope show --session &lt;SESSION&gt; [--json]
 tama task scope clear --session &lt;SESSION&gt;</code></pre>
-<p><code>set</code> copies the task text from Tama's own verbatim capture of the operator's prompt — it is never
-retyped from memory — and binds the declaration to that prompt's digest. Every scope must name the work it belongs to:
-<code>--defect</code> is an identifier from Oko's defect register and <code>--task</code> one from its task register.
-The identifier is checked against the register, not against the session's memory of it: a defect nobody recorded is
-refused, and so is one already closed by a revision — record what is wrong now with <code>oko-cli defects record</code>
-and declare that. <code>show</code> reads the scope back and says whether it still serves the instruction being worked
-on.</p>
+<p><code>set</code> binds the declaration to Tama's capture of the latest prompt, so a later turn cannot silently
+reuse a stale scope. For <code>--defect</code>, it copies that prompt's words. For <code>--task</code>, it takes the
+task's original operator words from Oko, even when the task predates a smaller instruction. An open earlier task
+remains available after the smaller instruction is served: the agent can run
+<code>tama task scope set --session &lt;SESSION&gt; --task &lt;EARLIER TASK ID&gt;</code> itself, without asking the
+operator to say “continue”. <code>show</code> then names the earlier task and reports whether the declaration is bound
+to the latest turn. It does not claim that Oko has independently marked the smaller task done.</p>
+<p>Every scope names an entry in Oko's register. An unknown task, a task already done, an unknown defect, or a defect
+closed by a revision is refused. The agent must select an open task whose work it is actually doing, not declare
+unrelated work under a convenient repository name.</p>
 <p>A task's scope lives in its Oko contract, not in the session. With <code>--task</code> and no
 <code>--repository</code>, <code>set</code> takes the repositories the contract lists
 (<code>oko-cli transcripts tasks show &lt;task&gt; --json</code>, field <code>current.contract.terms.scope</code>). Given
@@ -51,6 +54,8 @@ the answer.</td></tr>
 <tr><td>A scope declared for an earlier instruction</td>
 <td>Refused as undeclared. The operator has spoken since, and that is exactly where a session drifts — one reasonable
 step at a time, under a scope nobody granted for the new prompt.</td></tr>
+<tr><td>A completed or unknown earlier task</td>
+<td>Refused by <code>set</code>. Resume an open registered task; do not relabel the latest prompt as its work.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
@@ -62,7 +67,7 @@ which is other gates' subject: <a href="/docs/one-off-repairs">one-off repairs</
 <code>rust/crates/tama-hook-tools/src/ports/block_off_task_work/scope_cli.rs</code>; binary:
 <code>src/bin/block/ownership/block_off_task_work.rs</code>; the real-binary journey that drives the gate with a real
 captured instruction, a real scope file and a real home:
-<code>tests/assignment/assignment.test.ts</code>; the declaration:
+<code>tests/assignment/completion.test.ts</code>; the declaration:
 <code>hook-declarations/block-off-task-work.json</code>. Declared with
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file &lt;declaration&gt;</code> and installed with
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>; which hooks this machine runs is decided by
