@@ -175,47 +175,7 @@ so the gates enforcing policy contained code nobody had committed. The fact
 was recorded and never shown; now every release says it out loud.</p>
 
 <h2>Warming the hook binaries</h2>
-<p>A hook binary that has never been executed still owes macOS its first-run
-work: the system assesses the executable's signature before it runs, that
-assessment reaches Apple over the network, and XProtect scans the image.
-Measured on 2026-09-20, the first run of a freshly installed
-<code>tama-block-delegating-own-work</code> took 147 seconds and every run
-after it took under 5 milliseconds. At the time each binding carried a number
-of seconds and the engine killed the hook at it, so a cold cache refused a
-finished turn with <code>block-delegating-own-work timed out after 10s</code>
-— a refusal nobody wrote.</p>
-<p>The engine no longer counts seconds. A hook is waited for and its own answer
-decides the event, because the number was a guess at how long an answer may
-take and the hook killed at it reported a failure it never had. Nothing in the
-registry carries a <code>timeout</code>, and no run is killed for being slow:
-a slow gate is found by what it costs, not replaced by a verdict it never
-gave. Waiting is not free, though — 147 seconds inside a live event is 147
-seconds somebody sits through — so the first-run cost is paid deliberately,
-outside the event.</p>
-<p><code>tama hooks release</code> runs every binary the registry names once,
-right after installing, and prints what each one cost. Run the same step on its
-own when binaries arrived another way, or to see where this machine stands:</p>
-<pre><code>tama hooks warm
-tama hooks warm --only &lt;hook-id&gt;[,&lt;hook-id&gt;…] --json</code></pre>
-<p>Each line carries the state, the measured milliseconds, the hook id and the
-path: <code>warm</code> ran and exited, <code>missing</code> is a registry
-entry with no binary at that path. The summary names the binary that cost the
-most, which is the one to look at. The command exits non-zero when a binary is
-missing, because a live event would have nothing to run. <code>--json</code>
-prints one document with the same rows plus <code>warmed</code> and
-<code>unusable</code> counts and the <code>slowest</code> hook with its
-<code>slowestMs</code>. An id the registry does not name is refused by name and
-exits <code>2</code>.</p>
-<p>The run is inert: each binary receives an empty JSON object on standard
-input, which every hook reads as "no input, decide nothing", and
-<code>HOME</code> points at a scratch directory inside the checkout's ignored
-build tree, so a hook that writes state writes it there. No consent variable is
-required, because nothing about the machine's policy changes.</p>
-<p>Tama Desktop carries the same step: the <strong>Hooks</strong> screen shows
-a <strong>Hook binaries</strong> panel with a <strong>Warm hook binaries</strong>
-button, the count it warmed, and a row for every binary that was slow or could
-not run. Both surfaces run the same warm pass — the window through
-<code>tama request hooks/warm</code> — and read the same document.</p>
+<p>A hook binary that has never run still owes macOS its first-run assessment; how Tama pays that before a live event, and how to read the result, is on its own page: <a href="runtime/hook-warming/">warming the hook binaries</a>.</p>
 <h2>Owner consent for a hook change</h2>
 <p>Hook source and structured configuration are protected at device level. Inside
 an agent session <code>block-hook-config-edits-without-consent</code> refuses any

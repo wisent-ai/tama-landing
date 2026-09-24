@@ -71,6 +71,7 @@
   {"route":"hook-model","source":"docs/hook-model.md","content":"content/docs/hook-system/hook-model.html","category":"Reference"},
   {"route":"adaptive","source":"docs/ADAPTIVE.md","content":"content/docs/hook-system/adaptive.html","category":"Reference"},
   {"route":"hook-management","source":"docs/HOOK-MANAGEMENT.md","content":"content/docs/hook-system/hook-management.html","category":"Reference"},
+  {"route":"hook-management/runtime/hook-warming","source":"content/docs/hook-system/runtime/hook-warming.html","content":"content/docs/hook-system/runtime/hook-warming.html","category":"Reference"},
   {"route":"one-off-repairs","source":"content/docs/hook-system/gates/one-off-repairs.html","content":"content/docs/hook-system/gates/one-off-repairs.html","category":"Reference"},
   {"route":"off-task-work","source":"content/docs/hook-system/gates/off-task-work.html","content":"content/docs/hook-system/gates/off-task-work.html","category":"Reference"},
   {"route":"build-restart-registry","source":"content/docs/hook-system/gates/build-restart-registry.html","content":"content/docs/hook-system/gates/build-restart-registry.html","category":"Reference"},
