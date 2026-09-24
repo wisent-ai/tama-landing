@@ -100,7 +100,11 @@ the recent conversation window. After producing and checking the real result,
 run <code>oko-cli transcripts tasks verify --before-stop --session SESSION_ID</code>.
 Oko's independent Brama judge reads recorded calls and tool results as well as
 the answer, then saves each verdict. A claim or tracker update cannot replace
-that qualification. A later operator correction takes precedence.</p>
+that qualification. A later operator correction takes precedence. Answering
+the same refusal in prose does not release it: every later Stop repeats the
+open task identity until real work records evidence or Oko records a
+qualified blocker. A recorded judge outage only replaces the verify command
+with the instruction to record evidence; it does not make the task done.</p>
 <p>Done and withdrawn tasks do not block. An unfinished task may pause only
 with Oko's qualified receipt: the matching task ordinal and request hash,
 transcript hash, actual failed call/result, independently checked permitted
@@ -111,7 +115,7 @@ a worker's claim or local “blocked” flag never grants permission to stop.</p
 <h3>A report is not the work it describes</h3>
 <p><code>block-stop-on-own-work</code> reads the transcript at Stop — the final
 message, what the agent said and thought since the operator last spoke, and
-every earlier refusal — and refuses four endings, each quoted back in the
+every earlier refusal — and refuses five endings, each quoted back in the
 refusal:</p>
 <ul>
 <li>a capacity, budget or clock nobody set, given as the reason the identified
@@ -129,6 +133,12 @@ go-ahead about the work (<code>Decyzja, czy budować te trzy zmiany</code>,
 know</code>) or announces the agent's own next move (<code>Zbuduję</code>,
 <code>I will</code>). The refusal quotes the line:
 <code>block-stop-on-own-work: BLOCKED: under Następne kroki this report hands the operator a decision: "…". That decision is yours …</code></li>
+<li>a <em>Blokady</em>/<em>Blockers</em> or <em>Kolejne kroki</em>/<em>Następne kroki</em>/<em>Next steps</em>
+line that begins as an empty value and adds commentary, or says only that the
+agent is not assigning the operator work (<code>Brak przy zapisie defektu. Sam
+zapis nie jest jego naprawą.</code>, <code>Nie wyznaczam Ci zadania.</code>). Write
+exactly <code>Brak.</code>/<code>None.</code>, name a concrete blocker, or name the
+operator's actual action.</li>
 </ul>
 <p>What passes: <em>Następne kroki</em> naming the one thing only the operator
 can supply, with the captured error that proves it (<code>Poza sesją wyeksportuj
@@ -140,8 +150,8 @@ which is a report, not a reason. Each refusal starts a new attempt: what the
 agent says after a refusal is judged on its own, so one sentence cannot refuse
 every attempt after it. The real-binary journey is
 <code>rust/crates/tama-hook-tools/tests/own_work_guard.rs</code>
-(<code>cargo test -p tama-hook-tools --test own_work_guard</code>): nine cases,
-the four refusals and the five passes above.</p>
+(<code>cargo test -p tama-hook-tools --test own_work_guard</code>): ten cases,
+covering the five refusals and the passes above, including exact empty sections.</p>
 <h3>An operator stop order</h3>
 <p>Every guard above releases the turn only through a tool call: finish the
 tracker, read the ledger, treat a denial, record evidence. When the operator
