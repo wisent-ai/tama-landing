@@ -77,8 +77,9 @@ tama-cli build policy --builds-per-day 2 --minimum-changed-lines 80</code></pre>
 <tbody>
 <tr><td><code>--kind</code></td><td><code>build</code> or <code>restart</code>. Nothing else is an entry.</td></tr>
 <tr><td><code>--target</code></td><td>The product for a build, the service or unit for a restart. A build
-whose command names no target of its own — <code>stado release submit --source .</code>,
-<code>cargo build</code> — is registered against the repository the command runs in.</td></tr>
+whose command names no target of its own — <code>stado build submit --source .</code>,
+<code>stado release submit --source .</code>, <code>cargo build</code> — is registered against the
+repository the command runs in.</td></tr>
 <tr><td><code>--reason</code></td><td>At least eight words. A reason of one word is refused, because the
 entry exists to be read later by somebody who was not there.</td></tr>
 <tr><td><code>--revision</code></td><td>Required for a build, and it must be a full forty-character source
@@ -116,7 +117,8 @@ complete flow and request fields. Older Tama releases do not enforce this statem
 <table>
 <thead><tr><th>Kind</th><th>Commands</th></tr></thead>
 <tbody>
-<tr><td>build</td><td><code>stado release submit|prepare|resume|rollback|promote-version</code>,
+<tr><td>build</td><td><code>stado build submit</code>,
+<code>stado release submit|prepare|resume|rollback|promote-version</code>,
 <code>cargo build</code>, <code>cargo install</code>, <code>swift build</code>, <code>xcodebuild</code>,
 <code>npm run build</code>, <code>bun run build</code></td></tr>
 <tr><td>restart</td><td><code>stado service restart|ensure|deploy|stop|bootout|refresh-image</code>,
@@ -128,9 +130,10 @@ complete flow and request fields. Older Tama releases do not enforce this statem
 route out of it is the command itself.</p>
 
 <h2>What passes</h2>
-<p>Reads of the same programs: <code>stado release status</code>, <code>stado service list</code>,
-<code>launchctl list|print</code>, any invocation carrying <code>--help</code>, <code>cargo test</code>,
-<code>cargo fmt --check</code> and <code>cargo clippy</code> are not build commands for this gate.
+<p>Reads of the same programs: <code>stado build status</code>, <code>stado release status</code>,
+<code>stado service list</code>, <code>launchctl list|print</code>, any invocation carrying
+<code>--help</code>, <code>cargo test</code>, <code>cargo fmt --check</code> and <code>cargo clippy</code>
+are not build commands for this gate.
 Other gates may still refuse hand-run compilation or tests; passing this gate is not permission to
 bypass the shared build process. The command is read the way a shell reads it, cut at separators outside quotes with
 quoted text blanked and <code>env</code>, <code>sudo</code>, <code>nohup</code> and <code>timeout</code>
