@@ -25,6 +25,9 @@ remains available after the smaller instruction is served: the agent can run
 <code>tama task scope set --session &lt;SESSION&gt; --task &lt;EARLIER TASK ID&gt;</code> itself, without asking the
 operator to say “continue”. <code>show</code> then names the earlier task and reports whether the declaration is bound
 to the latest turn. It does not claim that Oko has independently marked the smaller task done.</p>
+<p>The open-work Stop refusal includes each open Oko task's identifier and the scope command. After
+recording evidence for a later defect, the agent reads the ledger, selects an earlier open task and continues it
+in the same session. Oko's pending independent verdict remains pending; selection is not a completion claim.</p>
 <p>Every scope names an entry in Oko's register. An unknown task, a task already done, an unknown defect, or a defect
 closed by a revision is refused. The agent must select an open task whose work it is actually doing, not declare
 unrelated work under a convenient repository name.</p>
