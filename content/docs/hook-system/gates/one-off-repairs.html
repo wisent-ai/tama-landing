@@ -64,6 +64,12 @@ terminal state, <code>stado release doctor &lt;PRODUCT&gt; --target &lt;HOST&gt;
 verdict, <code>stado release status &lt;PRODUCT&gt;</code> for the register of attempts,
 <code>stado space report &lt;HOST&gt;</code> for a host's own reading. Where no such read exists, the
 missing read is the defect to build.</td></tr>
+<tr><td><code>gh run watch</code>, <code>gh pr checks … --watch</code> or <code>watch</code>: the session
+blocks until a remote run ends. On 2026-09-24, after <code>sleep 20</code> was refused, a session ran
+<code>gh run watch &lt;ID&gt; --exit-status --interval 30</code> with a 1800-second limit while eight
+operator tasks stayed open (defect 41dc619b)</td>
+<td>Push, then continue the next open task. Read the verdict once with <code>gh run view &lt;ID&gt;</code>
+or <code>gh pr checks &lt;PR&gt;</code> when it exists; a failed run reopens the task that pushed it.</td></tr>
 <tr><td><code>stado space reclaim</code>: a sweep that frees one host this once. The same session ran it
 three times in one day and the host was back under its watermark after the next builds</td>
 <td>What a host reclaims on its own is declared: <code>stado space cleaners &lt;HOST&gt; --declare
