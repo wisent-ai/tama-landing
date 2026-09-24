@@ -59,12 +59,13 @@ shape belongs in a migration that ships with the product and runs on every host,
 session on 2026-09-21 ran <code>sleep 420</code> before reading one rollout and <code>sleep 240</code>
 before retrying a publication; either read could as easily have returned the state from before the
 wait</td>
-<td>The command that owns the outcome reports it: <code>stado job watch &lt;ID&gt; --follow</code> to a
-terminal state, <code>stado release doctor &lt;PRODUCT&gt; --target &lt;HOST&gt;</code> for one rollout
-verdict, <code>stado release status &lt;PRODUCT&gt;</code> for the register of attempts,
-<code>stado space report &lt;HOST&gt;</code> for a host's own reading. Where no such read exists, the
-missing read is the defect to build.</td></tr>
-<tr><td><code>gh run watch</code>, <code>gh pr checks … --watch</code> or <code>watch</code>: the session
+<td>Push and continue the next open task. When the outcome exists, read it once with the command that owns
+it: <code>stado job watch &lt;ID&gt;</code> without <code>--follow</code>, <code>stado release doctor
+&lt;PRODUCT&gt; --target &lt;HOST&gt;</code> for one rollout verdict, <code>stado release status
+&lt;PRODUCT&gt;</code> for the register of attempts, <code>gh run view &lt;ID&gt;</code> for a CI run. Where
+no such read exists, the missing read is the defect to build.</td></tr>
+<tr><td><code>gh run watch</code>, <code>gh pr checks … --watch</code>, <code>stado job watch … --follow</code>
+or <code>watch</code>: the session
 blocks until a remote run ends. On 2026-09-24, after <code>sleep 20</code> was refused, a session ran
 <code>gh run watch &lt;ID&gt; --exit-status --interval 30</code> with a 1800-second limit while eight
 operator tasks stayed open (defect 41dc619b)</td>
