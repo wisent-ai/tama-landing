@@ -140,11 +140,18 @@ that can raise its own allowance has none. A policy or ledger that cannot be par
 and names the file, rather than counting the day as unspent.</p>
 <h2>Read and close</h2>
 <pre><code>tama-cli build list [--json]
-tama-cli build close --kind build --target skarbiec [--json]</code></pre>
+tama-cli build close --kind build --target skarbiec [--json]
+tama-cli build close --kind build --target stado --not-started "Skarbiec request failed before any job existed"</code></pre>
 <p><code>list</code> prints each entry with its kind, target, reason, revision and completed task.
 An accepted build is shown as used and authorizes no second build; an expired entry authorizes
 nothing. <code>close</code> removes one entry without refunding its allowance. JSON output
 includes <code>approval_history</code>, including approvals whose entry was closed or replaced.</p>
+<p>A build whose submit was refused before any job existed built nothing. Close it with
+<code>--not-started &lt;refusal&gt;</code>: the ledger keeps the row and still counts it against the
+day's allowance, but the next build of that product is no longer measured against its revision, so
+the same revision can be recorded again instead of being refused as <em>carries no change at
+all</em>. <code>--not-started</code> without a refusal, or on a restart, is refused and closes nothing.
+The JSON result carries <code>not_started.revision</code> and <code>not_started.refusal</code>.</p>
 
 <h2>What the refusal looks like</h2>
 <pre><code>BLOCKED: unregistered build: `stado release submit --source . --version 0.3.11` would
