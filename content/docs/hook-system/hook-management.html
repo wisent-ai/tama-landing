@@ -120,6 +120,15 @@ the hooks it would build, and whether the selection would change. A repeat run
 installs only what differs. Both halves refuse without
 <code>DEVICE_HOOK_EDIT_APPROVED=1</code> and the refusal prints the exact command
 to run, in the checkout, outside any agent session.</p>
+<p>A release also brings launch agents to what the registry says. An editor
+adapter recorded as <code>installed-not-active</code> whose <code>source</code>
+is a plist under <code>$HOME/Library/LaunchAgents</code> and still exists is
+booted out and its plist removed; the release prints <code>retired &lt;id&gt;:
+&lt;path&gt; is installed-not-active in the registry</code>. This retires
+<code>com.wisent.editor-hooks.plist</code>, which stayed loaded with
+<code>KeepAlive</code> beside the session watcher that does the work (defect
+40701e14), so a later emergency re-enable finds nothing to bootstrap.
+<code>--dry-run</code> announces the step.</p>
 <h2>Why a gate decided what it decided</h2>
 <p>A verdict nobody can read is a verdict nobody can repair, and the way that
 used to be answered was a throwaway program that read the same transcript a
