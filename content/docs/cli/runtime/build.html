@@ -145,7 +145,12 @@ tama-cli build close --kind build --target stado --not-started "Skarbiec request
 <p><code>list</code> prints each entry with its kind, target, reason, revision and completed task.
 An accepted build is shown as used and authorizes no second build; an expired entry authorizes
 nothing. <code>close</code> removes one entry without refunding its allowance. JSON output
-includes <code>approval_history</code>, including approvals whose entry was closed or replaced.</p>
+includes <code>approval_history</code>, including approvals whose entry was closed or replaced.
+For builds, <code>record</code>, <code>list</code> and the Desktop <strong>Builds</strong> screen
+report the fleet's count when <code>stado queue budget</code> answers — <em>the fleet has N build
+jobs left today</em>, JSON <code>fleet_remaining</code> — because that count is the one that
+admits a build. The local <em>N of M intents in this 24 hours</em> appears only when the fleet
+cannot be asked, and for restarts.</p>
 <p>A build whose submit was refused before any job existed built nothing. Close it with
 <code>--not-started &lt;refusal&gt;</code>: the ledger keeps the row and still counts it against the
 day's allowance, but the next build of that product is no longer measured against its revision, so
