@@ -63,7 +63,7 @@ wait</td>
 <code>stado release doctor &lt;PRODUCT&gt; --target &lt;HOST&gt;</code>, <code>stado release status
 &lt;PRODUCT&gt;</code> — never to see whether a run has moved. Where no such read exists, the missing read
 is the defect to build.</td></tr>
-<tr><td><code>gh run watch</code>, <code>gh pr checks … --watch</code>, <code>stado job watch … --follow</code>
+<tr><td><code>gh run watch</code>, <code>gh run view</code>, <code>gh run list</code>, <code>gh pr checks … --watch</code>, <code>stado job watch … --follow</code>
 or <code>watch</code>: the session
 blocks until a remote run ends. On 2026-09-24, after <code>sleep 20</code> was refused, a session ran
 <code>gh run watch &lt;ID&gt; --exit-status --interval 30</code> with a 1800-second limit while eight
@@ -71,6 +71,12 @@ operator tasks stayed open (defect 41dc619b)</td>
 <td>Continue the next open task. Reading the same run again with <code>gh run view</code> to see whether
 it moved is the same wait in smaller pieces (defect ee0e8cb9): read a run only when the work in hand
 needs its result.</td></tr>
+<tr><td><code>gh run rerun</code> and <code>gh workflow run</code>: a CI build started by hand for one
+revision, which spends a runner on a single commit the same way a local build does</td>
+<td>Commit and push. The build runs once, in the release built over the accumulated commits:
+<code>tama build record --kind build --target &lt;PRODUCT&gt; --revision &lt;REV&gt;</code> states it
+against the fleet's ration and <code>stado release status &lt;PRODUCT&gt;</code> is the register of
+attempts.</td></tr>
 <tr><td><code>stado space reclaim</code>: a sweep that frees one host this once. The same session ran it
 three times in one day and the host was back under its watermark after the next builds</td>
 <td>What a host reclaims on its own is declared: <code>stado space cleaners &lt;HOST&gt; --declare

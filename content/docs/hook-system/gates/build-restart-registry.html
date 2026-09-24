@@ -130,10 +130,20 @@ and <code>git push</code> in a checkout whose root holds <code>vercel.json</code
 </table>
 <p>The refusal prints the <code>tama build record</code> line for that exact kind and target, so the
 route out of it is the command itself.</p>
-<p>A push to a Vercel-linked checkout is a build because Vercel starts a production build for it,
-so it is refused until a build entry with the whole-task statement is recorded for that repository.
-A push from a checkout with neither file, and reads such as <code>vercel inspect</code>, pass.
-<code>git -C &lt;path&gt; push</code> is read from the directory the command runs in, not from
+<p>A push is a build when the repository builds on every push: a Vercel-linked checkout
+(<code>.vercel/project.json</code> or <code>vercel.json</code>), where Vercel starts a production
+build, or a repository carrying a CI definition that runs a build or a suite on <code>push</code>,
+<code>pull_request</code> or <code>pull_request_target</code> (under <code>.github/workflows/</code>,
+<code>.circleci/</code>, <code>.buildkite/</code>, <code>.woodpecker/</code>, or a
+<code>.gitlab-ci.yml</code>, <code>azure-pipelines.yml</code>, <code>bitbucket-pipelines.yml</code> or
+<code>.travis.yml</code>). Such a push is refused until a build entry with the whole-task statement is
+recorded for that repository. A push from a checkout with none of these, and reads such as
+<code>vercel inspect</code>, pass. The steps are read with the shell gate's own build vocabulary, so a
+workflow that only lints or runs on a tag does not make a push a build.</p>
+<p>The write gate (<code>pre-write-edit</code>) refuses the other half: a write or edit that adds such a
+build or suite step to a CI definition firing on every commit is refused with the step it found, so a
+build refused in the shell cannot move into a runner.</p>
+<p><code>git -C &lt;path&gt; push</code> is read from the directory the command runs in, not from
 <code>&lt;path&gt;</code>.</p>
 
 <h2>What passes</h2>
