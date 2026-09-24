@@ -1,7 +1,9 @@
 <h1><code>tama-cli build</code></h1>
-<p>Writes and reads the build and restart registry, <code>~/.shared-hooks/build_restart_registry.json</code>.
-The gate <a href="/docs/build-restart-registry/"><code>block-unregistered-build-or-restart</code></a>
-refuses a build or a restart that has no open entry here. The CLI and Tama Desktop use the same registry operations.</p>
+<p>Writes and reads <code>~/.shared-hooks/build_restart_registry.json</code>. A build
+needs the agent's written whole-task completion statement and one unused entry;
+the <a href="/docs/build-restart-registry/"><code>block-unregistered-build-or-restart</code></a>
+gate consumes that entry for one attempt. Restarts retain their ordinary open
+entry. The CLI and Tama Desktop use the same registry operations.</p>
 
 <h2>Record an intent</h2>
 <pre><code>tama-cli build record --kind build --target skarbiec \
