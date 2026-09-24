@@ -120,7 +120,9 @@ complete flow and request fields. Older Tama releases do not enforce this statem
 <tr><td>build</td><td><code>stado build submit</code>,
 <code>stado release submit|prepare|resume|rollback|promote-version</code>,
 <code>cargo build</code>, <code>cargo install</code>, <code>swift build</code>, <code>xcodebuild</code>,
-<code>npm run build</code>, <code>bun run build</code></td></tr>
+<code>npm run build</code>, <code>bun run build</code>, <code>vercel deploy|build|redeploy|promote</code>,
+and <code>git push</code> in a checkout whose root holds <code>vercel.json</code> or
+<code>.vercel/project.json</code></td></tr>
 <tr><td>restart</td><td><code>stado service restart|ensure|deploy|stop|bootout|refresh-image</code>,
 <code>stado host reboot</code>, <code>launchctl kickstart|bootout|bootstrap|load|unload</code>,
 <code>systemctl restart|start|stop</code>, <code>brew services restart|start|stop</code></td></tr>
@@ -128,6 +130,11 @@ complete flow and request fields. Older Tama releases do not enforce this statem
 </table>
 <p>The refusal prints the <code>tama-cli build record</code> line for that exact kind and target, so the
 route out of it is the command itself.</p>
+<p>A push to a Vercel-linked checkout is a build because Vercel starts a production build for it,
+so it is refused until a build entry with the whole-task statement is recorded for that repository.
+A push from a checkout with neither file, and reads such as <code>vercel inspect</code>, pass.
+<code>git -C &lt;path&gt; push</code> is read from the directory the command runs in, not from
+<code>&lt;path&gt;</code>.</p>
 
 <h2>What passes</h2>
 <p>Reads of the same programs: <code>stado build status</code>, <code>stado release status</code>,
