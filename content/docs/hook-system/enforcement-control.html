@@ -115,7 +115,7 @@ a worker's claim or local “blocked” flag never grants permission to stop.</p
 <h3>A report is not the work it describes</h3>
 <p><code>block-stop-on-own-work</code> reads the transcript at Stop — the final
 message, what the agent said and thought since the operator last spoke, and
-every earlier refusal — and refuses five endings, each quoted back in the
+every earlier refusal — and refuses six endings, each quoted back in the
 refusal:</p>
 <ul>
 <li>a capacity, budget or clock nobody set, given as the reason the identified
@@ -137,13 +137,18 @@ know</code>) or announces the agent's own next move (<code>Zbuduję</code>,
 line that begins as an empty value and adds commentary, or says only that the
 agent is not assigning the operator work (<code>Brak przy zapisie defektu. Sam
 zapis nie jest jego naprawą.</code>, <code>Nie wyznaczam Ci zadania.</code>). Write
-exactly <code>Brak.</code>/<code>None.</code>, name a concrete blocker, or name the
-operator's actual action.</li>
+exactly <code>Brak.</code>/<code>None.</code> or name a concrete blocker.</li>
+<li>a <em>Blokady</em> or <em>Następne kroki</em> line that gives the operator
+something to do: a condition on his action (<code>Dopóki ich nie
+zainstalujesz …</code>), an instruction (<code>uruchom</code>, <code>zainstaluj</code>,
+<code>wyeksportuj</code>, <code>ustaw</code>, <code>you must</code>) or a place he is
+sent to (<code>w swoim terminalu</code>). The agent gives the operator no tasks.
+When it is completely blocked it may beg (<code>Błagam</code>, <code>I beg</code>),
+and the begging names every possible way to finish the tasks with the captured
+refusal of each; a report that begs is not refused by this rule.</li>
 </ul>
-<p>What passes: <em>Następne kroki</em> naming the one thing only the operator
-can supply, with the captured error that proves it (<code>Poza sesją wyeksportuj
-DEVICE_HOOK_EDIT_APPROVED=1 …; odmowa: block-hook-config-edits-without-consent:
-BLOCKED</code>); a line that names a cost to approve, because money is the one
+<p>What passes: a report that begs, as above; a line that names a cost to
+approve, because money is the one
 boundary that holds; a report that says what changed since the refusal; and a
 quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
 which is a report, not a reason. Each refusal starts a new attempt: what the
@@ -151,7 +156,7 @@ agent says after a refusal is judged on its own, so one sentence cannot refuse
 every attempt after it. The real-binary journey is
 <code>rust/crates/tama-hook-tools/tests/own_work_guard.rs</code>
 (<code>cargo test -p tama-hook-tools --test own_work_guard</code>): ten cases,
-covering the five refusals and the passes above, including exact empty sections.</p>
+covering the six refusals and the passes above, including exact empty sections and begging.</p>
 <h3>An operator stop order</h3>
 <p>Every guard above releases the turn only through a tool call: finish the
 tracker, read the ledger, treat a denial, record evidence. When the operator
