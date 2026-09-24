@@ -9,20 +9,20 @@ outputs are pasted verbatim with the home abbreviated to <code>~</code> and scra
 directories to <code>$H</code>. The desktop shows the same facts on
 <a href="desktop/posture.md">Posture</a> and <a href="desktop/session.md">Session</a>.</p>
 <h2>1. Live sessions, from the sealed CLI</h2>
-<p><code>tama-cli sessions</code> reads the session-control records under
+<p><code>tama sessions</code> reads the session-control records under
 <code>&lt;home&gt;/Library/Application Support/Tama/session-control/</code> — the same files
 the desktop polls (<a href="enforcement-control.md#session-records">enforcement-control</a>).
 Against a home with no records it prints nothing and exits <code>0</code>; <code>--json</code>
 makes the empty answer explicit:</p>
-<pre><code class="language-console">$ tama-cli sessions --home &quot;$H&quot;
-$ tama-cli sessions --json --home &quot;$H&quot;
+<pre><code class="language-console">$ tama sessions --home &quot;$H&quot;
+$ tama sessions --json --home &quot;$H&quot;
 []
 </code></pre>
 <p>Against the real home of a machine with live supervised sessions, each line
 is agent id, session id, and hook state — <code>loaded/registered</code> counts for a
 normally enforcing session, or the explicit allowlist during a global
 disable (excerpt of a longer capture):</p>
-<pre><code class="language-console">$ tama-cli sessions
+<pre><code class="language-console">$ tama sessions
 omp	ReadBatch13	61/61
 omp	ReadBatch05	61/61
 kimi	session_d62b	?/?

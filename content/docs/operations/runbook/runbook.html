@@ -43,7 +43,7 @@ enable would hit (<code>second gate: intact</code> / <code>second gate: DRIFTED 
 start; installing a new one does not restart anybody
 (<a href="concepts/posture.md">concepts/posture</a>).</p>
 <p>First command:</p>
-<pre><code class="language-bash">tama-cli sessions
+<pre><code class="language-bash">tama sessions
 </code></pre>
 <p>A lagging session shows a loaded count against a different registered
 count, or an old release id in <code>--json</code>. The repair is the session-scoped
@@ -107,7 +107,7 @@ removing it.</p>
 | one without the other | — | Interrupted transition: treat as disabled and run re-enable, which restores from the manifest and removes both |</p>
 <p>The script's own sentences: a repeat disable prints <code>Tama hooks are already disabled.</code>; enable without evidence refuses with <code>Tama has no emergency backup manifest to restore.</code>; success prints <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code> or <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> The desktop trusts only re-read durable state: <code>Tama could not persist the emergency hook state.</code> means the switch did not stick.
 During the bypass, the retained machine selection does not run;
-<code>tama-cli sessions</code> prints each session's explicit allowlist
+<code>tama sessions</code> prints each session's explicit allowlist
 (<code>allowlist: empty</code> when nothing was re-enabled)
 (<a href="walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</p>
 <h2>The installer refuses</h2>
@@ -161,12 +161,12 @@ exited non-zero without printing anything.</li>
 2), <code>Tama session supervisor is missing: &lt;path&gt;</code> (exit 66), <code>Tama could not resume one or more supervised agent sessions.</code> (the exit trap's resume
 failed — sessions may still be paused; resume them via the supervisor).</p>
 <h2><code>verify</code> fails inside the desktop release</h2>
-<pre><code class="language-console">$ tama-cli verify
+<pre><code class="language-console">$ tama verify
 tama-require-live-runtime not found next to this binary
 </code></pre>
 <p>Captured against the sealed release of 2026-08-24, exit 1: the fixture
 runner that <code>verify</code> needs is not shipped in the desktop's release. Catalog
-validation without fixtures is <code>tama-cli validate</code>; hook-behavior fixtures
+validation without fixtures is <code>tama validate</code>; hook-behavior fixtures
 run in the hook source tree, not from the app bundle.</p>
 <h2>The backend refuses a repository</h2>
 <p>The Violations surface validates before anything runs, each sentence from
@@ -179,7 +179,7 @@ absolute, not a directory, or no <code>.git</code>.</li>
 <li><code>Codex is unavailable. Install and authenticate Codex before confirming cleanup.</code> — repair needs the local headless agent; scan does not.</li>
 <li><code>The clean command was cancelled. Partial working-tree edits remain visible; inspect them and complete a read-only scan before retrying.</code></li>
 </ul>
-<p>Refusals from <code>tama-cli request</code> arrive verbatim in <code>{&quot;error&quot;: &quot;…&quot;}</code>
+<p>Refusals from <code>tama request</code> arrive verbatim in <code>{&quot;error&quot;: &quot;…&quot;}</code>
 envelopes on its one <code>response</code> event: an unknown operation is status
 <code>404</code> with <code>unknown operation: &lt;operation&gt;</code>, and a scan of a path that
 does not exist is status <code>400</code> with <code>repo not found: &lt;path&gt;</code>

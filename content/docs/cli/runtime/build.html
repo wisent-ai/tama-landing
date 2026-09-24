@@ -1,4 +1,4 @@
-<h1><code>tama-cli build</code></h1>
+<h1><code>tama build</code></h1>
 <p>Writes and reads <code>~/.shared-hooks/build_restart_registry.json</code>. A build
 needs the agent's written whole-task completion statement and one unused entry;
 the <a href="/docs/build-restart-registry/"><code>block-unregistered-build-or-restart</code></a>
@@ -6,12 +6,12 @@ gate consumes that entry for one attempt. Restarts retain their ordinary open
 entry. The CLI and Tama Desktop use the same registry operations.</p>
 
 <h2>Record an intent</h2>
-<pre><code>tama-cli build record --kind build --target skarbiec \
+<pre><code>tama build record --kind build --target skarbiec \
   --reason "Validate the committed identity checks in the shared build" \
   --revision 45a5c678042147f76241adf76fb7cf217e121ca6 \
   --completed-task "The whole requested identity change is finished in code and documentation" [--minutes 60] [--json]
 
-tama-cli build record --kind restart --target brama-desktop-model-router \
+tama build record --kind restart --target brama-desktop-model-router \
   --reason "the router holds a revoked credential and reads it once at start" \
   --minutes 30</code></pre>
 <table>
@@ -81,12 +81,12 @@ refusal. Tama Desktop displays that same refusal from the shared backend.</p>
 <p>An exception changes neither the default limit nor the policy file. Record it before submitting
 the build. Replace the session, revision and message placeholders with the actual captured approval;
 an example in documentation is not user consent.</p>
-<pre><code>tama-cli build record --kind build --target skarbiec --revision FULL_SHA \
+<pre><code>tama build record --kind build --target skarbiec --revision FULL_SHA \
   --reason "Build the committed change after explicit permission from the user" \
   --completed-task "The whole requested change is finished before this approved build" \
   --approval-session SESSION_ID --approval-quote 'VERBATIM_USER_MESSAGE' --json
-tama-cli build approval --target skarbiec --revision FULL_SHA --json
-tama-cli build list --json</code></pre>
+tama build approval --target skarbiec --revision FULL_SHA --json
+tama build list --json</code></pre>
 <p>The message must explicitly authorize exceeding the daily build count for the named product or
 batch. A normal build request, a request to implement this mechanism, hypothetical consent, and an
 agent's assertion are not consent. Tama checks the message through Brama and refuses if it cannot
@@ -128,8 +128,8 @@ optional <code>repository</code> and <code>minutes</code>, and paired
 and <code>target</code>. Unknown request fields are refused.</p>
 
 <h2>Read the limits, and change them</h2>
-<pre><code>tama-cli build policy [--json]
-tama-cli build policy --builds-per-day 2 --restarts-per-day 6 \
+<pre><code>tama build policy [--json]
+tama build policy --builds-per-day 2 --restarts-per-day 6 \
   --minimum-changed-lines 80 --window-minutes 45</code></pre>
 <p>Without options it prints the file and the sentence: <em>3 builds and 10 restarts in any 24 hours;
 a build carries at least 30 changed lines; one recorded intent authorizes 60 minutes</em>. Those are
@@ -139,9 +139,9 @@ unless <code>DEVICE_HOOK_EDIT_APPROVED=1</code> is set outside the agent session
 that can raise its own allowance has none. A policy or ledger that cannot be parsed refuses the build
 and names the file, rather than counting the day as unspent.</p>
 <h2>Read and close</h2>
-<pre><code>tama-cli build list [--json]
-tama-cli build close --kind build --target skarbiec [--json]
-tama-cli build close --kind build --target stado --not-started "Skarbiec request failed before any job existed"</code></pre>
+<pre><code>tama build list [--json]
+tama build close --kind build --target skarbiec [--json]
+tama build close --kind build --target stado --not-started "Skarbiec request failed before any job existed"</code></pre>
 <p><code>list</code> prints each entry with its kind, target, reason, revision and completed task.
 An accepted build is shown as used and authorizes no second build; an expired entry authorizes
 nothing. <code>close</code> removes one entry without refunding its allowance. JSON output
@@ -163,13 +163,13 @@ The JSON result carries <code>not_started.revision</code> and <code>not_started.
 build skarbiec, but ~/.shared-hooks/build_restart_registry.json has no unused,
 unexpired entry with a whole-task completion statement for it. A build consumes
 its entry once. Record the completed task and intent, then run the command again:
-  tama-cli build record --kind build --target skarbiec --reason "&lt;what this
+  tama build record --kind build --target skarbiec --reason "&lt;what this
   build is for&gt;" --revision &lt;source revision this build carries&gt;
   --completed-task "&lt;which whole task is finished&gt;"</code></pre>
 <h2>Run the approval journeys</h2>
 <pre><code>TAMA_TEST_BINS=/path/to/the/release/bin npm run test:build-approval-release</code></pre>
 <p>Run this in the Tama checkout with Node.js 24 or newer. The release must contain
-<code>tama-cli</code>, <code>tama-record-current-assignment</code> and
+<code>tama</code>, <code>tama-record-current-assignment</code> and
 <code>tama-block-unregistered-build-or-restart</code>. The test uses the real
 assignment capture, CLI, build gate, desktop request backend and Brama consent
 verifier. It creates its own registry under

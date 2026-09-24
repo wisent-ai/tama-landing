@@ -4,7 +4,7 @@ with it — so an operator approving a privileged install can see which files
 it would touch first. The plan is read-only: the screen states target paths
 and performs none of the changes. The command behind it is the sealed CLI's
 <code>install-plan</code> (<a href="../cli.md#read-only-commands">cli</a>), run as
-<code>tama-cli request install-plan</code> with an empty body.</p>
+<code>tama request install-plan</code> with an empty body.</p>
 <h2>Header and signals</h2>
 <p>Title <code>Install plan</code>; scope <code>planned changes</code> once a plan is loaded;
 freshness reads <code>reading now</code>, <code>read &lt;time&gt;</code>, or <code>not read yet</code>; the one
@@ -23,8 +23,8 @@ Against the release sealed on 2026-08-24 the plan reports, among others:
 <code>user-global Git hooks: ~/.config/git/hooks</code>, <code>repo/project Git hooks: git config core.hooksPath .githooks</code>, and <code>OS-level policy: outside Tama</code>.</p>
 <h2>MCP server</h2>
 <p><code>Paste this into a client configuration to expose the bundled Tama tools.</code>
-The snippet is the answer of <code>tama-cli request mcp-config</code> — the same JSON
-<code>tama-cli mcp-config</code> prints, naming the bundled <code>tama-mcp-server</code> — read
+The snippet is the answer of <code>tama request mcp-config</code> — the same JSON
+<code>tama mcp-config</code> prints, naming the bundled <code>tama-mcp-server</code> — read
 lazily alongside the plan. Loading reads <code>Reading the MCP snippet</code>; a
 failure shows <code>MCP snippet could not be read</code> with the sentence.</p>
 <h2>States</h2>

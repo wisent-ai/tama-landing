@@ -15,7 +15,7 @@ codex-hooks/
 repo-githooks/&lt;project&gt;/
 external-hooks/       # approved sources packaged from outside the managed roots
 external-sources.json # sourcePrefix -&gt; releasePath mappings
-bin/tama-cli          # sealed Rust CLI (the desktop backend)
+bin/tama          # sealed Rust CLI (the desktop backend)
 bin/tama-mcp-server   # sealed MCP server
 </code></pre>
 <p>The identity is the content: <code>releaseId</code> in <code>release.json</code> is the tree
@@ -29,7 +29,7 @@ shows.</p>
 <code>Scripts/build-app.sh</code> selects with <code>TAMA_HOOK_ROOT</code> (default: the <code>tama</code>
 checkout beside this repository — the tree whose generated documentation is
 titled the Hooks Rotator catalog). The build stages the four hook
-directories, compiles <code>tama-cli</code> and <code>tama-mcp-server</code> from that tree's
+directories, compiles <code>tama</code> and <code>tama-mcp-server</code> from that tree's
 <code>rust/</code> workspace, packages external sources, prunes generator files and
 bytecode, and seals (<a href="../scripts.md#build-appsh">scripts</a>). The desktop
 release then <em>carries</em> the hook release; the two have separate identities
@@ -75,7 +75,7 @@ directory name — no manifest needed, because the name is the claim.</li>
 <pre><code class="language-bash">python3 Scripts/integrity/verify_hook_release.py                       # bundled tree vs its seal
 python3 Scripts/integrity/report_hook_release_integrity.py             # same, with residue attribution
 python3 Scripts/integrity/verify_installed_releases.py                 # every installed tree vs its name
-Tama.app/Contents/Resources/hooks-release/bin/tama-cli list  # what the release declares
+Tama.app/Contents/Resources/hooks-release/bin/tama list  # what the release declares
 </code></pre>
 <h2>Not to be confused with</h2>
 <ul>

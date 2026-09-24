@@ -1,9 +1,9 @@
-<h1><code>tama-cli assignment show</code></h1>
+<h1><code>tama assignment show</code></h1>
 <p>Prints one session's newest operator instruction verbatim together with Oko's current task ledger, then records that both were read. A question about the task is not itself a replacement task, and a session summary is not a source of task state.</p>
 <h2>Invocation</h2>
-<pre><code>tama-cli assignment show --session SESSION_ID [--json]
+<pre><code>tama assignment show --session SESSION_ID [--json]
 </code></pre>
-<p><code>--session</code> is required. <code>--json</code> prints the instruction fields and Oko's report under <code>ledger</code>. The readable form also prints the standing rules. The stop refusal names the companion <code>tama-cli</code> from its own installed release, so its recovery command does not select an older executable from <code>PATH</code>.</p>
+<p><code>--session</code> is required. <code>--json</code> prints the instruction fields and Oko's report under <code>ledger</code>. The readable form also prints the standing rules. The stop refusal names the companion <code>tama</code> from its own installed release, so its recovery command does not select an older executable from <code>PATH</code>.</p>
 <h2>Output and state</h2>
 <p>Each session has its own captured instruction and separate read receipt under the Tama state root. <code>TAMA_ASSIGNMENT_STATE</code> selects a base filename for this namespace, not a shared assignment file. An older machine-wide record is not adopted as another session's instruction. The capture preserves whitespace, and even an identical instruction submitted in a new turn requires a new read.</p>
 <p>The reader calls <code>oko-cli transcripts tasks --session SESSION_ID --read-only --json</code>. <code>TAMA_OKO_CLI</code> selects a different Oko executable; <code>OKO_TRANSCRIPT_INDEX_PATH</code> selects the index passed as <code>--db</code>. Oko reads the fresh transcript without writing the index or waiting behind its writer. The index and task tables must already be initialized through Oko's normal writable interface, but the selected live session need not have an index entry. Oko checks the session identity in a newly discovered transcript. Human-attributed OMP steering is an operator message; runtime steering is not. See <a href="https://oko.wisent.com/docs/cli/transcripts/tasks">Oko's task reader</a> for source recovery and refusal details.</p>

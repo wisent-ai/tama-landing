@@ -16,7 +16,8 @@
 </ul>
 <h3>Changed</h3>
 <ul>
-<li>Every backend operation runs as one <code>tama-cli request &lt;operation&gt;</code> process that exits once it has answered, instead of a resident <code>tama-cli serve</code> loopback server kept alive for the whole session; cancelling a scan or cleanup, or quitting the app, ends that operation's process tree.</li>
+<li>The CLI is built, bundled and installed as <code>tama</code>. The earlier <code>tama-cli</code> name is gone: <code>tama hooks release</code> removes the old <code>~/.local/bin/tama-cli</code> copy, and the sealed release carries <code>bin/tama</code>.</li>
+<li>Every backend operation runs as one <code>tama request &lt;operation&gt;</code> process that exits once it has answered, instead of a resident <code>tama serve</code> loopback server kept alive for the whole session; cancelling a scan or cleanup, or quitting the app, ends that operation's process tree.</li>
 <li>The file/test justification recorder uses the shared <code>justifications/record</code> operation instead of spawning a separate CLI command from the native view.</li>
 <li>Runtime installation and macOS policy registration require explicit authenticated confirmation instead of running during model initialization.</li>
 <li>Session discovery is read-only when Tama has not been configured.</li>

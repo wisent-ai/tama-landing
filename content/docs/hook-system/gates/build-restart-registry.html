@@ -5,7 +5,7 @@ task is finished. Each accepted build consumes its entry, so the next build need
 and intent. A restart still needs an open entry but no task statement. Refusals start
 <code>BLOCKED: unregistered build:</code> or <code>BLOCKED: unregistered restart:</code>, go to stderr
 and exit <code>2</code> before the command runs. The registry is
-<code>~/.shared-hooks/build_restart_registry.json</code>; <code>tama-cli build</code> and Tama
+<code>~/.shared-hooks/build_restart_registry.json</code>; <code>tama build</code> and Tama
 Desktop share its writer.</p>
 <p><strong>Availability:</strong> this completion check is in source, not yet in
 the installed hook release. Registration and installation require the device
@@ -43,7 +43,7 @@ ceiling on <code>--minutes</code>. Four hours is the hard maximum whatever the f
 </tbody>
 </table>
 <p>The limits live in <code>~/.shared-hooks/build_restart_policy.json</code> and are read with
-<code>tama-cli build policy</code>. A machine with no policy file is still rationed by the values in
+<code>tama build policy</code>. A machine with no policy file is still rationed by the values in
 code. Tightening a limit needs nothing; loosening one — more builds a day, a smaller change, a longer
 window — needs <code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session, because an agent
 that can raise its own allowance has none. The local rolling count comes from
@@ -59,19 +59,19 @@ command</a>.</p>
 <p>One build entry authorizes one attempt against one target before expiry. The written completion
 statement is retained with the revision and reason; Tama requires the statement but does not
 independently prove that the task is finished. An agent must not record it while work remains:</p>
-<pre><code>tama-cli build record --kind build --target skarbiec \
+<pre><code>tama build record --kind build --target skarbiec \
   --reason "Validate the committed identity checks in the shared build" \
   --revision 45a5c678042147f76241adf76fb7cf217e121ca6 \
   --completed-task "The whole requested identity change is finished in code and documentation"
 
-tama-cli build record --kind restart --target brama-desktop-model-router \
+tama build record --kind restart --target brama-desktop-model-router \
   --reason "the router holds a revoked credential and reads it once at start" \
   --minutes 30
 
-tama-cli build list
-tama-cli build close --kind build --target skarbiec
-tama-cli build policy
-tama-cli build policy --builds-per-day 2 --minimum-changed-lines 80</code></pre>
+tama build list
+tama build close --kind build --target skarbiec
+tama build policy
+tama build policy --builds-per-day 2 --minimum-changed-lines 80</code></pre>
 <table>
 <thead><tr><th>Field</th><th>What the command demands</th></tr></thead>
 <tbody>
@@ -128,7 +128,7 @@ and <code>git push</code> in a checkout whose root holds <code>vercel.json</code
 <code>systemctl restart|start|stop</code>, <code>brew services restart|start|stop</code></td></tr>
 </tbody>
 </table>
-<p>The refusal prints the <code>tama-cli build record</code> line for that exact kind and target, so the
+<p>The refusal prints the <code>tama build record</code> line for that exact kind and target, so the
 route out of it is the command itself.</p>
 <p>A push to a Vercel-linked checkout is a build because Vercel starts a production build for it,
 so it is refused until a build entry with the whole-task statement is recorded for that repository.
@@ -153,7 +153,7 @@ with the command vocabulary as data in <code>vocabulary.json</code> beside it an
 <code>registry.rs</code>; binary:
 <code>src/bin/block/safety/execution/block_unregistered_build_or_restart.rs</code>; the writer:
 <code>rust/crates/tama-cli/src/builds/mod.rs</code>; the real-binary test that drives the gate and the real
-<code>tama-cli</code> against a disposable registry:
+<code>tama</code> against a disposable registry:
 <code>rust/crates/tama-hook-tools/tests/build_registry_guard.rs</code>; the declaration the registration
 reads: <code>hook-declarations/block-unregistered-build-or-restart.json</code>. Registration is
 <a href="/docs/hook-management/">two commands</a>:

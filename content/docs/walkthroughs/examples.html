@@ -10,7 +10,7 @@ scripts are executed end-to-end with pasted output in the walkthroughs.</p>
 release inside <code>.build/Tama.app</code>.</p>
 <p>| Script | Reads or mutates | Outcome |
 |---|---|---|
-| <code>getting-started/install-cli.sh</code> | mutates (one symlink) | Link the bundled <code>tama-cli</code> onto PATH as <code>tama</code>; refuses to replace unrelated entries |
+| <code>getting-started/install-cli.sh</code> | mutates (one symlink) | Link the bundled <code>tama</code> onto PATH as <code>tama</code>; refuses to replace unrelated entries |
 | <code>getting-started/status.sh</code> | reads | Catalog validation counts and every live supervised session |
 | <code>integrity/verify-release-seal.sh</code> | reads | A release tree digested against its recorded <code>releaseId</code>, with drift attribution (<a href="../docs/walkthrough-verify-release.md">walkthrough</a>) |
 | <code>integrity/runtime-status.sh</code> | reads | Live sessions plus every installed release verified against its content-addressed name (<a href="../docs/walkthrough-runtime-status.md">walkthrough</a>) |

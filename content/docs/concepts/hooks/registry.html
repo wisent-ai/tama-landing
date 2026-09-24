@@ -21,7 +21,7 @@ category/description/why/side-effect record), <code>editorAdapters</code>,
 <code>ompAdapters</code>, <code>maintainedIn</code> (the canonical source path of the registry
 itself), <code>generatedDocs</code>, <code>version</code>, <code>updatedAt</code>, and <code>notes</code>.</p>
 <p>The <code>events</code> map and the <code>catalog</code> are deliberately redundant: the first is
-what executes, the second is what a human approves. <code>tama-cli validate</code>
+what executes, the second is what a human approves. <code>tama validate</code>
 cross-checks them and reports <code>install drift</code> when the catalog declares a
 hook for an event that no runtime adapter installs
 (<a href="../cli.md#read-only-commands">cli</a>).</p>
@@ -58,7 +58,7 @@ and <code>tama request coverage</code> from the release's registry
 (<a href="../cli.md">cli</a>).</li>
 <li>The desktop never parses the registry directly: it loads the build-time
 snapshot <code>tama-catalog.json</code>, rendered by <code>Scripts/app_build/export-catalog.mjs</code>
-running <code>tama-cli list --json</code> (<a href="../hook-model.md#the-desktops-catalog-snapshot">hook-model</a>).</li>
+running <code>tama list --json</code> (<a href="../hook-model.md#the-desktops-catalog-snapshot">hook-model</a>).</li>
 <li>The emergency switch reads the <em>installed</em> registry's <code>catalog.gitHooks[]</code>
 to know which Git entrypoints to move aside
 (<a href="emergency-disable.md">concepts/emergency-disable</a>).</li>
@@ -76,7 +76,7 @@ to know which Git entrypoints to move aside
 timeouts to <code>0</code>); the registry is the declaration. Validation of the
 snapshot is structural only — the desktop itself states <code>Bundled snapshot only: high-entropy and live runtime drift checks are not run in Tama.</code></li>
 <li><strong><code>HOOKS.md</code>.</strong> Generated documentation rendered <em>from</em> the registry
-(<code>tama-cli docs</code>; installed at <code>~/.shared-hooks/HOOKS.md</code>), titled
+(<code>tama docs</code>; installed at <code>~/.shared-hooks/HOOKS.md</code>), titled
 “Hooks Rotator Catalog”. Prose, not policy.</li>
 <li><strong>Provider configs.</strong> <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code>
 are generated adapters that point events at the runtime; the registry is

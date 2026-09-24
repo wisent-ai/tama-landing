@@ -21,7 +21,7 @@ test evidence. Each script exposes one bounded CLI outcome and states mutation o
 risk before the command.</p>
 <p>| CLI contract | Command example | Required proof | Current evidence |
 |---|---|---|---|
-| Bundled CLI discovery | <code>examples/getting-started/install-cli.sh</code> | Creates or idempotently retains the matching link to the bundled <code>bin/tama-cli</code>, refuses unrelated entries, and reports missing PATH configuration | Not executed in current work |
+| Bundled CLI discovery | <code>examples/getting-started/install-cli.sh</code> | Creates or idempotently retains the matching link to the bundled <code>bin/tama</code>, refuses unrelated entries, and reports missing PATH configuration | Not executed in current work |
 | Catalog health and live sessions | <code>examples/getting-started/status.sh</code> | Stable human output and valid JSON from <code>validate</code> and <code>sessions</code>, with an explicit <code>--home</code> scope | Executed read-only against the 2026-08-24 source build |
 | Release seal verification | <code>examples/integrity/verify-release-seal.sh</code> | Intact release digests to its recorded <code>releaseId</code>; drift names the files written after the seal | Executed with pasted output in <a href="walkthrough-verify-release.md">walkthrough-verify-release</a> |
 | Installed runtime status | <code>examples/integrity/runtime-status.sh</code> | Live sessions listed; every installed tree digested against its content-addressed name; second-gate verdict stated | Executed with pasted output in <a href="walkthrough-runtime-status.md">walkthrough-runtime-status</a> |

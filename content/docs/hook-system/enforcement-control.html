@@ -63,7 +63,7 @@ override and OMP session history, so they survive a reload or resume of that
 same session while the emergency generation is unchanged. A fresh global
 disable changes <code>changedAt</code> and invalidates prior or legacy allowlists and
 capabilities. The supervisor clears them before publishing state; neither the
-desktop nor <code>tama-cli sessions</code> treats a stale id as enabled.</p>
+desktop nor <code>tama sessions</code> treats a stale id as enabled.</p>
 <p><code>enable-all</code> is different. Outside emergency disable it binds an override to
 the installed release and catalog checksum and awaits the shared runtime reload;
 concurrent identical requests coalesce. A failed state update restores the

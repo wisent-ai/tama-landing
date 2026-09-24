@@ -22,7 +22,7 @@ fields (read from the sealed registry):</p>
 while it runs. Hooks read a JSON payload on stdin and fail closed: a
 blocking hook exits non-zero or returns a deny decision when its invariant
 is violated. One real hook, from the sealed CLI:</p>
-<pre><code class="language-console">$ tama-cli show block-inline-execution
+<pre><code class="language-console">$ tama show block-inline-execution
 block-inline-execution
 source: shared-hooks/block_inline_execution.sh
 command: ~/.shared-hooks/block_inline_execution.sh
@@ -56,7 +56,7 @@ runtime.</li>
 dispatchers at the user-global Git hooks path and approved per-repository
 <code>.githooks</code> files (<a href="../hook-releases.md#installation">hook-releases</a>).</li>
 <li><strong>Sealed-backend hooks</strong> — catalog entries whose logic is compiled into
-the Rust binaries and therefore have no mappable script path; <code>tama-cli validate</code> reports one warning per such hook (<code>WARN &lt;id&gt;: source path could not be mapped from command</code>), which is expected, not drift
+the Rust binaries and therefore have no mappable script path; <code>tama validate</code> reports one warning per such hook (<code>WARN &lt;id&gt;: source path could not be mapped from command</code>), which is expected, not drift
 (<a href="../cli.md#read-only-commands">cli</a>).</li>
 <li><strong>Justification-gated hooks</strong> — type <code>requires_justification</code>: instead of
 blocking outright they demand a recorded justification in a local registry

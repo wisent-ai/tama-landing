@@ -83,7 +83,7 @@ manifest prints <code>no release manifest at &lt;path&gt;</code> and exits <code
 <h3>build-app.sh</h3>
 <p>Builds, signs, and installs the app bundle from a checkout: Swift release
 build, the two system-policy binaries and the Network Extension, the sealed
-Rust <code>tama-cli</code> and <code>tama-mcp-server</code> (built with <code>cargo</code> from the hook
+Rust <code>tama</code> and <code>tama-mcp-server</code> (built with <code>cargo</code> from the hook
 source tree's <code>rust/</code> workspace), the catalog snapshot
 (<code>export-catalog.mjs</code>), the staged hook release sealed by
 <code>seal_hook_release.py</code>, and <code>tama-build.json</code>. No arguments; the environment
@@ -113,7 +113,7 @@ digest definition is in <a href="concepts/seal.md">concepts/seal</a>.</p>
 <pre><code>export-catalog.mjs &lt;tama-root&gt; &lt;output-path&gt;
 </code></pre>
 <p>Renders the desktop's catalog snapshot by running the Rust CLI
-(<code>tama-cli list --root &lt;tama-root&gt; --json</code>; override the binary with
+(<code>tama list --root &lt;tama-root&gt; --json</code>; override the binary with
 <code>TAMA_CLI</code>) and normalizing defaults (<code>category</code> → <code>Uncategorized</code>, <code>status</code>
 → <code>unknown</code>, missing event <code>timeout</code> → <code>0</code>). Missing arguments throw
 <code>usage: export-catalog.mjs &lt;tama-root&gt; &lt;output-path&gt;</code>.</p>
@@ -140,7 +140,7 @@ flag that lifts it - remove the directory first. (Until 2026-09-18 this page nam
 <code>--replace</code> flag the script does not have; the hand-over that trusted the
 page stopped on <code>unrecognized arguments</code>.) The native binaries packaged
 into <code>bin/</code> are every command the staged registry names plus the
-<code>--include-bin</code> names, which default to <code>tama-cli</code>,
+<code>--include-bin</code> names, which default to <code>tama</code>,
 <code>tama-mcp-server</code> and <code>tama-run-hook</code>. <code>--release-root</code>
 packages the binaries into an already prepared release instead of staging one and
 cannot be combined with <code>--destination</code>. What to do with the staged tree

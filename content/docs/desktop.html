@@ -58,7 +58,7 @@ shortcuts) and the build identity, and owns the confirmed
 <p>Reads and jobs that belong to the sealed CLI — coverage, install plan, MCP
 snippet, policy bundles, enforcement, hook warming, violation scan and cleanup,
 worktrees, copies, builds and justifications — each run one process:
-<code>tama-cli request &lt;operation&gt; --root &lt;bundled release&gt;</code>, with the
+<code>tama request &lt;operation&gt; --root &lt;bundled release&gt;</code>, with the
 request body on stdin. It prints NDJSON on stdout and exits once it has
 answered, so no Tama process stays running between two operations and no port
 is opened. A bounded operation prints one <code>response</code> event carrying

@@ -11,7 +11,7 @@ release in Finder); without, <code>Sign in for controls</code>.</p>
 <p><strong>Import policy bundle</strong> selects a self-contained Tama policy
 bundle or sealed release directory containing
 <code>shared-hooks/registry.json</code>. The native app
-sends the path as the body of <code>tama-cli request policy-bundles/import</code>,
+sends the path as the body of <code>tama request policy-bundles/import</code>,
 one process that exits once it has answered; Tama core parses, validates every
 registered source, verifies <code>release.json</code> when a sealed release is
 selected, and transactionally copies the bundle. Swift does not parse files or

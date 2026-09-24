@@ -150,7 +150,7 @@ failing test rather than a gate everybody waits for.</p>
 
 <p>A release also installs the two programs a machine runs beside its hooks,
 from the same build: <code>tama-run-hook</code>, the engine a provider
-dispatcher executes, and <code>tama-cli</code> itself. Until 2026-09-20
+dispatcher executes, and <code>tama</code> itself. Until 2026-09-20
 nothing installed the engine at all, so the copy in <code>~/.local/bin</code>
 kept whatever build last happened to write it — on one machine six days
 behind the engine the sealed release was already running, which is how a fix
@@ -215,7 +215,7 @@ required, because nothing about the machine's policy changes.</p>
 a <strong>Hook binaries</strong> panel with a <strong>Warm hook binaries</strong>
 button, the count it warmed, and a row for every binary that was slow or could
 not run. Both surfaces run the same warm pass — the window through
-<code>tama-cli request hooks/warm</code> — and read the same document.</p>
+<code>tama request hooks/warm</code> — and read the same document.</p>
 <h2>Owner consent for a hook change</h2>
 <p>Hook source and structured configuration are protected at device level. Inside
 an agent session <code>block-hook-config-edits-without-consent</code> refuses any
