@@ -6,7 +6,8 @@ refuses a build or a restart that has no open entry here. The CLI and Tama Deskt
 <h2>Record an intent</h2>
 <pre><code>tama-cli build record --kind build --target skarbiec \
   --reason "Validate the committed identity checks in the shared build" \
-  --revision 45a5c678042147f76241adf76fb7cf217e121ca6 [--minutes 60] [--json]
+  --revision 45a5c678042147f76241adf76fb7cf217e121ca6 \
+  --completed-task "The whole requested identity change is finished in code and documentation" [--minutes 60] [--json]
 
 tama-cli build record --kind restart --target brama-desktop-model-router \
   --reason "the router holds a revoked credential and reads it once at start" \
@@ -24,6 +25,10 @@ the gate reports in its refusal.</td></tr>
 who was not there. A shorter reason is refused and the word count is named.</td></tr>
 <tr><td><code>--revision</code></td><td>Required for <code>--kind build</code>, and it must be a full
 forty-character source revision. A build that cannot say what it carries is not recorded.</td></tr>
+<tr><td><code>--completed-task</code></td><td>Required for a build: write at least eight
+words stating which whole task was finished before building. Missing or short text is refused
+before an intent is spent. It is an agent declaration retained in <code>completed_task</code>,
+not independent proof; do not claim completion while work remains. Restarts are unchanged.</td></tr>
 <tr><td><code>--minutes</code></td><td>How long the entry authorizes: one to the policy's window,
 sixty by default, four hours at the very most. A longer window is refused, so an entry nobody closes
 cannot become standing permission.</td></tr>
@@ -58,8 +63,9 @@ changes travel together: keep working and record the build once the change is
 worth it.</code></pre>
 <p>The local count comes from <code>~/.shared-hooks/build_restart_ledger.json</code>. Ordinary intents
 are retained for thirty days; entries containing user approval are retained as audit evidence without
-that expiry. <code>close</code> ends an authorization and does not give the build back. A retry is a
-different build attempt. Restarts are counted separately, ten in a rolling day.</p>
+that expiry. An accepted build consumes its open entry before the tool runs, so another build
+attempt requires a new completion statement and intent. <code>close</code> ends an authorization
+without refunding it. Restarts are counted separately, ten in a rolling day.</p>
 <p>The rolling-window forecast waits until enough entries have expired to put usage below the
 current limit, not merely until the oldest entry expires. This matters after a limit is lowered or
 approved exceptions have left usage above it. An entry at the exact boundary still counts. A zero
@@ -75,6 +81,7 @@ the build. Replace the session, revision and message placeholders with the actua
 an example in documentation is not user consent.</p>
 <pre><code>tama-cli build record --kind build --target skarbiec --revision FULL_SHA \
   --reason "Build the committed change after explicit permission from the user" \
+  --completed-task "The whole requested change is finished before this approved build" \
   --approval-session SESSION_ID --approval-quote 'VERBATIM_USER_MESSAGE' --json
 tama-cli build approval --target skarbiec --revision FULL_SHA --json
 tama-cli build list --json</code></pre>
@@ -103,18 +110,20 @@ source. Native release, real-fleet consumption and desktop visual qualification 
 this page is not evidence that the installed release supports them.</p>
 
 <h2>Tama Desktop</h2>
-<p>Open <strong>Policy → Build registry</strong>. Enter the product, full revision, repository and
-reason. For an exception, enable <strong>Use recorded user consent for a daily-limit exception</strong>
-and supply the session and verbatim current message. <strong>Record build</strong> records permission;
-it does not start compilation. The screen shows the backend's refusal, current entries, local intent
-counts and retained approval history. <strong>Close</strong> removes the current authorization but
-keeps its approval history. It does not cancel jobs Stado has already accepted.</p>
+<p>Open <strong>Policy → Build registry</strong>. Enter the product, full revision, repository,
+reason and <strong>Completed whole task and result</strong> (at least eight words). For an
+exception, enable <strong>Use recorded user consent for a daily-limit exception</strong> and
+supply the session and verbatim current message. <strong>Record build</strong> records one
+permission; it does not start compilation. The screen displays the statement and backend refusal,
+current entries, local intent counts and retained approval history. <strong>Close</strong>
+removes an authorization but does not cancel an accepted job.</p>
 <p>The screen runs the same operations as <code>tama request builds</code>,
 <code>tama request builds/record</code> and <code>tama request builds/close</code>
 (<a href="/docs/cli/request/">tama request</a>). Recording uses <code>kind</code>,
-<code>target</code>, <code>reason</code>, optional <code>revision</code>, <code>repository</code>,
-<code>minutes</code>, and paired <code>approvalSession</code>/<code>approvalQuote</code>.
-Closing uses <code>kind</code> and <code>target</code>. Unknown request fields are refused.</p>
+<code>target</code>, <code>reason</code>, <code>revision</code>, <code>completedTask</code>,
+optional <code>repository</code> and <code>minutes</code>, and paired
+<code>approvalSession</code>/<code>approvalQuote</code>. Closing uses <code>kind</code>
+and <code>target</code>. Unknown request fields are refused.</p>
 
 <h2>Read the limits, and change them</h2>
 <pre><code>tama-cli build policy [--json]
@@ -130,20 +139,19 @@ and names the file, rather than counting the day as unspent.</p>
 <h2>Read and close</h2>
 <pre><code>tama-cli build list [--json]
 tama-cli build close --kind build --target skarbiec [--json]</code></pre>
-<p><code>list</code> prints every entry with its kind, target, reason, revision, who recorded it and how
-many minutes it still authorizes; an expired entry is shown as expired, because the file keeps it until it
-is overwritten and it authorizes nothing. <code>close</code> removes one entry, which is what ends an
-authorization early; closing an entry that is not there is an error. JSON output includes
-<code>approval_history</code>, including approvals whose current entry has been closed or replaced.</p>
+<p><code>list</code> prints each entry with its kind, target, reason, revision and completed task.
+An accepted build is shown as used and authorizes no second build; an expired entry authorizes
+nothing. <code>close</code> removes one entry without refunding its allowance. JSON output
+includes <code>approval_history</code>, including approvals whose entry was closed or replaced.</p>
 
 <h2>What the refusal looks like</h2>
 <pre><code>BLOCKED: unregistered build: `stado release submit --source . --version 0.3.11` would
-build skarbiec, and ~/.shared-hooks/build_restart_registry.json holds no open entry for
-it. A build spends a builder the fleet has two of and a restart spends a service other
-work depends on, so each is stated before it runs. Record the intent, then run the
-command again:
-  tama-cli build record --kind build --target skarbiec --reason "&lt;what this build is
-  for&gt;" --revision &lt;source revision this build carries&gt;</code></pre>
+build skarbiec, but ~/.shared-hooks/build_restart_registry.json has no unused,
+unexpired entry with a whole-task completion statement for it. A build consumes
+its entry once. Record the completed task and intent, then run the command again:
+  tama-cli build record --kind build --target skarbiec --reason "&lt;what this
+  build is for&gt;" --revision &lt;source revision this build carries&gt;
+  --completed-task "&lt;which whole task is finished&gt;"</code></pre>
 <h2>Run the approval journeys</h2>
 <pre><code>TAMA_TEST_BINS=/path/to/the/release/bin npm run test:build-approval-release</code></pre>
 <p>Run this in the Tama checkout with Node.js 24 or newer. The release must contain

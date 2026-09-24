@@ -1,10 +1,12 @@
 <h1>Build and restart registry: <code>block-unregistered-build-or-restart</code></h1>
 <p>A gate on <code>pre_tool_use:bash</code> (<code>tama-block-unregistered-build-or-restart</code>) that
-refuses a command which would build a product or restart a service while the registry holds no open entry
-for it. Every refusal starts <code>BLOCKED: unregistered build:</code> or
-<code>BLOCKED: unregistered restart:</code>, goes to stderr, and exits <code>2</code> before the command
-runs. The registry is <code>~/.shared-hooks/build_restart_registry.json</code>. The CLI
-<code>tama-cli build</code> and Tama Desktop share its writer.</p>
+refuses a build without an unused, unexpired entry recording the agent's statement that the whole
+task is finished. Each accepted build consumes its entry, so the next build needs a new statement
+and intent. A restart still needs an open entry but no task statement. Refusals start
+<code>BLOCKED: unregistered build:</code> or <code>BLOCKED: unregistered restart:</code>, go to stderr
+and exit <code>2</code> before the command runs. The registry is
+<code>~/.shared-hooks/build_restart_registry.json</code>; <code>tama-cli build</code> and Tama
+Desktop share its writer.</p>
 
 <h2>Why it exists</h2>
 <p>On 2026-09-20 a single session submitted Brama 0.4.39, 0.4.40, 0.4.41, 0.4.42, 0.4.43 and 0.4.46,
@@ -50,10 +52,13 @@ The gate does not infer spent usage from open entries, because closing an author
 refund an intent. The CLI and <code>tama request builds/record</code> share the recorder's refusal. These corrected
 diagnostics require the updated native release described in the <a href="/docs/cli/build/">build
 command</a>.</p>
-<p>One entry authorizes one kind against one target, and expires:</p>
+<p>One build entry authorizes one attempt against one target before expiry. The written completion
+statement is retained with the revision and reason; Tama requires the statement but does not
+independently prove that the task is finished. An agent must not record it while work remains:</p>
 <pre><code>tama-cli build record --kind build --target skarbiec \
   --reason "Validate the committed identity checks in the shared build" \
-  --revision 45a5c678042147f76241adf76fb7cf217e121ca6
+  --revision 45a5c678042147f76241adf76fb7cf217e121ca6 \
+  --completed-task "The whole requested identity change is finished in code and documentation"
 
 tama-cli build record --kind restart --target brama-desktop-model-router \
   --reason "the router holds a revoked credential and reads it once at start" \
@@ -74,6 +79,9 @@ whose command names no target of its own — <code>stado release submit --source
 entry exists to be read later by somebody who was not there.</td></tr>
 <tr><td><code>--revision</code></td><td>Required for a build, and it must be a full forty-character source
 revision. A build that cannot name what it carries is not recorded.</td></tr>
+<tr><td><code>--completed-task</code></td><td>Required for a build: at least eight words
+stating which whole task the agent has finished before building. A missing or short statement
+refuses recording and spends no allowance. Restarts do not require it.</td></tr>
 <tr><td><code>--repository</code></td><td>Where the change is measured for a build. Without it, the
 repository the command runs in.</td></tr>
 <tr><td><code>--minutes</code></td><td>How long the entry stays open: one to the policy's window,
@@ -94,11 +102,11 @@ over-limit native build and stores the evidence with the run and platform in its
 The same message cannot grant another Tama intent for that product, and the same approval cannot
 charge another Stado run for that platform. The default count, expiry, duplicate-revision refusal,
 minimum change, host admission and publication permissions are unchanged.</p>
-<p>Tama Desktop exposes recording, refusals, retained approval history and closing in
-<strong>Policy → Build registry</strong>. Closing blocks subsequent approval reads; it does not
-cancel an already accepted job. See the <a href="/docs/cli/build/">build command</a> for
-the complete flow and HTTP fields. Older Tama and Stado releases without the approval writer,
-reader and consumer cannot grant this exception.</p>
+<p>Tama Desktop exposes the required completion statement, recording, refusals, retained approval
+history and closing in <strong>Policy → Build registry</strong>. A used build entry remains visible
+but no longer authorizes another attempt. Closing blocks subsequent approval reads; it does not
+cancel an already accepted job. See the <a href="/docs/cli/build/">build command</a> for the
+complete flow and request fields. Older Tama releases do not enforce this statement.</p>
 
 <h2>What is refused</h2>
 <table>
