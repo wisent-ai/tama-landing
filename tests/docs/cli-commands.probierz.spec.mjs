@@ -37,6 +37,7 @@ const commands = [
   "/docs/cli/copies",
   "/docs/cli/copies/list",
   "/docs/cli/copies/remove",
+  "/docs/cli/rules",
 ];
 
 for (const route of commands) {

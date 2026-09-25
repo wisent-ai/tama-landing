@@ -1,0 +1,24 @@
+<h1>Learned screen</h1>
+<p>What Tama learned across every agent session, as proposals to decide on. The
+engine is the sealed CLI's <a href="/docs/cli/rules/"><code>tama rules digest</code></a>, run
+as <code>tama request rules/digest</code>, so the screen and the terminal show the same
+proposals.</p>
+<h2>What a row shows</h2>
+<ul>
+<li>The hook or drafted rule the proposal is about.</li>
+<li>What the evidence says: how often the operator contested the hook, or the
+message the drafted rule refuses with and the quote it was drafted from.</li>
+<li>How many pieces of evidence, the first and the last.</li>
+<li>The command that acts on it, selectable for pasting:
+<code>tama adaptive repair &lt;hook&gt;</code> or <code>tama rules remove --id &lt;rule&gt;</code>.</li>
+</ul>
+<h2>Dismiss until new evidence</h2>
+<p>The button runs <code>tama request rules/dismiss</code> with the proposal's id and the
+operator's approval for that one request. The proposal leaves the screen and
+comes back when more evidence arrives than it had. A refusal is shown as the
+command's own sentence.</p>
+<h2>When a source cannot be read</h2>
+<p>A source Tama could not read — the adaptive evidence, for instance — is shown
+as a red panel with its error above the proposals, and the other proposals are
+still listed.</p>
+<p>The screen is under Policy and needs policy control, like the build registry.</p>

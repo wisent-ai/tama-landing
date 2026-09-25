@@ -1,0 +1,47 @@
+<h1><code>tama rules</code></h1>
+<p>Reads what Tama learned across every agent session and puts it in front of the operator as proposals: the rules the frustration drafter recorded, and one proposal per hook he kept contesting.</p>
+<h2>Invocation</h2>
+<pre><code>tama rules list [--json]
+tama rules remove --id &lt;id&gt;
+tama rules digest [--json]
+tama rules dismiss --id &lt;proposal-id&gt;
+</code></pre>
+<h2>Why a digest</h2>
+<p>Two learners write where nobody reads. The adaptive bridge queues a repair
+proposal each time the operator contests a block (see
+<a href="/docs/adaptive/">adaptive enforcement</a>), one closed telemetry row per
+contest, so <a href="/docs/cli/adaptive/queue/"><code>tama adaptive queue</code></a>
+lists the same hook once for every time it was contested, across every
+session. The frustration drafter records rules in
+<code>~/.shared-hooks/auto_rules.json</code>. <code>digest</code> reads both and answers
+with one proposal per hook or rule: how many pieces of evidence, the first and
+the last, what the evidence says, and the command that acts on it.</p>
+<h2>Proposals</h2>
+<table>
+<thead><tr><th>id</th><th>kind</th><th>action</th></tr></thead>
+<tbody>
+<tr><td><code>hook:&lt;hook-id&gt;</code></td><td><code>repair</code>: the operator contested this hook <code>evidence</code> times</td><td><code>tama adaptive repair &lt;hook-id&gt;</code> drafts and validates a candidate against the labeled cases</td></tr>
+<tr><td><code>rule:&lt;rule-id&gt;</code></td><td><code>drafted-rule</code>: a rule the drafter recorded, with the quote it was drafted from</td><td><code>tama rules remove --id &lt;rule-id&gt;</code></td></tr>
+</tbody>
+</table>
+<p><code>--json</code> prints <code>{"proposals": [...], "dismissed": N, "unreadable": [{"source", "error"}]}</code>.
+A source that cannot be read is named in <code>unreadable</code> with its error; the
+rest of the digest still answers. Reading the adaptive evidence walks the
+Transcript Lake, which takes minutes on a machine with a large lake.</p>
+<h2>Dismissing</h2>
+<p><code>dismiss</code> hides one proposal until more evidence arrives than it had when
+it was dismissed: a hook dismissed at three contests returns at the fourth.
+Decisions are kept in <code>~/.shared-hooks/rule_decisions.json</code>. Which proposal
+the operator never sees again is his decision, so <code>dismiss</code> needs
+<code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session; Tama Desktop
+sets it for the one request its own button sends.</p>
+<h2>Refusals</h2>
+<ul>
+<li><code>refusing to dismiss &lt;id&gt;: which proposal the operator never sees again is his decision. Set DEVICE_HOOK_EDIT_APPROVED=1 outside the agent session to dismiss it.</code> — exit 2, nothing written.</li>
+<li><code>no open proposal &lt;id&gt; is in the digest</code> — exit 2; the id is not open (already dismissed, or never proposed).</li>
+<li><code>refusing to remove &lt;id&gt;: it was drafted from something the operator really said…</code> — <code>remove</code> of a rule whose quote is in a stored operator message, without the approval.</li>
+</ul>
+<h2>Desktop</h2>
+<p>The <a href="/docs/desktop/learning/">Learned screen</a> runs
+<code>tama request rules/digest</code> and <code>tama request rules/dismiss</code> with
+<code>{"id": "&lt;proposal-id&gt;"}</code>, and shows the same document.</p>

@@ -23,6 +23,7 @@
   {"route":"desktop/install-plan","source":"docs/desktop/install-plan.md","content":"content/docs/desktop/hooks/install-plan.html","category":"Desktop app"},
   {"route":"desktop/settings","source":"docs/desktop/settings.md","content":"content/docs/desktop/configuration/settings.html","category":"Desktop app"},
   {"route":"desktop/copies","source":"content/docs/desktop/repair/copies.html","content":"content/docs/desktop/repair/copies.html","category":"Desktop app"},
+  {"route":"desktop/learning","source":"content/docs/desktop/hooks/learning.html","content":"content/docs/desktop/hooks/learning.html","category":"Desktop app"},
 
   {"route":"architecture","source":"docs/architecture.md","content":"content/docs/reference/architecture.html","category":"Reference"},
   {"route":"core-contracts","source":"docs/core-contracts.md","content":"content/docs/reference/core-contracts.html","category":"Reference"},
@@ -65,6 +66,7 @@
   {"route":"cli/copies","source":"content/docs/cli/copies.html","content":"content/docs/cli/copies.html","category":"CLI reference"},
   {"route":"cli/copies/list","source":"content/docs/cli/copies/list.html","content":"content/docs/cli/copies/list.html","category":"CLI reference"},
   {"route":"cli/copies/remove","source":"content/docs/cli/copies/remove.html","content":"content/docs/cli/copies/remove.html","category":"CLI reference"},
+  {"route":"cli/rules","source":"content/docs/cli/rules.html","content":"content/docs/cli/rules.html","category":"CLI reference"},
   {"route":"configuration","source":"docs/configuration.md","content":"content/docs/reference/configuration.html","category":"Reference"},
   {"route":"enforcement-control","source":"content/docs/hook-system/enforcement-control.html","content":"content/docs/hook-system/enforcement-control.html","category":"Reference"},
   {"route":"enforcement-control/runtime/adapters","source":"content/docs/hook-system/runtime/adapters.html","content":"content/docs/hook-system/runtime/adapters.html","category":"Reference"},
