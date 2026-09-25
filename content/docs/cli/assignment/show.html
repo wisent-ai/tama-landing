@@ -4,6 +4,9 @@
 <pre><code>tama assignment show --session SESSION_ID [--json]
 </code></pre>
 <p><code>--session</code> is required. <code>--json</code> prints the instruction fields and Oko's report under <code>ledger</code>. The readable form also prints the open defects of the products the session declared with <code>tama task scope set</code>, each with its id, product, title and Oko's repair plan (or the <code>oko defects plan</code> command when none is written), and then the standing rules. The defect list is the one the Stop guard holds the turn to, less the defects an open <code>oko blockers</code> entry carries, so a session reads the register before it records a defect again or leaves a known one untouched. When Oko cannot be read the section says so and names the failed call; a session with no declared repository is told to declare one. The stop refusal names the companion <code>tama</code> from its own installed release, so its recovery command does not select an older executable from <code>PATH</code>.</p>
+<p>A defect recorded with <code>found_in</code> naming this session is listed, and holds the Stop
+guard, whatever product it is filed under: the session that recorded it has just been told what to
+repair. A session with no declared repository still sees those.</p>
 <p>After the defects it prints the work other sessions declared on the same repositories: every
 <code>tama task scope set</code> declaration of another session that shares a repository with this
 one's and names a task or a defect, newest first, as <em>date, session, shared repositories, task or
