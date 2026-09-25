@@ -12,7 +12,7 @@ build selects with <code>TAMA_HOOK_ROOT</code> (its generated documentation is t
 the Hooks Rotator catalog). <code>Scripts/build-app.sh</code> copies that tree's
 <code>shared-hooks/</code>, <code>claude-hooks/</code>, <code>codex-hooks/</code>, and <code>repo-githooks/</code>
 directories into the app bundle, compiles the sealed Rust backend
-(<code>bin/tama</code>, <code>bin/tama-mcp-server</code>), and seals the result: a SHA-256
+(<code>bin/tama</code>, the one program whose subcommands are every hook, the engine and the MCP server), and seals the result: a SHA-256
 digest over every file's path, permission bits, and bytes becomes the
 <code>releaseId</code> in <code>release.json</code>. From then on the release is content-addressed
 — a rewritten byte or a changed permission bit changes the identity, and the

@@ -32,7 +32,7 @@ the background-execution or CUA hook that happened to run first.</p>
 <li><code>shared-hooks/</code>, <code>codex-hooks/</code>, and <code>claude-hooks/</code> contain archived hook source and the shared registry.</li>
 <li><code>repo-githooks/</code> contains project Git entrypoints.</li>
 <li><code>rust/crates/tama-core/</code> is the catalogue and validation library.</li>
-<li><code>rust/crates/tama-cli/</code> is the supported CLI implementation; <code>rust/crates/tama-mcp-server/</code> exposes catalogue operations.</li>
+<li><code>rust/crates/tama-cli/</code> builds the one program, <code>tama</code>; every hook (<code>tama hook &lt;name&gt;</code>), the hook engine (<code>tama run-hook</code>) and the MCP server exposing catalogue operations (<code>tama mcp</code>) are its subcommands.</li>
 <li><code>rust/crates/tama-adaptive/</code> owns the runner, symbolic policy, immutable telemetry, feedback bridge, and repair doctor.</li>
 <li><code>adaptive/policy.json</code> is the frozen symbolic tier and autonomy policy.</li>
 </ul>
@@ -97,7 +97,7 @@ occasion. Describe the hook once, as data in the repository under
   "id": "block-one-off-repairs",
   "category": "shell discipline",
   "description": "…", "why": "…", "sideEffects": "…",
-  "command": "$HOME/.local/bin/tama-block-one-off-repairs",
+  "command": "$HOME/.local/bin/tama hook block-one-off-repairs",
   "events": [{ "event": "pre_tool_use:bash" }]
 }</code></pre>
 <p>A binding may carry <code>"timeout"</code>, the seconds the runtime waits
@@ -107,19 +107,41 @@ writes each registry binding it does not already have — or already has with
 another timeout, which it unbinds and binds again as declared — reconciles the
 sources and reseals:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
-<p>And the machine half, which builds every native hook the registry names from
+<p>And the machine half, which builds the one <code>tama</code> program from
 <code>origin/main</code> — never from the working tree, because a shared checkout
 carries other sessions' uncommitted edits and a live gate is code that was
-reviewed and pushed — installs the binaries whose bytes changed, then stages,
-seals and installs the live release:</p>
+reviewed and pushed — installs it if its bytes changed, warms every registry
+hook through it, then stages, seals and installs the live release:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release --enforce &lt;hook-id&gt;[,&lt;hook-id&gt;…]</code></pre>
 <p><code>--enforce</code> adds those ids to this machine's selection and keeps the
 ones already chosen; without it the selection is left alone and the command says
 so. <code>--dry-run</code> prints the plan, needs no consent and changes nothing:
-the hooks it would build, and whether the selection would change. A repeat run
-installs only what differs. Both halves refuse without
+the <code>tama hook &lt;id&gt;</code> command of every hook it would run, and
+whether the selection would change. A repeat run installs nothing when the
+build is unchanged. Both halves refuse without
 <code>DEVICE_HOOK_EDIT_APPROVED=1</code> and the refusal prints the exact command
 to run, in the checkout, outside any agent session.</p>
+<h2>One program</h2>
+<p>Tama builds one program, <code>tama</code>. Every native hook is one of its
+subcommands, <code>tama hook &lt;name&gt;</code>; the hook engine is
+<code>tama run-hook</code>, the MCP server <code>tama mcp</code>. The registry
+runs each hook as <code>$HOME/.local/bin/tama hook &lt;id&gt;</code>, and
+<code>tama hook</code> with a name it does not know prints every name it
+answers to. A release removes the separate programs an earlier release
+installed — every recorded <code>tama-&lt;hook&gt;</code>,
+<code>tama-run-hook</code> and <code>tama-mcp-server</code> — and says
+<code>retired &lt;path&gt;: the hook runs as `tama hook`</code> for each.</p>
+<p>Before it builds anything, a release refuses two states that would leave a
+machine running nothing: a registry entry whose command still names a separate
+<code>tama-&lt;name&gt;</code> program, listed as <code>&lt;id&gt;:
+&lt;command&gt;</code>, and an adapter in <code>shared-hooks/</code> that still
+launches <code>tama-run-hook</code>, listed as <code>&lt;file&gt;:&lt;line&gt;:
+&lt;text&gt;</code>. The registry is device-protected, so its owner rewrites it
+outside any agent session and reseals it:</p>
+<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 ./rust/target/release/tama hook migrate-registry-to-rust --registry shared-hooks/registry.json --apply
+node shared-hooks/seal-registry.mjs</code></pre>
+<p>Without <code>--apply</code> the migration prints how many entries it would
+rewrite and every hook the program does not have, and changes nothing.</p>
 <p>A release also brings launch agents to what the registry says. An editor
 adapter recorded as <code>installed-not-active</code> whose <code>source</code>
 is a plist under <code>$HOME/Library/LaunchAgents</code> and still exists is
@@ -137,7 +159,7 @@ refuses outright. So the reading belongs to the gate. Each hook binary takes the
 payload it is given on stdin and answers about it; with <code>--explain</code> it
 prints what it read and decides nothing:</p>
 <pre><code>echo '{"session_id":"&lt;id&gt;","last_assistant_message":"&lt;text&gt;"}' \
-  | tama-block-unprompted-topics --explain</code></pre>
+  | tama hook block-unprompted-topics --explain</code></pre>
 <p>For <code>block-unprompted-topics</code> that is the transcript it found, how
 many records it read, how many terms the operator's own words and this turn's
 results ground, the most ungrounded paragraph the session already accepted, and
@@ -148,13 +170,13 @@ rebuilt the whole session's vocabulary at every assistant message until
 all. Its test now judges a long session in milliseconds, so the regression is a
 failing test rather than a gate everybody waits for.</p>
 
-<p>A release also installs the two programs a machine runs beside its hooks,
-from the same build: <code>tama-run-hook</code>, the engine a provider
-dispatcher executes, and <code>tama</code> itself. Until 2026-09-20
-nothing installed the engine at all, so the copy in <code>~/.local/bin</code>
-kept whatever build last happened to write it — on one machine six days
-behind the engine the sealed release was already running, which is how a fix
-can be live on one path and absent on the other.</p>
+<p>The engine a provider dispatcher executes is the same program, as
+<code>tama run-hook</code>. Until 2026-09-20 nothing installed the engine at
+all, so the separate copy in <code>~/.local/bin</code> kept whatever build last
+happened to write it — on one machine six days behind the engine the sealed
+release was already running, which is how a fix can be live on one path and
+absent on the other. One program installed from one build cannot drift that
+way.</p>
 <p>Which checkout a <code>tama hooks</code> command reads is decided in this
 order: an explicit <code>--root</code>, then <code>TAMA_ROOT</code>, then the
 first directory at or above the working directory that holds

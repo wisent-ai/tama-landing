@@ -15,8 +15,8 @@ codex-hooks/
 repo-githooks/&lt;project&gt;/
 external-hooks/       # approved sources packaged from outside the managed roots
 external-sources.json # sourcePrefix -&gt; releasePath mappings
-bin/tama          # sealed Rust CLI (the desktop backend)
-bin/tama-mcp-server   # sealed MCP server
+bin/tama              # the one sealed Rust program: CLI, every hook
+                      # (tama hook), engine (tama run-hook), MCP (tama mcp)
 </code></pre>
 <p>The identity is the content: <code>releaseId</code> in <code>release.json</code> is the tree
 digest defined in <a href="seal.md">concepts/seal</a>. The release sealed on
@@ -29,7 +29,7 @@ shows.</p>
 <code>Scripts/build-app.sh</code> selects with <code>TAMA_HOOK_ROOT</code> (default: the <code>tama</code>
 checkout beside this repository — the tree whose generated documentation is
 titled the Hooks Rotator catalog). The build stages the four hook
-directories, compiles <code>tama</code> and <code>tama-mcp-server</code> from that tree's
+directories, compiles the one <code>tama</code> program from that tree's
 <code>rust/</code> workspace, packages external sources, prunes generator files and
 bytecode, and seals (<a href="../scripts.md#build-appsh">scripts</a>). The desktop
 release then <em>carries</em> the hook release; the two have separate identities

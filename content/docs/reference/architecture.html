@@ -62,7 +62,7 @@ a fleet control plane.</li>
 <h2>How data flows</h2>
 <ol>
 <li><strong>Build time.</strong> <code>build-app.sh</code> stages hook sources, compiles the sealed
-Rust <code>tama</code>/<code>tama-mcp-server</code> from the same tree, renders
+Rust <code>tama</code> program from the same tree, renders
 <code>tama-catalog.json</code> via <code>tama list --json</code>, seals the release
 (digest → <code>releaseId</code>), and embeds the seal in <code>tama-build.json</code>
 (<a href="scripts.md#build-and-release-maintainer-only">scripts</a>).</li>
