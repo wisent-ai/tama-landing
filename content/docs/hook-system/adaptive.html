@@ -23,6 +23,21 @@ nothing was ever contested, the replay corpus stayed empty and
 <a href="cli/adaptive/repair.md"><code>tama adaptive repair</code></a> refused
 every candidate for want of labeled cases. If that is what you see, check that
 the installed hook release is built from a revision carrying it.</p>
+<h2>Prompts the harness wrote itself</h2>
+<p>An owner prompt is a prompt a person typed. A harness that writes prompts of
+its own — a Pursuit stage, an autonomy run, an automatic continuation — says so
+in the prompt event with <code>"prompt_author": "automation"</code>; Jeden sets
+it on every such turn and <code>"operator"</code> on the rest. The adaptive
+bridge neither contests a block nor records frustration from an automation
+prompt, and the frustration drafter drafts no rule from one: its log reads
+<code>AUTOMATION_PROMPT</code> in <code>~/.shared-hooks/auto_rules.log</code>.
+A payload that names no author is treated as the owner's, because the
+interactive harnesses submit only what a person typed.</p>
+<p>Without the field, a stage instruction such as "do not execute commands" read
+as an owner correction and was drafted into rules whose patterns refused every
+shell command. <code>tama rules list</code> shows what the drafter recorded, and
+<code>tama rules remove --id &lt;id&gt;</code> removes a rule no stored owner
+message carries.</p>
 <h2>Telemetry transport</h2>
 <p>Each runner invocation owns one immutable telemetry segment, synchronizes it, and atomically publishes it closed. Transcript Lake validates frame count, source digest, and payload digest; masks and publishes deterministic output; commits its cursor; and only then writes a digest-bound acknowledgement. Tama may reclaim a source segment only after validating that acknowledgement. Lake failure leaves source segments intact and never changes enforcement.</p>
 <h2>Repair and migration</h2>
