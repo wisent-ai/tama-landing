@@ -107,22 +107,23 @@ writes each registry binding it does not already have — or already has with
 another timeout, which it unbinds and binds again as declared — reconciles the
 sources and reseals:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
-<p>And the machine half, which builds the one <code>tama</code> program from
-<code>origin/main</code> — never from the working tree, because a shared checkout
-carries other sessions' uncommitted edits and a live gate is code that was
-reviewed and pushed — installs it if its bytes changed, warms every registry
-hook through it, then stages, seals and installs the live release:</p>
+<p>And the machine half, which installs the one <code>tama</code> program from
+its Stado release (<code>stado product install tama --surface cli</code>) —
+never from a compile on this machine: a pushed commit reaches the program
+through <code>stado release changes submit</code> and the batch build, which
+compiles it, runs the hook tests and signs it — then warms every registry hook
+through it, stages, seals and installs the live release:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release --enforce &lt;hook-id&gt;[,&lt;hook-id&gt;…]</code></pre>
 <p><code>--enforce</code> adds those ids to this machine's selection and keeps the
 ones already chosen; without it the selection is left alone and the command says
 so. <code>--dry-run</code> prints the plan, needs no consent and changes nothing:
 the <code>tama hook &lt;id&gt;</code> command of every hook it would run, and
-whether the selection would change. A repeat run installs nothing when the
-build is unchanged. Both halves refuse without
+whether the selection would change. A repeat run installs nothing when no
+newer Stado release was published. Both halves refuse without
 <code>DEVICE_HOOK_EDIT_APPROVED=1</code> and the refusal prints the exact command
 to run, in the checkout, outside any agent session.</p>
 <h2>One program</h2>
-<p>Tama builds one program, <code>tama</code>. Every native hook is one of its
+<p>Tama is one program, <code>tama</code>. Every native hook is one of its
 subcommands, <code>tama hook &lt;name&gt;</code>; the hook engine is
 <code>tama run-hook</code>, the MCP server <code>tama mcp</code>. The registry
 runs each hook as <code>$HOME/.local/bin/tama hook &lt;id&gt;</code>, and
@@ -131,14 +132,14 @@ answers to. A release removes the separate programs an earlier release
 installed — every recorded <code>tama-&lt;hook&gt;</code>,
 <code>tama-run-hook</code> and <code>tama-mcp-server</code> — and says
 <code>retired &lt;path&gt;: the hook runs as `tama hook`</code> for each.</p>
-<p>Before it builds anything, a release refuses two states that would leave a
+<p>Before it installs anything, a release refuses two states that would leave a
 machine running nothing: a registry entry whose command still names a separate
 <code>tama-&lt;name&gt;</code> program, listed as <code>&lt;id&gt;:
 &lt;command&gt;</code>, and an adapter in <code>shared-hooks/</code> that still
 launches <code>tama-run-hook</code>, listed as <code>&lt;file&gt;:&lt;line&gt;:
 &lt;text&gt;</code>. The registry is device-protected, so its owner rewrites it
 outside any agent session and reseals it:</p>
-<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 ./rust/target/release/tama hook migrate-registry-to-rust --registry shared-hooks/registry.json --apply
+<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hook migrate-registry-to-rust --registry shared-hooks/registry.json --apply
 node shared-hooks/seal-registry.mjs</code></pre>
 <p>Without <code>--apply</code> the migration prints how many entries it would
 rewrite and every hook the program does not have, and changes nothing.</p>
@@ -181,16 +182,16 @@ way.</p>
 order: an explicit <code>--root</code>, then <code>TAMA_ROOT</code>, then the
 first directory at or above the working directory that holds
 <code>shared-hooks/registry.json</code>. The path compiled into the binary is
-the last resort, and it has to be: the installed CLI is built inside the
-release's export tree, which the release deletes when the build ends, so
-before 2026-09-20 every <code>tama hooks</code> run from the installed copy
-refused with <code>names no hook binary of ours</code> against a directory
-that no longer existed.</p>
+the last resort, and it has to be: the installed CLI is built by the Stado
+batch build, in a tree that no machine running it holds, and before
+2026-09-20 every <code>tama hooks</code> run from the installed copy refused
+with <code>names no hook binary of ours</code> against a directory that no
+longer existed.</p>
 <p>Both the plan and a finished release now print where the sealed runtime on
 this machine was built from, read from
 <code>native-hook-binaries.json</code>: the revision, and whether the
-checkout held uncommitted changes when it was staged. The hook binaries a
-release installs come from <code>origin/main</code>, but the sealed runtime
+checkout held uncommitted changes when it was staged. The program a release
+installs comes from Tama's Stado release, but the sealed runtime
 is staged by a script that compiles the working tree, and this checkout is
 shared — on 2026-09-20 the live engine carried <code>"dirty": true</code>,
 so the gates enforcing policy contained code nobody had committed. The fact
