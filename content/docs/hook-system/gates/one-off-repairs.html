@@ -81,13 +81,22 @@ janitor measures against, <code>stado space work-root &lt;HOST&gt;</code> says w
 accumulate. <code>stado space report &lt;HOST&gt;</code> reads without changing anything.</td></tr>
 <tr><td><code>stado release submit</code>: a release built from whatever the shell's working copy happens
 to hold, at the moment somebody typed it, so the next commit needs the same person again</td>
-<td>A recipe builds every new commit: <code>stado builds add --name &lt;RECIPE&gt; --repo &lt;URL&gt;
---branch main --command &lt;BUILD&gt; --artifact &lt;PATH&gt; --platform &lt;PLATFORM&gt;</code>,
-<code>stado builds enable &lt;RECIPE&gt;</code> to start the control-plane poller,
-<code>stado builds status &lt;RECIPE&gt;</code> to read its per-platform jobs,
-<code>stado builds run &lt;RECIPE&gt;</code> to enqueue one now. Bytes a recipe already qualified are
-promoted with <code>stado release promote</code>, and a publication that stopped part-way is continued
-with <code>stado release resume &lt;ID&gt;</code>.</td></tr>
+<td>A product is released from what was pushed, once, over the accumulated commits:
+<code>tama build record --kind build --target &lt;PRODUCT&gt; --revision &lt;REV&gt;</code> states the
+build against the fleet's ration, <code>stado queue budget</code> says what is left of it,
+<code>stado release status &lt;PRODUCT&gt;</code> is the register of attempts. Bytes already qualified
+are promoted with <code>stado release promote</code>, and a publication that stopped part-way is
+continued with <code>stado release resume &lt;ID&gt;</code>.</td></tr>
+<tr><td><code>stado release restore-local</code>, <code>stado release rollback</code>,
+<code>stado product rollback</code>: an older version put back on a host, which undoes every commit
+delivered since it, before the session recorded that the way forward failed</td>
+<td>Try the forward path first. When it fails, record it:
+<code>oko blockers record --blocks &lt;task or defect&gt; --failed &lt;the forward command as run&gt;
+--error &lt;its exact answer&gt; --tried &lt;the other forward route&gt; --resumes-when &lt;what has to
+change&gt; --session &lt;SESSION&gt;</code>. An open entry recorded in the same session lets the rollback
+through; the answer then names the commits between the two versions it undoes
+(<code>git log &lt;older&gt;..&lt;newer&gt;</code>). When Oko's register cannot be read, the rollback is
+refused. <code>--help</code> always passes.</td></tr>
 <tr><td><code>timeout</code> or <code>gtimeout</code> in front of another command: a number of seconds
 nobody measured, standing in for the answer the command was going to give. The command killed at it
 reports a failure it did not have, and why it was slow is thrown away with it. Tama's own engines carried
