@@ -101,14 +101,15 @@ product that owns it waits: <code>stado job watch &lt;ID&gt; --follow</code>,
 <code>cargo build</code>, <code>cargo clippy</code>, and the same words after <code>swift</code>,
 <code>go</code>, <code>npm</code>, <code>pnpm</code> or <code>yarn</code>. <code>cargo install</code> is the
 worst of them: it compiles this working copy and then replaces a program on this machine with bytes nobody
-reviewed, from a revision nobody published. On 2026-09-21 a session used it all afternoon as a compiler
-check, once <code>build</code> and <code>check</code> were refused, and overwrote the installed CLI on every
-pass — the operator, reading it back: <em>i kto Ci powiedzial zeby sprawdzac czy Rust sie kompiluje</em></td>
+reviewed, from a revision nobody published.</td>
 <td>The suite and the lint run once, batched, over the commits that accumulated:
-<code>stado builds status &lt;RECIPE&gt;</code> reads the per-platform jobs and
-<code>stado job watch &lt;ID&gt; --follow</code> follows one to a terminal state. A build that really is the
+<code>stado builds status &lt;RECIPE&gt;</code> reads the per-platform jobs. A build that really is the
 next step is rationed first with <code>tama build record --kind build --target &lt;PRODUCT&gt; --revision
-&lt;REV&gt;</code> and enqueued with <code>stado builds run &lt;RECIPE&gt;</code>. What a machine runs is
+&lt;REV&gt;</code> and enqueued with <code>stado builds run &lt;RECIPE&gt;</code>. When the task itself needs a
+compile, a suite or a run — a real test the work requires — the recorded route is <code>stado product cargo
+&lt;build|check|test|run&gt; --manifest-path &lt;Cargo.toml&gt;</code>, which compiles the canonical checkout,
+binds the result to the source revision and keeps the command and its output; every <code>cargo</code> refusal
+names it, and nothing is reported as impossible to compile before that route has refused. What a machine runs is
 installed from a delivered release: <code>stado release status &lt;PRODUCT&gt;</code> says what was published
 and <code>stado release install-local</code> installs that archive. <code>cargo fmt</code> and any
 <code>--help</code> still pass.</td></tr>
