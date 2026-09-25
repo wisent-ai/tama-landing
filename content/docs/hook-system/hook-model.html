@@ -112,16 +112,6 @@ through Brama or data the operator declared. Asked for on 2026-09-19 after
 the operator found such lists in Oko's task classifier, Tama's stop guards and
 Stado's quarantine classifier. Real-binary journey:
 <code>rust/crates/tama-hook-tools/tests/keyword_literals_guard.rs</code>.</p>
-<p><code>pre-write-edit</code> also refuses code that opens a private local database file in a
-product (<code>rusqlite::Connection::open</code>, <code>sqlite3.connect(</code>, <code>new Database(</code>
-and the other call shapes in <code>ports/private_stores/stores.json</code>). Durable data belongs to the
-fleet database Stado resolves (<code>stado database</code>, <code>~/ARCHITECTURE.md</code>); a private
-file keeps it where the rest of the fleet and the operator's other machines cannot see it. The refusal
-names that route. When the owning store really cannot serve the data, record why with
-<code>tama justify record --kind file --file &lt;path&gt; --justification "&lt;why stado database cannot
-serve it&gt;"</code> — the reason has to name <em>stado database</em> — and write again. Stado itself, the
-owner of durable data, is not judged; only code files are read, and a line the repository already
-holds is not judged again.</p>
 <p>Only a run of words the program keeps is judged. A classifier binds its
 words to a name, iterates them, or asks the collection a question on the
 spot; words handed to a call are that call's data. So
@@ -133,6 +123,16 @@ keys and stops at the <code>(</code> that makes it an argument — while
 <code>["ok", "okej", "zrobione"].contains(reply)</code> are refused. Before this
 rule the guard reported a finding for the argument list of every command a
 journey runs, which is how a guard teaches people to ignore it.</p>
+<p><code>pre-write-edit</code> also refuses code that opens a private local database file in a
+product (<code>rusqlite::Connection::open</code>, <code>sqlite3.connect(</code>, <code>new Database(</code>
+and the other call shapes in <code>ports/private_stores/stores.json</code>). Durable data belongs to the
+fleet database Stado resolves (<code>stado database</code>, <code>~/ARCHITECTURE.md</code>); a private
+file keeps it where the rest of the fleet and the operator's other machines cannot see it. The refusal
+names that route. When the owning store really cannot serve the data, record why with
+<code>tama justify record --kind file --file &lt;path&gt; --justification "&lt;why stado database cannot
+serve it&gt;"</code> — the reason has to name <em>stado database</em> — and write again. Stado itself, the
+owner of durable data, is not judged; only code files are read, and a line the repository already
+holds is not judged again.</p>
 
 <h2>Asking a model, when shape cannot decide</h2>
 <p>Some rules are not about shape: whether a claim is grounded, whether a
