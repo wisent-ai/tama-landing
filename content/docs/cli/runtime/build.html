@@ -157,6 +157,26 @@ day's allowance, but the next build of that product is no longer measured agains
 the same revision can be recorded again instead of being refused as <em>carries no change at
 all</em>. <code>--not-started</code> without a refusal, or on a restart, is refused and closes nothing.
 The JSON result carries <code>not_started.revision</code> and <code>not_started.refusal</code>.</p>
+<h2>What waits for the next build, and what a failed build gives back</h2>
+<pre><code>tama build pending --target oko --repository ~/Documents/CodingProjects/Wisent/oko [--json]
+tama build fail --target oko --revision 6db504ea --failure "cargo test: 2 failed" [--json]</code></pre>
+<p>Work ends at a commit and a push; the batched build runs later over everything that
+accumulated. <code>pending</code> fetches the repository and prints the revision the last recorded
+build of the product carried, the commits on <code>origin/main</code> since, how many lines they
+change against the policy's minimum, whether a build is due, and the Oko tasks whose recorded
+evidence names one of those commits (read with <code>oko transcripts tasks carried --commit
+&lt;revision&gt;…</code>). JSON: <code>last_built</code>, <code>tip</code>, <code>commits</code>,
+<code>changed_lines</code>, <code>minimum_changed_lines</code>, <code>due</code>, <code>tasks</code>.</p>
+<p><code>fail</code> is how a failed batched build reopens work. It takes the commits the build of
+<code>--revision</code> carried — those after the revision the build before it carried — finds the
+tasks whose evidence names them, and reopens each with <code>oko transcripts tasks defect</code>,
+giving <em>the batched build of &lt;product&gt; at &lt;revision&gt; failed: &lt;failure&gt;</em> as the
+reason. The build's ledger row records the failure and still counts against the day's allowance.
+JSON: <code>since</code>, <code>commits</code>, <code>reopened</code>, and <code>refused</code> with
+Oko's own answer for each task it would not reopen, for example a task whose session transcript is
+not on this machine. Without <code>--revision</code> or <code>--failure</code> the command is refused
+and reopens nothing; when Oko cannot be run or answers no JSON, the command fails and names the call.</p>
+
 
 <h2>What the refusal looks like</h2>
 <pre><code>BLOCKED: unregistered build: `stado release submit --source . --version 0.3.11` would
