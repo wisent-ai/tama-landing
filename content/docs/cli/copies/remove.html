@@ -84,8 +84,8 @@ entire named roots. A successful named removal proves nothing about copies
 outside its selected subtrees.</p>
 <h2>Preventing Swift dependency copies from returning</h2>
 <p>Removal does not change the builder or editor that created a copy. Use
-<code>wisent-products swift --package-path PATH build</code> for canonical
-Swift builds. For a SourceKit workspace, <code>wisent-products swift
+<code>stado product swift --package-path PATH build</code> for canonical
+Swift builds. For a SourceKit workspace, <code>stado product swift
 --package-path PATH index</code> compiles the canonical dependency graph and
 writes a BSP connection plus SourceKit configuration. The editor reads actual
 compiler arguments and the shared index store; it does not resolve packages.</p>
