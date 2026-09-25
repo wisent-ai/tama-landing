@@ -131,8 +131,16 @@ refusal names the checkout path;</li>
 go-ahead about the work (<code>Decyzja, czy budować te trzy zmiany</code>,
 <code>czy mam</code>, <code>potwierdź</code>, <code>whether to build</code>, <code>let me
 know</code>) or announces the agent's own next move (<code>Zbuduję</code>,
-<code>I will</code>). The refusal quotes the line:
+<code>I will</code>). A decision is refused even when the line begs or names a
+cost (<code>Błagam o decyzję w sprawie kosztu …</code>). The refusal quotes the line:
 <code>block-stop-on-own-work: BLOCKED: under Następne kroki this report hands the operator a decision: "…". That decision is yours …</code></li>
+<li>a report that begs but does not hand the operator exactly one command: under
+<em>Następne kroki</em> the begging carries one command written as a code span, and on
+macOS that command is what <code>pbpaste</code> returns, because the agent copied it with
+<code>printf '%s' '&lt;command&gt;' | pbcopy</code> before answering. Two commands, none, or a
+clipboard holding something else are refused:
+<code>block-stop-on-own-work: BLOCKED: this report begs with 2 commands …</code>,
+<code>… begs with `…`, but the clipboard holds something else …</code></li>
 <li>a <em>Blokady</em>/<em>Blockers</em> or <em>Kolejne kroki</em>/<em>Następne kroki</em>/<em>Next steps</em>
 line that begins as an empty value and adds commentary, or says only that the
 agent is not assigning the operator work (<code>Brak przy zapisie defektu. Sam
@@ -143,13 +151,10 @@ something to do: a condition on his action (<code>Dopóki ich nie
 zainstalujesz …</code>), an instruction (<code>uruchom</code>, <code>zainstaluj</code>,
 <code>wyeksportuj</code>, <code>ustaw</code>, <code>you must</code>) or a place he is
 sent to (<code>w swoim terminalu</code>). The agent gives the operator no tasks.
-When it is completely blocked it may beg (<code>Błagam</code>, <code>I beg</code>),
-and the begging names every possible way to finish the tasks with the captured
-refusal of each; a report that begs is not refused by this rule.</li>
+When it is completely blocked it may beg (<code>Błagam</code>, <code>I beg</code>)
+with one command on his clipboard, as above; a report that begs is not refused by this rule.</li>
 </ul>
-<p>What passes: a report that begs, as above; a line that names a cost to
-approve, because money is the one
-boundary that holds; a report that says what changed since the refusal; and a
+<p>What passes: a report that begs with one command on the clipboard; a report that says what changed since the refusal; and a
 quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
 which is a report, not a reason. Each refusal starts a new attempt: what the
 agent says after a refusal is judged on its own, so one sentence cannot refuse
