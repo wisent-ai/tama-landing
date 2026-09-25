@@ -98,7 +98,10 @@ and is refused with the file, the line, the words and the undeclared ones:</p>
 <p>A word is letters only, or several joined by single spaces; <code>tool_name</code>,
 <code>/dev/null</code>, <code>--json</code> and two-member runs are not judged, comments are
 blanked first, and only code files (the extensions the numeric guard scans) are
-read — prose and JSON are not. Words live only in <code>keyword-provenance.json</code>,
+read — prose and JSON are not. A site repository's documentation corpus (a
+path under <code>docs/</code> inside a <code>&lt;product&gt;-landing</code> repository) is
+prose held as data, so its table rows are not read either; the same row in the
+site's own code still is. Words live only in <code>keyword-provenance.json</code>,
 looked up from the written file's directory upward, each entry exactly
 <code>{"words": ["…"], "user_said": "…"}</code>; writing that file is itself judged: the
 quote must be a verbatim <code>role=user</code> message in Oko's transcript index
