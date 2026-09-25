@@ -1,0 +1,28 @@
+<h1>Incident references</h1>
+<p>The write gate (<code>pre-write-edit</code>) refuses a write that puts a pointer into the internal defect register
+or transcript store into product code or a public page. Such a pointer tells a reader nothing they can follow, and on a
+product's site it publishes the operator's internal history. Why a line or a page exists is said in the product's own
+terms; the incident stays in Oko.</p>
+<h2>What is refused</h2>
+<ul>
+<li><code>defect</code> or <code>session</code> followed by an eight-character hexadecimal identifier;</li>
+<li>a bare agent session identifier (<code>01a0xxxx-xxxx…</code>);</li>
+<li>a session-numbered message (<code>01a0xxxx #N</code>).</li>
+</ul>
+<h2>Where</h2>
+<ul>
+<li>Product code: <code>.rs</code>, <code>.swift</code>, <code>.ts</code>, <code>.tsx</code>, <code>.js</code>,
+<code>.mjs</code>, <code>.cjs</code>, <code>.py</code>, <code>.sh</code>, <code>.go</code>, <code>.kt</code>,
+<code>.java</code>, <code>.c</code>, <code>.h</code>, <code>.m</code>, <code>.mm</code>, <code>.cpp</code>.</li>
+<li>Public pages: every file in a product's site repository (a path containing <code>-landing/</code>), and any
+repository's <code>README.md</code> and <code>CHANGELOG.md</code>.</li>
+</ul>
+<p>Private notes outside those places, such as workshop rules, are not judged. A line the committed file already
+carries is judged only when a write adds it again.</p>
+<h2>The refusal</h2>
+<pre><code>pre-write-edit: BLOCKED: `session &lt;ID&gt;` points into the internal defect register or transcript store. …</code></pre>
+<p>Remove the reference and state what the product guarantees. Record the incident with
+<code>oko defects record</code> or <code>oko defects note</code>.</p>
+<h2>Where the refusal comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/pre_write_edit/content/incidents.rs</code>, run by
+<code>tama hook pre-write-edit</code>; installed with <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>.</p>

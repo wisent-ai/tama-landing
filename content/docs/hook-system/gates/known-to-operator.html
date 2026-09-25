@@ -3,15 +3,12 @@
 already knows: what this session already told him, or what he himself decided — a refusal from his own hooks, a limit
 he set, a rule he stated — handed back to him as a blocker, a limitation, a reason the work stopped, or as news.</p>
 <h2>Why it exists</h2>
-<p>On 2026-09-22 a session ended its answer with a blocker section reporting that <code>cargo build</code>,
-<code>cargo check</code>, <code>cargo test</code> and <code>npm test</code> had been refused by the machine's own gates
-(<a href="/docs/one-off-repairs">one-off repairs</a>) and that <code>tama build record</code> had answered the day's
-three builds were spent. Every one of those refusals is the operator's own policy, installed on his instruction, and
-the ration had been explained to him earlier in the same session. His words: <em>the user does not need this
-information. this is intential. a model should not be able to provide irrelevant information to the user. especially
-information that a. was already communicated before b. the user has decidedly asked for</em>. No stop gate read what
-the session had already told him or what he had decided; <code>block-repeated-blocker</code> knows only the defect
-register. Defect 5db63149.</p>
+<p>A refusal from the machine's own gates (<a href="/docs/one-off-repairs">one-off repairs</a>), a build ration the
+operator set, or a rule he stated is his own decision, and a fact the session already told him is known to him. An
+answer that hands either back to him as a blocker, a limitation or news gives him nothing: the operator's rule is that
+a model should not provide the user information that was already communicated or that he decidedly asked for.
+<code>block-repeated-blocker</code> reads only Oko's defect register; this gate reads what the session told him and
+what he decided.</p>
 <h2>How it decides</h2>
 <p>Shape cannot decide this — whether a sentence restates an earlier answer, or reports the operator's own decision back
 to him, is a reading of two texts against a third — so the decider is a model, asked through Brama by the product's
@@ -45,8 +42,8 @@ turn passes at no cost. A judgement nobody could obtain is never a denial: a jud
 (<code>judge-health.json</code>, lifted by <code>oko-cli transcripts tasks judge --probe</code>) is not asked at all,
 and an absent Oko CLI, a refused gateway, an unreadable transcript or an empty reply is written to stderr as
 <code>block-known-to-operator: no judgement: …</code> and the turn passes, the same rule every model-judged gate
-follows. The binding carries a thirty-second timeout, as the other model-judged stop gate does: the first
-installation ran on the registry's default ten and timed out before the model answered (defect fc808d09).</p>
+follows. The binding carries a thirty-second timeout, as the other model-judged stop gate does: the registry's
+default ten seconds ends before the model answers.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/mod.rs</code> (the judgement) and
 <code>session.rs</code> (the transcript reading); binary:
