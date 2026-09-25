@@ -141,6 +141,11 @@ macOS that command is what <code>pbpaste</code> returns, because the agent copie
 clipboard holding something else are refused:
 <code>block-stop-on-own-work: BLOCKED: this report begs with 2 commands …</code>,
 <code>… begs with `…`, but the clipboard holds something else …</code></li>
+<li>an answer that leaves work undone because something is paid, when nobody read the price
+(<code>nie założyłem, bo jest płatny</code>, <code>did not create it because it costs</code>): the
+provider's credit balance and the resource's price are read through the organization's accounts
+first, and the work is done within the free credits;
+<code>block-stop-on-own-work: BLOCKED: this answer leaves work undone because of a cost: "…"</code></li>
 <li>a <em>Blokady</em>/<em>Blockers</em> or <em>Kolejne kroki</em>/<em>Następne kroki</em>/<em>Next steps</em>
 line that begins as an empty value and adds commentary, or says only that the
 agent is not assigning the operator work (<code>Brak przy zapisie defektu. Sam
