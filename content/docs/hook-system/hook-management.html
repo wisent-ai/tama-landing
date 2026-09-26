@@ -107,21 +107,27 @@ writes each registry binding it does not already have — or already has with
 another timeout, which it unbinds and binds again as declared — reconciles the
 sources and reseals:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
-<p>And the machine half, which installs the one <code>tama</code> program from
-its Stado release (<code>stado product install tama --surface cli</code>) —
-never from a compile on this machine: a pushed commit reaches the program
-through <code>stado release changes submit</code> and the batch build, which
-compiles it, runs the hook tests and signs it — then warms every registry hook
-through it, stages, seals and installs the live release:</p>
-<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release --enforce &lt;hook-id&gt;[,&lt;hook-id&gt;…]</code></pre>
-<p><code>--enforce</code> adds those ids to this machine's selection and keeps the
-ones already chosen; without it the selection is left alone and the command says
-so. <code>--dry-run</code> prints the plan, needs no consent and changes nothing:
-the <code>tama hook &lt;id&gt;</code> command of every hook it would run, and
-whether the selection would change. A repeat run installs nothing when no
-newer Stado release was published. Both halves refuse without
-<code>DEVICE_HOOK_EDIT_APPROVED=1</code> and the refusal prints the exact command
-to run, in the checkout, outside any agent session.</p>
+<p>And the machine half, which comes entirely from Tama's Stado release. The
+batch build compiles <code>tama</code>, assembles the hook release from the same
+commit — <code>package.json</code>, <code>shared-hooks</code>,
+<code>claude-hooks</code>, <code>codex-hooks</code>, <code>repo-githooks</code>
+and the built program — seals it against that commit and ships it under
+<code>share/tama</code> in the release archive. Nothing is built, staged or
+sealed on the machine, and no release starts from a copy of the runtime a
+machine already has. The owner installs it outside any agent session:</p>
+<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 stado product install tama --surface cli</code></pre>
+<p>Stado places <code>tama</code> in <code>~/.stado/bin</code> and the release
+under <code>~/.stado/share/tama</code>, then runs <code>tama hooks release</code>
+as the install's <code>after_install</code> step. That command activates what
+Stado placed: it warms every registry hook through the installed program,
+installs the sealed release into the hook runtime with the installer the
+release carries, and reports what the machine runs. Run on its own it takes
+<code>--enforce &lt;hook-id&gt;[,&lt;hook-id&gt;…]</code>, which adds those ids
+to this machine's selection and keeps the ones already chosen, and
+<code>--dry-run</code>, which prints the plan, needs no consent and changes
+nothing. It refuses on a machine where Stado installed no hook release, and
+without <code>DEVICE_HOOK_EDIT_APPROVED=1</code>, printing the Stado install to
+run.</p>
 <h2>One program</h2>
 <p>Tama is one program, <code>tama</code>. Every native hook is one of its
 subcommands, <code>tama hook &lt;name&gt;</code>; the hook engine is
@@ -187,15 +193,13 @@ batch build, in a tree that no machine running it holds, and before
 2026-09-20 every <code>tama hooks</code> run from the installed copy refused
 with <code>names no hook binary of ours</code> against a directory that no
 longer existed.</p>
-<p>Both the plan and a finished release now print where the sealed runtime on
+<p>Both the plan and a finished release print where the sealed runtime on
 this machine was built from, read from
-<code>native-hook-binaries.json</code>: the revision, and whether the
-checkout held uncommitted changes when it was staged. The program a release
-installs comes from Tama's Stado release, but the sealed runtime
-is staged by a script that compiles the working tree, and this checkout is
-shared — on 2026-09-20 the live engine carried <code>"dirty": true</code>,
-so the gates enforcing policy contained code nobody had committed. The fact
-was recorded and never shown; now every release says it out loud.</p>
+<code>native-hook-binaries.json</code>: the revision, and whether the source
+held uncommitted changes when it was sealed. On 2026-09-20 the live engine
+carried <code>"dirty": true</code>, because the runtime was staged on a shared
+checkout's working tree; a release built by Stado seals the committed tree the
+batch build unpacked, so it names that commit and is never dirty.</p>
 
 <h2>Warming the hook binaries</h2>
 <p>A hook binary that has never run still owes macOS its first-run assessment; how Tama pays that before a live event, and how to read the result, is on its own page: <a href="runtime/hook-warming/">warming the hook binaries</a>.</p>
