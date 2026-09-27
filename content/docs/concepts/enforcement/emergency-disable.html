@@ -15,7 +15,7 @@ deliberately the only way to weaken policy: sessions can
 (<code>agent-session-supervisor.py control pause --require-all</code>); an exit trap
 resumes them after success, failure, or interruption;</li>
 <li>reinstalls the session controllers
-(<code>install_hook_release.py --session-control-only</code>) so session visibility
+(<code>tama hooks install-release --session-control-only</code>) so session visibility
 survives the bypass;</li>
 <li>backs up <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> into
 <code>emergency-backup/</code> and empties their <code>hooks</code> maps;</li>

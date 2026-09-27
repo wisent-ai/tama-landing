@@ -266,7 +266,7 @@ in a nested directory — <code>src/bin/block/repo/block_repository_copies.rs</c
 instance — matches none of those candidates, so the writer falls back to
 recording the hook's own command, the installed binary path, as its
 <code>source</code>. Registration still succeeds and says nothing about it.</p>
-<p>The next seal is where it surfaces. <code>seal_hook_release.py</code> packages every
+<p>The next seal is where it surfaces. <code>tama hooks seal</code> packages every
 source outside the managed hook directories and refuses the whole release with
 <code>External hook source is missing</code> for the first one it cannot open
 (<a href="scripts.md#seal-hook-release-py">scripts</a>). Until the entry is

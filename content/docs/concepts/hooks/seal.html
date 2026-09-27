@@ -8,8 +8,8 @@ computed in one place, enforced at three moments.</p>
 enter the hash: the relative POSIX path, the permission bits
 (<code>mode &amp; 0o777</code>, 4 bytes big-endian), and the raw bytes. The definition
 lives in exactly two places that must agree by construction:
-<code>Scripts/hook_release/seal_hook_release.py::tree_digest</code> (writer) and
-<code>install_hook_release.py::tree_digest</code> (enforcer); the three read-only
+<code>tama hooks seal</code> (writer) and
+<code>tama hooks install-release</code> (enforcer); the three read-only
 reporters import the installer's copy rather than restating the rule
 (<a href="../scripts.md#read-only-integrity-reporters">scripts</a>).</p>
 <p>Consequences that follow directly from the definition:</p>
@@ -23,7 +23,7 @@ reporters import the installer's copy rather than restating the rule
 tree is the evidence.</li>
 </ul>
 <h2>Who declares it</h2>
-<p><code>Scripts/hook_release/seal_hook_release.py</code>, run once by <code>Scripts/build-app.sh</code> after the
+<p><code>tama hooks seal</code>, run once by <code>Scripts/build-app.sh</code> after the
 release tree is staged and pruned. The digest becomes <code>releaseId</code> in
 <code>release.json</code> (schema <code>ai.wisent.tama.hook-release.v1</code>), beside
 <code>packageVersion</code>, <code>catalogVersion</code>, <code>catalogUpdatedAt</code>, <code>sourceDirty</code>,
@@ -32,7 +32,7 @@ touches the tree afterwards is drift, which is why the build prunes Python
 bytecode and generator files <em>before</em> sealing
 (<a href="../hook-releases.md#sealing">hook-releases</a>).</p>
 <h2>Who enforces it</h2>
-<p>Three gates, all inside <code>install_hook_release.py</code>:</p>
+<p>Three gates, all inside <code>tama hooks install-release</code>:</p>
 <p>| Moment | Check | Refusal |
 |---|---|---|
 | Before any write | Bundled tree digests to its recorded <code>releaseId</code> | <code>Bundled Tama hook release failed its integrity check</code> |
@@ -74,7 +74,7 @@ formats, including after it is copied out of the bundle into
 <code>hooks-runtime/</code>. A release passes both or it does not install.</li>
 <li><strong>The artifact digest.</strong> <code>Tama-&lt;version&gt;-macOS-&lt;arch&gt;.zip.digest</code> is the
 SHA-256 of the distribution zip (<a href="../releases.md#release-artifact">releases</a>);
-the seal is the identity of the hook tree inside it. <code>seal_hook_release.py --digest-file</code> computes the former with the same tool, but they answer
+the seal is the identity of the hook tree inside it. <code>tama hooks digest</code> computes the former with the same tool, but they answer
 different questions.</li>
 <li><strong>The product version.</strong> Versions are claims in mutable metadata; the seal
 is content. Two trees with the same <code>packageVersion</code> and one changed bit

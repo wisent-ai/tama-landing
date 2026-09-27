@@ -33,7 +33,7 @@ canonical home from <code>adapters.codex.path</code>, refusing when either does 
 look like itself — <code>Hook registry does not identify its canonical source root</code> / <code>Hook registry does not identify its canonical home</code>
 (<a href="../runbook.md#the-installer-refuses">runbook</a>).</p>
 <h2>Who rewrites it</h2>
-<p><code>install_hook_release.py</code>, once per install, in memory and then atomically
+<p><code>tama hooks install-release</code>, once per install, in memory and then atomically
 to <code>~/.shared-hooks/registry.json</code> (mode <code>0644</code>):</p>
 <ol>
 <li>every path is mapped from the canonical source root and home to the

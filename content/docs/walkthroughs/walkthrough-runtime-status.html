@@ -45,7 +45,7 @@ nothing installed
 </code></pre>
 <p>Simulate an installed runtime by copying the sealed release to its
 content-addressed landing path and pointing <code>current</code> at it — exactly the
-layout <code>install_hook_release.py</code> produces:</p>
+layout <code>tama hooks install-release</code> produces:</p>
 <pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/integrity/verify_installed_releases.py
 releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: True
 current: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7

@@ -7,7 +7,7 @@ command to run. Attribution tooling is in
 <a href="scripts.md#read-only-integrity-reporters">scripts</a>; the executed evidence
 for the integrity entries is in the two walkthroughs.</p>
 <h2><code>Bundled Tama hook release failed its integrity check</code></h2>
-<p>Raised by <code>install_hook_release.py</code> before any write, whenever the release
+<p>Raised by <code>tama hooks install-release</code> before any write, whenever the release
 tree no longer digests to its recorded <code>releaseId</code>
 (<a href="concepts/seal.md#who-enforces-it">concepts/seal</a>). You meet it during a
 runtime install, an emergency disable (which installs session controllers),
@@ -111,7 +111,7 @@ During the bypass, the retained machine selection does not run;
 (<code>allowlist: empty</code> when nothing was re-enabled)
 (<a href="walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</p>
 <h2>The installer refuses</h2>
-<p>Each sentence from <code>install_hook_release.py</code>, surfaced verbatim behind
+<p>Each sentence from <code>tama hooks install-release</code>, surfaced verbatim behind
 <code>Tama hook release installation failed: &lt;reason&gt;</code> (exit 1):</p>
 <p>| Sentence | Meaning |
 |---|---|

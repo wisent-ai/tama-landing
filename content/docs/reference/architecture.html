@@ -6,7 +6,7 @@ and the operational contracts in <a href="core-contracts.md">core-contracts</a>.
 <h2>The three planes</h2>
 <pre><code class="language-mermaid">flowchart LR
     subgraph declare [Declaration]
-        HR[hook source tree\nHooks Rotator] --&gt; B[build-app.sh\nseal_hook_release.py]
+        HR[hook source tree\nHooks Rotator] --&gt; B[build-app.sh\ntama hooks seal]
         B --&gt; REL[sealed hook release\nin signed Tama.app]
     end
     subgraph enforce [Enforcement]
@@ -66,7 +66,7 @@ Rust <code>tama</code> program from the same tree, renders
 <code>tama-catalog.json</code> via <code>tama list --json</code>, seals the release
 (digest → <code>releaseId</code>), and embeds the seal in <code>tama-build.json</code>
 (<a href="scripts.md#build-and-release-maintainer-only">scripts</a>).</li>
-<li><strong>Install time.</strong> <code>install_hook_release.py</code> verifies the seal twice,
+<li><strong>Install time.</strong> <code>tama hooks install-release</code> verifies the seal twice,
 rewrites the <a href="concepts/registry.md">registry</a> for the target home, pins
 Node commands to a validated executable plus version-guard preflight, and
 writes every entrypoint transactionally

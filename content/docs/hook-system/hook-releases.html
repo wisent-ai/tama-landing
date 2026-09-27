@@ -22,8 +22,8 @@ selected by <code>TAMA_HOOK_ROOT</code>:</p>
 <p>Generator files (<code>generate-configs.mjs</code>, <code>providers.json</code>,
 <code>run-one-session-hook.js</code>) and Python bytecode are pruned before sealing.</p>
 <h2>Sealing</h2>
-<p><code>Scripts/hook_release/seal_hook_release.py</code> computes the tree digest: every file except
-<code>release.json</code>, in sorted path order, hashing each file's relative path, its
+<p><code>tama hooks seal</code> computes the tree digest: every file except
+<code>release.json</code> and <code>bin/</code> (signed after the seal; its code signature vouches for it), in sorted path order, hashing each file's relative path, its
 permission bits, and its bytes, each length-framed. A <code>chmod</code> therefore
 drifts a release exactly as a rewrite does. The digest becomes <code>releaseId</code>
 in <code>release.json</code>, schema <code>ai.wisent.tama.hook-release.v1</code>, together with
@@ -45,10 +45,11 @@ identity again before publishing <code>release.json</code>; it never substitutes
 <code>TAMA_HOOK_SOURCE_REVISION</code> and <code>TAMA_HOOK_SOURCE_DIRTY</code>
 variables, when present, are checked expectations, not the source of the fields.
 Script-only releases without a native manifest derive identity directly from Git.</p>
-<p>From the <code>tama-desktop</code> checkout, the maintainer flow is:</p>
-<pre><code>python3 Scripts/hook_release/stage_live_hook_release.py --source-root ../tama
-python3 Scripts/hook_release/seal_hook_release.py --source-root ../tama .work/inline-hook-release
-swift test --filter HookReleaseSealTests --disable-automatic-resolution</code></pre>
+<p>From a <code>tama</code> checkout, after <code>release/build.sh</code>'s copy of the hook
+directories into a prepared release, the maintainer flow is:</p>
+<pre><code>rust/target/release/tama hooks stage --source-root . --release-root &lt;release&gt; --cargo "$(command -v cargo)"
+rust/target/release/tama hooks seal --source-root . &lt;release&gt;
+rust/target/release/tama hooks digest &lt;release&gt;</code></pre>
 <p>A missing Git revision reports the failed Git operation and checkout path.
 <code>Hook source changed after staging</code> or
 <code>Staged hook source differs</code> means the candidate must be staged again,
@@ -59,7 +60,7 @@ The real sealer/Git tests live under <code>Tests/release/</code> and retain thei
 commands, outputs, exit statuses and manifests under
 <code>.build/release-evidence/</code>.</p>
 <h2>Installation</h2>
-<p><code>Scripts/install_hook_release.py</code> (bundled in the app resources, run by the
+<p><code>tama hooks install-release</code> (the release's own <code>bin/tama</code>, run by the
 desktop's explicit install action) takes <code>--release</code>, <code>--home</code>, and either
 <code>--session-control-only</code> or <code>--emergency-manifest</code>. It passes two integrity
 gates and refuses at either:</p>
