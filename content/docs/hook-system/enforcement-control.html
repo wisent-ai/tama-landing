@@ -172,6 +172,10 @@ transcript was searched, and a partial, failed or timed-out search is reported a
 <code>edit</code>, <code>write</code> or <code>git commit</code> since the operator last spoke:
 recording a defect starts its repair;
 <code>block-stop-on-own-work: BLOCKED: this turn recorded a defect and changed no source for it …</code></li>
+<li>an ending that restates one of the agent's last five answers to earlier operator messages — at
+least the same share of three-word runs as a refused report — from a turn that changed no source:
+a status list said again is not work, and the refusal sends the agent to the next open task;
+<code>block-stop-on-own-work: BLOCKED: this ending restates an answer already given (…% of its word runs), and this turn changed no source …</code></li>
 </ul>
 <p>What passes: a report that begs with one command on the clipboard; a report that says what changed since the refusal; and a
 quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
