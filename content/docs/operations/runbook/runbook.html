@@ -4,7 +4,7 @@ what do you check next? Every heading below is an exact string from this
 repository's sources or a state you can reproduce; each entry says where the
 sentence comes from, what it is really telling you, and the first read-only
 command to run. Attribution tooling is in
-<a href="scripts.md#read-only-integrity-reporters">scripts</a>; the executed evidence
+<a href="scripts.md#tama-hooks-integrity">scripts</a>; the executed evidence
 for the integrity entries is in the two walkthroughs.</p>
 <h2><code>Bundled Tama hook release failed its integrity check</code></h2>
 <p>Raised by <code>tama hooks install-release</code> before any write, whenever the release
@@ -14,12 +14,10 @@ runtime install, an emergency disable (which installs session controllers),
 or a re-enable. The message names no file on purpose — it is a gate, not a
 report.</p>
 <p>First command:</p>
-<pre><code class="language-bash">python3 Scripts/integrity/report_hook_release_integrity.py &lt;release-root&gt;
+<pre><code class="language-bash">tama hooks integrity --release &lt;release-root&gt;
 </code></pre>
-<p>It prints the sealed and actual digests and two attribution lists: files the
-digest covers but the installer never installs (build residue such as
-Python bytecode — drift, but innocent), and files written after <code>sealedAt</code>
-(the suspects). A mismatch with <em>no</em> newer file is a permission change or a
+<p>It prints the sealed and actual digests and every file written after the
+seal (the suspects). A mismatch with <em>no</em> newer file is a permission change or a
 deletion — the digest covers mode bits
 (<a href="walkthrough-verify-release.md#4-drift-a-permission-bit-and-catch-that-too">walkthrough-verify-release</a>).
 Never repair a release tree in place: reinstall the same verified app
@@ -32,12 +30,10 @@ checking, so meeting this sentence means the <em>fresh copy</em> failed — a
 filesystem-level problem (full disk, interference mid-copy), not stale
 state.</p>
 <p>First command:</p>
-<pre><code class="language-bash">python3 Scripts/integrity/verify_installed_releases.py
+<pre><code class="language-bash">tama hooks integrity --home "$HOME"
 </code></pre>
-<p>It digests every installed tree against its directory name, marks <code>current</code>,
-and answers which of the two identically worded failures an emergency
-enable would hit (<code>second gate: intact</code> / <code>second gate: DRIFTED -- install would refuse</code>). Executed with both answers in
-<a href="walkthrough-runtime-status.md#3-the-state-an-enable-would-refuse">walkthrough-runtime-status</a>.</p>
+<p>It digests every installed tree against its directory name and marks
+<code>current</code>; a <code>DRIFTED</code> line is the tree an install or an enable would refuse.</p>
 <h2>Installed and loaded releases disagree</h2>
 <p>Not an error string — a Posture reading: <code>Installed release</code> and <code>Loaded release</code> differ, or the Session screen warns <code>The runtime is serving a stale registry</code>. A live session keeps executing the release it loaded at
 start; installing a new one does not restart anybody
@@ -126,7 +122,7 @@ During the bypass, the retained machine selection does not run;
 | <code>Approved repository hook is missing: &lt;path&gt;</code> | The manifest names a moved <code>.githooks</code> entry with no approved replacement in the release |
 | <code>Refusing to remove an obsolete path outside managed roots: &lt;path&gt;</code> | A previous install recorded a source file outside <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, or the managed launchers — the installer aborts rather than delete it |
 | <code>Tama runtime current path is not a symlink: &lt;path&gt;</code> | Something replaced <code>hooks-runtime/current</code> with a real file or directory; remove it manually, nothing else repairs this |
-| <code>&lt;N&gt; hook entrypoint(s) exist both active and disabled; resolve each one before restoring policy:</code> | Every conflicting pair is listed under it, each active file classified as <code>tama-managed dispatcher</code> — something the product wrote and the installer would rewrite anyway — or <code>not Tama-managed</code>, which is a person's file and their decision. Nothing is installed. <code>Scripts/entrypoints/report_conflicts.py --home &lt;home&gt; [--json]</code> reports the same set read-only, before you attempt a re-enable |
+| <code>&lt;N&gt; hook entrypoint(s) exist both active and disabled; resolve each one before restoring policy:</code> | Every conflicting pair is listed under it, each active file classified as <code>tama-managed dispatcher</code> — something the product wrote and the installer would rewrite anyway — or <code>not Tama-managed</code>, which is a person's file and their decision. Nothing is installed |
 | <code>Missing disabled hook entrypoint: &lt;path&gt;</code> | The manifest promises a <code>.tama-disabled</code> file that is gone |
 | <code>Could not read OMP extensions</code> / <code>Could not register OMP hook adapter</code> | The <code>omp config</code> round-trip failed; the transaction rolls back, including a half-applied extensions change |</p>
 <p>One refusal comes from the other side, before an install writes anything:

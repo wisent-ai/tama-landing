@@ -46,40 +46,25 @@ arguments; everything is environment:</p>
 <p>Disable ends with <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code>; a repeat prints <code>Tama hooks are already disabled.</code> and exits <code>0</code>. Enable ends with <code>Enabled approved hook release &lt;first-12-of-id&gt;. Supervised agent sessions will resume without an editor restart.</code>; enable without a manifest fails with <code>Tama has no emergency backup manifest to restore.</code>. The step-by-step behavior is in
 <a href="enforcement-control.md">enforcement-control</a> and
 <a href="concepts/emergency-disable.md">concepts/emergency-disable</a>.</p>
-<h2>Read-only integrity reporters</h2>
-<p>The digest they check is the one <code>tama hooks digest &lt;release-root&gt;</code> prints and
-the installer enforces. All are read-only and documented
-end-to-end in <a href="walkthrough-verify-release.md">walkthrough-verify-release</a>
-and <a href="walkthrough-runtime-status.md">walkthrough-runtime-status</a>; runnable
-wrappers live in <a href="../examples/integrity/"><code>../examples/integrity/</code></a>.</p>
-<h3>verify_hook_release.py</h3>
-<pre><code>verify_hook_release.py [release-root]
+<h2>Read-only integrity report</h2>
+<h3>tama hooks integrity</h3>
+<pre><code>tama hooks integrity [--release &lt;release-root&gt;] [--home &lt;dir&gt;]
 </code></pre>
-<p>Default root: <code>.build/Tama.app/Contents/Resources/hooks-release</code> relative to
-the checkout. Prints <code>release root:</code>, <code>recorded releaseId:</code>, <code>actual tree digest:</code>, <code>sealed at:</code>, <code>source dirty:</code>, then <code>result: intact</code> or
-<code>result: DRIFTED</code> followed by <code>written after the seal:</code> and one
-timestamp-plus-path line per file newer than <code>sealedAt</code>. When nothing is
-newer, it prints <code>no file is newer than the seal -- the drift is a permission change, a deletion, or a file whose timestamp was preserved on copy.</code> A
-missing root prints <code>absent -- nothing to verify</code>. Exit is always <code>0</code> — the
-verdict is the text, not the status.</p>
-<h3>verify_installed_releases.py</h3>
-<pre><code>verify_installed_releases.py
-</code></pre>
-<p>No arguments; <code>TAMA_HOME</code> selects the home, <code>TAMA_HOOK_RELEASE_ROOT</code> the
-bundled release to check the second gate against. Digests every tree under
-<code>hooks-runtime/releases/</code> against its directory name (<code>intact</code> /
-<code>DRIFTED</code>, with <code> &lt;- current</code> on the live one), then answers which of the two
-identically worded installer failures an emergency enable would hit: <code>second gate: install would copy a fresh tree, so it cannot fail</code> or <code>second gate: DRIFTED -- install would refuse</code>. With no releases directory it prints
-<code>nothing installed</code>. Exit <code>0</code>.</p>
-<h3>report_hook_release_integrity.py</h3>
-<pre><code>report_hook_release_integrity.py [release-root]
-</code></pre>
-<p>Default root: a sibling <code>hooks-release</code> (when bundled), else the checkout's
-<code>.build</code> release. Prints <code>root:</code>, <code>sealed:</code>, <code>actual:</code>, and <code>verdict: intact</code>
-or <code>verdict: MISMATCH</code>; on mismatch it additionally lists <code>covered by the digest but never installed:</code> (build residue such as <code>.pyc</code> files and the
-pruned generator files) and <code>written after sealedAt &lt;time&gt;:</code>. A missing
-manifest prints <code>no release manifest at &lt;path&gt;</code> and exits <code>1</code>; otherwise exit
-<code>0</code>.</p>
+<p>The two seal gates the installer enforces, reported instead of enforced; it
+writes nothing. <code>--release</code> prints <code>release root:</code>, <code>recorded releaseId:</code>,
+<code>actual tree digest:</code>, <code>sealed at:</code>, <code>source revision:</code>, <code>source dirty:</code>,
+then <code>result: intact</code> or <code>result: DRIFTED</code> followed by
+<code>written after the seal:</code> and one path per file modified after
+<code>release.json</code> was written. When no file is newer, it prints
+<code>no file is newer than the seal -- the drift is a permission change, a deletion, or a file whose timestamp was preserved on copy</code>.
+A missing manifest is refused with <code>no release manifest at &lt;path&gt;</code>.
+<code>--home</code> (the default, with <code>$HOME</code>, when no <code>--release</code> is given)
+digests every tree under <code>Library/Application Support/Tama/hooks-runtime/releases/</code>
+against its directory name and prints <code>intact</code> or <code>DRIFTED</code> and the path,
+with <code>&lt;- current</code> on the live one; with no releases directory it prints
+<code>nothing installed under &lt;runtime&gt;</code>. Exit <code>0</code> when every tree is intact,
+<code>1</code> when one drifted, <code>2</code> when refused. Runnable wrappers live in
+<a href="../examples/integrity/"><code>../examples/integrity/</code></a>.</p>
 <h2>Build and release (maintainer-only)</h2>
 <h3>build-app.sh</h3>
 <p>Builds, signs, and installs the app bundle from a checkout: Swift release

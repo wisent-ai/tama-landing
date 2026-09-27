@@ -144,19 +144,14 @@ produced.</p>
 <code>.build/install-evidence/</code>, and assert the installed symlink, both provider
 configs and an empty drift report.</p>
 <h2>Verifying a release by hand</h2>
-<p>Three read-only maintainer scripts answer <em>which file drifted</em>, not just
-that one did:</p>
+<p><code>tama hooks integrity</code> answers <em>which file drifted</em>, not just that one
+did, and writes nothing:</p>
 <ul>
-<li><code>Scripts/integrity/verify_hook_release.py [root]</code> — recomputes the bundled tree
-digest, prints recorded vs actual, and lists every file written after
-<code>sealedAt</code>;</li>
-<li><code>Scripts/integrity/verify_installed_releases.py</code> — digests every tree under
-<code>hooks-runtime/releases/</code> against its directory name, marks the <code>current</code>
-one, and reports which of the two identically worded install failures an
-emergency enable would hit;</li>
-<li><code>Scripts/integrity/report_hook_release_integrity.py [root]</code> — on mismatch, also
-lists files the digest covers that the installer never installs (build
-residue such as bytecode).</li>
+<li><code>tama hooks integrity --release &lt;root&gt;</code> — recomputes the release's tree
+digest, prints recorded vs actual, and lists every file written after the seal;</li>
+<li><code>tama hooks integrity --home &lt;home&gt;</code> — digests every tree under
+<code>hooks-runtime/releases/</code> against its directory name and marks the <code>current</code>
+one.</li>
 </ul>
 <p>Never edit files inside a release directory; the recovery for integrity
 failure is reinstalling the same verified app artifact

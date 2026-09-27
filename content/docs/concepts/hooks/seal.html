@@ -44,15 +44,10 @@ reinstall, and the emergency re-enable
 (<a href="../runbook.md#bundled-tama-hook-release-failed-its-integrity-check">runbook</a>).</p>
 <h2>Who reports it</h2>
 <p>The refusals are deliberately terse — they name no file. Attribution is the
-job of the read-only reporters:
-<code>verify_hook_release.py</code> (recorded vs actual digest, files written after
-<code>sealedAt</code>), <code>report_hook_release_integrity.py</code> (adds the
-covered-but-never-installed residue list), and
-<code>verify_installed_releases.py</code> (every installed tree against its directory
-name, plus which of the two identically worded failures an emergency enable
-would hit). All three executed with real output in
-<a href="../walkthrough-verify-release.md">walkthrough-verify-release</a> and
-<a href="../walkthrough-runtime-status.md">walkthrough-runtime-status</a>.</p>
+job of the read-only <code>tama hooks integrity</code>: <code>--release</code> prints recorded vs
+actual digest and the files written after the seal, <code>--home</code> digests every
+installed tree against its directory name
+(<a href="../scripts.md#tama-hooks-integrity">scripts</a>).</p>
 <h2>Where it lives</h2>
 <p>| Location | Role |
 |---|---|
