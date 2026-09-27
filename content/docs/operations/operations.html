@@ -24,7 +24,7 @@
 | <code>WISENT_CODESIGN_IDENTITY</code> | Select signing identity | Release credentials stay separate from runtime identity |
 | <code>WISENT_APP_PROVISIONING_PROFILE</code> | App provisioning profile | Release operator only |
 | <code>WISENT_NETWORK_FILTER_PROVISIONING_PROFILE</code> | Network Extension profile | Release operator only |
-| <code>WISENT_NOTARY_PROFILE</code> | Keychain profile used by Apple notarytool | Required for every published preview or stable release; never available at runtime |
+| <code>AC_API_KEY_ID</code>, <code>AC_API_ISSUER_ID</code>, <code>AC_API_KEY_P8</code> | App Store Connect API key (Skarbiec <code>wisent-apple-notary</code>) that <code>stado product signing notarize</code> submits the signed app with | Required for every published preview or stable release; never available at runtime |
 | <code>TAMA_TEST_IDENTITY</code> | Automated UI-test identity seam | Prohibited in distributed artifacts and ordinary use |</p>
 <p>Unknown UI configuration is rejected by construction: setup choices are explicit actions rather than free-form settings. Integration-specific configuration is documented in <code>integrations.md</code>.</p>
 <h2>Permissions</h2>
