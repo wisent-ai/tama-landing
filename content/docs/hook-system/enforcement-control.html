@@ -189,6 +189,16 @@ the gate holds builds until the work is repaired and blocks nothing the operator
 words is assigned the language whose most frequent function words make up the largest share of it,
 which recognises Polish typed without diacritics too;
 <code>block-stop-on-own-work: BLOCKED: the operator wrote in polski and this answer is in english …</code></li>
+<li>a plan written under the heading for what was done (<em>Co zrobiono</em>, <em>Co zrobiłem</em>,
+<em>Co zostało zrobione</em>, <em>What was done</em>): <code>trzeba naprawić …</code>, a numbered
+infinitive item such as <code>1. Dodać …</code>, <code>do zrobienia</code> or the announced future tense;
+that section reports what happened, in the past tense;
+<code>block-stop-on-own-work: BLOCKED: the section for what was done carries a plan: "…"</code></li>
+<li>an answer that scopes the work to one session — <code>lista zadań tej sesji</code>,
+<code>Sesja ma jedno zadanie</code>, <code>usterki, na których pracuje ta sesja</code>,
+<code>this session's tasks</code>: the work is every open task of every session and every open
+defect of every product;
+<code>block-stop-on-own-work: BLOCKED: this answer scopes the work to one session: "…"</code></li>
 </ul>
 <p>What passes: a report that begs with one command on the clipboard; a report that says what changed since the refusal; and a
 quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
