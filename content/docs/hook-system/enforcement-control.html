@@ -115,7 +115,8 @@ a worker's claim or local “blocked” flag never grants permission to stop.</p
 <h3>A report is not the work it describes</h3>
 <p><code>block-stop-on-own-work</code> reads the transcript at Stop — the final
 message, what the agent said and thought since the operator last spoke, and
-every earlier refusal — and refuses six endings, each quoted back in the
+every earlier refusal, and the tool calls made since the operator last spoke — and
+refuses these endings, each quoted back in the
 refusal:</p>
 <ul>
 <li>a capacity, budget or clock nobody set, given as the reason the identified
@@ -158,6 +159,19 @@ zainstalujesz …</code>), an instruction (<code>uruchom</code>, <code>zainstalu
 sent to (<code>w swoim terminalu</code>). The agent gives the operator no tasks.
 When it is completely blocked it may beg (<code>Błagam</code>, <code>I beg</code>)
 with one command on his clipboard, as above; a report that begs is not refused by this rule.</li>
+<li>an answer that says the operator never said something (<code>nie ma takiego cytatu</code>,
+<code>you never said</code>) from a turn whose tool calls include no
+<code>oko transcripts search</code> without <code>--session</code>: absence is stated only after every
+transcript was searched, and a partial, failed or timed-out search is reported as incomplete;
+<code>block-stop-on-own-work: BLOCKED: "…" says the operator never said something, and this turn searched no transcript beyond one session …</code></li>
+<li>an answer that admits a mistake (<code>to było nieprawdą</code>, <code>nie przeszukałem</code>,
+<code>my mistake</code>) from a turn that ran no <code>oko defects record</code> or
+<code>oko defects note</code>: the mistake is recorded before the answer, without being dictated;
+<code>block-stop-on-own-work: BLOCKED: the answer admits a mistake ("…") and this turn recorded nothing about it …</code></li>
+<li>a turn that ran <code>oko defects record</code> and changed no source — no
+<code>edit</code>, <code>write</code> or <code>git commit</code> since the operator last spoke:
+recording a defect starts its repair;
+<code>block-stop-on-own-work: BLOCKED: this turn recorded a defect and changed no source for it …</code></li>
 </ul>
 <p>What passes: a report that begs with one command on the clipboard; a report that says what changed since the refusal; and a
 quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
