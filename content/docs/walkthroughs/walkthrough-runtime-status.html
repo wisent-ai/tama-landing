@@ -1,13 +1,13 @@
 <h1>Walkthrough: inspect runtime status</h1>
-<p>What is installed, what is loaded, and what would an emergency re-enable hit?
-Three read-only answers: the sessions the runtime is supervising right now,
-the integrity of every installed release tree, and the second integrity gate
-an install would pass through. Every command below was executed on
-2026-08-24 against the release sealed as <code>35204a12…</code> and a scratch home
-(<code>TAMA_HOME</code>/<code>--home</code> overrides), so nothing operator-owned was touched;
-outputs are pasted verbatim with the home abbreviated to <code>~</code> and scratch
-directories to <code>$H</code>. The desktop shows the same facts on
-<a href="desktop/posture.md">Posture</a> and <a href="desktop/session.md">Session</a>.</p>
+<p>What is installed, and what would an install or an emergency re-enable hit?
+Two read-only answers: the sessions the runtime is supervising right now, and
+the integrity of every installed release tree — the second integrity gate an
+install passes through. The sessions commands were executed on 2026-08-24;
+the integrity commands were executed with <code>tama hooks integrity</code> built from
+tama@9e69b3e6 against a scratch home holding a copy of the release sealed as
+<code>f7c34221…</code>, so nothing operator-owned was touched. Outputs are pasted
+verbatim with scratch directories abbreviated to <code>$H</code>. The desktop shows the
+same facts on <a href="desktop/posture.md">Posture</a> and <a href="desktop/session.md">Session</a>.</p>
 <h2>1. Live sessions, from the sealed CLI</h2>
 <p><code>tama sessions</code> reads the session-control records under
 <code>&lt;home&gt;/Library/Application Support/Tama/session-control/</code> — the same files
@@ -39,48 +39,35 @@ whose runtime has not reported hook counts.</p>
 claimed digest, so verification needs no manifest
 (<a href="hook-releases.md#installation">hook-releases</a>). On a home where Tama has
 never installed anything:</p>
-<pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/integrity/verify_installed_releases.py
-releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: False
-nothing installed
+<pre><code class="language-console">$ tama hooks integrity --home &quot;$H&quot;
+nothing installed under $H/Library/Application Support/Tama/hooks-runtime
+$ echo $?
+0
 </code></pre>
-<p>Simulate an installed runtime by copying the sealed release to its
+<p>Simulate an installed runtime by copying a sealed release to its
 content-addressed landing path and pointing <code>current</code> at it — exactly the
 layout <code>tama hooks install-release</code> produces:</p>
-<pre><code class="language-console">$ TAMA_HOME=&quot;$H&quot; python3 Scripts/integrity/verify_installed_releases.py
-releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: True
-current: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
-  35204a128363 intact &lt;- current
-drifted: none
-
-bundled release: ~/Documents/CodingProjects/Wisent/tama-desktop/.build/Tama.app/Contents/Resources/hooks-release exists: True
-bundled digest: 35204a128363
-second gate: intact
+<pre><code class="language-console">$ tama hooks integrity --home &quot;$H&quot;
+intact  $H/Library/Application Support/Tama/hooks-runtime/releases/f7c3422135ac4ea7006c26d25a93d3de6101b61bb05318d22ed9a0cbe761bd15  &lt;- current
+$ echo $?
+0
 </code></pre>
-<p>Two answers in one report. The top half digests every tree under
-<code>releases/</code> against its directory name and marks the <code>current</code> one. The
-bottom half answers the question that matters mid-incident: the emergency
-enable path re-installs the bundled release, and its <em>second</em> integrity gate
-checks <code>releases/&lt;bundled-id&gt;</code> — present and intact here, so an enable
-cannot fail on it.</p>
-<h2>3. The state an enable would refuse</h2>
+<p>Every tree under <code>releases/</code> is digested against its directory name, and
+the <code>current</code> one is marked. The installer's second integrity gate checks
+exactly this tree, so an intact line is the gate's own verdict.</p>
+<h2>3. The state an install would refuse</h2>
 <p>Change one permission bit inside the installed copy and re-read:</p>
-<pre><code class="language-console">$ chmod 700 &quot;$H/Library/Application Support/Tama/hooks-runtime/releases/35204a…/shared-hooks/registry.json&quot;
-$ TAMA_HOME=&quot;$H&quot; python3 Scripts/integrity/verify_installed_releases.py
-releases root: $H/Library/Application Support/Tama/hooks-runtime/releases exists: True
-current: 35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7
-  35204a128363 DRIFTED &lt;- current
-drifted: ['35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7']
-
-bundled release: ~/Documents/CodingProjects/Wisent/tama-desktop/.build/Tama.app/Contents/Resources/hooks-release exists: True
-bundled digest: 35204a128363
-second gate: DRIFTED -- install would refuse
+<pre><code class="language-console">$ chmod 700 &quot;$H/Library/Application Support/Tama/hooks-runtime/releases/f7c342…/shared-hooks/registry.json&quot;
+$ tama hooks integrity --home &quot;$H&quot;
+DRIFTED  $H/Library/Application Support/Tama/hooks-runtime/releases/f7c3422135ac4ea7006c26d25a93d3de6101b61bb05318d22ed9a0cbe761bd15  &lt;- current
+$ echo $?
+1
 </code></pre>
-<p>This is the state behind <code>Installed Tama hook release failed its integrity check</code> — the second of the two identically worded installer failures, the
-one that is invisible until an operator is already mid-incident
+<p>This is the state behind <code>Installed Tama hook release failed its integrity check</code> — the second of the two identically worded installer failures
 (<a href="runbook.md#installed-tama-hook-release-failed-its-integrity-check">runbook</a>).
 The installer's own recovery is automatic for the common case: a
 pre-existing copy that no longer digests to its directory name is deleted
-and recopied from the bundle before the gate is re-checked
+and recopied from the release before the gate is re-checked
 (<a href="hook-releases.md#installation">hook-releases</a>).</p>
 <h2>4. The identities the desktop compares</h2>
 <p><code>installed.json</code> beside <code>releases/</code> records what the last successful install
