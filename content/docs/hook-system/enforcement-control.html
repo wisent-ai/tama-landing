@@ -185,6 +185,10 @@ a status list said again is not work, and the refusal sends the agent to the nex
 (<code>blokada budowania</code>, <code>czeka na wspólny build</code>, <code>block-one-off-repairs</code>):
 the gate holds builds until the work is repaired and blocks nothing the operator asked for;
 <code>block-stop-on-own-work: BLOCKED: the Blockers section names the build gate ("…") …</code></li>
+<li>an answer in another language than the operator's latest message. Each text of at least twelve
+words is assigned the language whose most frequent function words make up the largest share of it,
+which recognises Polish typed without diacritics too;
+<code>block-stop-on-own-work: BLOCKED: the operator wrote in polski and this answer is in english …</code></li>
 </ul>
 <p>What passes: a report that begs with one command on the clipboard; a report that says what changed since the refusal; and a
 quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
