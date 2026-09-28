@@ -42,9 +42,8 @@ turn passes at no cost. A judgement nobody could obtain is never a denial: a jud
 (<code>judge-health.json</code>, lifted by <code>oko transcripts tasks judge --probe</code>) is not asked at all,
 and an absent Oko CLI, a refused gateway, an unreadable transcript or an empty reply is written to stderr as
 <code>block-known-to-operator: no judgement: …</code> and the turn passes, the same rule every model-judged gate
-follows. Like every model-judged gate it waits seven seconds for the model, inside the ten-second share of the
-event's wait that the OMP adapter reserves for a hook with no declared <code>timeout</code>
-(<a href="/docs/hook-model/">hook-model</a>).</p>
+follows. The OMP adapter's whole-event wait (<a href="/docs/hook-model/">hook-model</a>) is the only limit on how
+long its question may take.</p>
 <h2>While work is open</h2>
 <p>The model judgement above passes everything while the judge is down, and the obstacles an agent likes to report —
 the judge itself, a Stado release, a build the operator has not allowed yet — are exactly the ones he already ruled on.

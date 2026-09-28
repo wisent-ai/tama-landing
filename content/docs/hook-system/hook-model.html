@@ -161,9 +161,9 @@ the OMP adapter waits for the whole event only ten seconds plus each hook's
 declared <code>"timeout"</code> (ten when none is declared), and past that it
 refuses the event as <code>tama-shared-runtime</code> with
 <code>TAMA_HOOK_INFRASTRUCTURE: Tama core dispatch timed out after …ms</code>.
-So a gate that asks a model waits seven seconds for Brama — inside its own
-ten-second share, whatever the other gates cost — and an unanswered question
-lets the turn through.</p>
+The operator's rule is that no run is cut at a number, so that wait in the
+adapter is removed with the adapter's next change rather than squeezed by a
+shorter wait inside each gate.</p>
 <p><code>check-substantiation-with-model</code> uses it.
 It used to spawn a vendor CLI, which asked a provider past the gateway and
 did not run at all on a machine without that vendor's binary. This is the
