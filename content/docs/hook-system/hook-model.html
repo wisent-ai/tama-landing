@@ -139,10 +139,13 @@ code's shape: a catch body that assigns one, a JavaScript <code>.catch</code> ar
 read call followed by <code>||</code> or <code>??</code> and one, and in Swift an optional
 <code>try?</code> read in parentheses followed by <code>??</code> and one. It also refuses a Swift
 statement that puts <code>try?</code> before <code>await</code> and uses nothing it returns: a refused
-read, write or send then looks exactly like success. A value that is used — assigned, returned, passed
-on or compared — is not judged, and waiting out a cancellable <code>Task.sleep</code> is allowed. Wrap
-the call in <code>do</code>/<code>catch</code> and put the error where the screen shows it, or let it
-throw. Source: <code>ports/pre_write_edit/sentinels.rs</code>.</p>
+read, write or send then looks exactly like success; an assignment to <code>_</code> discards it the
+same way. A value that is used — assigned, returned, passed on or compared — is not judged, and waiting
+out a cancellable <code>Task.sleep</code> is allowed. The Swift checks read only <code>.swift</code>
+files and only their code: comments and string literals are blanked first, so a sentence quoting the
+shape is not a call. Wrap the call in <code>do</code>/<code>catch</code> and put the error where the
+screen shows it, or let it throw. Source: <code>ports/pre_write_edit/sentinels.rs</code> and
+<code>ports/pre_write_edit/swift.rs</code>.</p>
 
 <h2>Asking a model, when shape cannot decide</h2>
 <p>Some rules are not about shape: whether a claim is grounded, whether a
