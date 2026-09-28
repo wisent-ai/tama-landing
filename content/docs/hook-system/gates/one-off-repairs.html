@@ -131,6 +131,12 @@ product carries no repair: <code>stado host build</code>, <code>stado product ca
 <td>Code, commit and push the repair of every open item and record it (<code>oko transcripts tasks evidence
 &lt;task&gt; --commit &lt;repo@rev&gt;</code>, <code>oko defects repaired &lt;id&gt; --revision &lt;repo@rev&gt;</code>);
 then build once over all of it.</td></tr>
+<tr><td><code>stado product install|update|sync</code> of any product other than Stado, run by a Stado whose
+revision (<code>stado --version</code>) does not contain a repair Oko records against Stado or against that
+product (<code>oko defects repaired &lt;id&gt; --revision stado@&lt;rev&gt;</code>). This applies even to a
+build the operator consented to: the register already says how that install would end. The refusal lists each
+such defect with its revision; a revision that cannot be compared with the installed Stado refuses too.</td>
+<td>Update Stado first (<code>stado product update stado --surface cli</code>), then install the product.</td></tr>
 <tr><td>A Python module or script handed to any python interpreter, whatever its path or version:
 <code>python3 -m &lt;module&gt;</code>, <code>python3 tools/x.py</code>. Python is not used in this workshop.</td>
 <td>Use the product command that does the job. When none exists, that missing command is the product work to
