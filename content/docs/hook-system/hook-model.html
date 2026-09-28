@@ -105,7 +105,7 @@ site's own code still is. Words live only in <code>keyword-provenance.json</code
 looked up from the written file's directory upward, each entry exactly
 <code>{"words": ["…"], "user_said": "…"}</code>; writing that file is itself judged: the
 quote must be a verbatim <code>role=user</code> message in Oko's transcript index
-(<code>oko-cli transcripts reindex --path &lt;session&gt;</code> refreshes it) and must
+(<code>oko transcripts reindex --path &lt;session&gt;</code> refreshes it) and must
 contain every word. The guard certifies that the operator said the words, not
 that the classifier is right; the route it points to is a model judgement
 through Brama or data the operator declared. Asked for on 2026-09-19 after
@@ -140,7 +140,7 @@ closing report hands work back to the operator. The decider there is a model,
 and on this fleet every model call goes through Brama.
 <code>ports::model_judgement</code> is the one route:
 <code>model_judgement::ask(prompt)</code> sends the prompt through the
-product's own one-shot call, <code>oko-cli proxy-call</code>, which carries
+product's own one-shot call, <code>oko proxy-call</code>, which carries
 Oko's signed bearer to the gateway, and returns
 <code>Judgement::Answered(text)</code> or
 <code>Judgement::Unavailable(reason)</code>. A judgement nobody could obtain
@@ -150,7 +150,7 @@ and logs the gateway's own words — <code>no judgement: Brama refused the
 call: HTTP 503 … subscription_reauthorization_required</code>.</p>
 <p>A judge Oko has recorded as not answering is not asked. Oko writes that
 record — <code>judge-health.json</code> beside its transcript index — from
-every verification pass and from <code>oko-cli transcripts tasks judge
+every verification pass and from <code>oko transcripts tasks judge
 --probe</code>, and the same probe lifts it. <code>ask</code> reads it first
 and returns <code>Unavailable</code> with <code>Oko last saw the judge
 refuse at …: …; not asked again from a hook</code>, because asking anyway

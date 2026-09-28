@@ -3,8 +3,8 @@
 <h2 id="common-hook-runtime-and-harness-adapters">What owns the execution loop</h2>
 <p>Tama owns registry loading, hook execution, enforcement selection and reload.
 Harness adapters translate their incoming events and outgoing decisions; they
-do not implement another copy of the hook rules. The native engine is the
-<code>tama-run-hook</code> library, which the one <code>tama</code> program runs as
+do not implement another copy of the hook rules. The native engine is a library
+inside the one <code>tama</code> program, which runs it as
 <code>tama run-hook</code>.</p>
 <p>The one-event interface remains
 <code>tama run-hook &lt;event&gt; &lt;agent-id&gt;</code>, with the payload on standard

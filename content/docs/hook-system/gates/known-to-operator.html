@@ -12,7 +12,7 @@ what he decided.</p>
 <h2>How it decides</h2>
 <p>Shape cannot decide this — whether a sentence restates an earlier answer, or reports the operator's own decision back
 to him, is a reading of two texts against a third — so the decider is a model, asked through Brama by the product's
-one route for that, <code>ports::model_judgement</code> (<code>oko-cli proxy-call</code>). The session is the memory.
+one route for that, <code>ports::model_judgement</code> (<code>oko proxy-call</code>). The session is the memory.
 The gate reads the live transcript the stop payload names, or the newest transcript of the payload's session id, and
 puts three texts in front of the model: every message the operator wrote this session, every earlier answer the agent
 gave him, and the answer about to be sent. The model answers <code>PASS</code>, or <code>BLOCK:</code> followed by each
@@ -39,7 +39,7 @@ clause. A failure outside his own decisions that no earlier answer mentioned. A 
 do or decide next, without explaining his own policy to him. A turn under <code>stop_hook_active</code>.</p>
 <p>A session with no operator words and no earlier answer has nothing to be known yet: the model is not asked and the
 turn passes at no cost. A judgement nobody could obtain is never a denial: a judge Oko has recorded as not answering
-(<code>judge-health.json</code>, lifted by <code>oko-cli transcripts tasks judge --probe</code>) is not asked at all,
+(<code>judge-health.json</code>, lifted by <code>oko transcripts tasks judge --probe</code>) is not asked at all,
 and an absent Oko CLI, a refused gateway, an unreadable transcript or an empty reply is written to stderr as
 <code>block-known-to-operator: no judgement: …</code> and the turn passes, the same rule every model-judged gate
 follows. The binding carries a thirty-second timeout, as the other model-judged stop gate does: the registry's

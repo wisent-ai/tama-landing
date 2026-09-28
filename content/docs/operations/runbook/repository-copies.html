@@ -5,7 +5,7 @@ what to do next. The rest of the refusal sentences are in the
 <a href="runbook.md">runbook</a>.</p>
 <h2><code>BLOCKED: repository copies are forbidden. 'git worktree add' makes a second checkout; work in the existing checkout instead. Remove existing worktrees with 'tama worktrees remove --root &lt;PATH&gt; --apply'.</code></h2>
 <p>From the <code>block-repository-copies</code> hook
-(<code>tama-block-repository-copies</code>), on a blocking <code>pre_tool_use:bash</code>
+(<code>tama hook block-repository-copies</code>), on a blocking <code>pre_tool_use:bash</code>
 binding, when the command you were about to run is <code>git worktree add</code>. It
 means the tool call was refused before git ran: no new checkout exists, and
 the repository you are already in is unchanged.</p>

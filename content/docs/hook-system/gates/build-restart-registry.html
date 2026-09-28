@@ -1,5 +1,5 @@
 <h1>Build and restart registry: <code>block-unregistered-build-or-restart</code></h1>
-<p>A gate on <code>pre_tool_use:bash</code> (<code>tama-block-unregistered-build-or-restart</code>) that
+<p>A gate on <code>pre_tool_use:bash</code> (<code>tama hook block-unregistered-build-or-restart</code>) that
 refuses a build without an unused, unexpired entry recording the agent's statement that the whole
 task is finished. Each accepted build consumes its entry, so the next build needs a new statement
 and intent. A restart still needs an open entry but no task statement. Refusals start
@@ -160,11 +160,10 @@ nothing and are allowed.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_unregistered_build_or_restart/mod.rs</code>,
 with the command vocabulary as data in <code>vocabulary.json</code> beside it and the registry reader in
-<code>registry.rs</code>; binary:
-<code>src/bin/block/safety/execution/block_unregistered_build_or_restart.rs</code>; the writer:
-<code>rust/crates/tama-cli/src/builds/mod.rs</code>; the real-binary test that drives the gate and the real
-<code>tama</code> against a disposable registry:
-<code>rust/crates/tama-hook-tools/tests/build_registry_guard.rs</code>; the declaration the registration
+<code>registry.rs</code>; its program:
+<code>rust/crates/tama-hook-tools/src/programs/block/safety/execution/block_unregistered_build_or_restart.rs</code>,
+run as <code>tama hook block-unregistered-build-or-restart</code>; the writer:
+<code>rust/crates/tama-cli/src/builds/mod.rs</code>; the declaration the registration
 reads: <code>hook-declarations/block-unregistered-build-or-restart.json</code>. Registration is
 <a href="/docs/hook-management/">two commands</a>:
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/block-unregistered-build-or-restart.json</code>

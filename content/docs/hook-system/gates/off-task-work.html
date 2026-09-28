@@ -33,9 +33,9 @@ closed by a revision is refused. The agent must select an open task whose work i
 unrelated work under a convenient repository name.</p>
 <p>A task's scope lives in its Oko contract, not in the session. With <code>--task</code> and no
 <code>--repository</code>, <code>set</code> takes the repositories the contract lists
-(<code>oko-cli transcripts tasks show &lt;task&gt; --json</code>, field <code>current.contract.terms.scope</code>). Given
+(<code>oko transcripts tasks show &lt;task&gt; --json</code>, field <code>current.contract.terms.scope</code>). Given
 repositories that differ from the contract's are written back into it with
-<code>oko-cli transcripts tasks state &lt;task&gt; --scope &lt;repo&gt;… --by &lt;SESSION&gt;</code>, so the next session
+<code>oko transcripts tasks state &lt;task&gt; --scope &lt;repo&gt;… --by &lt;SESSION&gt;</code>, so the next session
 handed the same task declares the same scope, and the change appears in the contract's history. If Oko refuses that
 write, <code>set</code> fails with Oko's sentence and declares nothing. A scope with no repository — none given and
 none in the contract — is refused: work that touches nothing changes nothing.</p>
@@ -52,7 +52,7 @@ than something a model remembers.</td></tr>
 change is part of anything.</td></tr>
 <tr><td>A repository outside the declaration</td>
 <td>The refusal names the instruction being served and the repositories it was declared to touch. Something really
-being broken is not the same as being asked to fix it: record it with <code>oko-cli defects record</code> and say so in
+being broken is not the same as being asked to fix it: record it with <code>oko defects record</code> and say so in
 the answer.</td></tr>
 <tr><td>A scope declared for an earlier instruction</td>
 <td>Refused as undeclared. The operator has spoken since, and that is exactly where a session drifts — one reasonable

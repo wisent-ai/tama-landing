@@ -3,7 +3,7 @@
 work: the system assesses the executable's signature before it runs, that
 assessment reaches Apple over the network, and XProtect scans the image.
 Measured on 2026-09-20, the first run of a freshly installed
-<code>tama-block-delegating-own-work</code> took 147 seconds and every run
+<code>block-delegating-own-work</code> hook binary took 147 seconds and every run
 after it took under 5 milliseconds. At the time each binding carried a number
 of seconds and the engine killed the hook at it, so a cold cache refused a
 finished turn with <code>block-delegating-own-work timed out after 10s</code>
