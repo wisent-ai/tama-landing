@@ -81,11 +81,12 @@ that section reports what happened, in the past tense;
 <code>this session's tasks</code>: the work is every open task of every session and every open
 defect of every product;
 <code>block-stop-on-own-work: BLOCKED: this answer scopes the work to one session: "…"</code></li>
-<li>an ending written right after a stop guard refused the previous one, with no tool call between
-the two: whatever the refusal asked, the answer to it is work on the next open task or defect
-(<code>oko transcripts tasks --open</code>, <code>oko defects list --open</code>), not the same
-report edited to pass;
-<code>block-stop-on-own-work: BLOCKED: a stop guard refused the previous ending and no tool call came after it …</code></li>
+<li>an ending written after a stop guard refused the previous one when nothing since then changed
+source — no <code>edit</code>, <code>write</code> or <code>git commit</code>. Re-timing a reading,
+reading files or writing an <code>oko defects note</code> is not work on an item: the answer to a
+refusal is a change to the next open task or defect that can be changed in source
+(<code>oko transcripts tasks --open</code>, <code>oko defects list --open</code>);
+<code>block-stop-on-own-work: BLOCKED: a stop guard refused the previous ending and nothing since then changed source …</code></li>
 </ul>
 <p>What passes: a report that begs with one command on the clipboard; a report that says what changed since the refusal; and a
 quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
