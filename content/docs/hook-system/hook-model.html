@@ -133,6 +133,16 @@ names that route. When the owning store really cannot serve the data, record why
 serve it&gt;"</code> — the reason has to name <em>stado database</em> — and write again. Stado itself, the
 owner of durable data, is not judged; only code files are read, and a line the repository already
 holds is not judged again.</p>
+<p><code>pre-write-edit</code> refuses a failed read quietly replaced with a stand-in value (zero, minus
+one, an empty list, map or string, <code>null</code>, <code>nil</code>, <code>undefined</code>), by the
+code's shape: a catch body that assigns one, a JavaScript <code>.catch</code> arrow that returns one, a
+read call followed by <code>||</code> or <code>??</code> and one, and in Swift an optional
+<code>try?</code> read in parentheses followed by <code>??</code> and one. It also refuses a Swift
+statement that puts <code>try?</code> before <code>await</code> and uses nothing it returns: a refused
+read, write or send then looks exactly like success. A value that is used — assigned, returned, passed
+on or compared — is not judged, and waiting out a cancellable <code>Task.sleep</code> is allowed. Wrap
+the call in <code>do</code>/<code>catch</code> and put the error where the screen shows it, or let it
+throw. Source: <code>ports/pre_write_edit/sentinels.rs</code>.</p>
 
 <h2>Asking a model, when shape cannot decide</h2>
 <p>Some rules are not about shape: whether a claim is grounded, whether a
