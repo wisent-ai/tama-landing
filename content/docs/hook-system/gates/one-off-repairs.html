@@ -122,6 +122,15 @@ names it, and nothing is reported as impossible to compile before that route has
 installed from a delivered release: <code>stado release status &lt;PRODUCT&gt;</code> says what was published
 and <code>stado release install-local</code> installs that archive. <code>cargo fmt</code> and any
 <code>--help</code> still pass.</td></tr>
+<tr><td>A Stado command that compiles, while any open Oko task of any session or any open defect of any
+product carries no repair: <code>stado host build</code>, <code>stado product cargo|swift</code>,
+<code>stado product install|update|sync</code> of a source recipe, <code>stado build submit|newest</code>,
+<code>stado release submit|prepare|newest</code>. An exact release install
+(<code>stado product install|update … --release-version &lt;V&gt; --source-commit &lt;REV&gt;</code>) and a
+<code>--dry-run</code> compile nothing and pass.</td>
+<td>Code, commit and push the repair of every open item and record it (<code>oko transcripts tasks evidence
+&lt;task&gt; --commit &lt;repo@rev&gt;</code>, <code>oko defects repaired &lt;id&gt; --revision &lt;repo@rev&gt;</code>);
+then build once over all of it.</td></tr>
 <tr><td>A Python module or script handed to any python interpreter, whatever its path or version:
 <code>python3 -m &lt;module&gt;</code>, <code>python3 tools/x.py</code>. Python is not used in this workshop.</td>
 <td>Use the product command that does the job. When none exists, that missing command is the product work to
