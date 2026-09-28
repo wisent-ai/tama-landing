@@ -95,12 +95,19 @@ an unavailable ledger refuses Stop with its actual error.
 when enabled. Neither guard asks a second model to reinterpret open tasks as
 permission to stop.</p>
 <p>Any executable task still marked <code>not done</code> in any session blocks completion,
-and every defect of any product that records no fixing revision blocks it too. The same list
-refuses every build, compile and test run in <code>block-one-off-repairs</code>. An entry in
+and every defect of any product that records no fixing revision blocks it too. An entry in
 <code>oko blockers</code>, a <code>blocked</code> verdict, a judge outage after evidence, or a
 wait on other open work does not stand an item aside: only Oko recording a task done or
 withdrawn, or a defect fixed, removes it. A task Oko relates as <code>duplicate-of</code>
-another is counted once, as the original. The refusal names each session, ordinal and request.
+another is counted once, as the original. The refusal names each session, ordinal and request.</p>
+<p><code>block-one-off-repairs</code> reads the same register for every build, compile and test
+run, and refuses while any open item carries no repair: a task with no commit or report
+recorded by <code>oko transcripts tasks evidence</code>, or a defect with no revision recorded by
+<code>oko defects repaired</code>. A code repair is only proven by a build, so building waits for
+every repair to exist, not for every item to close; the one build then proves them, and each
+item is closed or reopened on what it shows. The refusal lists the items that still carry no
+repair.</p>
+<p>
 After producing and checking the real result,
 run <code>oko-cli transcripts tasks verify --before-stop --session SESSION_ID</code>.
 Oko's independent Brama judge reads recorded calls and tool results as well as
