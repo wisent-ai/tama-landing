@@ -162,8 +162,10 @@ declared <code>"timeout"</code> (ten when none is declared), and past that it
 refuses the event as <code>tama-shared-runtime</code> with
 <code>TAMA_HOOK_INFRASTRUCTURE: Tama core dispatch timed out after …ms</code>.
 So a gate that asks a model waits seven seconds for Brama — inside its own
-ten-second share, whatever the other gates cost — and an unanswered question
-lets the turn through.</p>
+ten-second share, whatever the other gates cost. The seven seconds cover
+the whole exchange: the <code>stado service directory connect brama</code>
+lookup of Brama's address is stopped when they run out, and the request gets
+only what the lookup left. An unanswered question lets the turn through.</p>
 <p><code>check-substantiation-with-model</code> uses it.
 It used to spawn a vendor CLI, which asked a provider past the gateway and
 did not run at all on a machine without that vendor's binary. This is the
