@@ -25,7 +25,9 @@
 <tr><td><code>justifications/cua</code></td><td>none</td><td><code>{kind, registry, authorizations}</code></td></tr>
 <tr><td><code>justifications/cua/record</code></td><td><code>{sessionId, app, actions, quote}</code> or <code>{sessionId, app, actions, quoteMatch}</code>, with <code>actions</code> an array of strings</td><td><code>{kind, registry, sessionId, authorization}</code></td></tr>
 <tr><td><code>justifications/cua/remove</code></td><td><code>{quote}</code></td><td><code>{kind, registry, removed, count}</code></td></tr>
-<tr><td><code>justifications/record</code></td><td><code>{kind, file, justification, quote?, expiresAt?}</code>, where <code>kind</code> is <code>file</code> or <code>test</code></td><td><code>{recorded, kind, registry}</code></td></tr>
+<tr><td><code>justifications/record</code></td><td><code>{kind, file, justification, expiresAt?}</code>, where <code>kind</code> is <code>file</code></td><td><code>{recorded, kind, registry}</code></td></tr>
+<tr><td><code>tests/approvals</code></td><td>none</td><td><code>{approved, record}</code>: every approval <a href="/docs/cli/tests/">tama tests list</a> reads</td></tr>
+<tr><td><code>tests/approve</code>, <code>tests/revoke</code></td><td><code>{paths}</code>, an array of files or directories; a relative path is read against the home</td><td><code>{changed, action, approved, record}</code>, the same change <code>tama tests approve|revoke</code> makes</td></tr>
 </tbody>
 </table>
 <p>The justification operations reuse <a href="/docs/cli/justify/">tama justify</a> validation and registry transactions. They use the process's home and runtime transcript directory; a request cannot choose another home or transcript source. Recording requests reject unknown fields, and none of these operations issues capabilities, enables hooks or starts Cua Driver.</p>

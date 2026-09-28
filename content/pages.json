@@ -42,6 +42,7 @@
   {"route":"cli/clean","source":"docs/cli/installation/clean.html","content":"content/docs/cli/installation/clean.html","category":"CLI reference"},
   {"route":"cli/brama-check","source":"content/docs/cli/installation/brama-check.html","content":"content/docs/cli/installation/brama-check.html","category":"CLI reference"},
   {"route":"cli/justify","source":"content/docs/cli/configuration/justify.html","content":"content/docs/cli/configuration/justify.html","category":"CLI reference"},
+  {"route":"cli/tests","source":"content/docs/cli/configuration/tests.html","content":"content/docs/cli/configuration/tests.html","category":"CLI reference"},
   {"route":"cli/sessions","source":"docs/cli/sessions.md","content":"content/docs/cli/runtime/sessions.html","category":"CLI reference"},
   {"route":"cli/build","source":"content/docs/cli/runtime/build.html","content":"content/docs/cli/runtime/build.html","category":"CLI reference"},
   {"route":"cli/enforcement/status","source":"content/docs/cli/enforcement/status.html","content":"content/docs/cli/enforcement/status.html","category":"CLI reference"},

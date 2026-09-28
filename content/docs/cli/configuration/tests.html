@@ -1,0 +1,22 @@
+<h1><code>tama tests</code></h1>
+<p>Records the operator's approval of test code. <code>block-unapproved-tests</code> refuses every write of test code outside an approval, so a test exists only where the operator asked for it.</p>
+<h2>Invocation</h2>
+<pre><code>tama tests approve &lt;path&gt;…
+tama tests revoke &lt;path&gt;…
+tama tests list [--json]
+</code></pre>
+<p>A path names a file or a directory; an approved directory covers everything below it. A relative path is read against the current directory and stored absolute. <code>approve</code> prints <code>approved &lt;absolute path&gt;</code> per path, <code>revoke</code> prints <code>revoked &lt;absolute path&gt;</code>, and <code>list</code> prints each approval with the time it was granted, or <code>{"approved": […]}</code> under <code>--json</code>.</p>
+<h2>What counts as test code</h2>
+<p>A file under a <code>tests/</code>, <code>test/</code> or <code>__tests__/</code> directory; a file named <code>x_test.go</code>, <code>x.test.ts</code>, <code>x.spec.ts</code>, <code>test_x.py</code>, <code>tests.rs</code> or <code>XTests.swift</code>; and a change anywhere that carries Rust's test attribute or test-only gate, a Python <code>test_</code> function or Swift Testing's <code>@Test</code> macro. The hook reads structure — a directory, a file-name convention, an attribute — not the words of a sentence.</p>
+<h2>Who approves</h2>
+<p>Only the operator. The record is <code>~/.config/agent-policy/approved_tests.json</code>. <code>block-unapproved-tests</code> refuses <code>tama tests approve</code> run from an agent session, a write tool aimed at the record and a shell command that names it, so an agent cannot approve its own test. Tama Desktop's <a href="/docs/desktop/justifications/">Tests</a> screen makes the same change through <a href="/docs/cli/request/">tama request</a> <code>tests/approve</code> and <code>tests/revoke</code>.</p>
+<h2>What the hook refuses</h2>
+<ul>
+<li><code>block-unapproved-tests: BLOCKED: &lt;path&gt; is test code the operator has not approved. …</code> — a write, an edit or a shell redirection of test code outside every approval.</li>
+<li><code>block-unapproved-tests: BLOCKED: `tama tests approve` records the operator's own approval and runs only in his terminal. …</code> — the command run from a session.</li>
+<li><code>block-unapproved-tests: BLOCKED: &lt;record&gt; is the operator's record of approved tests. …</code> — a session write to the record.</li>
+</ul>
+<p>Reading test code is never refused, and neither is removing a test file from the shell: a shell command is judged only by what it redirects into.</p>
+<h2>Refusals</h2>
+<p><code>approve</code> and <code>revoke</code> with no path print <code>tama tests: name at least one path</code> and the usage and exit <code>2</code>; a record that cannot be written prints <code>tama tests: the approval record was not written: &lt;path&gt;: &lt;error&gt;</code> and exits <code>1</code>. An unknown subcommand prints the usage and exits <code>2</code>.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>
