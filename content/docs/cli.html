@@ -81,6 +81,15 @@ every remote, no origin to compare against, linked worktrees of its own, or
 no canonical checkout under the roots given. <code>--except</code> spares a copy and
 <code>--only</code> narrows the pass to named copies, accepting them as removable
 when they are the sole checkout here; the two are never combined.</p>
+<h2>Merges</h2>
+<p><code>tama merges review --root &lt;PATH&gt; --since &lt;YYYY-MM-DD&gt; [--json]</code> reads
+every checkout under the root and lists each merge on <code>main</code>'s first-parent line since
+the date whose subject is <code>Merge &lt;branch&gt; into main</code> and which nothing reverted.
+For each it reports the files it added or changed that are over 300 lines on <code>main</code> today
+and the paths it re-added after <code>main</code> had deleted them. It exits one when any merge
+left either, zero when every merge is clean, and two on a usage error. It changes nothing; whether
+the merged source compiles is the release build's answer. The branch merger that made these
+merges no longer exists.</p>
 <h2>Existing policy bundles</h2>
 <p>A supported self-contained policy bundle or sealed release contains
 <code>shared-hooks/registry.json</code> and regular, non-symlink files under
