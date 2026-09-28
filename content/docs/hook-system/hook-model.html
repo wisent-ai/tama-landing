@@ -57,8 +57,13 @@ an error and also resolves to <code>all</code>, so state failure never weakens p
 <code>user_prompt_submit</code>, or <code>stop</code>. A binding with <code>blocking: true</code> can refuse
 the action and <code>statusMessage</code> is what the agent surface shows while it runs; nothing
 in a binding bounds how long the hook may take, because the engine waits for its answer.
-Hooks read a JSON payload from stdin and fail closed: a blocking hook exits non-zero or
-returns a deny decision when its invariant is violated.</p>
+Hooks read a JSON payload from stdin. A refusal is one decision document,
+<code>{"decision":"block","reason":"…"}</code>, printed on stdout (as the whole output or as its last
+line), with the same reason on stderr and a nonzero exit for surfaces that read the exit status.
+The engine reads only that document as a refusal. A hook that ends nonzero without it — a panic, a
+missing binary, a gate that printed <code>TAMA_HOOK_INFRASTRUCTURE:</code> because it could not
+decide — crashed; the engine logs <code>hook &lt;id&gt; malfunctioned: …</code> and the action goes on,
+because a crash is not a policy decision. Nothing reads the wording of a crash to tell it apart.</p>
 <h2>The desktop's catalog snapshot</h2>
 <p>The app does not parse the registry directly. At build time,
 <code>Scripts/app_build/export-catalog.mjs</code> renders it into <code>tama-catalog.json</code> inside the
