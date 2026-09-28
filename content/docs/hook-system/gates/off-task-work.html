@@ -67,6 +67,10 @@ committed version once it commits.</td></tr>
 <tr><td>A broad <code>git add</code> (<code>-A</code>, <code>--all</code>, <code>.</code> or a directory) over an
 untracked file another session wrote</td>
 <td>Refused, naming the file and the writing session. Stage the files this session wrote by name.</td></tr>
+<tr><td>A <code>git commit</code> whose staged files — or, with <code>-a</code>/<code>--all</code>, whose modified
+tracked files — include one another session wrote and this session never did</td>
+<td>Refused, naming the file, the writing session and the <code>git restore --staged</code> that takes it out of this
+commit. That session commits its own work.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
