@@ -106,7 +106,10 @@ recorded by <code>oko transcripts tasks evidence</code>, or a defect with no rev
 <code>oko defects repaired</code>. A code repair is only proven by a build, so building waits for
 every repair to exist, not for every item to close; the one build then proves them, and each
 item is closed or reopened on what it shows. The refusal lists the items that still carry no
-repair.</p>
+repair. A build the operator consents to in the conversation passes before that: the agent records
+the consent as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
+(or <code>{"tool": "build"}</code> for any product) with the lifetime he named, and the gate lets a build
+through whose arguments name a granted product.</p>
 <p>
 After producing and checking the real result,
 run <code>oko-cli transcripts tasks verify --before-stop --session SESSION_ID</code>.
