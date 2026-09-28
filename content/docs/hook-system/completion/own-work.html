@@ -31,7 +31,12 @@ clipboard holding something else are refused:
 <code>… begs with `…`, but the clipboard holds something else …</code></li>
 <li>a begged command that cannot succeed. Each step run by a program <code>stado product install</code>
 placed in <code>~/.stado/bin</code> is asked for its own <code>--help</code> usage line, and every option
-that line requires must be in the step. A step that builds a product from its checkout —
+that line requires must be in the step. A program whose help offers <code>--check-arguments</code>
+(<code>stado product install|update</code> does) is asked to parse the whole step with it, which
+catches the pairs clap enforces outside the usage line, such as <code>--release-version</code> with
+<code>--source-commit</code>. A chain that installs a product's release after a
+<code>stado release submit</code> of that product is refused: the submit only queues the build.
+A step that builds a product from its checkout —
 <code>stado product install|update &lt;product&gt;</code> without <code>--release-version</code>, with
 the checkout at <code>~/Documents/CodingProjects/Wisent/&lt;product&gt;</code> — is also checked with
 <code>stado quality check --root &lt;checkout&gt;</code>, which runs the formatting gate over the same
