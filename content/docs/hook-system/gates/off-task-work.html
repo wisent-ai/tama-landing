@@ -31,6 +31,12 @@ in the same session. Oko's pending independent verdict remains pending; selectio
 <p>Every scope names an entry in Oko's register. An unknown task, a task already done, an unknown defect, or a defect
 closed by a revision is refused. The agent must select an open task whose work it is actually doing, not declare
 unrelated work under a convenient repository name.</p>
+<p>A <code>--defect</code> declaration is also the session's claim on that defect. <code>set</code> reads every other
+session's declaration and refuses a defect another session declared within the last hour:
+<code>defect &lt;ID&gt; is being repaired by session &lt;SESSION&gt;, which declared it in the last hour; a second
+session on it duplicates or overwrites that work. Read its notes (`oko defects show &lt;ID&gt;`) and declare another
+open defect or task.</code> The claim lapses an hour after the claiming session last declared its scope, so a session
+that stopped does not hold a defect for ever. Declaring the same defect again renews the claim.</p>
 <p>A task's scope lives in its Oko contract, not in the session. With <code>--task</code> and no
 <code>--repository</code>, <code>set</code> takes the repositories the contract lists
 (<code>oko transcripts tasks show &lt;task&gt; --json</code>, field <code>current.contract.terms.scope</code>). Given
