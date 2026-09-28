@@ -41,7 +41,7 @@ candidate itself, or the pass reports it under <code>unreadable</code>.</p>
 <h2>Output document</h2>
 <p>Under <code>--json</code>, exactly these fields, with the schema version the whole
 copies contract is fixed at:</p>
-<pre><code>{"schemaVersion":Number,"roots":[String],"copies":[{"path":String,"owner":String|null,"origin":String|null,"bytes":Number,"dirty":Boolean,"unpublished":Boolean,"historyRetainedBy":String|null,"ownsWorktrees":Boolean,"named":Boolean}],"copyCount":Number,"bytes":Number,"linkedWorktrees":[String],"twins":[{"path":String,"twin":String,"origin":String}],"unreadable":[String],"unreadableDirectories":[{"path":String,"reason":String}]}
+<pre><code>{"schemaVersion":Number,"roots":[String],"copies":[{"path":String,"owner":String|null,"origin":String|null,"bytes":Number,"dirty":Boolean,"unpublished":Boolean,"historyRetainedBy":String|null,"ownsWorktrees":Boolean,"named":Boolean}],"copyCount":Number,"bytes":Number,"linkedWorktrees":[String],"twins":[{"path":String,"twin":String,"origin":String,"basis":"origin"|"first-commits"}],"unreadable":[String],"unreadableDirectories":[{"path":String,"reason":String}]}
 </code></pre>
 <p><code>roots</code> echoes the roots you passed, resolved. <code>owner</code> is the canonical
 checkout of the same repository under those roots, or <code>null</code> when this
@@ -49,8 +49,16 @@ directory is the only checkout of its repository here — which is a refusal on
 <a href="../remove/"><code>remove</code></a> until you name it with <code>--only</code>.
 <code>bytes</code> is apparent size, per copy and summed for the pass. <code>named</code> is
 false here and only ever true in a narrowed removal document.</p>
-<p><code>twins</code> carries checkouts of one repository that both sit directly under a
-root; the pass reports them and removes neither. <code>unreadable</code> names every
+<p><code>twins</code> carries two checkouts of one repository that the pass reports and
+removes neither of. With <code>basis</code> <code>origin</code>, both sit directly under a root
+and name the same origin, and <code>origin</code> is that origin. With <code>basis</code>
+<code>first-commits</code>, their origins differ but their histories start from the
+same commits, and <code>origin</code> holds those commits. That is what a repository
+GitHub moved looks like: every checkout cloned before the move keeps the old
+address. A fork starts from the same commits too, which is why this match only
+reports and never makes one checkout the owner of the other. The text report
+prints it as <code>twin history: &lt;path&gt; and &lt;path&gt; start from the same
+commits (&lt;commits&gt;) under different origins, …</code>. <code>unreadable</code> names every
 candidate repository git then refused to answer for:
 reported rather than dropped, because silence would be the pass claiming it
 read a checkout it never read.</p>
