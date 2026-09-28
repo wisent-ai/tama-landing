@@ -99,7 +99,10 @@ and every defect of any product that records no fixing revision blocks it too. A
 <code>oko blockers</code>, a <code>blocked</code> verdict, a judge outage after evidence, or a
 wait on other open work does not stand an item aside: only Oko recording a task done or
 withdrawn, or a defect fixed, removes it. A task Oko relates as <code>duplicate-of</code>
-another is counted once, as the original. The refusal names each session, ordinal and request.</p>
+another is counted once, as the original. The refusal names each session, ordinal and request,
+and then, separately, the open items that carry no pushed repair yet: those are written,
+committed and pushed without a build, so an answer that says the rest waits on a build is
+contradicted by the refusal itself.</p>
 <p><code>block-one-off-repairs</code> reads the same register for every build, compile and test
 run, and refuses while any open item carries no repair: a task with no commit or report
 recorded by <code>oko transcripts tasks evidence</code>, or a defect with no revision recorded by
