@@ -34,8 +34,9 @@ placed in <code>~/.stado/bin</code> is asked for its own <code>--help</code> usa
 that line requires must be in the step. A step that builds a product from its checkout —
 <code>stado product install|update &lt;product&gt;</code> without <code>--release-version</code>, with
 the checkout at <code>~/Documents/CodingProjects/Wisent/&lt;product&gt;</code> — is also checked with
-<code>stado quality check --root &lt;checkout&gt;</code>, the formatting gate the build would run, so a
-plea never sends the operator to a build that stops at that gate. A Stado without
+<code>stado quality check --root &lt;checkout&gt;</code>, which runs the formatting gate over the same
+committed tree the install would build (not the live worktree, so another session's uncommitted edit
+neither fails nor rescues the plea); a plea never sends the operator to a build that stops at that gate. A Stado without
 <code>quality check</code> leaves that second check unmade;
 <code>block-stop-on-own-work: BLOCKED: this report begs with a command that cannot succeed: `…` builds … and `stado quality check --root …` refuses it …</code></li>
 <li>an answer that leaves work undone because something is paid, when nobody read the price
