@@ -44,6 +44,16 @@ and an absent Oko CLI, a refused gateway, an unreadable transcript or an empty r
 <code>block-known-to-operator: no judgement: …</code> and the turn passes, the same rule every model-judged gate
 follows. The binding carries a thirty-second timeout, as the other model-judged stop gate does: the registry's
 default ten seconds ends before the model answers.</p>
+<h2>While work is open</h2>
+<p>The model judgement above passes everything while the judge is down, and the obstacles an agent likes to report —
+the judge itself, a Stado release, a build the operator has not allowed yet — are exactly the ones he already ruled on.
+So <code>block-repeated-blocker</code> holds one rule that needs no judge: while Oko holds any open task of any session
+or any open defect of any product, the answer's <code>Blokady</code> (<code>Blockers</code>) section and its
+<code>Następne kroki</code> (<code>Next steps</code>) section must say <code>brak</code> (<code>none</code>). Anything
+else is refused with the count of open items and the instruction to take the next one, repair it and push the repair.
+The rule reads the two sections, not their words, so no rewording passes it. Open work is read the way
+<code>block-stop-with-open-work</code> reads it; an Oko that cannot be read refuses nothing here, because that gate
+already refuses the stop. Source: <code>rust/crates/tama-hook-tools/src/ports/block_repeated_blocker/while_open.rs</code>.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/mod.rs</code> (the judgement) and
 <code>session.rs</code> (the transcript reading); binary:
