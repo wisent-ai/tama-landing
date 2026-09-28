@@ -29,6 +29,15 @@ macOS that command is what <code>pbpaste</code> returns, because the agent copie
 clipboard holding something else are refused:
 <code>block-stop-on-own-work: BLOCKED: this report begs with 2 commands …</code>,
 <code>… begs with `…`, but the clipboard holds something else …</code></li>
+<li>a begged command that cannot succeed. Each step run by a program <code>stado product install</code>
+placed in <code>~/.stado/bin</code> is asked for its own <code>--help</code> usage line, and every option
+that line requires must be in the step. A step that builds a product from its checkout —
+<code>stado product install|update &lt;product&gt;</code> without <code>--release-version</code>, with
+the checkout at <code>~/Documents/CodingProjects/Wisent/&lt;product&gt;</code> — is also checked with
+<code>stado quality check --root &lt;checkout&gt;</code>, the formatting gate the build would run, so a
+plea never sends the operator to a build that stops at that gate. A Stado without
+<code>quality check</code> leaves that second check unmade;
+<code>block-stop-on-own-work: BLOCKED: this report begs with a command that cannot succeed: `…` builds … and `stado quality check --root …` refuses it …</code></li>
 <li>an answer that leaves work undone because something is paid, when nobody read the price
 (<code>nie założyłem, bo jest płatny</code>, <code>did not create it because it costs</code>): the
 provider's credit balance and the resource's price are read through the organization's accounts
