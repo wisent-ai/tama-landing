@@ -31,6 +31,9 @@
           "dist"
         ]
       },
+      "tests": [
+        {"name": "docs-links", "argv": ["node", "--test", "tests/docs/links.test.mjs"]}
+      ],
       "stage": {
         "dist/tama-landing-web.tar.gz": "tama-landing-web.tar.gz",
         "dist/tama-landing-web.tar.gz.sha256": "tama-landing-web.tar.gz.sha256",

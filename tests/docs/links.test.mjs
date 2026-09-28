@@ -6,7 +6,12 @@ import { test } from 'node:test';
 
 const root = resolve(import.meta.dirname, '../..');
 test('consent documentation keeps site links on their real published routes', () => {
-  const revision = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' });
+  // A release worker runs this in an unpacked archive with no .git and names
+  // the revision in WISENT_SOURCE_COMMIT; a checkout asks git.
+  const stated = process.env.WISENT_SOURCE_COMMIT?.trim();
+  const revision = stated
+    ? { status: 0, stdout: stated, stderr: '' }
+    : spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' });
   assert.equal(revision.status, 0, revision.stderr);
   const build = spawnSync(process.execPath, ['src/cli.mjs', 'build'], { cwd: root, encoding: 'utf8' });
   assert.equal(build.status, 0, build.stderr);
