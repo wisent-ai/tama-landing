@@ -59,6 +59,14 @@ the answer.</td></tr>
 step at a time, under a scope nobody granted for the new prompt.</td></tr>
 <tr><td>A completed or unknown earlier task</td>
 <td>Refused by <code>set</code>. Resume an open registered task; do not relabel the latest prompt as its work.</td></tr>
+<tr><td>A write to a file another session has uncommitted changes in</td>
+<td>Refused, naming the file and the session that wrote it. Every file a session writes is logged under
+<code>~/.tama/session-writes/&lt;session&gt;.log</code>; a file with uncommitted changes that another session's log
+names and this session's does not is that session's unfinished work, and writing it would replace it. Build on its
+committed version once it commits.</td></tr>
+<tr><td>A broad <code>git add</code> (<code>-A</code>, <code>--all</code>, <code>.</code> or a directory) over an
+untracked file another session wrote</td>
+<td>Refused, naming the file and the writing session. Stage the files this session wrote by name.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
