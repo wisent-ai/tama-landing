@@ -1,0 +1,23 @@
+<h1>Merges</h1>
+<p>The Merges screen in the Repair group shows what <code>tama merges review</code> reports: every
+merge on <code>main</code>'s first-parent line since a day, in every checkout under one root, whose
+subject is <code>Merge &lt;branch&gt; into main</code> and which nothing reverted, and what each one
+left on <code>main</code> today.</p>
+<h2>Using it</h2>
+<ol>
+<li><strong>Choose root…</strong> picks the directory holding the checkouts.</li>
+<li>Type the first day, <code>YYYY-MM-DD</code>, in the field above the table.</li>
+<li><strong>Review</strong> sends <code>merges/review</code> with <code>{root, since}</code> and shows
+the command's own document.</li>
+</ol>
+<p>Each row names the repository, the merge commit and branch, and a chip:
+<code>clean</code> in green; <code>over the limit: …</code> and <code>carried back: …</code> in red
+for files over 300 lines and paths the merge re-added after <code>main</code> had deleted them; and
+<code>unreadable: …</code> in amber for a checkout git could not read. The screen changes nothing:
+repairing a merge is a commit in that repository.</p>
+<h2>Refusals</h2>
+<p>A request without <code>root</code> or <code>since</code> is refused with
+<code>merges/review needs root: the directory whose checkouts are read</code> or
+<code>merges/review needs since: the first day, YYYY-MM-DD, whose merges are read</code>. Any refusal
+is shown as <em>Review refused</em> with the product's sentence and recorded under the failure point
+<code>tama.merges.review</code>.</p>
