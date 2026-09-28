@@ -35,7 +35,10 @@ that line requires must be in the step. A program whose help offers <code>--chec
 (<code>stado product install|update</code> does) is asked to parse the whole step with it, which
 catches the pairs clap enforces outside the usage line, such as <code>--release-version</code> with
 <code>--source-commit</code>. A chain that installs a product's release after a
-<code>stado release submit</code> of that product is refused: the submit only queues the build.
+<code>stado release submit</code> of that product is refused: the submit only queues the build. The
+product of <code>submit --source &lt;checkout&gt;</code> is the checkout's name and the
+<code>product</code> of its <code>.wisent-release.json</code>; <code>submit --build &lt;id&gt;</code>
+names no product, so any release install after it in the chain is refused.
 A step that builds a product from its checkout —
 <code>stado product install|update &lt;product&gt;</code> without <code>--release-version</code>, with
 the checkout at <code>~/Documents/CodingProjects/Wisent/&lt;product&gt;</code> — is also checked with
