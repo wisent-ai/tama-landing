@@ -19,6 +19,7 @@
 <p><code>--duplicates</code> skips the hook replay and reports code that writes again a capability another Wisent product owns. The capabilities, their owners and the code that re-implements each one are declared in one catalog, <code>rust/crates/tama-violations/src/find_violations/duplicates/catalog.json</code>, so a sweep reads every capability the catalog holds instead of one search somebody remembered to run. Today it holds:</p>
 <ul>
 <li><code>private-database</code> — a private SQLite store instead of a fleet database from <code>stado database</code>;</li>
+<li><code>sql-client-outside-stado-database</code> — a hand-written Postgres client, pool or connector (<code>postgres::Client</code>, <code>tokio_postgres</code>, an sqlx <code>PgPool</code>) instead of <code>stado_database::connect</code> and SeaORM entities; the write gate refuses the same calls in new code;</li>
 <li><code>secret-outside-skarbiec</code> — a credential kept in the Keychain or a dotenv file instead of in Skarbiec (a bearer a trusted launcher injects into the environment is the sanctioned path);</li>
 <li><code>model-call-outside-brama</code> — a model provider called directly instead of through Brama;</li>
 <li><code>provider-egress-outside-integrations</code> — a third-party provider called directly instead of through wisent-integrations;</li>
