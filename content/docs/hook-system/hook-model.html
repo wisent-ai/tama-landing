@@ -154,12 +154,16 @@ every verification pass and from <code>oko transcripts tasks judge
 --probe</code>, and the same probe lifts it. <code>ask</code> reads it first
 and returns <code>Unavailable</code> with <code>Oko last saw the judge
 refuse at …: …; not asked again from a hook</code>, because asking anyway
-costs Brama's whole retry wait inside a hook's budget: on 2026-09-22 one
-refused <code>proxy-call</code> took 27 seconds and the stop gate that asked
-it timed out at ten, which is a gate that gates nothing. A gate that asks a
-model is also bound with more than the registry's default ten seconds: its
-declaration names <code>"timeout"</code> on the event, thirty for the two
-stop gates that judge an answer.</p>
+costs Brama's whole retry wait inside the event: on 2026-09-22 one
+refused <code>proxy-call</code> took 27 seconds inside a stop gate. The
+engine runs an event's hooks one after another and kills none of them, but
+the OMP adapter waits for the whole event only ten seconds plus each hook's
+declared <code>"timeout"</code> (ten when none is declared), and past that it
+refuses the event as <code>tama-shared-runtime</code> with
+<code>TAMA_HOOK_INFRASTRUCTURE: Tama core dispatch timed out after …ms</code>.
+So a gate that asks a model waits seven seconds for Brama — inside its own
+ten-second share, whatever the other gates cost — and an unanswered question
+lets the turn through.</p>
 <p><code>check-substantiation-with-model</code> uses it.
 It used to spawn a vendor CLI, which asked a provider past the gateway and
 did not run at all on a machine without that vendor's binary. This is the
