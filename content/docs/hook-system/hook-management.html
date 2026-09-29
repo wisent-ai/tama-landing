@@ -30,7 +30,7 @@ the background-execution or CUA hook that happened to run first.</p>
 <h2>Repository layout</h2>
 <ul>
 <li><code>shared-hooks/</code>, <code>codex-hooks/</code>, and <code>claude-hooks/</code> contain archived hook source and the shared registry.</li>
-<li><code>repo-githooks/</code> contains project Git entrypoints.</li>
+<li><code>repo-githooks/</code> contains project Git entrypoints (today only <code>weles</code>). They judge what a commit stages, never the rest of the working tree: several sessions share one checkout, so another session's unstaged or untracked files never refuse a commit, and no hook refuses a push over a dirty working tree, because a push sends commits.</li>
 <li><code>rust/crates/tama-core/</code> is the catalogue and validation library.</li>
 <li><code>rust/crates/tama-cli/</code> builds the one program, <code>tama</code>; every hook (<code>tama hook &lt;name&gt;</code>), the hook engine (<code>tama run-hook</code>) and the MCP server exposing catalogue operations (<code>tama mcp</code>) are its subcommands.</li>
 <li><code>rust/crates/tama-adaptive/</code> owns the runner, symbolic policy, immutable telemetry, feedback bridge, and repair doctor.</li>
