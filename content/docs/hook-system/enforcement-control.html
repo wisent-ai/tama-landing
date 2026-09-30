@@ -103,6 +103,11 @@ another is counted once, as the original. The refusal names each session, ordina
 and then, separately, the open items that carry no pushed repair yet: those are written,
 committed and pushed without a build, so an answer that says the rest waits on a build is
 contradicted by the refusal itself.</p>
+<p>When Oko's ruling register (<code>oko rulings</code>) holds a ruling on a listed defect or task,
+the refusal quotes it word for word with its session and message number and says to follow it and
+never ask the operator again or list it as a blocker or next step. The register is read as a file on
+this machine (<code>OKO_RULING_REGISTER</code> moves it); one that cannot be read is named in the
+refusal rather than left out.</p>
 <p><code>block-one-off-repairs</code> reads the same register for every build, compile and test
 run, and refuses while any open item carries no repair: a task with no commit or report
 recorded by <code>oko transcripts tasks evidence</code>, or a defect with no revision recorded by
