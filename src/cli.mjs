@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
 const [, , command, ...arguments_] = process.argv;
+if (command === "--help" || command === "-h" || command === "help") {
+  console.log("Usage: tama-landing build");
+  process.exit(0);
+}
 if (command !== "build" || arguments_.length !== 0) {
   console.error("Usage: tama-landing build");
   process.exit(2);
