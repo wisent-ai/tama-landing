@@ -1,0 +1,19 @@
+<h1><code>tama model-provider</code></h1>
+<p>Chooses the model service Tama's model calls ask — the objective reviewer, the stop review, frustration drafting and adaptive disputes. Brama is the default; a machine without Brama declares any OpenAI-compatible chat-completions service instead.</p>
+<h2>Invocation</h2>
+<pre><code>tama model-provider [show] [--json]
+printf '%s' "$KEY" | tama model-provider set --origin https://api.openai.com --model gpt-5 [--json]
+tama model-provider unset [--json]
+</code></pre>
+<h2>Output and state</h2>
+<p><code>set</code> reads the service's API key from standard input only and writes the origin, model and key owner-only (mode 0600) to <code>~/.tama/model-provider.json</code>; <code>TAMA_MODEL_PROVIDER_PATH</code> names another file. From then on every Tama model call posts to <code>&lt;origin&gt;/v1/chat/completions</code> with that key as its bearer and asks for that model. <code>unset</code> removes the file and Tama asks Brama again. Every verb prints the choice that stands afterwards: <code>provider</code> (<code>brama</code> or <code>openai-compatible</code>), <code>model</code>, and for a declared service <code>origin</code> and <code>declaredIn</code>, as <code>key: value</code> lines or as JSON with <code>--json</code>. The key is never printed.</p>
+<h2>Refusals and failures</h2>
+<ul>
+<li><code>set needs --origin URL and --model MODEL; the API key is read from standard input</code> — exit 2.</li>
+<li><code>--origin must be HTTPS, or HTTP on loopback, with no credentials, query or fragment, and --model must name a model: got "…" and "…"</code> — exit 2.</li>
+<li><code>the API key is read from standard input, and standard input was empty</code> — exit 2.</li>
+<li><code>no model provider is declared in &lt;file&gt;; Tama already asks Brama</code> — <code>unset</code> with nothing declared, exit 1.</li>
+<li><code>&lt;file&gt; names no complete model provider (origin, model and key); declare it again with `tama model-provider set` or remove it with `tama model-provider unset`</code> — a damaged declaration; every model call refuses with the same sentence until it is repaired.</li>
+<li><code>takes show, set or unset; got &lt;verb&gt;</code> — exit 2.</li>
+</ul>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>
