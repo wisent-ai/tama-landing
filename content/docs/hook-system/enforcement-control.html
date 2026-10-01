@@ -90,7 +90,11 @@ too.</p>
 and blocks pending or in-progress items. Once that plan is clear, including
 when every local item is marked blocked, it reads the authoritative Oko ledger
 for the native OMP session id. An absent local plan does not skip this read;
-an unavailable ledger refuses Stop with its actual error.
+an unavailable ledger refuses Stop with its actual error. On a machine without
+the Oko CLI (neither <code>TAMA_OKO_CLI</code> nor <code>oko</code> on
+<code>PATH</code> is an executable), the session's own tracker is the only task
+register: Stop is refused on its pending or in-progress items and allowed once
+they are clear. An installed Oko that cannot be read still refuses.
 <code>check-open-items-with-model</code> uses the same ledger qualification
 when enabled. Neither guard asks a second model to reinterpret open tasks as
 permission to stop.</p>
