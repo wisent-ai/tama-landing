@@ -1,0 +1,13 @@
+<h1><code>tama extract-patterns</code></h1>
+<p>Moves a guard's pattern table out of its Rust source and into a JSON declaration beside it, keeping the comment above each entry as that entry's reason.</p>
+<h2>Invocation</h2>
+<pre><code>tama extract-patterns --file &lt;rust-file&gt; --const &lt;NAME&gt; --into &lt;json&gt; [--as words] [--why &lt;text&gt;]
+</code></pre>
+<p><code>--file</code> is the Rust source, <code>--const</code> the name of a <code>const NAME: &amp;[&amp;str] = &amp;[ … ];</code> table in it, and <code>--into</code> the JSON file to write. <code>--as words</code> writes the entries as one array of words instead of one object per pattern. <code>--why</code> sets the document's reason; without it the reason names the table and the file it came from.</p>
+<h2>Why it exists</h2>
+<p>Several guards carry a long table of regexes, each added the day an operator was let down by its absence and each with the comment saying which day and why. That table is a record, not logic: in Rust it cannot be read, sorted or audited, and every word in it reads as a keyword list to <code>block-keyword-literals</code>.</p>
+<h2>Output and state</h2>
+<p>Writes <code>{"why": …, "patterns": [{"why": …, "pattern": …}]}</code>, or <code>{"why": …, "words": […]}</code> with <code>--as words</code>, to <code>--into</code>, and prints <code>NAME: N pattern(s) -&gt; &lt;json&gt;</code>. The source file is never modified: the guard is changed by hand to load the declaration.</p>
+<h2>Refusals and failures</h2>
+<p>Each exits <code>2</code> and writes nothing: a missing <code>--file</code>, <code>--const</code> or <code>--into</code> (the usage goes to stderr); <code>cannot read &lt;file&gt;: &lt;error&gt;</code>; <code>NAME is not a `const NAME: &amp;[&amp;str] = &amp;[` table</code>; <code>NAME carries an entry this command cannot read: &lt;the first characters&gt;</code> for an entry that is not a string literal; and <code>cannot write &lt;json&gt;: &lt;error&gt;</code>. <code>--help</code> prints the command's lines of the summary and exits <code>0</code>.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>

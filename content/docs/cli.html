@@ -16,7 +16,7 @@ intentionally not part of the public surface.</p>
 <li><a href="cli/sessions/"><code>tama sessions [--json] [--home &lt;path&gt;]</code></a> — inspect live session records.</li>
 <li><a href="cli/assignment/show/"><code>tama assignment show --session SESSION_ID [--json]</code></a> — read one session's newest operator instruction and fresh Oko task ledger, and record that both were read.</li>
 <li><a href="cli/justify/"><code>tama justify &lt;record|show|remove|list&gt; [--file &lt;path&gt;] [--justification &lt;text&gt;] [--kind file|cua] [--quote &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]</code></a> — record, read or remove a justification the authorization gates require.</li>
-<li><a href="cli/tests/"><code>tama tests &lt;approve|revoke|list&gt; [&lt;path&gt;…] [--json]</code></a> — the operator's approvals of test code; <code>block-unapproved-tests</code> refuses test code anywhere else.</li>
+<li><a href="cli/tests/"><code>tama tests &lt;approve|revoke|list|audit&gt; [&lt;path&gt;…] [--remove] [--json]</code></a> — the operator's approvals of test code, and the audit of every test nobody approved; <code>block-unapproved-tests</code> refuses test code anywhere else.</li>
 <li><code>tama policy import --source &lt;dir&gt; [--replace] [--json] [--home &lt;path&gt;]</code> — validate and persist an existing policy bundle without installing or enabling it.</li>
 <li><code>tama policy list [--json] [--home &lt;path&gt;]</code> — list retained inactive bundle identities.</li>
 </ul>
@@ -32,6 +32,8 @@ intentionally not part of the public surface.</p>
 <li><a href="cli/install/"><code>tama install</code></a> — install user-global Git dispatchers.</li>
 <li><a href="cli/find-violations/"><code>tama find-violations</code></a> — scan repositories without modifying them.</li>
 <li><a href="cli/declare-root/"><code>tama declare-root</code></a> — declare a repository root whose files are fixed there by other tooling.</li>
+<li><a href="cli/vocabulary-report/"><code>tama vocabulary-report --repo &lt;path&gt;… [--json]</code></a> — every keyword list still in a repository, grouped by its words.</li>
+<li><a href="cli/extract-patterns/"><code>tama extract-patterns --file &lt;rust-file&gt; --const &lt;NAME&gt; --into &lt;json&gt;</code></a> — move a guard's pattern table out of Rust into a JSON declaration.</li>
 <li><a href="cli/clean/"><code>tama clean</code></a> — ask Brama for one patch per repository per round, apply it, and re-scan.</li>
 <li><a href="cli/brama-check/"><code>tama brama-check [--json]</code></a> — which Brama address this machine resolves, and what the gateway answers.</li>
 <li><a href="cli/justify/"><code>tama justify &lt;record|show|remove|list&gt;</code></a> — record, read and retire the justifications the write guards require.</li>
