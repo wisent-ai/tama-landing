@@ -107,7 +107,8 @@ During the bypass, the retained machine selection does not run;
 (<code>allowlist: empty</code> when nothing was re-enabled)
 (<a href="walkthrough-runtime-status.md#1-live-sessions-from-the-sealed-cli">walkthrough-runtime-status</a>).</p>
 <h2>The installer refuses</h2>
-<p>Each sentence from <code>tama hooks install-release</code>, surfaced verbatim behind
+<p>Without <code>--release</code> or <code>--home</code> the command prints its usage line and exits 2,
+the status of every Tama usage error, before anything is read. Each sentence from <code>tama hooks install-release</code>, surfaced verbatim behind
 <code>Tama hook release installation failed: &lt;reason&gt;</code> (exit 1):</p>
 <p>| Sentence | Meaning |
 |---|---|
