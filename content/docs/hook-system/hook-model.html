@@ -117,6 +117,27 @@ through Brama or data the operator declared. The operator asked for it after
 finding such lists in Oko's task classifier, Tama's stop guards and Stado's
 quarantine classifier. Real-binary journey:
 <code>rust/crates/tama-hook-tools/tests/keyword_literals_guard.rs</code>.</p>
+<h3>A number spelled another way is still a number</h3>
+<p>The numeric guard also reads a number written so that it does not look like
+one, and judges it as the number it is: <code>Number('401')</code>,
+<code>Number(true)</code> and <code>Number(false)</code>, and a constant whose
+value is built only from other upper-case constants and operators
+(<code>const TWO = ONE + ONE</code>). A name such as <code>ZERO</code>,
+<code>IDX_ONE</code> or <code>RADIX_TEN</code> bound to a bare number is a bare
+number under a name, and so is <code>'helloworld'.length</code> standing for 10.
+Each is refused like the literal it hides.</p>
+<p>What a refusal asks for depends on what the number does. A limit, cut, cap,
+page size, retry count, wait or timeout that the operator never asked for is
+removed together with the behaviour it drives: <code>.limit(500)</code> goes and
+the query answers every row; <code>.slice(0, 160)</code> goes and the text is
+kept whole; <code>Math.min(limit, 200)</code> becomes a refusal of a malformed
+limit; a default page size of 50 becomes "no limit unless the caller asks".
+Moving such a number into a constant, an environment variable or a different
+spelling is not a repair. A number that is not a choice stays, written as a
+literal: an HTTP status or exit code, a unit conversion such as
+<code>24 * 60 * 60 * 1000</code>, an array index, the radix 10, the ISO date
+prefix <code>slice(0, 10)</code>, a hash prefix, and a limit the vendor
+documents (Resend's 100 emails per list call, X's 160-character bio).</p>
 <p>Only a run of words the program keeps is judged. A classifier binds its
 words to a name, iterates them, or asks the collection a question on the
 spot; words handed to a call are that call's data. So
