@@ -117,6 +117,17 @@ through Brama or data the operator declared. The operator asked for it after
 finding such lists in Oko's task classifier, Tama's stop guards and Stado's
 quarantine classifier. Real-binary journey:
 <code>rust/crates/tama-hook-tools/tests/keyword_literals_guard.rs</code>.</p>
+<p>Only a run of words the program keeps is judged. A classifier binds its
+words to a name, iterates them, or asks the collection a question on the
+spot; words handed to a call are that call's data. So
+<code>run(["transcripts", "tasks", "show"])</code> and
+<code>spawn(bin, args, { stdio: ['ignore', 'pipe', 'pipe'] })</code> pass — the
+guard follows the collection outwards through brackets, braces and property
+keys and stops at the <code>(</code> that makes it an argument — while
+<code>const MARKERS = { words: ["ok", "okej", "zrobione"] }</code> and
+<code>["ok", "okej", "zrobione"].contains(reply)</code> are refused. Before this
+rule the guard reported a finding for the argument list of every command a
+journey runs, which is how a guard teaches people to ignore it.</p>
 <h3>A number spelled another way is still a number</h3>
 <p>The numeric guard also reads a number written so that it does not look like
 one, and judges it as the number it is: <code>Number('401')</code>,
@@ -138,17 +149,6 @@ literal: an HTTP status or exit code, a unit conversion such as
 <code>24 * 60 * 60 * 1000</code>, an array index, the radix 10, the ISO date
 prefix <code>slice(0, 10)</code>, a hash prefix, and a limit the vendor
 documents (Resend's 100 emails per list call, X's 160-character bio).</p>
-<p>Only a run of words the program keeps is judged. A classifier binds its
-words to a name, iterates them, or asks the collection a question on the
-spot; words handed to a call are that call's data. So
-<code>run(["transcripts", "tasks", "show"])</code> and
-<code>spawn(bin, args, { stdio: ['ignore', 'pipe', 'pipe'] })</code> pass — the
-guard follows the collection outwards through brackets, braces and property
-keys and stops at the <code>(</code> that makes it an argument — while
-<code>const MARKERS = { words: ["ok", "okej", "zrobione"] }</code> and
-<code>["ok", "okej", "zrobione"].contains(reply)</code> are refused. Before this
-rule the guard reported a finding for the argument list of every command a
-journey runs, which is how a guard teaches people to ignore it.</p>
 <p><code>pre-write-edit</code> also refuses code that opens a private local database file in a
 product (<code>rusqlite::Connection::open</code>, <code>sqlite3.connect(</code>, <code>new Database(</code>
 and the other call shapes in <code>ports/private_stores/stores.json</code>). Durable data belongs to the
