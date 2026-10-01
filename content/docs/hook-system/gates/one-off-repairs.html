@@ -4,13 +4,11 @@ repairs made by hand against live machine state and names, in each refusal, the 
 owns the outcome. Every refusal starts <code>BLOCKED: one-off repair by hand.</code>, goes to stderr,
 and exits <code>2</code> before the command runs; a command the gate lets through prints nothing.</p>
 <h2>Why it exists</h2>
-<p>On 2026-09-19 Oko's one-off repair detector (<code>oko transcripts one-offs</code>) read the
-week's native harness files: 243 commands in 21 sessions changed live state by hand instead of through
-a product path. Three shapes had no gate at all — 12 service cycles, 26 grants minted from the shell
-(the one on 2026-09-18 written to the replica the vault owner overwrote within the hour) and 18 binary
-copies, nine of them <code>cp .build/debug/oko-cli ~/.stado/bin/oko-cli</code>. Each fixed one machine
-once and was gone at the next sync, image refresh or build. The operator's answer to the fix plan was
-"to napraw to".</p>
+<p>Oko's one-off repair detector (<code>oko transcripts one-offs</code>) reads the native harness files
+and counts commands that changed live state by hand instead of through a product path. Three shapes had
+no gate at all — service cycles, grants minted from the shell (sometimes into a vault replica its owner
+then overwrote) and binary copies over installed programs. Each fixes one machine once and is gone at the
+next sync, image refresh or build.</p>
 <h2>What is refused, and the route each refusal names</h2>
 <table>
 <thead><tr><th>Refused command</th><th>The route the refusal names</th></tr></thead>
@@ -38,9 +36,9 @@ for a host behind its declaration.</td></tr>
 <tr><td><code>mv</code>, <code>cp</code>, <code>install</code> or <code>ln</code> landing under a hook root, and
 <code>rm</code>, <code>chmod</code>, <code>truncate</code> or <code>chown</code> naming a path under one:
 <code>~/.shared-hooks</code>, the installed <code>Tama/hooks-runtime</code> release,
-<code>~/.claude/hooks</code>, <code>~/.config/tama/hooks</code>. On 2026-07-31 a session renamed
-<code>~/.shared-hooks/block_browser_usage.sh</code> to <code>.paused</code>, ran what that gate forbids and
-renamed it back; the write gate reads write and edit payloads, not a shell rename, so nothing refused it</td>
+<code>~/.claude/hooks</code>, <code>~/.config/tama/hooks</code>. Renaming a hook file aside, running what it
+forbids and renaming it back is invisible to the write gate, which reads write and edit payloads, not a
+shell rename</td>
 <td><code>tama enforcement only &lt;hook-id&gt;…</code> and <code>tama enforcement status</code> decide what this
 machine runs; a hook's source is changed with <code>tama adaptive repair &lt;hook-id&gt; --patch-file &lt;path&gt;</code>
 and <code>DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;</code>; the installed release is
@@ -56,9 +54,7 @@ nothing</td>
 <code>oko transcripts tasks …</code> for Oko's catalogue, a service's own CLI for its store. A change of
 shape belongs in a migration that ships with the product and runs on every host, not in one shell.</td></tr>
 <tr><td><code>sleep</code>, with any interval: time passed by hand in place of an outcome observed. A
-session on 2026-09-21 ran <code>sleep 420</code> before reading one rollout and <code>sleep 240</code>
-before retrying a publication; either read could as easily have returned the state from before the
-wait</td>
+read after a sleep can as easily return the state from before the wait</td>
 <td>Continue the next open task. Read an outcome only when the work in hand needs its value —
 <code>stado release doctor &lt;PRODUCT&gt; --target &lt;HOST&gt;</code>, <code>stado release status
 &lt;PRODUCT&gt;</code> — never to see whether a run has moved. Where no such read exists, the missing read
@@ -99,9 +95,8 @@ through; the answer then names the commits between the two versions it undoes
 refused. <code>--help</code> always passes.</td></tr>
 <tr><td><code>timeout</code> or <code>gtimeout</code> in front of another command: a number of seconds
 nobody measured, standing in for the answer the command was going to give. The command killed at it
-reports a failure it did not have, and why it was slow is thrown away with it. Tama's own engines carried
-the same guess until 2026-09-21, when a gate that answers in four milliseconds was killed at ten seconds
-while it paid the operating system's first-run assessment</td>
+reports a failure it did not have, and why it was slow is thrown away with it — a gate that normally
+answers in milliseconds can be killed while it pays the operating system's first-run assessment</td>
 <td>Let the command answer and read what it says. Where an outcome genuinely has to be waited for, the
 product that owns it waits: <code>stado job watch &lt;ID&gt; --follow</code>,
 <code>stado release status &lt;PRODUCT&gt;</code>, <code>oko transcripts tasks --session

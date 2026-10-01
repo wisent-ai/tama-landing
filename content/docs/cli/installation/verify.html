@@ -43,9 +43,8 @@ which by contract runs the repository's own <code>.githooks/&lt;name&gt;</code>,
 archived per-repository hook, or a preserved backup and nothing else
 (<a href="../hook-releases.md#installation">hook-releases</a>), so a
 temporary fixture repository matching none of the three is not refused.</p>
-<p>Until 2026-09-07 the harness ran only the second stage while this page and
-the command summary promised both, so a release could verify green with a
-catalog <code>tama validate</code> rejects.</p>
+<p>Both stages run, because a harness running only the second would let a
+release verify green with a catalog <code>tama validate</code> rejects.</p>
 <h2>Refusals and failures</h2>
 <p>If the native harness is not installed next to the CLI, Tama writes exactly <code>tama-require-live-runtime not found next to this binary</code> and exits <code>1</code>. The command has no fallback to the removed Node CLI.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>

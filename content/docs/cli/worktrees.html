@@ -53,9 +53,9 @@ remove it.</li>
 <em>directory</em>. No repository owns it, so no <code>git worktree</code> command knows
 about it.</li>
 </ul>
-<p>Observed on the machine this command was written for, the first kind:</p>
-<pre><code class="language-console">$ cat Wisent/.worktrees/brama-stub-purge/.git
-gitdir: /Users/lukaszbartoszcze/Documents/CodingProjects/Wisent/brama/.git/worktrees/brama-stub-purge
+<p>The first kind looks like this:</p>
+<pre><code class="language-console">$ cat Wisent/.worktrees/&lt;name&gt;/.git
+gitdir: ~/Documents/CodingProjects/Wisent/&lt;repo&gt;/.git/worktrees/&lt;name&gt;
 </code></pre>
 <p>and the second kind, a full <code>.git</code> directory rather than a file.
 <code>tama worktrees</code> handles the first kind, because that is the noun git

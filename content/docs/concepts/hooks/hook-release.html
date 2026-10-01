@@ -19,11 +19,9 @@ bin/tama              # the one sealed Rust program: CLI, every hook
                       # (tama hook), engine (tama run-hook), MCP (tama mcp)
 </code></pre>
 <p>The identity is the content: <code>releaseId</code> in <code>release.json</code> is the tree
-digest defined in <a href="seal.md">concepts/seal</a>. The release sealed on
-2026-08-24 in this checkout digests to
-<code>35204a12836395942bc7229c4136e5f0aeade6f6b8a73908e09229504f6dd3c7</code> — the
-value every capture in the <a href="../walkthrough-verify-release.md">walkthroughs</a>
-shows.</p>
+digest defined in <a href="seal.md">concepts/seal</a>, and every capture in the
+<a href="../walkthrough-verify-release.md">walkthroughs</a> shows the digest of the
+release it read.</p>
 <h2>Who declares it</h2>
 <p>Hook policy is authored outside this repository, in the hook source tree
 <code>Scripts/build-app.sh</code> selects with <code>TAMA_HOOK_ROOT</code> (default: the <code>tama</code>

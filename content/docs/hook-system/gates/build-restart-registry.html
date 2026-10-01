@@ -13,13 +13,11 @@ owner's protected hook-release action. An old CLI may still record a build
 without <code>completed_task</code>; that is not evidence of this gate running.</p>
 
 <h2>Why it exists</h2>
-<p>On 2026-09-20 a single session submitted Brama 0.4.39, 0.4.40, 0.4.41, 0.4.42, 0.4.43 and 0.4.46,
-Stado 0.21.33, Weles 0.7.16 and 0.7.28 and Skarbiec 0.3.11. Several died after twenty to forty minutes in
-the builder queue on <code>cargo fmt --check</code>, on one clippy lint, or on a rollback declaration that
-was missing — each of them checkable locally in under a minute. The same session installed a launchd
-unit, restarted it, and retired it again; nobody had asked for it. The operator's words the next day
-named the shape underneath: an agent makes a minimal change, submits, waits forty minutes for the
-builder, reads the failure and makes another minimal change.</p>
+<p>A build that dies in the builder queue on <code>cargo fmt --check</code>, on one clippy lint, or on a
+missing rollback declaration has spent twenty to forty minutes of a fleet builder on something checkable
+locally in under a minute. The shape underneath is an agent making a minimal change, submitting, waiting
+for the builder, reading the failure and making another minimal change — and restarting or installing
+units nobody asked for along the way.</p>
 <p>A build spends a fleet builder, of which there are two for <code>darwin-arm64</code>, and a restart
 spends a service that other work is reading. So each is stated before it runs — what it is for, which
 revision it carries, when the authorization stops — and entries are rationed. Builds use Stado's

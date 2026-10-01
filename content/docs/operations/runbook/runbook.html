@@ -130,8 +130,8 @@ During the bypass, the retained machine selection does not run;
 bypass is holding. Installing &lt;name&gt; here would leave both files in place,
 which a re-enable refuses. Re-enable policy first, then install.</code> That is
 <code>tama install</code> declining to recreate a global Git dispatcher while a
-bypass holds it aside — the state that made a machine unrestorable on
-2026-08-24. Re-enable, then install.</p>
+bypass holds it aside — leaving both files in place is a state a machine
+cannot be restored from. Re-enable, then install.</p>
 <p>Every failure rolls the transaction back: originals restored, <code>current</code>
 re-pointed, the OMP extensions change reverted
 (<a href="hook-releases.md#installation">hook-releases</a>).</p>
@@ -160,7 +160,7 @@ failed — sessions may still be paused; resume them via the supervisor).</p>
 <pre><code class="language-console">$ tama verify
 tama-require-live-runtime not found next to this binary
 </code></pre>
-<p>Captured against the sealed release of 2026-08-24, exit 1: the fixture
+<p>Captured against a sealed desktop release, exit 1: the fixture
 runner that <code>verify</code> needs is not shipped in the desktop's release. Catalog
 validation without fixtures is <code>tama validate</code>; hook-behavior fixtures
 run in the hook source tree, not from the app bundle.</p>

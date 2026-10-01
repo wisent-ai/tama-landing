@@ -2,12 +2,10 @@
 <p>A hook binary that has never been executed still owes macOS its first-run
 work: the system assesses the executable's signature before it runs, that
 assessment reaches Apple over the network, and XProtect scans the image.
-Measured on 2026-09-20, the first run of a freshly installed
-<code>block-delegating-own-work</code> hook binary took 147 seconds and every run
-after it took under 5 milliseconds. At the time each binding carried a number
-of seconds and the engine killed the hook at it, so a cold cache refused a
-finished turn with <code>block-delegating-own-work timed out after 10s</code>
-— a refusal nobody wrote.</p>
+The first run of a freshly installed hook binary can take minutes, while every
+run after it takes a few milliseconds. An engine that killed a hook at a fixed
+number of seconds would therefore refuse a finished turn on a cold cache with a
+timeout — a refusal nobody wrote.</p>
 <p>The engine no longer counts seconds. A hook is waited for and its own answer
 decides the event, because the number was a guess at how long an answer may
 take and the hook killed at it reported a failure it never had. Nothing in the

@@ -171,35 +171,33 @@ prints what it read and decides nothing:</p>
 many records it read, how many terms the operator's own words and this turn's
 results ground, the most ungrounded paragraph the session already accepted, and
 every block of the message with its counts and the words that have no provenance.
-A hook that answers this way is also a hook whose cost is visible: the same guard
-rebuilt the whole session's vocabulary at every assistant message until
-2026-09-20, which is quadratic, and at 17 MB it spent minutes deciding nothing at
-all. Its test now judges a long session in milliseconds, so the regression is a
-failing test rather than a gate everybody waits for.</p>
+A hook that answers this way is also a hook whose cost is visible: rebuilding
+the whole session's vocabulary at every assistant message is quadratic and, on
+a long session, spends minutes deciding nothing. Its test judges a long
+session in milliseconds, so a regression is a failing test rather than a gate
+everybody waits for.</p>
 
 <p>The engine a provider dispatcher executes is the same program, as
-<code>tama run-hook</code>. Until 2026-09-20 nothing installed the engine at
-all, so the separate copy in <code>~/.local/bin</code> kept whatever build last
-happened to write it — on one machine six days behind the engine the sealed
-release was already running, which is how a fix can be live on one path and
-absent on the other. One program installed from one build cannot drift that
-way.</p>
+<code>tama run-hook</code>, installed from the same build. A separate copy in
+<code>~/.local/bin</code> that nothing installs keeps whatever build last wrote
+it, which is how a fix can be live on one path and absent on the other. One
+program installed from one build cannot drift that way.</p>
 <p>Which checkout a <code>tama hooks</code> command reads is decided in this
 order: an explicit <code>--root</code>, then <code>TAMA_ROOT</code>, then the
 first directory at or above the working directory that holds
 <code>shared-hooks/registry.json</code>. The path compiled into the binary is
 the last resort, and it has to be: the installed CLI is built by the Stado
-batch build, in a tree that no machine running it holds, and before
-2026-09-20 every <code>tama hooks</code> run from the installed copy refused
-with <code>names no hook binary of ours</code> against a directory that no
-longer existed.</p>
+batch build, in a tree that no machine running it holds, so a compiled path
+tried first would make every <code>tama hooks</code> run refuse with
+<code>names no hook binary of ours</code> against a directory that no longer
+exists.</p>
 <p>Both the plan and a finished release print where the sealed runtime on
 this machine was built from, read from
 <code>native-hook-binaries.json</code>: the revision, and whether the source
-held uncommitted changes when it was sealed. On 2026-09-20 the live engine
-carried <code>"dirty": true</code>, because the runtime was staged on a shared
-checkout's working tree; a release built by Stado seals the committed tree the
-batch build unpacked, so it names that commit and is never dirty.</p>
+held uncommitted changes when it was sealed. A runtime staged from a shared
+checkout's working tree carries <code>"dirty": true</code>; a release built by
+Stado seals the committed tree the batch build unpacked, so it names that
+commit and is never dirty.</p>
 
 <h2>Warming the hook binaries</h2>
 <p>A hook binary that has never run still owes macOS its first-run assessment; how Tama pays that before a live event, and how to read the result, is on its own page: <a href="runtime/hook-warming/">warming the hook binaries</a>.</p>
@@ -251,11 +249,11 @@ is code even inside double quotes (<code>echo "$(tama install)"</code>).</p>
 <p>Reporting runs stay allowed and always did: <code>tama enforcement
 status</code>, <code>generate-configs.mjs</code> without <code>--apply</code>,
 <code>seal-registry.mjs --check</code>, <code>oko hooks install
---preview</code>. On 2026-09-16 the cut happened before the quotes were read, so
-a semicolon inside a quoted evidence message split the argument in half and the
-sentence arrived as command words: the guard refused an honest report of its own
-refusal. A rule nobody can satisfy by doing the right thing is a rule that gets
-worked around.</p>
+--preview</code>. The command is cut only after its quotes are read, so a
+semicolon inside a quoted evidence message stays one argument instead of
+arriving as command words and refusing an honest report of the guard's own
+refusal. A rule nobody can satisfy by doing the right thing is a rule that
+gets worked around.</p>
 
 <h2>Repairing a recorded hook source</h2>
 <p><code>register-hook.mjs</code> derives a hook's <code>source</code> from its command: it

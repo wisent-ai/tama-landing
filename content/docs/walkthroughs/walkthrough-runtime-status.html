@@ -2,10 +2,9 @@
 <p>What is installed, and what would an install or an emergency re-enable hit?
 Two read-only answers: the sessions the runtime is supervising right now, and
 the integrity of every installed release tree — the second integrity gate an
-install passes through. The sessions commands were executed on 2026-08-24;
-the integrity commands were executed with <code>tama hooks integrity</code> built from
-tama@9e69b3e6 against a scratch home holding a copy of the release sealed as
-<code>f7c34221…</code>, so nothing operator-owned was touched. Outputs are pasted
+install passes through. The integrity commands run <code>tama hooks integrity</code>
+against a scratch home holding a copy of a sealed release, so nothing
+operator-owned is touched. Outputs are pasted
 verbatim with scratch directories abbreviated to <code>$H</code>. The desktop shows the
 same facts on <a href="desktop/posture.md">Posture</a> and <a href="desktop/session.md">Session</a>.</p>
 <h2>1. Live sessions, from the sealed CLI</h2>

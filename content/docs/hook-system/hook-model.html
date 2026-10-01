@@ -113,9 +113,9 @@ quote must be a verbatim <code>role=user</code> message in Oko's transcript inde
 (<code>oko transcripts reindex --path &lt;session&gt;</code> refreshes it) and must
 contain every word. The guard certifies that the operator said the words, not
 that the classifier is right; the route it points to is a model judgement
-through Brama or data the operator declared. Asked for on 2026-09-19 after
-the operator found such lists in Oko's task classifier, Tama's stop guards and
-Stado's quarantine classifier. Real-binary journey:
+through Brama or data the operator declared. The operator asked for it after
+finding such lists in Oko's task classifier, Tama's stop guards and Stado's
+quarantine classifier. Real-binary journey:
 <code>rust/crates/tama-hook-tools/tests/keyword_literals_guard.rs</code>.</p>
 <p>Only a run of words the program keeps is judged. A classifier binds its
 words to a name, iterates them, or asks the collection a question on the
@@ -172,8 +172,8 @@ every verification pass and from <code>oko transcripts tasks judge
 --probe</code>, and the same probe lifts it. <code>ask</code> reads it first
 and returns <code>Unavailable</code> with <code>Oko last saw the judge
 refuse at …: …; not asked again from a hook</code>, because asking anyway
-costs Brama's whole retry wait inside the event: on 2026-09-22 one
-refused <code>proxy-call</code> took 27 seconds inside a stop gate. The
+costs Brama's whole retry wait inside the event, and a single refused
+<code>proxy-call</code> can take tens of seconds inside a stop gate. The
 engine runs an event's hooks one after another and kills none of them, but
 the OMP adapter waits for the whole event only ten seconds plus each hook's
 declared <code>"timeout"</code> (ten when none is declared), and past that it

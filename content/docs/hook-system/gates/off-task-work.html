@@ -3,12 +3,10 @@
 instruction touches. It runs on the tools that change or publish a file — write, edit, refactor, apply_patch, and a
 <code>git commit</code> or <code>git push</code> in bash. Reads are never refused.</p>
 <h2>Why it exists</h2>
-<p>On 2026-09-21 a session was asked for one thing — a gate against one-off commands — delivered it, and then spent the
-next hour repairing an installer, a gateway, a credential pool and a provider sign-in, and starting fleet builds, none
-of which anybody had asked for. Every one of those things was really broken, which is what makes the drift invisible
-from inside: the work looks like work. The operator, reading the queue: <em>dlaczego pracujesz nad czyms co nie jest
-Twoim zadaniem</em>, and then <em>to teraz dodajmy mechanizm ktory blokuje jakiekolwiek akcje niezwiazane z
-zadaniem</em>.</p>
+<p>A session asked for one thing can deliver it and then spend an hour repairing installers, gateways,
+credential pools and sign-ins, and starting fleet builds, none of which anybody asked for. Each of those
+things may really be broken, which is what makes the drift invisible from inside: the work looks like
+work. The operator asked for a mechanism that blocks every action unrelated to the task.</p>
 <p>Relatedness is not guessed. A gate that guessed it would be wrong in both directions — refusing a repair the
 instruction plainly needs, and waving through an hour of unrelated work because it looked useful. So it is declared,
 once per instruction, and checked mechanically.</p>

@@ -6,19 +6,17 @@ of that question: the registry's declared mappings, and how many of them the
 provider's config on this machine installs. It is explicit that neither half
 is live execution evidence — each provider's own sentence, captured from the
 sealed release, is <code>Registry-declared mappings; not live execution evidence.</code></p>
-<p>The distinction is not academic. Until 2026-09-07 every install deleted
-Tama's entries from <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code>,
-so both providers ran no policy at all while this screen showed full declared
-coverage (<a href="../hook-releases.md#installation">hook-releases</a>).</p>
+<p>The distinction is not academic: an install that deleted Tama's entries from
+<code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> would leave both
+providers running no policy at all while the declared coverage looked full
+(<a href="../hook-releases.md#installation">hook-releases</a>).</p>
 <h2>Where the data comes from</h2>
 <p>One <code>tama request coverage</code> process
 (<a href="/docs/cli/request/">tama request</a>), run on first visit and re-run
 only on demand — coverage is registry content, so polling it would imply it
-changes. Against the release sealed on 2026-09-07 (source revision
-<code>2b50253</code>), the <code>claude</code> provider reports adapter
-<code>~/.claude/settings.json</code>, 94 declared mappings, 94 of them installed, 56
-hooks, 9 events; <code>codex</code> reports 111 declared, 111 installed, 57 hooks, 16
-events. A failed read shows <code>Coverage could not be read</code> with the error
+changes. Each provider reports its adapter (for <code>claude</code>,
+<code>~/.claude/settings.json</code>), its declared mappings, how many of them are
+installed, and its hooks and events. A failed read shows <code>Coverage could not be read</code> with the error
 sentence and Retry.</p>
 <h2>Header, facets, counters</h2>
 <p>Title <code>Coverage</code>; scope is the selected provider; freshness reads

@@ -49,12 +49,9 @@ operating system for and did not get, each with the reason it gave —
 <code>No such file or directory</code>. A pass carrying one of these cannot say the
 roots hold no worktrees, only that it saw none where it could look, so it
 exits <code>1</code> and prints <code>could not read &lt;path&gt;: &lt;reason&gt;</code> to stderr
-in both output modes. The walk used to swallow that error and return an empty
-list: on 2026-09-12 <code>tama worktrees list --root
-~/Documents/CodingProjects --json</code> answered no repositories, no worktrees
-and nothing unreadable while every directory under that root refused to be
-listed, and the answer was then quoted as proof that the machine holds no
-second checkouts.</p>
+in both output modes. A walk that swallowed that error would return an empty
+list for a root whose every directory refused to be listed, and that answer
+would read as proof that the machine holds no second checkouts.</p>
 <p>This document carries no <code>excepted</code> array, because <code>list</code> has no
 <code>--except</code>: that option belongs to
 <a href="../remove/"><code>tama worktrees remove</code></a>, which is the only leaf

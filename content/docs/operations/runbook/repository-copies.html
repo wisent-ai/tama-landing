@@ -33,8 +33,8 @@ repository that is already on the disk.</p>
 <p>The ban exists because a local clone is the same divergence as a worktree
 without git even knowing the two are related: the copy has its own <code>.git</code>
 directory, so no repository owns it, no <code>git worktree list</code> reports it, and
-<code>tama worktrees remove</code> cannot remove it. Since 2026-09-09 a copy that
-already exists is not a directory you have to find by hand either:
+<code>tama worktrees remove</code> cannot remove it. A copy that already exists is
+not a directory you have to find by hand either:
 <code>tama copies</code> walks the tree for it and refuses to delete one that carries
 uncommitted changes, commits absent from every remote, or no origin to
 compare against.</p>
@@ -69,10 +69,10 @@ second repository.</p>
 or a backtick, as in <code>cp -r &quot;$REPO&quot; dest</code>. <code>&lt;source&gt;</code> is that operand exactly as you wrote
 it, unexpanded, because that is all the hook was handed; nothing was copied, the refusal lands before the copy starts.</p>
 <p>The check exists because the hook reads the command text, not the shell's expansion of it, while answering
-&quot;is this source a checkout?&quot; means looking at the source on disk. Proven live on 2026-09-09, in a session
-with this hook loaded and enabled: <code>cp -r &quot;$REPO&quot; dest</code> offered the literal <code>$REPO</code>, which
-stats as nothing, so the copy check found no <code>.git</code> and the copy went through — while the same command
-written with a literal path was refused. An agent putting paths into variables is ordinary, so failing open left the ban decorative.</p>
+&quot;is this source a checkout?&quot; means looking at the source on disk. A literal <code>$REPO</code> stats as
+nothing, so a check that looked only at the text would find no <code>.git</code> and let
+<code>cp -r &quot;$REPO&quot; dest</code> through while refusing the same command written with a literal path. An agent
+putting paths into variables is ordinary, so failing open would leave the ban decorative.</p>
 <p>First command:</p>
 <pre><code class="language-bash">tama worktrees list --root &lt;PATH&gt;
 </code></pre>
