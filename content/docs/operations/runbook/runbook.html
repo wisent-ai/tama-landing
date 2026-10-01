@@ -157,14 +157,6 @@ exited non-zero without printing anything.</li>
 <p>From the script itself: <code>Unsupported Tama emergency action: &lt;value&gt;</code> (exit
 2), <code>Tama session supervisor is missing: &lt;path&gt;</code> (exit 66), <code>Tama could not resume one or more supervised agent sessions.</code> (the exit trap's resume
 failed — sessions may still be paused; resume them via the supervisor).</p>
-<h2><code>verify</code> fails inside the desktop release</h2>
-<pre><code class="language-console">$ tama verify
-tama-require-live-runtime not found next to this binary
-</code></pre>
-<p>Captured against a sealed desktop release, exit 1: the fixture
-runner that <code>verify</code> needs is not shipped in the desktop's release. Catalog
-validation without fixtures is <code>tama validate</code>; hook-behavior fixtures
-run in the hook source tree, not from the app bundle.</p>
 <h2>The backend refuses a repository</h2>
 <p>The Violations surface validates before anything runs, each sentence from
 <code>ViolationsClient</code>:</p>
