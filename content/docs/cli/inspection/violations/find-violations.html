@@ -2,7 +2,7 @@
 <p>Replays the shared content and file-size hooks, reporting the first violation per file and one finding per crowded folder without modifying the repositories. The CLI, repair command and MCP tool use the same scanner.</p>
 <h2>Invocation</h2>
 <pre><code>tama find-violations (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-user-or-org&gt; | --me) [...]
-                     [--json] [--summary] [--size-only | --duplicates] [--hook &lt;path&gt;] [--clone-dir &lt;dir&gt;]
+                     [--json] [--summary] [--size-only | --duplicates | --internal-names] [--hook &lt;path&gt;] [--clone-dir &lt;dir&gt;]
 </code></pre>
 <p>Targets are repeatable and combinable. <code>--repo</code> names one directory; <code>--tree</code> discovers Git checkouts; <code>--owner</code> uses <code>gh</code> and shallow-clones missing repositories; <code>--me</code> selects the authenticated user and their organizations. <code>--hook</code> overrides the replayed hook, <code>--clone-dir</code> changes the clone cache, and <code>--json</code> selects structured reports.</p>
 <p>The file-size rule is read from <code>block_oversized_files.sh</code> beside the selected hook. A custom hook directory must contain that companion file; an unreadable or failing hook appears in <code>errors</code> and makes the scan fail. Each file is enumerated once, the 300-line boundary is checked, and <code>.tama-violations-ignore</code> applies to both content and size checks. The repair command uses this same result, so an oversized file cannot disappear from its work list.</p>
@@ -29,6 +29,15 @@
 <li><code>signing-outside-stado-product</code> — <code>codesign</code> or <code>notarytool</code> by hand instead of <code>stado product</code>.</li>
 </ul>
 <p>A repository is identified by its <code>origin</code> remote, not its directory name, and the owner's own repositories are exempt from their capability. Each hit names the capability, the line and the owner. A guard or test that quotes a signature as a string is reported too; read the line before recording it. A new capability is one catalog entry.</p>
+<h2>Internal names and incident stories</h2>
+<p><code>--internal-names</code> skips the hook replay and reports every line, not the first per file, that carries an internal detail. It is the judgement the <code>block-internal-names</code> write guard applies to what a write adds, run over whole files:</p>
+<ul>
+<li>a fleet host name, host address or account name, anywhere in the file. The names are read from the Stado host registry and from this account, never from a list kept in Tama;</li>
+<li>a vault item id in prose. The ids come from <code>stado credentials ls --json</code>, cached for an hour; an id shaped like an environment variable, a one-word id and an id equal to a repository's name are product names or settings and do not count;</li>
+<li>a date, or a commit, build, job or defect id, in prose: the shape of a story about one incident.</li>
+</ul>
+<p>Prose is decided by the line's shape, not by the file's extension: a line made mostly of plain words, the text after a comment marker, and each quoted string. A date or a hash inside code is data and is not reported. Each finding prints as <code>line N: &lt;kind&gt; `&lt;value&gt;`: &lt;the line&gt;</code>. A source that cannot be read is reported under <code>errors</code> with the reason, because the names it would have supplied were not checked. A path whose content must carry such data is declared, with its reason, in the repository's <code>.tama/violations-ignore</code>.</p>
+<p>The fix is a rewrite, not a deletion: describe the behaviour and the reason for it, read a host from the Stado registry at run time, and keep the incident itself in Oko.</p>
 <h2>Which checkouts a tree claims</h2>
 <p><code>--tree</code> decides by provenance, not by a list of directory names. A checkout whose <code>.git</code> is a file is a linked worktree or a submodule, so its content belongs to the repository that owns it and it is not a target of its own. A checkout inside a path its owning repository ignores was written by a package manager, a cache or a scratch run — that ignore rule is the owner's own statement about provenance — so it is skipped too. Dependency and build directory names are still pruned, but only to keep the walk cheap.</p>
 <p>Two checkouts that share an origin remote are one repository: the shallowest path is kept, with a lexicographic tie-break so the answer never depends on walk order, because fixing the source fixes every clone of it. A checkout with no origin remote is nobody's copy and is always kept, and a repository named with <code>--repo</code> is never deduplicated away.</p>
