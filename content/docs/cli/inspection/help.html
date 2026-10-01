@@ -9,6 +9,11 @@ tama
 <p>The named command, both flag forms, and an invocation with no command select the same help path. It takes no required input or public options.</p>
 <h2>Output and state</h2>
 <p>Tama writes usage beginning <code>tama &lt;command&gt;</code> and the public command list to stderr, performs no product action, and exits <code>0</code>.</p>
+<h2>Help for one command</h2>
+<pre><code>tama &lt;command&gt; --help
+tama &lt;command&gt; -h
+</code></pre>
+<p>After any command the summary lists, <code>--help</code> or <code>-h</code> prints <code>tama &lt;command&gt;</code> followed by that command's own lines of the summary to stdout, exits <code>0</code> and never runs the command: <code>tama show --help</code> does not look up a hook, and <code>tama install --help</code> installs nothing.</p>
 <h2>Refusals and failures</h2>
 <p>The help path has no command-specific refusal. Any other unknown top-level command also prints the same usage, but exits <code>2</code> instead of <code>0</code>.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
