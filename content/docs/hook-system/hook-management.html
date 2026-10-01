@@ -107,6 +107,15 @@ writes each registry binding it does not already have — or already has with
 another timeout, which it unbinds and binds again as declared — reconciles the
 sources and reseals:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
+<p>A hook is withdrawn with the same declaration that declared it. The reverse
+runs in the reverse order: each event the registry still binds to the hook is
+unbound, the catalogue entry is removed, the sources are reconciled and the
+registry is resealed once, and the declaration file is deleted last. A binding
+already gone and an entry already absent are reported, not refused, so a rerun
+after a partial withdrawal finishes it. <code>--dry-run</code> lists what would
+change and writes nothing; without <code>DEVICE_HOOK_EDIT_APPROVED=1</code> it
+refuses before writing and prints the command for the owner's own shell.</p>
+<pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks undeclare --file hook-declarations/&lt;id&gt;.json</code></pre>
 <p>And the machine half, which comes entirely from Tama's Stado release. The
 batch build compiles <code>tama</code>, assembles the hook release from the same
 commit — <code>package.json</code>, <code>shared-hooks</code>,
