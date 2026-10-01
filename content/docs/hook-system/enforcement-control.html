@@ -40,11 +40,12 @@ invalid, legacy-v1, or stale ones are ignored.</p>
 <p>The desktop writes a private request file
 <code>&lt;controlKey&gt;.&lt;requestId&gt;.request.json</code> (mode <code>0600</code>) into the same
 directory — operation <code>set-hook</code> with <code>hookId</code> and <code>enabled: true</code>, or
-<code>enable-all</code> — and polls for the matching
-<code>&lt;controlKey&gt;.&lt;requestId&gt;.response.json</code> for up to 10 seconds. The
+<code>enable-all</code> — and waits for the matching
+<code>&lt;controlKey&gt;.&lt;requestId&gt;.response.json</code>, reading again each time the
+directory changes or the session's process exits; it keeps no deadline. The
 supervisor validates the envelope against the exact session identity tuple,
 applies accepted state atomically, and answers with the authoritative session
-record; rejection, malformed identity, session exit, or timeout is an
+record; rejection, malformed identity or session exit is an
 actionable failure, never optimistic success.</p>
 <p>Enablement semantics compose the machine state and the session state:</p>
 <ul>

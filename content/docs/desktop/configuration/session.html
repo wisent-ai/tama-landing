@@ -70,9 +70,11 @@ the trailing count is blocks) — with the most recent blocking
 <p><code>Enable all hooks</code> reports <code>Enabling every registered hook in session &lt;id&gt;…</code> then <code>&lt;n&gt; hooks enabled in &lt;agent&gt; session &lt;id&gt;.</code>; the single-hook
 enable lives on <a href="hooks.md">Hooks</a> and reports <code>&lt;hook-id&gt; is enabled in &lt;agent&gt; session &lt;id&gt;.</code> Both travel as private request files the session's
 own supervisor validates and applies; rejection
-(<code>The agent runtime rejected the session-control request: &lt;reason&gt;</code>),
-timeout (<code>The agent runtime did not acknowledge the session-control request before the deadline.</code>), and session exit (<code>The agent session ended before the session-control request completed.</code>) are reported failures, never
-assumed success.</p>
+(<code>The agent runtime rejected the session-control request: &lt;reason&gt;</code>)
+and session exit (<code>The agent session ended before the session-control request completed.</code>) are reported failures, never
+assumed success. The session list is read again whenever the session-control
+directory changes or a listed agent process exits; a directory Tama cannot
+watch is reported as <code>Tama could not watch the session-control directory &lt;path&gt;: &lt;reason&gt;</code>.</p>
 <h2>Inspector</h2>
 <p>Selected: Project, Control key (first 12 of 64), Updated at, Policy mode,
 Policy backend, Backend capabilities (<code>None reported</code> when empty); badges

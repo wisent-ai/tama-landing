@@ -46,8 +46,8 @@ count, or an old release id in <code>--json</code>. The repair is the session-sc
 <strong>Enable all hooks</strong>, which binds an override to the installed release and
 checksum and schedules one runtime reload after the active turn settles
 (<a href="concepts/session-enable.md">concepts/session-enable</a>). The Session screen
-shows the pending state until the transition completes; rejection, timeout
-(<code>The agent runtime did not acknowledge the session-control request before the deadline.</code>), or session exit (<code>The agent session ended before the session-control request completed.</code>) is a reported failure, never assumed
+shows the pending state until the transition completes; rejection or session
+exit (<code>The agent session ended before the session-control request completed.</code>) is a reported failure, never assumed
 success.</p>
 <h2><code>Tama found only legacy v1 session records. Reinstall the verified bundled runtime, then stop or resume the affected agent session to publish v2 state.</code></h2>
 <p>From <code>SessionControlClient</code> when discovery finds no live v2 record but a v1
