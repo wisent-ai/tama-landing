@@ -16,7 +16,7 @@
 <tr><td><code>hooks/warm</code></td><td><code>{only?}</code>: hook ids; empty or absent warms every hook</td><td>The report <code>tama hooks warm --json</code> prints</td></tr>
 <tr><td><code>policy-bundles</code></td><td>none</td><td>Retained inactive source identities</td></tr>
 <tr><td><code>policy-bundles/import</code></td><td><code>{sourcePath, replace?}</code></td><td>The same validating transaction as <code>tama policy import</code>; it never enables hooks</td></tr>
-<tr><td><code>violations/scan</code></td><td><code>{repo}</code></td><td>A streamed job: <code>tama find-violations --repo &lt;repo&gt; --json</code></td></tr>
+<tr><td><code>violations/scan</code></td><td><code>{repo, mode?}</code>: <code>mode</code> is <code>size-only</code>, <code>duplicates</code>, <code>internal-names</code> or <code>time-limits</code>; absent replays the hooks, anything else is a 400 naming the four</td><td>A streamed job: <code>tama find-violations --repo &lt;repo&gt; --json [--&lt;mode&gt;]</code></td></tr>
 <tr><td><code>violations/clean</code></td><td><code>{repo}</code></td><td>A streamed job: <code>tama clean --repo &lt;repo&gt;</code> with its defaults; it may modify the repository</td></tr>
 <tr><td><code>worktrees/list</code>, <code>worktrees/remove</code></td><td><code>{roots}</code>; removal adds <code>{except?, apply?, force?}</code></td><td>The documents <a href="/docs/cli/worktrees/">tama worktrees</a> prints under <code>--json</code></td></tr>
 <tr><td><code>copies/list</code>, <code>copies/remove</code></td><td><code>{roots}</code>; removal adds <code>{except?, only?, apply?, force?}</code></td><td>The documents <a href="/docs/cli/copies/">tama copies</a> prints under <code>--json</code></td></tr>

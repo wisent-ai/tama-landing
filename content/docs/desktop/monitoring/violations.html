@@ -22,7 +22,15 @@ absolute, not a directory, or no <code>.git</code>.</li>
 <li><code>Codex is unavailable. Install and authenticate Codex before confirming cleanup.</code> — repair needs the local headless agent; scan does not.</li>
 </ul>
 <h2>Facets and counters</h2>
-<p><code>Rule</code> ranks rules by how many files they hit — the order an operator
+<p><code>Pass</code> chooses what the next scan asks, one entry per pass of
+<code>tama find-violations</code>: <code>Every rule</code> replays the hooks;
+<code>File and folder size</code>, <code>Capabilities written again</code>,
+<code>Internal names</code> and <code>Waits and time limits</code> run
+<code>--size-only</code>, <code>--duplicates</code>, <code>--internal-names</code> and
+<code>--time-limits</code> in process, sent as the <code>mode</code> of
+<code>violations/scan</code>. Choosing another pass clears the report on screen,
+because its findings answer a different question.
+<code>Rule</code> ranks rules by how many files they hit — the order an operator
 repairs them in — under <code>Every rule</code>; <code>Repository</code> appears only when the
 report covers more than one. Counters: <code>Violations</code> (findings across the
 scanned repositories), <code>Files scanned</code>, <code>Skipped</code> (binary or oversized
