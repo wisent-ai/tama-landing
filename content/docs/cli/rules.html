@@ -1,5 +1,5 @@
 <h1><code>tama rules</code></h1>
-<p>Reads what Tama learned across every agent session and puts it in front of the operator as proposals: the rules the frustration drafter recorded, and one proposal per hook he kept contesting.</p>
+<p>Reads proposed policy repairs, drafted rules, and unresolved corrections from Oko. It groups evidence across agent sessions without silently installing a hook.</p>
 <h2>Invocation</h2>
 <pre><code>tama rules list [--json]
 tama rules remove --id &lt;id&gt;
@@ -7,30 +7,36 @@ tama rules digest [--json]
 tama rules dismiss --id &lt;proposal-id&gt;
 </code></pre>
 <h2>Why a digest</h2>
-<p>Two learners write where nobody reads. The adaptive bridge queues a repair
-proposal each time the operator contests a block (see
-<a href="/docs/adaptive/">adaptive enforcement</a>), one closed telemetry row per
-contest, so <a href="/docs/cli/adaptive/queue/"><code>tama adaptive queue</code></a>
-lists the same hook once for every time it was contested, across every
-session. The frustration drafter records rules in
-<code>~/.shared-hooks/auto_rules.json</code>. <code>digest</code> reads both and answers
-with one proposal per hook or rule: how many pieces of evidence, the first and
-the last, what the evidence says, and the command that acts on it.</p>
+<p>The adaptive bridge queues one repair row per contested hook (see
+<a href="/docs/adaptive/">adaptive enforcement</a>). The frustration drafter
+records runtime rules in <code>~/.shared-hooks/auto_rules.json</code>. Oko records
+operator corrections and any cause the operator has named, with links to defects.
+<code>digest</code> reads all three through their owning interfaces and returns
+one proposal per hook, drafted rule or unresolved cause. It does not infer a cause
+from an unexplained correction or turn a lesson into an enforced rule. An answered
+correction is not open work.</p>
 <h2>Proposals</h2>
 <table>
 <thead><tr><th>id</th><th>kind</th><th>action</th></tr></thead>
 <tbody>
 <tr><td><code>hook:&lt;hook-id&gt;</code></td><td><code>repair</code>: the operator contested this hook <code>evidence</code> times</td><td><code>tama adaptive repair &lt;hook-id&gt;</code> drafts and validates a candidate against the labeled cases</td></tr>
 <tr><td><code>rule:&lt;rule-id&gt;</code></td><td><code>drafted-rule</code>: a rule the drafter recorded, with the quote it was drafted from</td><td><code>tama rules remove --id &lt;rule-id&gt;</code></td></tr>
+<tr><td><code>cause:&lt;defect-id-or-cause-digest&gt;</code></td><td><code>lesson</code>: unresolved operator corrections grouped by linked defect, or by identical named cause when unlinked</td><td><code>oko frustration show &lt;moment-id&gt;</code> inspects the source; repair the producing process separately</td></tr>
 </tbody>
 </table>
 <p><code>--json</code> prints <code>{"proposals": [...], "dismissed": N, "unreadable": [{"source", "error"}]}</code>.
-A source that cannot be read is named in <code>unreadable</code> with its error; the
-rest of the digest still answers. Reading the adaptive evidence walks the
-Transcript Lake, which takes minutes on a machine with a large lake.</p>
+A lesson carries <code>sources</code> with each Oko moment's id, session,
+operator quote and named cause, plus the first and last observation. For example,
+<code>tama rules digest --json</code> shows a single lesson when two unanswered
+moments link to the same defect; <code>oko frustration show &lt;moment-id&gt;</code>
+reads the underlying record. It does not create or approve a hook.
+When Oko cannot run or refuses its read, <code>unreadable</code> names
+<code>oko-frustration</code> and the failed operation. Other proposals remain
+visible. Reading adaptive evidence may take minutes on a large Transcript Lake.</p>
 <h2>Dismissing</h2>
 <p><code>dismiss</code> hides one proposal until more evidence arrives than it had when
-it was dismissed: a hook dismissed at three contests returns at the fourth.
+it was dismissed: a hook dismissed at three contests returns at the fourth,
+and a lesson dismissed at two corrections returns with a third.
 Decisions are kept in <code>~/.shared-hooks/rule_decisions.json</code>. Which proposal
 the operator never sees again is his decision, so <code>dismiss</code> needs
 <code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session; Tama Desktop

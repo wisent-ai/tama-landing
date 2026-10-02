@@ -1,16 +1,19 @@
 <h1>Learned screen</h1>
-<p>What Tama learned across every agent session, as proposals to decide on. The
-engine is the sealed CLI's <a href="/docs/cli/rules/"><code>tama rules digest</code></a>, run
-as <code>tama request rules/digest</code>, so the screen and the terminal show the same
-proposals.</p>
+<p>Tama shows one proposal per contested hook, drafted rule or unresolved
+operator correction with a named cause. The screen reads the sealed CLI's
+<a href="/docs/cli/rules/"><code>tama rules digest</code></a> through
+<code>tama request rules/digest</code>; it does not install policy.</p>
 <h2>What a row shows</h2>
 <ul>
-<li>The hook or drafted rule the proposal is about.</li>
-<li>What the evidence says: how often the operator contested the hook, or the
-message the drafted rule refuses with and the quote it was drafted from.</li>
-<li>How many pieces of evidence, the first and the last.</li>
-<li>The command that acts on it, selectable for pasting:
-<code>tama adaptive repair &lt;hook&gt;</code> or <code>tama rules remove --id &lt;rule&gt;</code>.</li>
+<li>The contested hook, drafted rule or cause the proposal is about.</li>
+<li>What was observed, how often, and the first and last observation.</li>
+<li>For a lesson, expand <strong>Read sources</strong> to see every Oko session,
+the operator's words and the named cause. A linked defect groups its moments;
+otherwise identical causes group them.</li>
+<li>The selectable command: <code>tama adaptive repair &lt;hook&gt;</code>,
+<code>tama rules remove --id &lt;rule&gt;</code>, or
+<code>oko frustration show &lt;moment-id&gt;</code>. The last command only
+inspects evidence; it neither fixes the cause nor enables a hook.</li>
 </ul>
 <h2>Dismiss until new evidence</h2>
 <p>The button runs <code>tama request rules/dismiss</code> with the proposal's id and the
@@ -18,7 +21,8 @@ operator's approval for that one request. The proposal leaves the screen and
 comes back when more evidence arrives than it had. A refusal is shown as the
 command's own sentence.</p>
 <h2>When a source cannot be read</h2>
-<p>A source Tama could not read — the adaptive evidence, for instance — is shown
-as a red panel with its error above the proposals, and the other proposals are
-still listed.</p>
+<p>A failed Oko read appears as <code>oko-frustration unreadable</code> with
+the command's failure, and a failed adaptive read names that source. Other
+proposals remain visible; an empty list beside a failed source does not mean
+there were no corrections.</p>
 <p>The screen is under Policy and needs policy control, like the build registry.</p>
