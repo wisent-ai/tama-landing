@@ -85,7 +85,7 @@ reseals it. That order is not a preference: before it writes anything
 <code>register-hook.mjs</code> reads the catalogue and refuses a hook with no entry
 there, printing <code>catalog-metadata.json has no entry for &lt;id&gt;</code> and exiting
 <code>2</code>. The registry catalogue takes its category, purpose, rationale, and
-side effects from the metadata entry, so those are written once.</li>
+side effects from the metadata entry, so those are written once. The direct writer accepts <code>node shared-hooks/register-hook.mjs &lt;id&gt; &lt;event&gt; &lt;command&gt; [--remove] [--registry &lt;path&gt;]</code>. It does not accept a deadline argument: that attempt exits <code>2</code> with <code>Hook deadlines are not configurable; remove the timeout argument</code>, before changing the registry. Generated Claude and Codex hook configurations omit Tama-owned deadlines; an agent provider may still impose its own external limit.</li>
 <li>Exercise the real runtime path that claims enforcement. Synthetic payload replay, mocks, and dry-run-only evidence do not prove live blocking.</li>
 <li>Keep commits limited to hook source, structured catalogue/configuration, and applicable product checks. Exclude runtime state, credentials, logs, profiles, and caches.</li>
 </ol>
