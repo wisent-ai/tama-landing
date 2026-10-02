@@ -95,7 +95,15 @@ an unavailable ledger refuses Stop with its actual error. On a machine without
 the Oko CLI (neither <code>TAMA_OKO_CLI</code> nor <code>oko</code> on
 <code>PATH</code> is an executable), the session's own tracker is the only task
 register: Stop is refused on its pending or in-progress items and allowed once
-they are clear. An installed Oko that cannot be read still refuses.
+they are clear. An installed Oko that cannot be read still refuses. The other
+gates that read Oko take the same alternative on such a machine:
+<code>block-text-outside-tool-calls</code> lets the final message through,
+<code>block-one-off-repairs</code> admits a build, compile or test because no
+register holds an item without a repair, and <code>tama task scope set</code>
+accepts the <code>--task</code> or <code>--defect</code> identifier the session
+names as the entry, with the repositories it names as the scope and nothing
+written back. <code>require-task-scope</code> then refuses with that one command
+instead of the Oko commands it names when Oko is installed.
 <code>check-open-items-with-model</code> uses the same ledger qualification
 when enabled. Neither guard asks a second model to reinterpret open tasks as
 permission to stop.</p>
