@@ -64,6 +64,29 @@ The engine reads only that document as a refusal. A hook that ends nonzero witho
 missing binary, a gate that printed <code>TAMA_HOOK_INFRASTRUCTURE:</code> because it could not
 decide — crashed; the engine logs <code>hook &lt;id&gt; malfunctioned: …</code> and the action goes on,
 because a crash is not a policy decision. Nothing reads the wording of a crash to tell it apart.</p>
+<h2>Quoted data and executable input</h2>
+<p>A Bash request is parsed as shell syntax. Literal arguments remain data when
+they contain apostrophes, escaped quotes, newlines, or examples of commands.
+Quoting an executable name does not make it data. Command substitutions still
+run inside double quotes, and recognized interpreter arguments are inspected
+through their complete argument boundaries rather than the first closing quote.</p>
+<p>For example, <code>printf '%s' 'ssh example.invalid'</code> reports text;
+<code>bash -c 'ssh example.invalid'</code> requests a transport and still requires
+the normal authorization. Here-document handling keeps the consumer's program
+separate from expansions the shell performs before delivering that input.
+Native process arguments keep their quoting boundaries when projected as shell text.</p>
+<p>Eval and recognized non-shell interpreter input use non-shell string rules:
+<code>console.log("$(ssh example.invalid)")</code> does not perform a Bash
+substitution. Existing embedded-interpreter recognition remains in force.
+Unclassified shell syntax remains visible to the guard rather than being
+silently discarded. This reader does not replace the transport's authorization,
+target, operation, or exact-command checks.</p>
+<p>The native interface is <code>tama hook block-unauthorized-ssh</code> with a
+JSON request on stdin. The <strong>Session</strong> decision table and
+<strong>Posture</strong> show the installed runtime's decisions and reasons.
+Their installed and loaded release identities must match the release being
+qualified. An older last-blocking reason is history, not proof that a later
+request was refused. Source-suite evidence and live-runtime evidence are separate.</p>
 <h2>The desktop's catalog snapshot</h2>
 <p>The app does not parse the registry directly. At build time,
 <code>Scripts/app_build/export-catalog.mjs</code> renders it into <code>tama-catalog.json</code> inside the
@@ -87,47 +110,26 @@ declares <code>kind</code>, <code>title</code>, <code>registryPath</code> (a <co
 registries and shows every entry with its word count, its <code>expires_at</code>
 expiry, and whether the target it justifies still exists — expired or
 missing-target entries are the ones to renew or remove.</p>
-<h2>Provenance-gated literals: numbers and words</h2>
-<p>Two write-time guards refuse a literal in a code file unless the operator
-asked for it, in their own words, in a real transcript message.
-<code>block-numeric-literals</code> refuses a bare number; numbers live only in
-<code>numeric-provenance.json</code>, each as <code>{"value": n, "user_said": "…"}</code>.
-<code>block-keyword-literals</code> does the same for words: a run of three or more
-quoted words separated only by commas (<code>["ok", "okej", "zrobione"]</code>,
-<code>&amp;["stop", "przestan", "zatrzymaj sie"]</code>, a Python list) or a regex
-alternation of three or more words (<code>(likely|probably|might)</code>,
-<code>"cannot be decrypted|spawn gpg|no route"</code>) is a classifier nobody asked for,
-and is refused with the file, the line, the words and the undeclared ones:</p>
-<pre><code>block-keyword-literals: BLOCKED: a keyword list is a classifier nobody asked for. Decide with a model judgement through Brama, or with data the operator declared; a word may live in code only under keyword-provenance.json with the operator's verbatim quote that asked for it.
-  src/words.rs:1: a list of 3 words decides something by keyword ("ok", "okej", "zrobione"); undeclared: "ok", "okej", "zrobione"</code></pre>
-<p>A word is letters only, or several joined by single spaces; <code>tool_name</code>,
-<code>/dev/null</code>, <code>--json</code> and two-member runs are not judged, comments are
-blanked first, and only code files (the extensions the numeric guard scans) are
-read — prose and JSON are not. A site repository's documentation corpus (a
-path under <code>docs/</code> inside a <code>&lt;product&gt;-landing</code> repository) is
-prose held as data, so its table rows are not read either; the same row in the
-site's own code still is. Words live only in <code>keyword-provenance.json</code>,
-looked up from the written file's directory upward, each entry exactly
-<code>{"words": ["…"], "user_said": "…"}</code>; writing that file is itself judged: the
-quote must be a verbatim <code>role=user</code> message in Oko's transcript index
-(<code>oko transcripts reindex --path &lt;session&gt;</code> refreshes it) and must
-contain every word. The guard certifies that the operator said the words, not
-that the classifier is right; the route it points to is a model judgement
-through Brama or data the operator declared. The operator asked for it after
-finding such lists in Oko's task classifier, Tama's stop guards and Stado's
-quarantine classifier. Real-binary journey:
-<code>rust/crates/tama-hook-tools/tests/keyword_literals_guard.rs</code>.</p>
-<p>Only a run of words the program keeps is judged. A classifier binds its
-words to a name, iterates them, or asks the collection a question on the
-spot; words handed to a call are that call's data. So
-<code>run(["transcripts", "tasks", "show"])</code> and
-<code>spawn(bin, args, { stdio: ['ignore', 'pipe', 'pipe'] })</code> pass — the
-guard follows the collection outwards through brackets, braces and property
-keys and stops at the <code>(</code> that makes it an argument — while
-<code>const MARKERS = { words: ["ok", "okej", "zrobione"] }</code> and
-<code>["ok", "okej", "zrobione"].contains(reply)</code> are refused. Before this
-rule the guard reported a finding for the argument list of every command a
-journey runs, which is how a guard teaches people to ignore it.</p>
+<h2>Numbers and word classifiers</h2>
+<p><code>block-numeric-literals</code> checks numeric choices against the
+operator's recorded instruction. Its declaration format is
+<code>numeric-provenance.json</code> with entries
+<code>{"value": n, "user_said": "…"}</code>.</p>
+<p><code>block-keyword-literals</code> refuses collections and regex alternations
+of two or more words used to classify input. Moving the collection to JSON,
+YAML or TOML does not make it acceptable. No declaration allows a word
+classifier: <code>keyword-provenance.json</code> is retired, and writing it is
+itself refused. A refusal identifies the file, line, collection and words.
+The supported choices are a model judgment through Brama or the structure the
+input already carries, such as a field, status code or exit code.</p>
+<p>Comments and documentation prose are not word classifiers. Protocol fields,
+paths and command options are not English trigger words. A collection passed
+as an ordinary call argument is that call's data:
+<code>run(["transcripts", "tasks", "show"])</code> is not a classifier.
+A collection retained in a variable, iterated, or used to answer a membership
+question is judged; <code>["ready", "done"].contains(reply)</code> classifies by
+words. Renaming the variable or moving the same decision into a data file does
+not change what it does.</p>
 <h3>A number spelled another way is still a number</h3>
 <p>The numeric guard also reads a number written so that it does not look like
 one, and judges it as the number it is: <code>Number('401')</code>,
@@ -152,7 +154,7 @@ documents (Resend's 100 emails per list call, X's 160-character bio).</p>
 <p><code>pre-write-edit</code> also refuses code that opens a private local database file in a
 product (<code>rusqlite::Connection::open</code>, <code>sqlite3.connect(</code>, <code>new Database(</code>
 and the other call shapes in <code>ports/private_stores/stores.json</code>). Durable data belongs to the
-fleet database Stado resolves (<code>stado database</code>, <code>~/ARCHITECTURE.md</code>); a private
+fleet database resolved through <code>stado database</code>; a private
 file keeps it where the rest of the fleet and the operator's other machines cannot see it. The refusal
 names that route. When the owning store really cannot serve the data, record why with
 <code>tama justify record --kind file --file &lt;path&gt; --justification "&lt;why stado database cannot
@@ -205,37 +207,24 @@ refuses the event as <code>tama-shared-runtime</code> with
 The operator's rule is that no run is cut at a number, so that wait in the
 adapter is removed with the adapter's next change rather than squeezed by a
 shorter wait inside each gate.</p>
-<p><code>check-substantiation-with-model</code> uses it.
-It used to spawn a vendor CLI, which asked a provider past the gateway and
-did not run at all on a machine without that vendor's binary. This is the
-route <code>block-keyword-literals</code> points at when it refuses a
-classifier: a list that decides something about prose has somewhere to go.</p>
+<p><code>check-substantiation-with-model</code> uses the model gateway.
+That is also the route for a judgment about prose that cannot be decided
+from the input's structure; an embedded word list is not a substitute.</p>
 
-<h2>Where a guard's own program names live</h2>
-<p>Tama's guards judge command lines, so they have to know what a shell, an
-interpreter, a wrapper and a cloud tool are called. Those names are not
-written into the guards. They are declared as JSON the product compiles in:
-<code>ports/shell_text/vocabulary/shells.json</code>,
-<code>interpreters.json</code>, <code>wrappers.json</code>,
-<code>source_extensions.json</code>,
-<code>ports/pre_bash/vocabulary/cloud_clis.json</code> and
-<code>ports/block_background_execution/detaching.json</code>. Each file says in a
-<code>why</code> field what the family is. <code>ports::shell_text</code> turns a
-family into a regex branch — <code>shell_alternation</code>,
-<code>javascript_alternation</code>, <code>scripting_alternation</code>,
-<code>eval_flag_alternation</code>, <code>awk_alternation</code>,
-<code>source_extension_alternation</code>, <code>wrapper_alternation</code> — and a
-guard composes its pattern from those, so adding a shell is one edit to data
-rather than four edits to regexes.</p>
-<p>Two consequences are visible in refusals. A guard that refuses one shell
-refuses all of them: <code>ksh -c '…'</code> and <code>fish -c '…'</code> earn the same
-inline-execution refusal as <code>bash -c '…'</code>, and the background guard reads
-the inner command of any of them. A guard that looks past a wrapper looks past
-every declared wrapper, <code>xargs</code> included. Where the list was a guess at
-somebody else's vocabulary, the guard matches the shape instead:
-<code>--provider &lt;name&gt;</code> is recognised for any provider Stado offers, the
-Weles keeper entry point for any action Weles adds, and <code>node --check</code>
-for any JavaScript suffix.</p>
+<h2>Shared executable identities</h2>
+<p>Existing command readers share the compiled vocabulary under
+<code>ports/shell_text/vocabulary/</code>, including shell, interpreter,
+wrapper and source-extension identities. Other command families use their
+own existing product tables. <code>ports::shell_text</code> exposes these
+families to consumers instead of requiring a second copy in each guard.</p>
+<p>The shell reader combines syntax-tree argument boundaries with the existing
+interpreter predicate. The predicate identifies which argument is a program
+and which interpreter family receives it; it does not turn an interpreter
+mentioned inside ordinary data into a new command.</p>
+<p>These existing tables are not permission to add keyword classifiers.
+New decisions must follow structured input or a model judgment through Brama.
+Guard selection, grants and operator-owned authorization records are separate
+from source-text parsing and are not changed by a reader repair.</p>
 
 <h2>Catalogue access</h2>
 <p>The full catalogue remains structured in <code>shared-hooks/registry.json</code>.

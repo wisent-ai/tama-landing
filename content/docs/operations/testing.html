@@ -1,38 +1,55 @@
 <h1>Testing and qualification contract</h1>
-<h2>Current status</h2>
-<p>The testing stage is <strong>incomplete</strong>. The repository has four deterministic Swift tests,
-but no supported preview, current clean-device onboarding evidence, canonical-example
-execution record, signed release build result, upgrade/rollback pair, or controlled
-credentialed/device/destructive suite. No test or validation command was executed while
-creating this document.</p>
-<p>A source test pass alone must never be reported as full Tama verification.</p>
-<h2>Existing deterministic tests</h2>
-<p>| Test | Observable contract defended | Plausible defect detected | Current execution status |
-|---|---|---|---|
-| <code>JustificationRegistryTests.loadsFileAndTestRequirementsSeparately</code> | File and test justification requirements load as distinct target kinds with existence/word/expiry state | Requirement kinds collapse or target state is misreported | Not executed in current work |
-| <code>SessionControlClientTests.discoversAndControlsMultipleProviders</code> | Multiple provider session records are discovered and one scoped override is written/read with expected identity | One provider hides another or override scope/serialization is corrupted | Not executed in current work |
-| <code>ViolationsClientTests.parsesAggregateScanReport</code> | Aggregate repository, skipped-file, error, and rule-group JSON decodes into visible report totals | Valid scanner output is rejected or totals/groups are lost | Not executed in current work |
-| <code>ViolationsClientTests.parsesCleanReportWithoutViolations</code> | A valid zero-violation report is represented as clean | Empty successful reports are treated as unreadable or non-clean | Not executed in current work |</p>
-<p>These tests use temporary local state and do not prove the signed app, real hook runtime,
-privileged backend, process boundary, cleanup provider, or public UI.</p>
+<h2>Evidence boundaries</h2>
+<p>Qualification belongs to an exact source revision and the product built from
+it. Retain the command, exit status, report, supported screenshots or recordings,
+and the persisted or external state the run observed. A source test pass is
+not proof of a signed app, an installed hook release, a live provider session
+or the desktop. Missing dependencies and refused runs remain blocked.</p>
+<p>Tests use isolated state under the owning checkout's ignored build directory.
+They must not alter operator credentials, grants or selected hooks. Actual run
+results belong with their retained evidence, not in a permanent table of
+“current work” statuses.</p>
 <h2>CLI example coverage and required evidence</h2>
 <p>The files under <code>examples/</code> are executable command examples, not prose runbooks and not
 test evidence. Each script exposes one bounded CLI outcome and states mutation or provider
 risk before the command.</p>
-<p>| CLI contract | Command example | Required proof | Current evidence |
-|---|---|---|---|
-| Bundled CLI discovery | <code>examples/getting-started/install-cli.sh</code> | Creates or idempotently retains the matching link to the bundled <code>bin/tama</code>, refuses unrelated entries, and reports missing PATH configuration | Not executed in current work |
-| Catalog health and live sessions | <code>examples/getting-started/status.sh</code> | Stable human output and valid JSON from <code>validate</code> and <code>sessions</code>, with an explicit <code>--home</code> scope | Executed read-only against a source build |
-| Release seal verification | <code>examples/integrity/verify-release-seal.sh</code> | Intact release digests to its recorded <code>releaseId</code>; drift names the files written after the seal | Executed with pasted output in <a href="walkthrough-verify-release.md">walkthrough-verify-release</a> |
-| Installed runtime status | <code>examples/integrity/runtime-status.sh</code> | Live sessions listed; every installed tree digested against its content-addressed name; second-gate verdict stated | Executed with pasted output in <a href="walkthrough-runtime-status.md">walkthrough-runtime-status</a> |
-| Hook listing and exact hook inspection | <code>examples/core/hooks-list.sh</code> | Human and JSON output agree on ID, source, command, and events | Executed read-only against a source build |
-| Provider coverage | <code>examples/core/provider-coverage.sh</code> | Complete registry-declared hook/event mappings from <code>tama request coverage</code> without claiming live evidence | Not executed since the script moved from <code>tama serve</code> to <code>tama request</code> |
-| Repository read-only scan | <code>examples/core/scan-repository.sh</code> | Existing owned repository; clean and violation reports; tree unchanged; bounded error | Executed read-only against a throwaway repository |
-| Provider-backed cleanup and final rescan | <code>examples/core/clean-repository.sh</code> | Recoverable repository, bounded agent execution, preserved Git identity, final independent scan | Missing; credentialed provider qualification required |
-| User-global Git dispatcher installation | <code>examples/operations/install-user-git-hooks.sh</code> | Reviewed plan, exact target writes, Git config result, post-install validation | Missing; controlled mutation qualification required |
-| MCP configuration | <code>examples/operations/mcp-config.sh</code> | Emitted server command resolves to the selected release | Executed read-only against a source build |
-| Adaptive recovery triage | <code>examples/recovery/adaptive-status.sh</code> | Status, drift, and queue stay read-only beyond first-run state directories; repair/apply stay explicit | Executed read-only against a scratch home |</p>
+<p>The CLI examples need proof at their actual boundaries:</p>
+<ul>
+<li>CLI discovery must retain or create the correct bundled link, refuse unrelated entries,
+and report missing PATH configuration.</li>
+<li>Catalog and session commands must agree in human and JSON output, including IDs,
+commands, events, scope and loaded release identity.</li>
+<li>Seal verification and runtime status must read the release being qualified;
+declared checksums alone do not prove its consumers work.</li>
+<li>Repository scans must cover clean and violating input without changing the tree.
+Provider-backed cleanup must preserve Git identity and finish with an independent scan.</li>
+<li>Git-dispatcher installation must retain its reviewed plan, exact writes and
+post-install result. MCP configuration must resolve to the selected release.</li>
+<li>Recovery status must remain read-only; a repair must be requested through its
+normal product interface and verified from the resulting state.</li>
+</ul>
 <h2>Required suites</h2>
+<h3>Native hook request suite</h3>
+<pre><code class="language-bash">cargo test --manifest-path rust/Cargo.toml --target-dir .build/cargo -p tama-cli --test ssh_quoting
+</code></pre>
+<p>Run from the native Tama checkout. The suite under
+<code>tests/tool-payload/</code> requires a committed source tree and launches
+the actual <code>tama hook block-unauthorized-ssh</code> command with JSON on
+stdin and an isolated HOME. It checks quoted evidence, escaped delimiters,
+substitutions, nested interpreters, here-documents, Eval code and native
+argument vectors. It does not execute the transport requests it submits.</p>
+<p>An allowed literal request must exit successfully without a blocking
+decision. An unauthorized transport must produce the structured
+<code>{"decision":"block","reason":"…"}</code> document and its refusal exit,
+not merely crash. Reports under <code>.build/tool-payload/</code> retain the
+source revision, binary checksum, each request, command, stdout, stderr,
+exit status and cleanup result. The isolated HOME is removed.</p>
+<p>This suite qualifies the native decision boundary only. Live qualification
+must separately verify the installed and loaded release, reproduce the request
+through a provider session, and inspect its decision in <strong>Session</strong>
+and <strong>Posture</strong>. A source pass cannot stand in for that journey.
+Use the normal authorization controls; a guard refusal is a blocked run, not
+permission to alter its selection or approval records.</p>
 <h3>Swift contract suite</h3>
 <p>Command, after explicit human test approval:</p>
 <pre><code class="language-bash">stado product swift --package-path ~/Documents/CodingProjects/Wisent/tama-desktop test \
@@ -44,7 +61,7 @@ risk before the command.</p>
 existing source checkouts and writes its workspace, command records and build
 artifacts under the package's <code>.build</code> and
 <code>.wisent-output/native</code> directories. Missing canonical sources are
-refused rather than cloned. This selection proves only the four tabled
+refused rather than cloned. This selection covers only the selected Swift
 contracts, not signed-app or SourceKit editor qualification.</p>
 <h3>Signed build contract</h3>
 <p>Command, after explicit approval and with dedicated release credentials:</p>
