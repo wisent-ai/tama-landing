@@ -176,17 +176,19 @@ screen shows it, or let it throw. Source: <code>ports/pre_write_edit/sentinels.r
 <h2>Asking a model, when shape cannot decide</h2>
 <p>Some rules are not about shape: whether a claim is grounded, whether a
 closing report hands work back to the operator. The decider there is a model,
-and on this fleet every model call goes through Brama.
+and Brama answers it by default.
 <code>ports::model_judgement</code> is the one route:
 <code>model_judgement::ask(prompt)</code> sends the prompt through the
 product's own one-shot call, <code>oko proxy-call</code>, which carries
-Oko's signed bearer to the gateway, and returns
+Oko's signed bearer to the gateway, or — on a machine without Brama — goes to
+the OpenAI-compatible service declared with <code>oko tasks judge-provider
+set</code>, with its declared model. It returns
 <code>Judgement::Answered(text)</code> or
 <code>Judgement::Unavailable(reason)</code>. A judgement nobody could obtain
 is never a denial: <code>answer()</code> is <code>None</code> for an
 unavailable one, so a guard that denies on a verdict lets the turn through
-and logs the gateway's own words — <code>no judgement: Brama refused the
-call: HTTP 503 … subscription_reauthorization_required</code>.</p>
+and logs the service's own words — <code>no judgement: the model service
+refused the call: … answered HTTP 503</code>.</p>
 <p>A judge Oko has recorded as not answering is not asked. Oko writes that
 record — <code>judge-health.json</code> beside its transcript index — from
 every verification pass and from <code>oko transcripts tasks judge
