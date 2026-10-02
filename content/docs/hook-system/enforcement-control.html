@@ -130,7 +130,10 @@ item is closed or reopened on what it shows. The refusal lists the items that st
 repair. A build the operator consents to in the conversation passes before that: the agent records
 the consent as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
 (or <code>{"tool": "build"}</code> for any product) with the lifetime he named, and the gate lets a build
-through whose arguments name a granted product.</p>
+through whose arguments name a granted product. <code>stado release submit --build ID</code> names no
+product in its arguments, so the gate reads the product from the fleet's build record
+(<code>stado build status ID --json</code>); a build the fleet does not hold is admitted only by a grant
+with no product list.</p>
 <p>
 After producing and checking the real result,
 run <code>oko transcripts tasks verify --before-stop --session SESSION_ID</code>.
