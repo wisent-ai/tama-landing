@@ -1,11 +1,11 @@
 <h1><code>tama adaptive repair</code></h1>
 <p>Drafts or accepts a candidate hook script, validates it against the hook's evidence corpus, and stages a repair proposal without changing the live hook.</p>
 <h2>Invocation</h2>
-<pre><code>tama adaptive repair &lt;hook-id&gt; [--patch-file &lt;path&gt;]
+<pre><code>tama adaptive repair &lt;hook-id&gt; [--patch-file &lt;path&gt;] [--json]
 </code></pre>
-<p><code>&lt;hook-id&gt;</code> is required. <code>--patch-file</code> validates an operator-supplied candidate; without it, Tama asks the local <code>claude</code> CLI to draft one.</p>
+<p><code>&lt;hook-id&gt;</code> is required. <code>--patch-file</code> validates an operator-supplied candidate; without it, Tama asks the local <code>claude</code> CLI to draft one. <code>--json</code> prints the report as one JSON document instead of <code>key: value</code> lines.</p>
 <h2>Output and state</h2>
-<p>Tama prints a JSON report. A valid candidate is copied into a timestamped proposal directory with <code>proposed.diff</code>, <code>report.json</code>, and a summary; the live and archived hook files remain unchanged. The report's <code>ok</code> controls exit status: true exits <code>0</code>, false exits <code>1</code>.</p>
+<p>Tama prints the report as <code>key: value</code> lines, one per field with nested values compact, or as one JSON document with <code>--json</code>. A valid candidate is copied into a timestamped proposal directory with <code>proposed.diff</code>, <code>report.json</code>, and a summary; the live and archived hook files remain unchanged. The report's <code>ok</code> controls exit status: true exits <code>0</code>, false exits <code>1</code>.</p>
 <h2>Refusals and failures</h2>
 <ul>
 <li>Missing hook id, an id beginning with <code>--</code>, or <code>--patch-file</code> without a value prints adaptive usage and exits <code>2</code>.</li>
