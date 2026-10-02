@@ -36,6 +36,7 @@ the background-execution or CUA hook that happened to run first.</p>
 <li><code>rust/crates/tama-adaptive/</code> owns the runner, symbolic policy, immutable telemetry, feedback bridge, and repair doctor.</li>
 <li><code>adaptive/policy.json</code> is the frozen symbolic tier and autonomy policy.</li>
 </ul>
+<p>Retained operation reports are private runtime observations, not hook source. The legacy <code>reports/</code> directory is ignored; removing an existing report from Git's index preserves its local bytes rather than rewriting the recorded outcome. New release evidence and adaptive proposals belong under the existing ignored <code>.wisent-output/</code> root and the product's retained artifact flow. Do not commit a copied report to document an incident.</p>
 <h2>Catalogue commands</h2>
 <pre><code>tama list
 tama list --json
