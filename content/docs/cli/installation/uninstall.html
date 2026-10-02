@@ -1,0 +1,13 @@
+<h1><code>tama uninstall</code></h1>
+<p>The reverse of <a href="../install/"><code>tama install</code></a>: removes the Tama-managed <code>pre-commit</code> and <code>pre-push</code> dispatchers and puts back the hook each one displaced, kept beside it as <code>.before-tama</code>. A hook Tama did not write is left alone, by name.</p>
+<h2>Invocation</h2>
+<pre><code>tama uninstall [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;] [--unset-git-config] [--json]
+</code></pre>
+<p><code>--git-hooks-path</code> names the dispatcher directory; otherwise Tama uses global <code>core.hooksPath</code>, falling back to <code>~/.config/git/hooks</code>, exactly as <code>install</code> chose it. <code>--home</code> controls home expansion and the Git configuration environment. <code>--unset-git-config</code> clears global <code>core.hooksPath</code>, and only when it still points at the directory being emptied: a person's own hooks path is never taken away. <code>--json</code> selects structured output.</p>
+<h2>Output and state</h2>
+<p>Each hook ends as one of <code>removed</code> (the managed dispatcher is gone and nothing was displaced), <code>restored</code> (the dispatcher is gone and the <code>.before-tama</code> hook is back under its own name), <code>absent</code> (there was nothing at that path) or <code>kept</code> (the file there is not a Tama dispatcher). Output names the resolved hooks path, both outcomes and whether Git global configuration was unset; a second run reports <code>absent</code> twice and changes nothing.</p>
+<pre><code>{"hooksPath":String,"preCommit":{"target":String,"outcome":String},"prePush":{"target":String,"outcome":String},"unsetGlobalConfig":Boolean}
+</code></pre>
+<h2>Refusals and failures</h2>
+<p>Filesystem and process errors are written to stderr and exit <code>1</code>. Both hooks are handled before the configuration is touched, so a refused <code>--unset-git-config</code> — <code>core.hooksPath is not &lt;path&gt;, so it is not Tama's to unset; the dispatchers were handled first</code> — leaves the dispatchers removed and the configuration as it was. When Git's unset returns nonzero, Tama reports Git's stderr, or exactly <code>git config --unset failed</code> when Git produced no message.</p>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>
