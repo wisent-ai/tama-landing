@@ -1,0 +1,33 @@
+<h1><code>tama hooks</code></h1>
+<p>The halves of adding, changing or keeping a hook, each behind one verb. <code>declare</code> writes the repository documents — the catalogue entry, the registry binding, the reconciled sources and the seal; <code>undeclare</code> is its reverse. <code>release</code> builds the native hooks from published main, installs the ones that changed, and stages, seals and installs the live release this machine runs. <code>warm</code> runs each installed binary once so the operating system's first-execution assessment is paid outside a live event. The packaging verbs — <code>stage</code>, <code>seal</code>, <code>source-identity</code>, <code>install-release</code>, <code>integrity</code>, <code>digest</code> — are the release build's and the installer's own steps, exposed so a person can run and verify each one.</p>
+<h2>Invocation</h2>
+<pre><code>tama hooks declare --file &lt;declaration.json&gt; [--dry-run]
+tama hooks undeclare --file &lt;declaration.json&gt; [--dry-run]
+tama hooks release [--dry-run] [--enforce &lt;hook-id&gt;,…]
+tama hooks warm [--only &lt;hook-id&gt;,…] [--json]
+tama hooks stage --source-root &lt;tree&gt; --release-root &lt;release&gt; --cargo &lt;cargo&gt; [--codesign-identity &lt;id&gt;] [--codesign-timestamp &lt;flag&gt;]
+tama hooks seal [--source-root &lt;tree&gt;] &lt;release&gt;
+tama hooks source-identity --source-root &lt;tree&gt; [--shell]
+tama hooks install-release --release &lt;dir&gt; --home &lt;dir&gt; [--emergency-manifest &lt;file&gt;] [--session-control-only]
+tama hooks integrity [--release &lt;dir&gt;] [--home &lt;dir&gt;]
+tama hooks digest &lt;file-or-release&gt;
+</code></pre>
+<h2>Verbs</h2>
+<table>
+<thead><tr><th>Verb</th><th>Effect on state</th><th>Documented in</th></tr></thead>
+<tbody>
+<tr><td><code>declare</code></td><td>Writes the catalogue entry, the registry binding and the reconciled sources for one declaration file, then reseals; <code>--dry-run</code> prints the plan and writes nothing. Requires <code>DEVICE_HOOK_EDIT_APPROVED=1</code> in the operator's own shell; without it the command refuses before writing and prints the command for that shell</td><td><a href="../../hook-management/">hook management</a></td></tr>
+<tr><td><code>undeclare</code></td><td>The reverse, in reverse order: each event the registry still binds to the hook is unbound, the catalogue entry is removed, the sources are reconciled and the release is resealed, then the declaration is removed. Same approval, same <code>--dry-run</code></td><td><a href="../../hook-management/">hook management</a></td></tr>
+<tr><td><code>release</code></td><td>Builds from <code>origin/main</code>, installs the one <code>tama</code> program and removes the separate programs an earlier release installed, warms every registry hook, installs the sealed release into the hook runtime, and records the checkout in <code>~/.tama/installed-from</code>. Stado runs it as the install's <code>after_install</code> step. <code>--enforce</code> narrows the enabled set as <code>tama enforcement only</code> would</td><td><a href="../../hook-management/">hook management</a>, <a href="../../hook-releases/">hook releases</a></td></tr>
+<tr><td><code>warm</code></td><td>Runs each installed binary once and prints the state, measured milliseconds, hook id and path per line — <code>warm</code> ran and exited, <code>missing</code> is a registry entry with no binary at that path — and the summary names the costliest. <code>tama request hooks/warm</code> answers the same report</td><td><a href="../../hook-management/runtime/hook-warming/">hook warming</a></td></tr>
+<tr><td><code>stage</code></td><td>Builds, from the source tree, every native program the prepared release's registry runs plus the one <code>tama</code> program, and places them in the release</td><td><a href="../../scripts/">scripts</a></td></tr>
+<tr><td><code>seal</code></td><td>Computes the release's tree digest — every file except <code>release.json</code> and <code>bin/</code>, in sorted path order, each file's path, permission bits and bytes — and writes it as <code>releaseId</code>; refuses the whole release with <code>External hook source is missing</code> for the first external source it cannot open</td><td><a href="../../concepts/seal/">seal</a>, <a href="../../hook-releases/">hook releases</a></td></tr>
+<tr><td><code>source-identity</code></td><td>Prints the revision and dirtiness a release of that tree carries; <code>--shell</code> prints them as shell assignments. A missing Git revision reports the failed Git operation and checkout path</td><td><a href="../../scripts/">scripts</a></td></tr>
+<tr><td><code>install-release</code></td><td>Installs a sealed release into a home as one transaction behind two integrity gates, rewriting the registry for that home; one JSON result on stdout on success, and on any failure one line on stderr — <code>Tama hook release installation failed: &lt;reason&gt;</code> — and exit one</td><td><a href="../../scripts/">scripts</a>, <a href="../../runbook/">runbook</a></td></tr>
+<tr><td><code>integrity</code></td><td>Reports, without writing, whether a release still digests to its seal (<code>--release</code>: recorded vs actual digest and every file written after the seal) and whether every installed tree digests to its directory name (<code>--home</code>, marking <code>current</code>). Without either it prints its usage line and exits two</td><td><a href="../../scripts/">scripts</a>, <a href="../../runbook/">runbook</a></td></tr>
+<tr><td><code>digest</code></td><td>Prints a directory's release digest or a file's SHA-256; <code>artifact not found: &lt;path&gt;</code> exits two</td><td><a href="../../concepts/seal/">seal</a></td></tr>
+</tbody>
+</table>
+<h2>Exit status</h2>
+<p>A verb other than the ten above prints <code>unknown hooks command &lt;name&gt;</code> and the usage, exit two; <code>tama hooks</code> alone, <code>help</code>, <code>-h</code> or <code>--help</code> print the usage and exit zero. Each verb's own refusals are listed on the page that documents it.</p>
+<p>Return to the <a href="../">complete CLI tree</a>.</p>

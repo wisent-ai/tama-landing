@@ -1,0 +1,31 @@
+<h1><code>tama policy</code></h1>
+<p>Imports, lists and removes retained <em>inactive</em> policy bundles: hook policy trees validated and kept beside the runtime without being installed or enabled. Nothing here changes which hooks a machine runs; <a href="../enforcement/only/"><code>tama enforcement</code></a> decides that.</p>
+<h2>Invocation</h2>
+<pre><code>tama policy import --source &lt;dir&gt; [--replace] [--json] [--home &lt;path&gt;]
+tama policy list [--json] [--home &lt;path&gt;]
+tama policy remove --source &lt;path|key&gt; [--json] [--home &lt;path&gt;]
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--source &lt;dir&gt;</code></td><td><code>import</code>: required; the bundle directory to validate and keep. <code>remove</code>: required; the path or source key an imported bundle was recorded under</td></tr>
+<tr><td><code>--replace</code></td><td><code>import</code> only. Overwrites a bundle already retained from the same source whose content differs; without it that case is a conflict and nothing is written</td></tr>
+<tr><td><code>--home &lt;path&gt;</code></td><td>The home whose policy store is read or written instead of this account's; the value must be a directory</td></tr>
+<tr><td><code>--json</code></td><td>Prints the result document instead of the text report</td></tr>
+</tbody>
+</table>
+<h2>What <code>import</code> answers</h2>
+<p>One transaction validates the whole bundle and then writes it, or writes nothing. Its <code>status</code> is one of <code>imported</code>, <code>replaced</code> (an earlier bundle from the same source was overwritten under <code>--replace</code>), <code>unchanged</code> (the same content is already retained), <code>conflict</code> (a different bundle from the same source is retained and <code>--replace</code> was not given) or <code>rejected</code> (the bundle is not valid; the result names what is wrong). The desktop's Settings screen runs the same transaction. <code>tama request policy-bundles/import</code> answers the same document.</p>
+<p><code>list</code> prints one line per retained bundle — source path, source digest, hook count, file count, <code>inactive</code> — or <code>No inactive policy bundles imported.</code>; <code>remove</code> prints <code>Removed the inactive policy bundle imported from &lt;path&gt;.</code> or <code>No imported policy bundle came from &lt;source&gt;; nothing changed.</code>, and under <code>--json</code> <code>{"source":String,"removed":Boolean}</code>.</p>
+<h2>Exit status</h2>
+<p><code>import</code> exits one on <code>conflict</code> or <code>rejected</code> and zero otherwise; <code>list</code> and <code>remove</code> exit zero, a removal of nothing included. A wrong invocation exits two:</p>
+<pre><code>policy import requires --source &lt;dir&gt;
+--home requires a directory
+unknown policy import option: &lt;argument&gt;
+unknown policy list option: &lt;argument&gt;
+tama policy remove needs --source &lt;path or source key&gt; of an imported bundle
+usage: tama policy import --source &lt;dir&gt; [--replace] [--json] [--home &lt;path&gt;] | tama policy list [--json] [--home &lt;path&gt;] | tama policy remove --source &lt;path|key&gt; [--json] [--home &lt;path&gt;]
+</code></pre>
+<p>A store that cannot be read or written is reported with its path and cause and exits one.</p>
+<p>Return to the <a href="../">complete CLI tree</a>.</p>

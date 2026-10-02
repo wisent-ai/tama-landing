@@ -15,10 +15,12 @@ intentionally not part of the public surface.</p>
 <li><a href="cli/model-provider/"><code>tama model-provider [show | set --origin URL --model MODEL | unset] [--json]</code></a> — choose the model service Tama asks: Brama, or an OpenAI-compatible service whose key is read from standard input.</li>
 <li><a href="cli/sessions/"><code>tama sessions [--json] [--home &lt;path&gt;]</code></a> — inspect live session records.</li>
 <li><a href="cli/assignment/show/"><code>tama assignment show --session SESSION_ID [--json]</code></a> — read one session's newest operator instruction and fresh Oko task ledger, and record that both were read.</li>
+<li><a href="cli/task/scope/"><code>tama task scope show|set|clear --session &lt;ID&gt; [--repository &lt;NAME&gt;]… [--defect &lt;ID&gt;] [--task &lt;ID&gt;] [--json]</code></a> — declare which defect or task a session serves and which repositories it touches; <code>block-off-task-work</code> checks every write against it.</li>
 <li><a href="cli/justify/"><code>tama justify &lt;record|show|remove|list&gt; [--file &lt;path&gt;] [--justification &lt;text&gt;] [--kind file|cua] [--quote &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]</code></a> — record, read or remove a justification the authorization gates require.</li>
 <li><a href="cli/tests/"><code>tama tests &lt;approve|revoke|list|audit&gt; [&lt;path&gt;…] [--remove] [--json]</code></a> — the operator's approvals of test code, and the audit of every test nobody approved; <code>block-unapproved-tests</code> refuses test code anywhere else.</li>
-<li><code>tama policy import --source &lt;dir&gt; [--replace] [--json] [--home &lt;path&gt;]</code> — validate and persist an existing policy bundle without installing or enabling it.</li>
-<li><code>tama policy list [--json] [--home &lt;path&gt;]</code> — list retained inactive bundle identities.</li>
+<li><a href="cli/policy/"><code>tama policy import|list|remove</code></a> — validate and keep inactive policy bundles, list them, and remove one, without installing or enabling anything.</li>
+<li><a href="cli/hooks/"><code>tama hooks declare|undeclare|release|warm|stage|seal|source-identity|install-release|integrity|digest</code></a> — add, withdraw, build, warm, package, install and verify hook releases.</li>
+<li><a href="cli/merges/review/"><code>tama merges review --root &lt;PATH&gt; --since &lt;YYYY-MM-DD&gt; [--json]</code></a> — the damage review of branch merges already on main.</li>
 </ul>
 <h2>Machine enforcement</h2>
 <ul>

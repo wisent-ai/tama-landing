@@ -1,0 +1,46 @@
+<h1><code>tama task scope</code></h1>
+<p>Declares, shows or clears which registered work one session is serving — a defect in Oko's register or a task in its task register — and which repositories that work touches. The <code>block-off-task-work</code> gate checks every write against this declaration: a call that changes a repository outside it is refused with the declaration to make.</p>
+<h2>Invocation</h2>
+<pre><code>tama task scope show --session &lt;ID&gt; [--json]
+tama task scope set --session &lt;ID&gt; [--repository &lt;NAME&gt;]... [--defect &lt;ID&gt;] [--task &lt;ID&gt;] [--json]
+tama task scope clear --session &lt;ID&gt;
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--session &lt;ID&gt;</code></td><td>Required on every verb. A scope belongs to one session's instruction; no other session's instruction stands in for it</td></tr>
+<tr><td><code>--repository &lt;NAME&gt;</code></td><td>Repeatable. A repository name inside the workspace, for example <code>oko</code>; a path that is not inside the workspace is refused because no change could ever match it. With <code>--task</code> it may be omitted when the task's Oko contract already lists its scope</td></tr>
+<tr><td><code>--defect &lt;ID&gt;</code></td><td>An open defect in Oko's register. A closed defect is refused: no work belongs to it any more</td></tr>
+<tr><td><code>--task &lt;ID&gt;</code></td><td>An open task in Oko's task register. The task keeps its original operator words after later instructions, so an earlier task can be selected again without asking the operator to repeat it; the repositories named are recorded on the task's contract</td></tr>
+<tr><td><code>--json</code></td><td>Prints the scope document instead of the text report</td></tr>
+</tbody>
+</table>
+<h2>What <code>set</code> writes</h2>
+<p>The declaration is bound to the latest captured operator turn: its digest is stored beside the defect, task and repositories under <code>~/.tama/task-scope/&lt;session&gt;.json</code>, so a future prompt cannot silently inherit it. <code>show</code> reports whether the scope still serves the current instruction:</p>
+<pre><code>working  task task-d6c1ffa06b19682f
+task     &lt;the operator's words&gt;
+touches  oko, oko-landing
+current  yes — this scope was declared for the instruction being served
+</code></pre>
+<p>After the operator speaks again, <code>current</code> reads <code>no — the operator has spoken since; declare the scope of the new instruction</code>, and the gate refuses writes until <code>set</code> runs again. <code>set</code> prints <code>task scope for session &lt;ID&gt;: &lt;repositories&gt; for task &lt;ID&gt;</code> and the instruction it was bound to; <code>clear</code> prints <code>task scope cleared for session &lt;ID&gt;</code>, or <code>session &lt;ID&gt; had no task scope</code> when there was nothing to remove.</p>
+<h2>Output document</h2>
+<pre><code>{"session":String,"turn_digest":String,"task":String,"repositories":[String],"defect":String,"task_id":String,"serves_current_instruction":Boolean}
+</code></pre>
+<h2>Refusal boundary</h2>
+<p>A wrong invocation exits two with the usage line: a verb other than <code>show</code>, <code>set</code> or <code>clear</code>, an unknown option, a missing <code>--session</code>, or a <code>--repository</code> outside the workspace:</p>
+<pre><code>task scope requires --session ID: a scope belongs to one session's instruction, and no other session's instruction stands in for it
+--repository &lt;value&gt; is not inside the workspace, so no change could ever match it; name the repository, for example `--repository oko`
+</code></pre>
+<p>A well-formed <code>set</code> that names nothing the registers hold open exits one:</p>
+<pre><code>task scope set requires --defect &lt;ID&gt; or --task &lt;ID&gt;: every change belongs to a defect in Oko's register or a task in its task register, and a change that belongs to neither is the drift this gate exists to stop
+task scope set requires at least one --repository, or a --task whose Oko contract lists its scope (`oko transcripts tasks state &lt;task&gt; --scope &lt;repo&gt;`): work that touches nothing changes nothing
+Oko's register holds no defect &lt;ID&gt;: &lt;Oko's answer&gt;
+defect &lt;ID&gt; is already closed, so no work belongs to it; record what is wrong now with `oko defects record`
+defect &lt;ID&gt; is being repaired by session &lt;other&gt;, which declared it; a second session on it duplicates or overwrites that work
+Oko's task register holds no task &lt;ID&gt;: &lt;Oko's answer&gt;
+task &lt;ID&gt; is not open, so there is no work to resume
+no operator instruction is recorded for session &lt;ID&gt;, so there is nothing to declare a scope for; the capture hook records it when the operator writes
+</code></pre>
+<p>A session that recorded a defect with no fix and no repair plan is told that this is its first work, and how to plan it and take it up. <code>show</code> on a session with no scope exits one and names the <code>set</code> to run. A scope file that cannot be created, written or removed is reported with the path and the cause.</p>
+<p>Return to <a href="../show/">assignment show</a> or the <a href="../../">complete CLI tree</a>.</p>

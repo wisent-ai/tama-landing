@@ -1,0 +1,27 @@
+<h1><code>tama merges review</code></h1>
+<p>The damage review of branch merges already on <code>main</code>. It reads every checkout under the root, lists each merge on main's first-parent line since the date whose subject is the branch merger's own (<code>Merge &lt;branch&gt; into main</code>), and reports what each one left on main today: files over the line limit it added or grew, and paths it carried back after main had deleted them. Whether the merged source compiles is the release build's answer, not this reader's.</p>
+<h2>Invocation</h2>
+<pre><code>tama merges review --root &lt;PATH&gt; --since &lt;YYYY-MM-DD&gt; [--json]
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--root &lt;PATH&gt;</code></td><td>Required. The directory whose checkouts are walked; there is no default root</td></tr>
+<tr><td><code>--since &lt;YYYY-MM-DD&gt;</code></td><td>Required. Merges on main's first-parent line from this date on are reviewed</td></tr>
+<tr><td><code>--json</code></td><td>Prints the document below instead of one text line per merge</td></tr>
+</tbody>
+</table>
+<h2>What it prints</h2>
+<p>One line per merge, as text:</p>
+<pre><code>&lt;repository&gt; &lt;commit&gt; &lt;branch&gt;: clean|DAMAGE; over the limit: &lt;files&gt;; carried back: &lt;paths&gt;
+&lt;repository&gt;: unreadable: &lt;git's error&gt;
+</code></pre>
+<p>A file over the limit is one the merge added or grew past the line limit and that is still over it on main today; a carried-back path is one main had deleted and the merge re-added. A merge the branch had already landed as an equivalent commit is marked <code>already in main as an equivalent commit</code>. This command changes nothing.</p>
+<h2>Output document</h2>
+<p>Under <code>--json</code>, one row per merge; a checkout git could not read is a row with <code>error</code>. The desktop's Merges screen receives exactly this document, so the two cannot disagree:</p>
+<pre><code>[{"repository":String,"commit":String,"branch":String,"oversized":[String],"revived":[String],"damaged":Boolean},{"repository":String,"error":String}]
+</code></pre>
+<h2>Exit status</h2>
+<p>Zero when no merge left damage; one when any did, in both text and JSON form, so a scheduled run fails on the finding. A wrong invocation — a verb other than <code>review</code>, an unknown option, or a missing <code>--root</code> or <code>--since</code> — prints the usage and exits two.</p>
+<p>Return to the <a href="../../">complete CLI tree</a>.</p>
