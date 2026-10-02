@@ -37,6 +37,7 @@
   {"route":"cli/install-plan","source":"docs/cli/install-plan.md","content":"content/docs/cli/installation/install-plan.html","category":"CLI reference"},
   {"route":"cli/install","source":"docs/cli/install.md","content":"content/docs/cli/installation/install.html","category":"CLI reference"},
   {"route":"cli/uninstall","source":"content/docs/cli/installation/uninstall.html","content":"content/docs/cli/installation/uninstall.html","category":"CLI reference"},
+  {"route":"cli/onboarding","source":"content/docs/cli/policy/onboarding.html","content":"content/docs/cli/policy/onboarding.html","category":"CLI reference"},
   {"route":"cli/mcp-config","source":"docs/cli/mcp-config.md","content":"content/docs/cli/configuration/mcp-config.html","category":"CLI reference"},
   {"route":"cli/find-violations","source":"docs/cli/find-violations.md","content":"content/docs/cli/inspection/violations/find-violations.html","category":"CLI reference"},
   {"route":"cli/declare-root","source":"content/docs/cli/inspection/violations/declare-root.html","content":"content/docs/cli/inspection/violations/declare-root.html","category":"CLI reference"},

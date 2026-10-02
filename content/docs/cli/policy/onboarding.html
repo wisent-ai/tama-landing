@@ -1,0 +1,25 @@
+<h1><code>tama onboarding</code></h1>
+<p>The first-use walkthrough on the command line, and the inactive policy bundle it may adopt on the way in. The screens, the outcome they lead to and what first success means are on the <a href="../../onboarding/">Onboarding</a> page; this page is the command.</p>
+<h2>Invocation</h2>
+<pre><code>tama onboarding [--reset] [--policy-bundle &lt;dir&gt;] [--replace] [--home &lt;path&gt;]
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--reset</code></td><td>Discards the recorded walkthrough and replays it from its first screen</td></tr>
+<tr><td><code>--policy-bundle &lt;dir&gt;</code></td><td>Imports this bundle first, through the same validating transaction as <a href="../policy/"><code>tama policy import</code></a>, and reports its result inside the walkthrough; the value must be a directory</td></tr>
+<tr><td><code>--replace</code></td><td>Lets that import overwrite a bundle already retained from the same source; meaningless without <code>--policy-bundle</code></td></tr>
+<tr><td><code>--home &lt;path&gt;</code></td><td>The home whose walkthrough record and policy store are used instead of this account's; the value must be a directory</td></tr>
+</tbody>
+</table>
+<h2>Output and state</h2>
+<p>Prints the walkthrough for a person and records how far it got, so a later run resumes rather than restarts; the bundle import, when asked for, is written before the walkthrough and never enables a hook. Exit <code>0</code> when the walkthrough ran; <code>1</code> with the walkthrough's own sentence when it could not.</p>
+<h2>Refusal boundary</h2>
+<p>A wrong invocation exits two before anything is read or written:</p>
+<pre><code>--policy-bundle requires a directory
+--replace requires --policy-bundle &lt;dir&gt;
+--home requires a directory
+unknown onboarding option: &lt;argument&gt;
+</code></pre>
+<p>Return to the <a href="../">complete CLI command tree</a>.</p>
