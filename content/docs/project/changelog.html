@@ -3,6 +3,7 @@
 <h2>0.2.0 — Unreleased</h2>
 <h3>Added</h3>
 <ul>
+<li><code>tama hardcodes --root PATH…</code> inventories every tracked line of every repository under the roots that names a fleet host or a vault item, with the names read live from Stado's registry and credential store, so the cleanup of hardcoded names works from what the fleet holds today rather than a list written once.</li>
 <li><code>tama sessions revoke-capability --session ID</code> withdraws the capability granted to one session — a build consent the operator takes back — at once instead of at its expiry: the override's <code>capability</code> becomes <code>null</code>, the build gate refuses the next build, and the running session reports <code>"capability": null</code>. Before, a capability could only be granted.</li>
 <li>CUA consent recording, listing and removal through <code>tama justify --kind cua</code>, <code>tama request</code> and Justifications → CUA consent. Grants are taken from actual session user messages and validated against installed application metadata without manual protected-file edits.</li>
 <li>Product contract, onboarding, operational, core, integration, example, testing, release, security, and support documentation.</li>
