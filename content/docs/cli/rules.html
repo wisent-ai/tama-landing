@@ -35,13 +35,20 @@ When Oko cannot run or refuses its read, <code>unreadable</code> names
 visible. Reading adaptive evidence may take minutes on a large Transcript Lake.</p>
 <h2>Dismissing</h2>
 <p><code>dismiss</code> hides one proposal until new evidence arrives. A hook
-dismissed at three contests returns at the fourth. A lesson returns when Oko
-records a correction it had not seen at dismissal, even if an earlier
-correction has since been answered. Decisions are kept in
+dismissed at three contests returns at the fourth. A lesson dismissed now
+returns when Oko records a correction it had not seen, even if an earlier
+correction has since been answered. Older count-only decisions remain hidden
+until their evidence count grows. Decisions are kept in
 <code>~/.shared-hooks/rule_decisions.json</code>. Which proposal
 the operator never sees again is his decision, so <code>dismiss</code> needs
 <code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session; Tama Desktop
 sets it for the one request its own button sends.</p>
+<p>A missing decisions file means no proposal has been dismissed. An unreadable,
+malformed or invalid <code>rule_decisions.json</code> is different: <code>digest</code>
+refuses to print proposals rather than reopening hidden decisions. The error names
+the path and failed read or parse operation. <code>dismiss</code> does not overwrite
+damaged state. The Desktop digest request returns HTTP 500 with the same error,
+and the Learned screen shows the refusal instead of an empty history.</p>
 <h2>Refusals</h2>
 <ul>
 <li><code>refusing to dismiss &lt;id&gt;: which proposal the operator never sees again is his decision. Set DEVICE_HOOK_EDIT_APPROVED=1 outside the agent session to dismiss it.</code> — exit 2, nothing written.</li>
