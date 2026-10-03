@@ -38,6 +38,17 @@ Tama does not infer a cause from the markers or create or approve a hook.
 When Oko cannot run or refuses its read, <code>unreadable</code> names
 <code>oko-frustration</code> and the failed operation. Other proposals remain
 visible. Reading adaptive evidence may take minutes on a large Transcript Lake.</p>
+<p>A damaged <code>auto_rules.json</code> appears as
+<code>drafted-rules</code> with its path and read or JSON error, while other
+proposals stay visible. <code>list</code>, <code>remove</code> and
+<code>dismiss</code> refuse to treat it as an empty rule set. A detached
+drafter's latest failed operation appears as
+<code>frustration-drafter</code> with its recorded time and error, for example
+<code>CLASSIFY_FAILED Brama rejected the request ... HTTP 401</code>.
+<code>NOT_FRUSTRATED</code>, a low-confidence refusal and a recorded rule
+clear an earlier draft failure. A successful gateway model-list probe does
+not prove that the drafter's classification request works. Inspect this
+diagnostic before treating an empty digest as no learning.</p>
 <h2>Dismissing</h2>
 <p><code>dismiss</code> hides one proposal until new evidence arrives. A hook
 dismissed at three contests returns at the fourth. A lesson dismissed now
@@ -60,6 +71,12 @@ and the Learned screen shows the refusal instead of an empty history.</p>
 <li><code>no open proposal &lt;id&gt; is in the digest</code> — exit 2; the id is not open (already dismissed, or never proposed).</li>
 <li><code>refusing to remove &lt;id&gt;: it was drafted from something the operator really said…</code> — <code>remove</code> of a rule whose quote is in a stored operator message, without the approval.</li>
 </ul>
+<p>Missing <code>auto_rules.json</code> starts with no drafted rules. An existing
+file that cannot be read or has no rules array is never replaced with an empty
+one. A draft and a removal lock the same registry, read its current contents
+and replace it atomically; concurrent drafts do not overwrite one another.
+New dispatch entries record outcomes, not the operator's full prompt; older
+logs may still contain prompts and should be handled as private data.</p>
 <h2>Desktop</h2>
 <p>The <a href="/docs/desktop/learning/">Learned screen</a> runs
 <code>tama request rules/digest</code> and <code>tama request rules/dismiss</code> with

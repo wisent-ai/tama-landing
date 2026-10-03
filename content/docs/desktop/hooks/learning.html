@@ -27,9 +27,14 @@ comes back when more evidence arrives than it had. A refusal is shown as the
 command's own sentence.</p>
 <h2>When a source cannot be read</h2>
 <p>A failed Oko read appears as <code>oko-frustration unreadable</code> with
-the command's failure, and a failed adaptive read names that source. Other
-proposals remain visible; an empty list beside a failed source does not mean
-there were no corrections.</p>
+the command's failure, and a failed adaptive read names that source. An
+existing damaged draft registry appears as <code>drafted-rules unreadable</code>
+with its path and read or parse error. The detached drafter's latest failed
+gateway request or write appears as <code>frustration-drafter unreadable</code>
+with the recorded operation, time and error. The same entries appear under
+<code>unreadable</code> in <code>tama rules digest --json</code>. Other
+proposals remain visible; an empty list beside a failure does not mean there
+were no corrections or that the model request worked.</p>
 <p>If the local dismissal record cannot be read or parsed, the whole digest
 request is refused. The screen shows the file error, not a successful empty
 list; it cannot decide which proposals are hidden from damaged state.</p>
