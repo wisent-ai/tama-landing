@@ -1,9 +1,8 @@
 <h1>Capability</h1>
 <p>What authorizes a supervised session to do something its hooks would
 otherwise refuse? A capability: a bounded, session-bound grant record that
-the session's runtime holds and Tama can only read. Tama displays
-capabilities; it never issues, extends, or revokes one — the
-<a href="../desktop/session.md">Session</a> screen says so on the screen itself.</p>
+the session's runtime holds. Tama never issues or extends one; it can
+withdraw one at the operator's word (see <em>Withdrawing it</em> below).</p>
 <h2>What it is</h2>
 <p>The optional <code>capability</code> object inside a session record
 (<code>ai.wisent.tama.session-control.v2</code>), decoded by the desktop as
@@ -44,6 +43,19 @@ record (<a href="../cli.md#read-only-commands">cli</a>).</li>
 grant issued against one <a href="hook-release.md">hook release</a> does not silently
 carry over to another.</li>
 </ul>
+<h2>Withdrawing it</h2>
+<p>When the operator takes back a consent, the grant is withdrawn at once, not
+at its expiry:</p>
+<pre><code>tama sessions revoke-capability --session &lt;SESSION_ID&gt; [--agent omp|claude|codex] [--json]</code></pre>
+<p>It sets <code>capability</code> to <code>null</code> in that session's
+<code>&lt;controlKey&gt;.override.json</code> and keeps every other field. The build gate
+reads that file on every call, so the next build is refused; the session's
+runtime adopts the change from the session-control directory's change event,
+and <code>tama_hook_runtime_status</code> then reports <code>"capability": null</code>.
+The answer says which case it found: <code>revoked</code> (with the withdrawn grant),
+<code>none-held</code> (the session holds no capability), or <code>no-override</code>
+(nothing was ever recorded for that session). A missing <code>--session</code> is a
+usage error, exit 2.</p>
 <h2>Where it lives</h2>
 <p>Only inside the supervisor-owned session record under
 <code>~/Library/Application Support/Tama/session-control/</code>. It disappears with

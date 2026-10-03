@@ -141,7 +141,9 @@ command runs in, and a path that names no existing directory establishes no prod
 with no product list admits it. <code>stado release submit --build ID</code> names no
 product in its arguments, so the gate reads the product from the fleet's build record
 (<code>stado build status ID --json</code>); a build the fleet does not hold is admitted only by a grant
-with no product list.</p>
+with no product list. When the operator withdraws his consent, the agent runs
+<code>tama sessions revoke-capability --session SESSION_ID</code>, and the gate refuses the next build
+at once.</p>
 <p>
 After producing and checking the real result,
 run <code>oko transcripts tasks verify --before-stop --session SESSION_ID</code>.
