@@ -126,6 +126,9 @@ input already carries, such as a field, status code or exit code.</p>
 paths and command options are not English trigger words. A collection passed
 as an ordinary call argument is that call's data:
 <code>run(["transcripts", "tasks", "show"])</code> is not a classifier.
+In a release manifest, <code>argv</code> is a command vector and
+<code>promotion.channels</code> names release states. Neither list classifies
+input; other word arrays in that document are still judged.
 A collection retained in a variable, iterated, or used to answer a membership
 question is judged; <code>["ready", "done"].contains(reply)</code> classifies by
 words. Renaming the variable or moving the same decision into a data file does
