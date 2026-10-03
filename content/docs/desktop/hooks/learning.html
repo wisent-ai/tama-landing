@@ -1,6 +1,6 @@
 <h1>Learned screen</h1>
-<p>Tama shows one proposal per contested hook, drafted rule or unresolved
-operator correction with a named cause. The screen reads the sealed CLI's
+<p>Tama shows proposals for contested hooks, drafted rules, named causes and
+unexplained operator corrections. The screen reads the sealed CLI's
 <a href="/docs/cli/rules/"><code>tama rules digest</code></a> through
 <code>tama request rules/digest</code>; it does not install policy.</p>
 <h2>What a row shows</h2>
@@ -8,12 +8,14 @@ operator correction with a named cause. The screen reads the sealed CLI's
 <li>The contested hook, drafted rule or cause the proposal is about.</li>
 <li>What was observed, how often, and the first and last observation.</li>
 <li>For a lesson, expand <strong>Read sources</strong> to see every Oko session,
-the operator's words and the named cause. A linked defect groups its moments;
-otherwise identical causes group them.</li>
+the operator's words and its named cause or <strong>Cause not yet named</strong>.
+A linked defect groups named moments; otherwise identical causes group them.
+Unexplained moments appear in a separate proposal, not as one assumed cause.</li>
 <li>The selectable command: <code>tama adaptive repair &lt;hook&gt;</code>,
-<code>tama rules remove --id &lt;rule&gt;</code>, or
-<code>oko frustration show &lt;moment-id&gt;</code>. The last command only
-inspects evidence; it neither fixes the cause nor enables a hook.</li>
+<code>tama rules remove --id &lt;rule&gt;</code>,
+<code>oko frustration show &lt;moment-id&gt;</code> for a named lesson, or
+<code>oko frustration list --open</code> for unexplained moments. The latter
+commands inspect evidence; they neither fix the cause nor enable a hook.</li>
 </ul>
 <h2>Dismiss until new evidence</h2>
 <p>The button runs <code>tama request rules/dismiss</code> with the proposal's id and the

@@ -11,10 +11,10 @@ tama rules dismiss --id &lt;proposal-id&gt;
 <a href="/docs/adaptive/">adaptive enforcement</a>). The frustration drafter
 records runtime rules in <code>~/.shared-hooks/auto_rules.json</code>. Oko records
 operator corrections and any cause the operator has named, with links to defects.
-<code>digest</code> reads all three through their owning interfaces and returns
-one proposal per hook, drafted rule or unresolved cause. It does not infer a cause
-from an unexplained correction or turn a lesson into an enforced rule. An answered
-correction is not open work.</p>
+<code>digest</code> reads all three through their owning interfaces. It groups
+named causes by defect or identical cause and keeps every still-unexplained
+correction in one separate proposal. It does not guess a cause or turn a lesson
+into an enforced rule. An answered correction is not open work.</p>
 <h2>Proposals</h2>
 <table>
 <thead><tr><th>id</th><th>kind</th><th>action</th></tr></thead>
@@ -22,14 +22,16 @@ correction is not open work.</p>
 <tr><td><code>hook:&lt;hook-id&gt;</code></td><td><code>repair</code>: the operator contested this hook <code>evidence</code> times</td><td><code>tama adaptive repair &lt;hook-id&gt;</code> drafts and validates a candidate against the labeled cases</td></tr>
 <tr><td><code>rule:&lt;rule-id&gt;</code></td><td><code>drafted-rule</code>: a rule the drafter recorded, with the quote it was drafted from</td><td><code>tama rules remove --id &lt;rule-id&gt;</code></td></tr>
 <tr><td><code>cause:&lt;defect-id-or-cause-digest&gt;</code></td><td><code>lesson</code>: unresolved operator corrections grouped by linked defect, or by identical named cause when unlinked</td><td><code>oko frustration show &lt;moment-id&gt;</code> inspects the source; repair the producing process separately</td></tr>
+<tr><td><code>cause:unexplained</code></td><td><code>lesson</code>: unresolved corrections without a named cause, kept visible together without claiming they share one cause</td><td><code>oko frustration list --open</code> lists the moments for inspection</td></tr>
 </tbody>
 </table>
 <p><code>--json</code> prints <code>{"proposals": [...], "dismissed": N, "unreadable": [{"source", "error"}]}</code>.
 A lesson carries <code>sources</code> with each Oko moment's id, session,
-operator quote and named cause, plus the first and last observation. For example,
-<code>tama rules digest --json</code> shows a single lesson when two unanswered
-moments link to the same defect; <code>oko frustration show &lt;moment-id&gt;</code>
-reads the underlying record. It does not create or approve a hook.
+operator quote and cause (null when not yet named), plus the first and last
+observation. Two unanswered moments linked to the same defect form one named
+lesson; unexplained moments form a separate proposal. <code>oko frustration
+show &lt;moment-id&gt;</code> reads an underlying record. It does not create or
+approve a hook.
 When Oko cannot run or refuses its read, <code>unreadable</code> names
 <code>oko-frustration</code> and the failed operation. Other proposals remain
 visible. Reading adaptive evidence may take minutes on a large Transcript Lake.</p>
