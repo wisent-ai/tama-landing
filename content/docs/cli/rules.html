@@ -21,17 +21,19 @@ into an enforced rule. An answered correction is not open work.</p>
 <tbody>
 <tr><td><code>hook:&lt;hook-id&gt;</code></td><td><code>repair</code>: the operator contested this hook <code>evidence</code> times</td><td><code>tama adaptive repair &lt;hook-id&gt;</code> drafts and validates a candidate against the labeled cases</td></tr>
 <tr><td><code>rule:&lt;rule-id&gt;</code></td><td><code>drafted-rule</code>: a rule the drafter recorded, with the quote it was drafted from</td><td><code>tama rules remove --id &lt;rule-id&gt;</code></td></tr>
-<tr><td><code>cause:&lt;defect-id-or-cause-digest&gt;</code></td><td><code>lesson</code>: unresolved operator corrections grouped by linked defect, or by identical named cause when unlinked</td><td><code>oko frustration show &lt;moment-id&gt;</code> inspects the source; repair the producing process separately</td></tr>
+<tr><td><code>cause:&lt;defect-id-or-cause-digest&gt;</code></td><td><code>lesson</code>: unresolved operator corrections grouped by linked defect, or by identical named cause when unlinked</td><td><code>oko defects show &lt;defect-id&gt;</code> inspects a linked defect and its repair plan; <code>oko frustration show &lt;moment-id&gt;</code> inspects an unlinked source</td></tr>
 <tr><td><code>cause:unexplained</code></td><td><code>lesson</code>: unresolved corrections without a named cause, kept visible together without claiming they share one cause</td><td><code>oko frustration list --open</code> lists the moments for inspection</td></tr>
 </tbody>
 </table>
 <p><code>--json</code> prints <code>{"proposals": [...], "dismissed": N, "unreadable": [{"source", "error"}]}</code>.
 A lesson carries <code>sources</code> with each Oko moment's id, session,
-operator quote, cause (null when not yet named), reading markers and earlier
-repetition count, plus the first and last observation. The plain output prints
-those readings beneath the quote. Two unanswered moments linked to the same
-defect form one named lesson; unexplained moments form a separate proposal.
-<code>oko frustration show &lt;moment-id&gt;</code> reads an underlying record.
+operator quote, cause (null when not yet named), linked defect (null when
+unlinked), reading markers and earlier repetition count, plus the first and
+last observation. The plain output prints the defect and readings beneath
+the quote. Two unanswered moments linked to the same defect form one named
+lesson; unexplained moments form a separate proposal. A linked lesson's
+action reads the real defect record, including its evidence and repair plan;
+the source ids can still be inspected with <code>oko frustration show</code>.
 Tama does not infer a cause from the markers or create or approve a hook.
 When Oko cannot run or refuses its read, <code>unreadable</code> names
 <code>oko-frustration</code> and the failed operation. Other proposals remain

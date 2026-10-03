@@ -9,13 +9,15 @@ unexplained operator corrections. The screen reads the sealed CLI's
 <li>What was observed, how often, and the first and last observation.</li>
 <li>For a lesson, expand <strong>Read sources</strong> to see every Oko session,
 the operator's words, its named cause or <strong>Cause not yet named</strong>,
-the readings that flagged the moment and any earlier repetitions. A linked
-defect groups named moments; otherwise identical causes group them. Unexplained
-moments appear separately, not as one assumed cause.</li>
+the linked defect when present, the readings that flagged the moment and
+any earlier repetitions. A linked defect groups named moments; otherwise
+identical causes group them. Unexplained moments appear separately, not as
+one assumed cause.</li>
 <li>The selectable command: <code>tama adaptive repair &lt;hook&gt;</code>,
 <code>tama rules remove --id &lt;rule&gt;</code>,
-<code>oko frustration show &lt;moment-id&gt;</code> for a named lesson, or
-<code>oko frustration list --open</code> for unexplained moments. The latter
+<code>oko defects show &lt;defect-id&gt;</code> for a linked lesson,
+<code>oko frustration show &lt;moment-id&gt;</code> for an unlinked named lesson,
+or <code>oko frustration list --open</code> for unexplained moments. The Oko
 commands inspect evidence; they neither fix the cause nor enable a hook.</li>
 </ul>
 <h2>Dismiss until new evidence</h2>
