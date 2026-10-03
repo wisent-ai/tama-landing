@@ -34,10 +34,11 @@ When Oko cannot run or refuses its read, <code>unreadable</code> names
 <code>oko-frustration</code> and the failed operation. Other proposals remain
 visible. Reading adaptive evidence may take minutes on a large Transcript Lake.</p>
 <h2>Dismissing</h2>
-<p><code>dismiss</code> hides one proposal until more evidence arrives than it had when
-it was dismissed: a hook dismissed at three contests returns at the fourth,
-and a lesson dismissed at two corrections returns with a third.
-Decisions are kept in <code>~/.shared-hooks/rule_decisions.json</code>. Which proposal
+<p><code>dismiss</code> hides one proposal until new evidence arrives. A hook
+dismissed at three contests returns at the fourth. A lesson returns when Oko
+records a correction it had not seen at dismissal, even if an earlier
+correction has since been answered. Decisions are kept in
+<code>~/.shared-hooks/rule_decisions.json</code>. Which proposal
 the operator never sees again is his decision, so <code>dismiss</code> needs
 <code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session; Tama Desktop
 sets it for the one request its own button sends.</p>
