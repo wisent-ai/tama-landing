@@ -27,11 +27,12 @@ into an enforced rule. An answered correction is not open work.</p>
 </table>
 <p><code>--json</code> prints <code>{"proposals": [...], "dismissed": N, "unreadable": [{"source", "error"}]}</code>.
 A lesson carries <code>sources</code> with each Oko moment's id, session,
-operator quote and cause (null when not yet named), plus the first and last
-observation. Two unanswered moments linked to the same defect form one named
-lesson; unexplained moments form a separate proposal. <code>oko frustration
-show &lt;moment-id&gt;</code> reads an underlying record. It does not create or
-approve a hook.
+operator quote, cause (null when not yet named), reading markers and earlier
+repetition count, plus the first and last observation. The plain output prints
+those readings beneath the quote. Two unanswered moments linked to the same
+defect form one named lesson; unexplained moments form a separate proposal.
+<code>oko frustration show &lt;moment-id&gt;</code> reads an underlying record.
+Tama does not infer a cause from the markers or create or approve a hook.
 When Oko cannot run or refuses its read, <code>unreadable</code> names
 <code>oko-frustration</code> and the failed operation. Other proposals remain
 visible. Reading adaptive evidence may take minutes on a large Transcript Lake.</p>
