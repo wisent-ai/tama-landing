@@ -127,7 +127,11 @@ recorded by <code>oko transcripts tasks evidence</code>, or a defect with no rev
 <code>oko defects repaired</code>. A code repair is only proven by a build, so building waits for
 every repair to exist, not for every item to close; the one build then proves them, and each
 item is closed or reopened on what it shows. The refusal lists the items that still carry no
-repair. A build the operator consents to in the conversation passes before that: the agent records
+repair. A recorded revision counts as a repair only when it comes after the defect: when the
+defect's <code>found_in</code> names a commit of the same repository, the repair must descend from
+that commit and differ from it, so a fix committed before the defect was recorded still counts;
+otherwise the repair must be committed after the defect's <code>found_at</code> time. A revision
+this machine cannot resolve is counted as recorded. A build the operator consents to in the conversation passes before that: the agent records
 the consent as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
 (or <code>{"tool": "build"}</code> for any product) with the lifetime he named, and the gate lets a build
 through whose arguments name a granted product. For <code>stado release submit --source PATH</code> and
