@@ -34,6 +34,13 @@ Status requests report their data in <code>state</code>; their
 <code>{"reloaded":true,"changed":true}</code>, or <code>changed:false</code>
 when the validated catalog already matches. The response is produced after
 the engine has adopted the candidate, never after inserting a prompt.</p>
+<p>Answers arrive as requests finish, not in the order they were sent, and a
+client matches each to its request by <code>id</code>. Each
+<code>dispatch</code> runs on its own thread against the generation loaded
+when it arrived, so a hook that never ends holds only its own request;
+<code>status</code> and <code>reload</code> are answered at once. The OMP
+adapter keeps every request in flight side by side and orders only reloads and
+shutdown.</p>
 <p>A client can send <code>knownCatalogChecksum</code>. When it differs from
 the loaded checksum, the response also includes the loaded <code>catalog</code>,
 including on a rejected replacement. Matching clients receive no duplicate
