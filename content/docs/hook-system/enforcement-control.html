@@ -36,6 +36,23 @@ per-tool grants), <code>runtime</code> status (<code>installedReleaseId</code>, 
 <code>semanticRuntime</code> — the sequence of recent events with each <code>decision</code>, the
 <code>blockedHookId</code>, and the <code>reason</code> string. Tama only reads these records;
 invalid, legacy-v1, or stale ones are ignored.</p>
+<h2>Reminders after every tool call</h2>
+<p>The <code>remind-open-work</code> PostToolUse hook follows each tool result with a
+sentence the operator set, which the agent reads as context after every call.
+<code>tama sessions remind --session SESSION_ID --text "SENTENCE"</code> sets one
+session's sentence, given after every call while it is set;
+<code>tama sessions remind --default --text "SENTENCE"</code> sets the machine-wide
+sentence, given only while Oko holds an open task or defect for the session.
+<code>--clear</code> removes either; the command without <code>--text</code> or
+<code>--clear</code> prints the current sentence, and <code>--json</code> prints
+<code>{"scope", "sentence"}</code>. Both live in
+<code>session-control/reminders.json</code>, schema
+<code>ai.wisent.tama.reminders.v1</code>. No sentence is compiled into Tama: with
+none set the hook adds nothing. Naming both or neither of
+<code>--session</code> and <code>--default</code>, or both <code>--text</code> and
+<code>--clear</code>, is a usage error (exit 2). The hook gives the agent the
+sentence; whether the agent repeats it in its own words is not checked.</p>
+
 <h2>Session-scoped enable</h2>
 <p>The desktop writes a private request file
 <code>&lt;controlKey&gt;.&lt;requestId&gt;.request.json</code> (mode <code>0600</code>) into the same
