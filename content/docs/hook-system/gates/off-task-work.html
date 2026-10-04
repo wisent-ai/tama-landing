@@ -29,12 +29,11 @@ in the same session. Oko's pending independent verdict remains pending; selectio
 <p>Every scope names an entry in Oko's register. An unknown task, a task already done, an unknown defect, or a defect
 closed by a revision is refused. The agent must select an open task whose work it is actually doing, not declare
 unrelated work under a convenient repository name.</p>
-<p>A <code>--defect</code> declaration is also the session's claim on that defect. <code>set</code> reads every other
-session's declaration and refuses a defect another session declared within the last hour:
-<code>defect &lt;ID&gt; is being repaired by session &lt;SESSION&gt;, which declared it in the last hour; a second
-session on it duplicates or overwrites that work. Read its notes (`oko defects show &lt;ID&gt;`) and declare another
-open defect or task.</code> The claim lapses an hour after the claiming session last declared its scope, so a session
-that stopped does not hold a defect for ever. Declaring the same defect again renews the claim.</p>
+<p>Another session's <code>--defect</code> declaration does not lock the defect. Sessions work on one piece of code
+together, so <code>set</code> declares the scope and, when another live session declared the same defect, prints on
+stderr: <code>defect &lt;ID&gt; is also declared by session &lt;SESSION&gt;; work on it together: read its notes
+(`oko defects show &lt;ID&gt;`) and the uncommitted changes it holds, then build on them with anchored edits</code>.
+The exit status is still <code>0</code>.</p>
 <p>A task's scope lives in its Oko contract, not in the session. With <code>--task</code> and no
 <code>--repository</code>, <code>set</code> takes the repositories the contract lists
 (<code>oko transcripts tasks show &lt;task&gt; --json</code>, field <code>current.contract.terms.scope</code>). Given
@@ -63,11 +62,11 @@ the answer.</td></tr>
 step at a time, under a scope nobody granted for the new prompt.</td></tr>
 <tr><td>A completed or unknown earlier task</td>
 <td>Refused by <code>set</code>. Resume an open registered task; do not relabel the latest prompt as its work.</td></tr>
-<tr><td>A write to a file another session has uncommitted changes in</td>
+<tr><td>A whole-file write over a file another session has uncommitted changes in</td>
 <td>Refused, naming the file and the session that wrote it. Every file a session writes is logged under
-<code>~/.tama/session-writes/&lt;session&gt;.log</code>; a file with uncommitted changes that another session's log
-names and this session's does not is that session's unfinished work, and writing it would replace it. Build on its
-committed version once it commits.</td></tr>
+<code>~/.tama/session-writes/&lt;session&gt;.log</code>; a whole-file write would replace that session's unfinished
+change. An anchored edit of the same file is allowed: it applies to the file as it is, that session's change
+included, and the file then counts as this session's too, so it may commit it.</td></tr>
 <tr><td>A broad <code>git add</code> (<code>-A</code>, <code>--all</code>, <code>.</code> or a directory) over an
 untracked file another session wrote</td>
 <td>Refused, naming the file and the writing session. Stage the files this session wrote by name.</td></tr>
