@@ -152,8 +152,10 @@ this machine cannot resolve is counted as recorded. A build the operator consent
 the consent as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
 (or <code>{"tool": "build"}</code> for any product) with the lifetime he named, and the gate lets a build
 through whose arguments name a granted product. For <code>stado release submit --source PATH</code> and
-<code>stado build submit --source PATH</code> the product is the name of the checkout directory PATH
-resolves to; a relative path such as <code>--source .</code> is resolved against the directory the
+<code>stado build submit --source PATH</code> the product is the <code>product</code> the checkout's
+<code>.wisent-release.json</code> declares (the name Stado builds it under, such as
+<code>compute-wisent-com</code> for the checkout <code>compute.wisent.com</code>), else the name of the
+checkout directory PATH resolves to; a relative path such as <code>--source .</code> is resolved against the directory the
 command runs in, and a path that names no existing directory establishes no product, so only a grant
 with no product list admits it. <code>stado release submit --build ID</code> names no
 product in its arguments, so the gate reads the product from the fleet's build record
