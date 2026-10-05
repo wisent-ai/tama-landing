@@ -63,7 +63,13 @@ its own handler limit, so the engine ends its process group as well and writes
 that tool call is over and nobody waits for its answer</code> on stderr. Left
 running, every such hook would keep one unanswered model request open, and
 each further tool call would add another to a gateway that already does not
-answer. A payload without a session id is never superseded or ended.
+answer. That tool call's dispatch starts none of its remaining hooks and
+answers <code>ok:false</code> with <code>the turn of session &lt;id&gt; ended
+while &lt;event&gt; was still being checked, so that tool call is over and hook
+&lt;id&gt; and the ones after it were not started</code>. A serving engine
+whose input closes ends every hook run it still holds the same way, with
+<code>the core's caller closed its input, so nobody waits for its
+answer</code>. A payload without a session id is never superseded or ended.
 <code>tama hooks running</code> lists every hook still running.</p>
 <p>A client can send <code>knownCatalogChecksum</code>. When it differs from
 the loaded checksum, the response also includes the loaded <code>catalog</code>,
