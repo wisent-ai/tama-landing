@@ -1,0 +1,28 @@
+<h1><code>tama hardcodes</code></h1>
+<p>Reports every line of every git repository directly under the roots you name that writes down a fleet host name, a vault item id, a number <code>block-numeric-literals</code> refuses, or a host with a port. It writes nothing.</p>
+<h2>Invocation</h2>
+<pre><code>tama hardcodes --root &lt;PATH&gt;... [--origins] [--summary] [--json]
+</code></pre>
+<h2>Inputs and options</h2>
+<table>
+<thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--root &lt;PATH&gt;</code></td><td>Required and repeatable. Every git repository directly under each root is read. The command does not guess a tree.</td></tr>
+<tr><td><code>--origins</code></td><td>Adds the commit that wrote each line and its subject. That is where the question "who decided this value" starts.</td></tr>
+<tr><td><code>--summary</code></td><td>Prints only the count of each kind per repository.</td></tr>
+<tr><td><code>--json</code></td><td>Prints one document instead of the text report.</td></tr>
+</tbody>
+</table>
+<h2>What counts as a finding</h2>
+<p>Host names come from Stado's registry (<code>stado registry pull</code>) and vault item ids from the credential store Stado selects (<code>stado credentials ls --json</code>), both read live. A name that is also a repository's directory name is a product's own name and is not reported. A number counts exactly when <code>block-numeric-literals</code> would refuse it, so a number declared in <code>numeric-provenance.json</code> with the operator's words is not reported.</p>
+<h2>Output</h2>
+<p>The text report starts with <code>looked for &lt;n&gt; host names, &lt;m&gt; vault item ids, numbers and addresses</code>. Each repository with findings prints <code>&lt;repo&gt;: &lt;count&gt; &lt;kind&gt;, …</code>, then one line per finding, <code>&lt;path&gt;:&lt;line&gt; &lt;kind&gt; &lt;value&gt;</code>, with <code>[&lt;commit&gt; &lt;subject&gt;]</code> appended under <code>--origins</code>, and <code>skipped &lt;path&gt;: &lt;reason&gt;</code> for a file it did not read. A repository it could not read prints <code>unreadable: &lt;repo&gt; (&lt;error&gt;)</code>. The last line is <code>&lt;total&gt; findings in &lt;n&gt; repositories: &lt;count&gt; &lt;kind&gt;, …</code>.</p>
+<p><code>--json</code> prints <code>{"vocabulary":{"hosts","vaultItems"},"repositories":[{"repo","counts","skipped","findings"}],"unreadable":[{"repo","error"}],"totals":{"repositories","findings","byKind"}}</code>; <code>--summary</code> leaves out each repository's <code>findings</code>.</p>
+<h2>Exit status and refusals</h2>
+<p>Exits <code>0</code> when nothing is found, <code>1</code> when something is found or a source cannot be read, and <code>2</code> for a usage error. The usage errors print the sentence and then the usage:</p>
+<pre><code>tama hardcodes needs at least one --root; it does not guess which tree to read
+--root needs a path
+unknown argument "--bogus"
+</code></pre>
+<p>A root that cannot be listed, or a host or vault vocabulary that cannot be read, exits <code>1</code> with <code>cannot read what counts as a name: &lt;error&gt;</code> or the listing's own error. <code>--help</code> or <code>-h</code> prints the usage and exits <code>0</code>.</p>
+<p>Return to the <a href="../../">complete CLI command tree</a>.</p>

@@ -43,6 +43,7 @@
   {"route":"cli/declare-root","source":"content/docs/cli/inspection/violations/declare-root.html","content":"content/docs/cli/inspection/violations/declare-root.html","category":"CLI reference"},
   {"route":"cli/vocabulary-report","source":"content/docs/cli/inspection/violations/vocabulary-report.html","content":"content/docs/cli/inspection/violations/vocabulary-report.html","category":"CLI reference"},
   {"route":"cli/extract-patterns","source":"content/docs/cli/inspection/violations/extract-patterns.html","content":"content/docs/cli/inspection/violations/extract-patterns.html","category":"CLI reference"},
+  {"route":"cli/hardcodes","source":"content/docs/cli/inspection/violations/hardcodes.html","content":"content/docs/cli/inspection/violations/hardcodes.html","category":"CLI reference"},
   {"route":"cli/clean","source":"docs/cli/installation/clean.html","content":"content/docs/cli/installation/clean.html","category":"CLI reference"},
   {"route":"cli/brama-check","source":"content/docs/cli/installation/brama-check.html","content":"content/docs/cli/installation/brama-check.html","category":"CLI reference"},
   {"route":"cli/model-provider","source":"content/docs/cli/configuration/model-provider.html","content":"content/docs/cli/configuration/model-provider.html","category":"CLI reference"},
