@@ -41,6 +41,18 @@ when it arrived, so a hook that never ends holds only its own request;
 <code>status</code> and <code>reload</code> are answered at once. The OMP
 adapter keeps every request in flight side by side and orders only reloads and
 shutdown.</p>
+<p>Each hook runs in its own process group. A session ends its turn and
+submits a prompt one at a time: the harness sends the next <code>stop</code>
+or <code>user_prompt_submit</code> only after it stopped waiting for the one
+before. So when one of those hooks starts while the same hook of the same
+session (<code>session_id</code> in the payload) still runs for the previous
+event, the engine ends the earlier run's process group — the hook and what it
+started, such as a model request that is never answered — and writes
+<code>tama: ended hook &lt;id&gt; (process group &lt;pid&gt;) still running for
+the previous &lt;event&gt; of session &lt;id&gt;</code> on stderr; the ended run
+is reported as a malfunction, not as a refusal. No clock is involved, and tool
+events are never ended this way, because a session runs tool calls side by
+side. A payload without a session id is never superseded.</p>
 <p>A client can send <code>knownCatalogChecksum</code>. When it differs from
 the loaded checksum, the response also includes the loaded <code>catalog</code>,
 including on a rejected replacement. Matching clients receive no duplicate
