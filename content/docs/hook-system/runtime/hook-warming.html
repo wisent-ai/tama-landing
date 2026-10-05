@@ -11,11 +11,13 @@ decides the event, because the number was a guess at how long an answer may
 take and the hook killed at it reported a failure it never had. Nothing in the
 registry carries a <code>timeout</code>, and no run is killed for being slow:
 a slow gate is found by what it costs, not replaced by a verdict it never
-gave. Waiting is not free, though. The OMP adapter waits for a whole event
-ten seconds plus ten for each hook, and refuses the event past that as
-<code>tama-shared-runtime</code>; 147 seconds inside a live event is also 147
-seconds somebody sits through. So the first-run cost is paid deliberately,
-outside the event.</p>
+gave. Waiting is not free, though. The OMP adapter sets no limit of its own,
+but OMP does: a tool-call handler that has not answered within OMP's
+<code>extensionHandlers.toolCallTimeoutMs</code> setting (thirty seconds unless
+the operator set it) is refused by OMP as
+<code>Extension …/omp-shared-hooks.js timed out after …ms</code>, and the tool
+does not run. A cold binary inside a live event costs that event. So the
+first-run cost is paid deliberately, outside the event.</p>
 <p><code>tama hooks release</code> runs every binary the registry names once,
 right after installing, and prints what each one cost. Run the same step on its
 own when binaries arrived another way, or to see where this machine stands:</p>

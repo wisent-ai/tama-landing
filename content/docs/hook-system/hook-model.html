@@ -206,14 +206,13 @@ and returns <code>Unavailable</code> with <code>Oko last saw the judge
 refuse at …: …; not asked again from a hook</code>, because asking anyway
 costs Brama's whole retry wait inside the event, and a single refused
 <code>proxy-call</code> can take tens of seconds inside a stop gate. The
-engine runs an event's hooks one after another and kills none of them, but
-the OMP adapter waits for the whole event only ten seconds plus each hook's
-declared <code>"timeout"</code> (ten when none is declared), and past that it
-refuses the event as <code>tama-shared-runtime</code> with
-<code>TAMA_HOOK_INFRASTRUCTURE: Tama core dispatch timed out after …ms</code>.
-The operator's rule is that no run is cut at a number, so that wait in the
-adapter is removed with the adapter's next change rather than squeezed by a
-shorter wait inside each gate.</p>
+engine kills no hook for being slow, and the OMP adapter sets no wait of its
+own; OMP refuses a tool call whose handler has not answered within its
+<code>extensionHandlers.toolCallTimeoutMs</code> setting, with
+<code>Extension …/omp-shared-hooks.js timed out after …ms</code>. A hook the
+harness stopped waiting for is ended by the next event that proves it has no
+caller, as the <a href="/docs/enforcement-control/runtime/adapters/">runtime
+page</a> describes, not by a clock.</p>
 <p><code>check-substantiation-with-model</code> uses the model gateway.
 That is also the route for a judgment about prose that cannot be decided
 from the input's structure; an embedded word list is not a substitute.</p>
