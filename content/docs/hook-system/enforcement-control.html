@@ -125,7 +125,10 @@ instead of the Oko commands it names when Oko is installed.
 when enabled. Neither guard asks a second model to reinterpret open tasks as
 permission to stop.</p>
 <p>Any executable task still marked <code>not done</code> in any session blocks completion,
-and every defect of any product that records no fixing revision blocks it too. An entry in
+and every defect that records no fixing revision blocks it too: of every product for a session
+whose tasks name no scope, and only of the products its task contracts are scoped to
+(<code>contract.terms.scope</code>, written with <code>oko transcripts tasks state --scope</code>)
+otherwise; the refusal counts the other products' open defects as outside the session's scope. An entry in
 <code>oko blockers</code>, a <code>blocked</code> verdict, a judge outage after evidence, or a
 wait on other open work does not stand an item aside: only Oko recording a task done or
 withdrawn, or a defect fixed, removes it. A task Oko relates as <code>duplicate-of</code>
