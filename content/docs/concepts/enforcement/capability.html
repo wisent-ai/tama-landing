@@ -42,6 +42,14 @@ record (<a href="../cli.md#read-only-commands">cli</a>).</li>
 <li>The release/checksum binding is what makes a stale capability visible: a
 grant issued against one <a href="hook-release.md">hook release</a> does not silently
 carry over to another.</li>
+<li>A grant whose control key, catalog checksum or release id does not match the
+policy the hook runtime has loaded is not passed to any hook, and every refusal
+the runtime gives while it is held says so: <code>The session's recorded capability
+was not passed to the hooks: its &lt;session control key|catalog checksum|release
+id&gt; does not match the policy this runtime has loaded, so it was recorded against
+another policy generation. Record the grant again with
+tama_request_session_capability.</code> A refusal therefore never reads as missing
+consent while a recorded grant was dropped.</li>
 </ul>
 <h2>Withdrawing it</h2>
 <p>When the operator takes back a consent, the grant is withdrawn at once, not
