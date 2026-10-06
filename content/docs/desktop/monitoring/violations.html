@@ -59,6 +59,7 @@ stated verbatim:</p>
 <p>Reason code <code>&lt;n&gt; violations in &lt;m&gt; repositories</code>; the listing is every file
 the findings name; footnote: <code>the agent runs with Codex; Tama refuses to start the repair when Codex is absent</code>. Actions: <code>Cancel</code>, destructive
 <code>Repair with a headless agent</code>, primary <code>Read the findings first</code>.</p>
+<p>Above the dialog sits the field <code>Repair rounds the agent may take</code>. The repair is enabled only while it holds a whole number above zero, and that number is sent as <code>maxRounds</code>, the request's form of <code>tama clean --max-rounds</code>; neither has a default. A repair started without it reports <code>Say how many repair rounds the run may take: a whole number above zero.</code></p>
 <h2>While a repair runs</h2>
 <p>The clean bar reports in the command's own place: <code>A headless agent is editing the working tree in &lt;path&gt;.</code>, on stop <code>Stopping the repair. Partial edits are preserved and rescanned.</code>, then <code>Rescanning the working tree before reporting the result.</code> A cancelled clean is a reported failure:
 <code>The clean command was cancelled. Partial working-tree edits remain visible; inspect them and complete a read-only scan before retrying.</code> A cleanup that
