@@ -28,7 +28,7 @@ can exceed the daily count without changing the default policy; change-size chec
 <table>
 <thead><tr><th>Limit</th><th>Value in code</th><th>What it stops</th></tr></thead>
 <tbody>
-<tr><td><code>builds_per_day</code></td><td>3 locally</td><td>The local fallback refuses another build
+<tr><td><code>builds_per_day</code></td><td>3 locally, the operator's number read from <code>builds_per_day</code> in <code>numeric-provenance.json</code></td><td>The local fallback refuses another build
 after this count in rolling 24 hours. When Stado answers, its UTC-day fleet budget is authoritative.
 An explicitly approved and audited exception may exceed the count, not the other checks.</td></tr>
 <tr><td><code>restarts_per_day</code></td><td>10</td><td>Counted separately, so a spent build

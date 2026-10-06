@@ -132,8 +132,10 @@ and <code>target</code>. Unknown request fields are refused.</p>
 tama build policy --builds-per-day 2 --restarts-per-day 6 \
   --minimum-changed-lines 80 --window-minutes 45</code></pre>
 <p>Without options it prints the file and the sentence: <em>3 builds and 10 restarts in any 24 hours;
-a build carries at least 30 changed lines; one recorded intent authorizes 60 minutes</em>. Those are
-the values in code, so a machine with no policy file is still rationed. Tightening a limit needs
+a build carries at least 30 changed lines; one recorded intent authorizes 60 minutes</em>. A field the
+file does not carry falls back to the value in code; for <code>builds_per_day</code> that is the
+operator's own number, <code>builds_per_day</code> in <code>numeric-provenance.json</code> with his
+words, so a machine with no policy file is still rationed. Tightening a limit needs
 nothing. Loosening one — more builds a day, a smaller minimum change, a longer window — is refused
 unless <code>DEVICE_HOOK_EDIT_APPROVED=1</code> is set outside the agent session, because an agent
 that can raise its own allowance has none. A policy or ledger that cannot be parsed refuses the build
