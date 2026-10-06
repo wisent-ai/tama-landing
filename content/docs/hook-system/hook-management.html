@@ -212,13 +212,34 @@ commit and is never dirty.</p>
 <h2>Owner consent for a hook change</h2>
 <p>Hook source and structured configuration are protected at device level. Inside
 an agent session <code>block-hook-config-edits-without-consent</code> refuses any
-payload that would create or edit them, and the refusal names what lifts it:
-<code>DEVICE_HOOK_EDIT_APPROVED=1</code>, exported by the owner in their own shell,
-outside the session. Three places read that one variable — the hook itself,
-<a href="cli/adaptive/apply.md"><code>tama adaptive apply</code></a>, and
-<a href="cli/adaptive/install.md"><code>tama adaptive install</code></a> — so a
-session capability, a renamed path, or a patch applied beside the guard is a
-bypass rather than a route, and this page is the route.</p>
+payload that would create or edit them, and the refusal names what lifts it: the
+owner's consent, given one of two ways.</p>
+<ul>
+<li><strong>In the conversation.</strong> The operator says he agrees; the agent
+records it as the Tama session capability
+<code>{"tool": "tama", "actions": ["hook-edit"]}</code> with the lifetime he named
+(one call, until a stated time, or the session). The hook runner validates the
+grant's session, release and catalog before a hook reads it.
+<code>tama hooks declare</code>, <code>undeclare</code> and
+<code>release</code> run from the shell, outside the runner, so they read the
+capability every live session recorded, validated the same way: an expired,
+withdrawn or emergency-suspended grant admits nothing. The command names the
+session whose grant it used on stderr
+(<code>owner consent: the hook-edit capability recorded in session …</code>) and
+hands the consent to the catalogue and registry writers it starts, so
+<code>stado product install tama --surface cli</code> finishes on the operator's
+word alone.</li>
+<li><strong>In his own shell.</strong> <code>DEVICE_HOOK_EDIT_APPROVED=1</code>,
+exported outside the session. <a href="cli/adaptive/apply.md"><code>tama adaptive
+apply</code></a> and <a href="cli/adaptive/install.md"><code>tama adaptive
+install</code></a> read only this variable.</li>
+</ul>
+<p>Test code follows the same rule: <code>block-unapproved-tests</code> and
+<code>block-device-level-tests-without-consent</code> admit it under the session
+capability <code>{"tool": "tests"}</code> recorded after the operator agrees in the
+conversation, under <code>tama tests approve &lt;path&gt;</code> run in his own
+terminal, or under <code>DEVICE_LEVEL_TESTS_APPROVED=1</code>. A session can never
+write the approval record or run <code>tama tests approve</code> itself.</p>
 <p>For a live hook the supported route is a validated proposal:</p>
 <pre><code>tama adaptive repair &lt;hook-id&gt; --patch-file &lt;path&gt;
 DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;</code></pre>
