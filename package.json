@@ -7,7 +7,7 @@
     "tama-landing": "./src/cli.mjs"
   },
   "scripts": {
-    "build": "node src/check-command-coverage.mjs && node src/cli.mjs build",
+    "build": "node src/cli.mjs build",
     "docs:coverage": "node src/check-command-coverage.mjs"
   },
   "engines": {
