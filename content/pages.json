@@ -24,6 +24,7 @@
   {"route":"desktop/settings","source":"docs/desktop/settings.md","content":"content/docs/desktop/configuration/settings.html","category":"Desktop app"},
   {"route":"desktop/copies","source":"content/docs/desktop/repair/copies.html","content":"content/docs/desktop/repair/copies.html","category":"Desktop app"},
   {"route":"desktop/merges","source":"content/docs/desktop/repair/merges.html","content":"content/docs/desktop/repair/merges.html","category":"Desktop app"},
+  {"route":"desktop/hardcodes","source":"content/docs/desktop/repair/hardcodes.html","content":"content/docs/desktop/repair/hardcodes.html","category":"Desktop app"},
   {"route":"desktop/learning","source":"content/docs/desktop/hooks/learning.html","content":"content/docs/desktop/hooks/learning.html","category":"Desktop app"},
 
   {"route":"architecture","source":"docs/architecture.md","content":"content/docs/reference/architecture.html","category":"Reference"},
