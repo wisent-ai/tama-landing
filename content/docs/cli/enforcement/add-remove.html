@@ -1,0 +1,36 @@
+<h1><code>tama enforcement add</code> and <code>tama enforcement remove</code></h1>
+<p>Turn hooks on or off in the machine-wide selection while keeping every other hook it holds.</p>
+<h2>Invocation</h2>
+<pre><code>tama enforcement add &lt;hook-id&gt;...
+tama enforcement remove &lt;hook-id&gt;...
+</code></pre>
+<p><code>add</code> selects the named hooks as well as the ones already selected. <code>remove</code> takes the named hooks out and keeps the rest. Use <a href="../only/"><code>tama enforcement only</code></a> when the whole selection is being decided; use these when one gate changes, so no other gate is switched off by an id forgotten in a retyped list.</p>
+<h2>Several sessions at once</h2>
+<p>Each change is made from the selection as it is at the moment Tama writes it, not from a copy read earlier. Tama takes an exclusive lock on <code>hook-enforcement.json.lock</code> beside the selection, reads the selection, applies the change and writes it, then releases the lock. A second <code>add</code> or <code>remove</code> started meanwhile, from another terminal or another agent session, waits for the first and starts from what the first wrote, so both changes stay. <code>only</code> and <code>all</code> take the same lock. Tama Desktop turns one hook on or off through the same <code>add</code> and <code>remove</code> (<code>tama request enforcement/update</code> with <code>mode</code> <code>add</code> or <code>remove</code>).</p>
+<p><code>add</code> asks only the hooks it is turning on whether they can run here, the way <code>only</code> asks every hook it selects (see <a href="../preflight/"><code>tama enforcement preflight</code></a>). The hooks already selected were asked when they were turned on, and they are not asked again.</p>
+<h2>Example</h2>
+<pre><code>$ tama enforcement add block-numeric-literals block-identity-literals
+Machine enforcement selection saved.
+mode: only
+selected hooks: 28/93 installed
+...
+$ tama enforcement remove block-identity-literals
+Machine enforcement selection saved.
+mode: only
+selected hooks: 27/93 installed
+...
+</code></pre>
+<h2>Output and state</h2>
+<p>Success begins <code>Machine enforcement selection saved.</code> and prints the status as <a href="../status/"><code>tama enforcement status</code></a> does. The file is written the same way as by <code>only</code>, with the selection before the change in <code>previous</code>. On a machine that enforces every installed hook (mode <code>all</code>), <code>add</code> keeps mode <code>all</code>: the named hooks are already enforced.</p>
+<h2>Refusals and failures</h2>
+<p>Every refusal leaves the selection as it was, and the command exits <code>1</code>.</p>
+<ul>
+<li><code>Unknown hook id '&lt;id&gt;'; the installed registry declares &lt;N&gt; hook ids, and the enforcement selection was not changed.</code> (<code>add</code>): the installed registry does not declare that id.</li>
+<li><code>Hook '&lt;id&gt;' cannot run on this machine, so nothing was selected and the enforcement selection was not changed. It answered: &lt;the hook's own line&gt;</code> (<code>add</code>): the hook ran and answered with an infrastructure failure.</li>
+<li><code>Hook '&lt;id&gt;' is not in this machine's selection, so nothing was changed; `tama enforcement status` prints the &lt;N&gt; that are.</code> (<code>remove</code>): the selection does not hold that hook.</li>
+<li><code>This machine enforces every installed hook (mode all), so no selection holds the hooks named and nothing was changed; `tama enforcement only &lt;hook-id&gt;...` chooses the hooks to enforce.</code> (<code>remove</code>): there is no selection to remove from.</li>
+<li><code>Removing these would leave no hook selected, so nothing was changed; `tama enforcement all` enforces every installed hook.</code> (<code>remove</code>): a selection cannot be empty.</li>
+<li><code>The machine's selection cannot be read, so nothing was changed: &lt;reason&gt;. `tama enforcement only &lt;hook-id&gt;...` or `tama enforcement all` writes a whole selection in its place.</code>: the selection file cannot be read or is invalid. Tama does not take it for <code>all</code> and overwrite it; <code>only</code> and <code>all</code> replace the whole selection and do not need the old one.</li>
+<li><code>enforcement: could not open the selection lock &lt;path&gt;: &lt;OS error&gt;</code>, <code>enforcement: could not lock &lt;path&gt;: &lt;OS error&gt;</code> or <code>enforcement: could not write &lt;path&gt;: &lt;OS error&gt;</code>: the operating system refused the lock or the write.</li>
+</ul>
+<p>Return to the <a href="../../">complete CLI command tree</a>.</p>

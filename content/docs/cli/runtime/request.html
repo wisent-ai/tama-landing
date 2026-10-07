@@ -12,7 +12,7 @@
 <tr><td><code>install-plan</code></td><td>none</td><td>The document <code>tama install-plan --json</code> prints</td></tr>
 <tr><td><code>mcp-config</code></td><td>none</td><td>The document <code>tama mcp-config</code> prints</td></tr>
 <tr><td><code>enforcement</code></td><td>none</td><td>The machine hook selection <code>tama enforcement status --json</code> prints</td></tr>
-<tr><td><code>enforcement/update</code></td><td><code>{mode, enabled}</code>: <code>mode</code> is <code>all</code> with no <code>enabled</code>, or <code>only</code> with a non-empty array of hook ids</td><td>The selection after the change</td></tr>
+<tr><td><code>enforcement/update</code></td><td><code>{mode, enabled}</code>: <code>mode</code> is <code>all</code> with no <code>enabled</code>, or <code>only</code>, <code>add</code> or <code>remove</code> with a non-empty array of hook ids. <code>add</code> and <code>remove</code> change the named hooks against the selection as it is when the change is written, as <a href="/docs/cli/enforcement/add-remove/">tama enforcement add|remove</a> do. Another mode is a 400, <code>mode must be "all", "only", "add" or "remove"</code>; every refusal of those commands is a 400 with its sentence</td><td>The selection after the change</td></tr>
 <tr><td><code>hooks/warm</code></td><td><code>{only?}</code>: hook ids; empty or absent warms every hook</td><td>The report <code>tama hooks warm --json</code> prints</td></tr>
 <tr><td><code>policy-bundles</code></td><td>none</td><td>Retained inactive source identities</td></tr>
 <tr><td><code>policy-bundles/import</code></td><td><code>{sourcePath, replace?}</code></td><td>The same validating transaction as <code>tama policy import</code>; it never enables hooks</td></tr>
