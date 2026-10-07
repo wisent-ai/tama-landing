@@ -97,3 +97,12 @@ did not name does not, because the pass would never have considered it.</p>
 pass can see under the root you name; copy the one you meant into
 <code>--except</code> and run the removal again
 (<a href="cli/worktrees/remove.md">cli/worktrees/remove</a>).</p>
+<h2><code>BLOCKED: this command creates the repository &lt;name&gt;, and only the operator names a new product. …</code></h2>
+<p>From the <code>block-unnamed-product</code> hook (<code>tama hook block-unnamed-product</code>), on a
+blocking <code>pre_tool_use:bash</code> binding, when the command is <code>gh repo create NAME</code> or
+<code>git init [DIR]</code> (the commands its <code>vocabulary.json</code> declares). A new repository is a new
+product, and a general order such as following an analysis is not consent to one. The name is the first
+plain word after those commands, its last path part, or the directory the command runs in. When the
+operator's own words in the conversation name that product, record them as the Tama session capability
+<code>{"tool": "repository", "actions": ["create:&lt;name&gt;"]}</code> with the lifetime he named, and the
+same command passes; otherwise build the capability inside the product that already owns it.</p>
