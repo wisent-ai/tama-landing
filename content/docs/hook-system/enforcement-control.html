@@ -146,7 +146,9 @@ permission to stop.
 <code>block-text-outside-tool-calls</code> runs before every model request and on Stop. Before a
 request it refuses while Oko holds open work, and the OMP adapter then sets the request's
 <code>tool_choice</code> through OMP's <code>before_provider_request</code> event (Anthropic
-<code>any</code>, with extended thinking dropped because Anthropic refuses both together; OpenAI
+<code>any</code>, with extended thinking dropped because Anthropic refuses both together, and
+with OMP's <code>clear_thinking</code> context edit dropped too, because Anthropic refuses that
+edit once thinking is off; OpenAI
 <code>required</code>), so the model writes no prose and nothing reaches the operator's screen. A
 request with no tools or a tool shape the adapter does not know is sent unchanged with a line on
 the adapter's standard error; for it the Stop refusal still sends the turn back to work, but
