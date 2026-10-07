@@ -54,6 +54,20 @@ else is refused with the count of open items and the instruction to take the nex
 The rule reads the two sections, not their words, so no rewording passes it. Open work is read the way
 <code>block-stop-with-open-work</code> reads it; an Oko that cannot be read refuses nothing here, because that gate
 already refuses the stop. Source: <code>rust/crates/tama-hook-tools/src/ports/block_repeated_blocker/while_open.rs</code>.</p>
+<h2>Items he already ruled on</h2>
+<p>The model judgement passes everything while no model answers, and the item agents retell most
+is exactly one he ruled on. <code>block-ruled-subject-retold</code> needs no model: it reads Oko's
+ruling register (<code>oko rulings</code>; the file Oko keeps, or the one
+<code>OKO_RULING_REGISTER</code> names), finds every task identity (<code>task-</code> and hex) and
+defect id, whole or in the eight-character form <code>oko defects list</code> prints, that the final
+message names, and refuses when a ruling stands on one of them:
+<code>BLOCKED: this answer names what the operator already ruled on, so it tells him again what he
+decided. His rulings: - &lt;id&gt; (&lt;session&gt; #&lt;n&gt;): «&lt;his words&gt;» …</code>. The answer acts on the ruling
+instead of reporting the item. A register that does not exist holds no ruling; one that cannot be
+read is refused by name. Source: <code>rust/crates/tama-hook-tools/src/assignment/rulings.rs</code>
+(<code>retold</code>) and
+<code>rust/crates/tama-hook-tools/src/programs/block/completion/block_ruled_subject_retold.rs</code>;
+declaration: <code>hook-declarations/answer-discipline/repetition/block-ruled-subject-retold.json</code>.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/mod.rs</code> (the judgement) and
 <code>session.rs</code> (the transcript reading); binary:
