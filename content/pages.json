@@ -24,7 +24,6 @@
   {"route":"desktop/settings","source":"docs/desktop/settings.md","content":"content/docs/desktop/configuration/settings.html","category":"Desktop app"},
   {"route":"desktop/copies","source":"content/docs/desktop/repair/copies.html","content":"content/docs/desktop/repair/copies.html","category":"Desktop app"},
   {"route":"desktop/merges","source":"content/docs/desktop/repair/merges.html","content":"content/docs/desktop/repair/merges.html","category":"Desktop app"},
-  {"route":"desktop/hardcodes","source":"content/docs/desktop/repair/hardcodes.html","content":"content/docs/desktop/repair/hardcodes.html","category":"Desktop app"},
   {"route":"desktop/learning","source":"content/docs/desktop/hooks/learning.html","content":"content/docs/desktop/hooks/learning.html","category":"Desktop app"},
 
   {"route":"architecture","source":"docs/architecture.md","content":"content/docs/reference/architecture.html","category":"Reference"},
@@ -44,7 +43,6 @@
   {"route":"cli/declare-root","source":"content/docs/cli/inspection/violations/declare-root.html","content":"content/docs/cli/inspection/violations/declare-root.html","category":"CLI reference"},
   {"route":"cli/vocabulary-report","source":"content/docs/cli/inspection/violations/vocabulary-report.html","content":"content/docs/cli/inspection/violations/vocabulary-report.html","category":"CLI reference"},
   {"route":"cli/extract-patterns","source":"content/docs/cli/inspection/violations/extract-patterns.html","content":"content/docs/cli/inspection/violations/extract-patterns.html","category":"CLI reference"},
-  {"route":"cli/hardcodes","source":"content/docs/cli/inspection/violations/hardcodes.html","content":"content/docs/cli/inspection/violations/hardcodes.html","category":"CLI reference"},
   {"route":"cli/clean","source":"docs/cli/installation/clean.html","content":"content/docs/cli/installation/clean.html","category":"CLI reference"},
   {"route":"cli/brama-check","source":"content/docs/cli/installation/brama-check.html","content":"content/docs/cli/installation/brama-check.html","category":"CLI reference"},
   {"route":"cli/model-provider","source":"content/docs/cli/configuration/model-provider.html","content":"content/docs/cli/configuration/model-provider.html","category":"CLI reference"},

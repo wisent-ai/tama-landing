@@ -119,8 +119,7 @@ operator's recorded instruction. Its declaration format is
 number: a dotted release version such as <code>"0.7.56"</code> or <code>"1.2.3-beta.1"</code>,
 and a hexadecimal revision or digest holding a letter such as a git commit. So a version
 bump and a dependency pin pass, while a quantity beside them (<code>"retries": 7</code>) and a
-quoted decimal (<code>"port": "8792"</code>) are still refused by name. <code>tama hardcodes</code>
-reads data files the same way.</p>
+quoted decimal (<code>"port": "8792"</code>) are still refused by name.</p>
 <p>A number a protocol or a vendor states — Apple's notification payload limit, an HTTP
 status, a file format's magic number — has that document as its source. In a code file a
 literal passes when its own comment, or the comment block written directly above it, names
@@ -129,8 +128,7 @@ the document by address:</p>
 // https://developer.apple.com/documentation/usernotifications/generating-a-remote-notification
 const APNS_ALERT_PAYLOAD_BYTES: usize = 4096;</code></pre>
 <p>A blank line ends the comment block, and an address a program writes in a string cites
-nothing. <code>tama hardcodes</code> skips cited lines the same way. The real test for both
-rules is <code>tests/numeric-literals/identifiers.rs</code>
+nothing. The real test for the rule is <code>tests/numeric-literals/identifiers.rs</code>
 (<code>cargo test -p tama-cli --test numeric_literals_identifiers</code>).</p>
 <p>A file written below a directory its checkout's <code>.gitignore</code> ignores — the build
 directory where a run keeps its throwaway state and evidence reports, such as
