@@ -82,6 +82,15 @@ the durable machine state (<code>[]</code> in all mode). These sit beside
 <code>enabledHookIds</code>, which remains
 the session's additive state. Under emergency disable, the machine ids stay
 visible as retained configuration but do not run.</p>
+<p>It also names what holds the runtime, so a session can see a stall instead of waiting
+behind it: <code>runtimeHolder</code> is the queued operation running now (<code>reload</code>,
+<code>reload enabling every hook</code> or <code>close</code>, with its start time) or
+<code>null</code>, and <code>inFlightDispatches</code> lists every hook dispatch still waiting on the
+core, each with its event, tool, start time and <code>runningMs</code>. While an operation holds the
+runtime, <code>tama_hook_runtime_status</code> answers at once without asking the core:
+<code>core</code> is <code>null</code>, <code>coreNotAsked</code> says which operation holds it since
+when, and the answer is an error. <code>tama hooks running</code> names the hook process itself from
+any terminal.</p>
 <h2>Where it surfaces</h2>
 <ul>
 <li>The <strong>Session</strong> screen renders the live record and can request one-hook or
