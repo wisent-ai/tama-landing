@@ -125,7 +125,13 @@ product carries no repair: <code>stado host build</code>, <code>stado product ca
 <code>--dry-run</code> compile nothing and pass.</td>
 <td>Code, commit and push the repair of every open item and record it (<code>oko transcripts tasks evidence
 &lt;task&gt; --commit &lt;repo@rev&gt;</code>, <code>oko defects repaired &lt;id&gt; --revision &lt;repo@rev&gt;</code>);
-then build once over all of it.</td></tr>
+then build once over all of it. One item is not waited on: an item whose repair an installed Tama hook
+refuses while that hook's own repair is pushed, so the build is what unblocks it. It is held for the build
+only when the register says so in three records — an open blocker (<code>oko blockers record</code>) naming the
+item, whose error opens with the refusing hook's id (<code>block-numeric-literals: BLOCKED: …</code>), and an
+open Tama defect whose surface names that hook and which carries a pushed repair. A blocker whose error is
+prose, or a hook whose defect has no repair yet, holds nothing. The stop guard reads the same three records;
+an unreadable blocker register holds nothing and its refusal says why.</td></tr>
 <tr><td><code>stado product install|update|sync</code> of any product other than Stado, run by a Stado whose
 revision (<code>stado --version</code>) does not contain a repair Oko records against Stado or against that
 product (<code>oko defects repaired &lt;id&gt; --revision stado@&lt;rev&gt;</code>) and that repair was committed no
