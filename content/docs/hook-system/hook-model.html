@@ -114,7 +114,13 @@ missing-target entries are the ones to renew or remove.</p>
 <p><code>block-numeric-literals</code> checks numeric choices against the
 operator's recorded instruction. Its declaration format is
 <code>numeric-provenance.json</code> with entries
-<code>{"value": n, "user_said": "…"}</code>.</p>
+<code>{"value": n, "user_said": "…"}</code>. In a data file (JSON, a
+<code>Package.resolved</code>, a manifest) a quoted value shaped as an identifier is not a
+number: a dotted release version such as <code>"0.7.56"</code> or <code>"1.2.3-beta.1"</code>,
+and a hexadecimal revision or digest holding a letter such as a git commit. So a version
+bump and a dependency pin pass, while a quantity beside them (<code>"retries": 7</code>) and a
+quoted decimal (<code>"port": "8792"</code>) are still refused by name. <code>tama hardcodes</code>
+reads data files the same way.</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
 of two or more words used to classify input. Moving the collection to JSON,
 YAML or TOML does not make it acceptable. No declaration allows a word
