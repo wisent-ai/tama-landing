@@ -152,6 +152,11 @@ path from an older already-loaded shell. A source update or an engine reload
 alone is not a JavaScript adapter update. Concurrent adoption requests share
 one operation. The digest is published by the replacement's activation; a
 failed activation restores the prior digest with the prior adapter.</p>
+<p>The adapter reads its loaded digest from the immutable module URL assigned
+by the importing shell, not from the current file on disk. An older shell can
+therefore publish the adopted adapter's identity after its in-terminal reload
+without acquiring remote reload support. A module imported without a digest
+reports no identity rather than claiming the installed bytes are loaded.</p>
 <p>Two limits remain. The adapter's sibling modules (<code>hook-exec.mjs</code>,
 <code>session-control.mjs</code> and the rest) are imported by the adapter once per
 process, so a change to one of them needs OMP to start again; the reload's
