@@ -3,6 +3,7 @@
 <h2>0.2.0 — Unreleased</h2>
 <h3>Added</h3>
 <ul>
+<li><code>tama hardcodes</code> no longer reports an address that only a comment mentions: in a code file addresses are read with comments blanked and strings kept. Most of Stado's 33 address findings were examples or incidents quoted in doc comments, which buried the addresses programs actually write.</li>
 <li><code>tama sessions remind (--session ID | --default) [--text SENTENCE | --clear]</code> sets the sentence the <code>remind-open-work</code> hook puts after every tool result: one session's own sentence always, the machine-wide one while Oko holds open work. The hook's sentence was compiled in; it now comes only from <code>session-control/reminders.json</code>, so set the machine-wide sentence with <code>--default</code> after installing this release.</li>
 <li><code>tama hardcodes --root</code> accepts a single repository: a root that is itself a git repository is scanned as that repository, and product names are read from the directories beside it, so a repository scanned alone gets the same findings as in a whole-workspace scan. Before, such a root answered <code>0 findings in 0 repositories</code> with exit 0, and a root holding no repository now exits 1 with a sentence naming it instead of reporting a clean inventory.</li>
 <li>Tama computes SHA-256 with the <code>sha2</code> library everywhere; the two hand-written copies of the algorithm and their constant tables are gone.</li>
