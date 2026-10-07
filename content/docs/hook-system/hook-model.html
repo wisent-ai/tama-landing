@@ -151,17 +151,21 @@ checkout it creates for each case.</p>
 <p><code>block-identity-literals</code> refuses an email address, a UUID, or an identifier that
 flattens an address when nothing issued it. A value passes when the harness issued it as the name
 of a stored transcript (a session id: OMP names each session's transcript under
-<code>~/.omp/agent/sessions</code> after it), when an artifact outside any conversation carries it (a token cache, a cloud profile,
-the machine registry), when the operator used it in two or more stored sessions, or when
-<code>identity_provenance.json</code> records his verbatim quote declaring it. The transcript names
-are asked first and only the names are read, so a write that names a session — a task, a ruling, an
-evidence report — does not wait on a read of every transcript on the machine. Any other value is
-refused naming it and saying which source was missing:
+<code>~/.omp/agent/sessions</code> after it), when a file the written path's own git checkout
+already tracks carries it (a product's published identifier — a journey version id in a seed, a
+row id — asked of <code>git grep</code>, which reads only the index), when an artifact outside any
+conversation carries it (a token cache, a cloud profile, the machine registry), when the operator
+used it in two or more stored sessions, or when <code>identity_provenance.json</code> records his
+verbatim quote declaring it. The transcript names and the checkout are asked first, so a write that
+names a session or an identifier the repository already holds does not wait on a read of every
+transcript on the machine; an untracked file beside the write counts for nothing. Any other value
+is refused naming it and saying which source was missing:
 <code>the UUID &lt;value&gt; has no provenance -- no artifact carries it and no stored user message
 contains it</code>. <code>IDENTITY_TRANSCRIPT_ROOT</code>, <code>IDENTITY_ARTIFACT_ROOTS</code> and
-<code>IDENTITY_PROVENANCE_FILE</code> move the three sources. The real test is
-<code>tests/identity-literals/session_ids.rs</code>
-(<code>cargo test -p tama-cli --test identity_literals_session_ids</code>).</p>
+<code>IDENTITY_PROVENANCE_FILE</code> move the three stores. The real tests are
+<code>tests/identity-literals/session_ids.rs</code> and <code>tests/identity-literals/tracked_ids.rs</code>
+(<code>cargo test -p tama-cli --test identity_literals_session_ids --test
+identity_literals_tracked_ids</code>), the second against a real git checkout it creates.</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
 of two or more words used to classify input. Moving the collection to JSON,
 YAML or TOML does not make it acceptable. No declaration allows a word
