@@ -132,6 +132,15 @@ const APNS_ALERT_PAYLOAD_BYTES: usize = 4096;</code></pre>
 nothing. <code>tama hardcodes</code> skips cited lines the same way. The real test for both
 rules is <code>tests/numeric-literals/identifiers.rs</code>
 (<code>cargo test -p tama-cli --test numeric_literals_identifiers</code>).</p>
+<p>A file written below a directory its checkout's <code>.gitignore</code> ignores — the build
+directory where a run keeps its throwaway state and evidence reports, such as
+<code>&lt;repo&gt;/.build/&lt;area&gt;/report.json</code> or <code>&lt;repo&gt;/target/&lt;area&gt;</code> — is not
+scanned: nothing there is committed, so none of its session ids, times or counts decides what a
+product does. The hook asks git about the file's directory, not the file: an ignored file in a
+tracked directory, such as a local settings file or <code>.env</code>, is read by the product and is
+still scanned. The real test is <code>tests/numeric-literals/build_directory.rs</code>
+(<code>cargo test -p tama-cli --test numeric_literals_build_directory</code>), run against a real git
+checkout it creates for each case.</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
 of two or more words used to classify input. Moving the collection to JSON,
 YAML or TOML does not make it acceptable. No declaration allows a word
