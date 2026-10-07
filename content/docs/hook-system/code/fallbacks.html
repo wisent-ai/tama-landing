@@ -1,0 +1,45 @@
+<h1>No fallbacks</h1>
+<p><code>block-fallbacks</code> is a write gate that refuses code which answers a missing or failed value with one
+nobody stated. A fallback hides the failure from whoever could fix it and turns into a decision nobody made; the rule is
+that a missing value is an error naming what is missing, where it was looked for and why it matters.</p>
+<h2>Quickstart</h2>
+<p>Install Tama and choose the gate for this machine:</p>
+<pre><code>stado product install tama --surface cli
+tama enforcement add block-fallbacks
+tama show block-fallbacks</code></pre>
+<p>Then ask your agent to read a port from the environment in a TypeScript service. Where it would write
+<code>const port = env.PORT ?? "8080";</code>, the write is refused before it lands:</p>
+<pre><code>block-fallbacks: BLOCKED: this write adds a fallback, which answers a missing or failed value with one nobody stated:
+  web/server.ts: TypeScript ?? or || to a literal: const port = env.PORT ?? "8080";
+Make the missing value an error that names what is missing, where it was looked for and why it matters …</code></pre>
+<p>The agent writes the version that tells the next person what to do instead:</p>
+<pre><code>const port = env.PORT;
+if (!port) throw new Error("PORT is not set: the server listens on the port the deployment declares in PORT");</code></pre>
+<p>Other things people use it for: keeping a Rust service from turning a missing configuration field into
+<code>unwrap_or_default()</code>; keeping release scripts from shipping to <code>${TARGET:-production}</code> when
+nobody set a target; keeping a Python job from silently reading <code>settings.get("region", "eu")</code>.</p>
+<h2>What is refused</h2>
+<table>
+<thead><tr><th>Files</th><th>Construct</th></tr></thead>
+<tbody>
+<tr><td><code>.rs</code></td><td><code>unwrap_or</code>, <code>unwrap_or_default</code>, <code>unwrap_or_else</code></td></tr>
+<tr><td><code>.js</code>, <code>.mjs</code>, <code>.ts</code>, <code>.tsx</code></td><td><code>??</code> or <code>||</code> followed by a literal (string, number, array, object)</td></tr>
+<tr><td><code>.swift</code></td><td><code>??</code> followed by a literal; <code>try?</code></td></tr>
+<tr><td><code>.py</code></td><td><code>.get(key, default)</code>; <code>or</code> followed by a literal</td></tr>
+<tr><td><code>.sh</code></td><td><code>${VAR:-default}</code> and <code>${VAR-default}</code></td></tr>
+</tbody>
+</table>
+<p>The constructs are declared one file extension per entry in
+<code>rust/crates/tama-hook-tools/src/ports/block_fallbacks/constructs.json</code>; adding a language is one entry.
+The refusal lists every file, the construct and the added line, so each cause is shown, not just the first.</p>
+<h2>What is read</h2>
+<p>Only what the write adds: the <code>+</code> lines of each hashline section or patch, an edit's replacement text, a
+written file's content. Code a file already holds is not scanned, so a file is edited without first rewriting every
+fallback in it. A <code>??</code> or <code>||</code> that reads another variable passes, as does a file of a language
+with no declared construct, and a write that names no file.</p>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_fallbacks/mod.rs</code>; binary:
+<code>src/programs/block/limits/block_fallbacks.rs</code>; the real-binary test that runs the built hook on harness
+payloads (a hashline edit, a string edit, a whole-file write, refusals and passes):
+<code>tests/fallbacks/refusal.rs</code> (<code>cargo test -p tama-cli --test fallbacks_refusal</code>); declaration:
+<code>hook-declarations/code-discipline/block-fallbacks.json</code>.</p>
