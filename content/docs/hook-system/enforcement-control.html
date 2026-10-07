@@ -154,10 +154,13 @@ request with no tools or a tool shape the adapter does not know is sent unchange
 the adapter's standard error; for it the Stop refusal still sends the turn back to work, but
 comes after OMP has streamed the text, because OMP has no event that retracts streamed text.</p>
 <p>Any executable task still marked <code>not done</code> in any session blocks completion,
-and every defect that records no fixing revision blocks it too: of every product for a session
-whose tasks name no scope, and only of the products its task contracts are scoped to
-(<code>contract.terms.scope</code>, written with <code>oko transcripts tasks state --scope</code>)
-otherwise; the refusal counts the other products' open defects as outside the session's scope. An entry in
+and every defect that records no fixing revision blocks it too: of every product, unless the
+operator limited the session to some products by confirming a task contract scoped to them
+(<code>contract.terms.scope</code> with <code>contract.terms.confirmedAt</code>, written with
+<code>oko tasks state --scope … --confirm</code> by the operator); then only of those products,
+and the refusal counts the other products' open work as outside the session's scope. A scope a
+session wrote into its own contract limits nothing: the session answers for every product's open
+work. An entry in
 <code>oko blockers</code>, a <code>blocked</code> verdict, a judge outage after evidence, or a
 wait on other open work does not stand an item aside: only Oko recording a task done or
 withdrawn, or a defect fixed, removes it. A task Oko relates as <code>duplicate-of</code>
