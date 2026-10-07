@@ -141,6 +141,21 @@ tracked directory, such as a local settings file or <code>.env</code>, is read b
 still scanned. The real test is <code>tests/numeric-literals/build_directory.rs</code>
 (<code>cargo test -p tama-cli --test numeric_literals_build_directory</code>), run against a real git
 checkout it creates for each case.</p>
+<h2>Identities</h2>
+<p><code>block-identity-literals</code> refuses an email address, a UUID, or an identifier that
+flattens an address when nothing issued it. A value passes when the harness issued it as the name
+of a stored transcript (a session id: OMP names each session's transcript under
+<code>~/.omp/agent/sessions</code> after it), when an artifact outside any conversation carries it (a token cache, a cloud profile,
+the machine registry), when the operator used it in two or more stored sessions, or when
+<code>identity_provenance.json</code> records his verbatim quote declaring it. The transcript names
+are asked first and only the names are read, so a write that names a session — a task, a ruling, an
+evidence report — does not wait on a read of every transcript on the machine. Any other value is
+refused naming it and saying which source was missing:
+<code>the UUID &lt;value&gt; has no provenance -- no artifact carries it and no stored user message
+contains it</code>. <code>IDENTITY_TRANSCRIPT_ROOT</code>, <code>IDENTITY_ARTIFACT_ROOTS</code> and
+<code>IDENTITY_PROVENANCE_FILE</code> move the three sources. The real test is
+<code>tests/identity-literals/session_ids.rs</code>
+(<code>cargo test -p tama-cli --test identity_literals_session_ids</code>).</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
 of two or more words used to classify input. Moving the collection to JSON,
 YAML or TOML does not make it acceptable. No declaration allows a word
