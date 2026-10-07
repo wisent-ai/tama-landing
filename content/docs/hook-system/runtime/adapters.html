@@ -158,6 +158,20 @@ fresh dispatch in the background (never two at once) whose answer decides the ne
 request. Before the first answer in a session the request is forced, as a ledger
 that cannot be read already is. A request decided while work just closed is
 therefore forced once more, and the one after it is free.</p>
+<p>The same handler gives every model request the contracts Jeden installed most
+recently. <code>jeden contracts install --omp</code> writes them between the lines
+<code>&lt;!-- jeden contracts: start --&gt;</code> and <code>&lt;!-- jeden contracts: end --&gt;</code>
+in <code>~/.omp/agent/APPEND_SYSTEM.md</code>, and OMP appends that file to a session's
+system prompt once, when the session starts, so a contract changed later reached no
+running session. The adapter (<code>shared-hooks/omp/installed-contract.mjs</code>)
+reads the file's marked block on each request and puts it in place of the marked
+block the request carries, wherever that block sits in the payload; a request with
+no marked block, or a file without one, goes unchanged. A file that exists and cannot
+be read sends the request under the session's own copy and prints
+<code>Tama cannot read the installed contracts &lt;path&gt;: &lt;reason&gt;; this model
+request keeps the contracts its session started with</code> on stderr.
+<code>jeden contracts status --omp</code> names the sessions that started before the
+file was last written.</p>
 <p>Checked in a real <code>omp --mode rpc</code> process loading the shell with
 <code>--no-extensions --extension</code> from a copy under the checkout's ignored
 build directory: <code>/tama_reload_hook_runtime</code> with the adapter unchanged
