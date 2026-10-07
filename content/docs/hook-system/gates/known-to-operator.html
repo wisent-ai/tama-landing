@@ -68,6 +68,19 @@ read is refused by name. Source: <code>rust/crates/tama-hook-tools/src/assignmen
 (<code>retold</code>) and
 <code>rust/crates/tama-hook-tools/src/programs/block/completion/block_ruled_subject_retold.rs</code>;
 declaration: <code>hook-declarations/answer-discipline/repetition/block-ruled-subject-retold.json</code>.</p>
+<h2>A blocker is a record every session shares</h2>
+<p>Once no work is open, the blockers and next-steps parts may hold items again, and each must be the object every
+session reads: a record of Oko's blocker register (<code>oko blockers record</code>, which Oko refuses when it waits on
+a decision or a consent). <code>block-blocker-without-record</code> needs no model: the parts are the last two of the
+communication contract's three headed parts, found by the answer's headings and their order, and every bullet or
+paragraph there must name an open record by its id, the eight characters <code>oko blockers list</code> prints or the
+whole UUID. An item naming none, or naming only records that are no longer open, is refused:
+<code>BLOCKED: every item of the blockers and next-steps parts must name an open record of Oko's blocker register by
+its id … - "&lt;item&gt;" names no blocker record</code>. A part of one word, the contract's none, passes, and an answer
+without the three headed parts is not read. The register is read with <code>oko blockers list --json</code>; a register
+that cannot be read refuses the answer by name. Source:
+<code>rust/crates/tama-hook-tools/src/ports/block_blocker_without_record/mod.rs</code>; declaration:
+<code>hook-declarations/answer-discipline/blockers/block-blocker-without-record.json</code>.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/mod.rs</code> (the judgement) and
 <code>session.rs</code> (the transcript reading); binary:
