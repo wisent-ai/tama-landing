@@ -79,6 +79,24 @@ putting paths into variables is ordinary, so failing open would leave the ban de
 <p>Passing the real literal path is the way through: the copy is then checked and judged on what is actually
 there. That is deliberate — the guard cannot prove that a source it cannot examine is not a checkout, so it
 refuses rather than guessing. If the literal path is a checkout, the other three sentences apply: work in it, in place.</p>
+<h2><code>BLOCKED: a stash in a shared checkout takes other sessions' uncommitted work out of the tree, and a refused rebase leaves it stranded. …</code></h2>
+<p>From the same hook, when the command is <code>git stash</code> that saves (bare, <code>push</code>,
+<code>save</code>, or led by an option such as <code>-u</code>) or carries <code>--autostash</code> on
+<code>pull</code>, <code>rebase</code> or <code>merge</code>. Nothing was stashed and the working tree is
+unchanged.</p>
+<p>The ban exists because several sessions write to the one checkout at once, so its uncommitted
+changes are not yours to move. A stash takes all of them: <code>git pull --rebase --autostash</code>
+stashed other sessions' edits, the rebase then refused because another session wrote a file in
+between, the stash was never applied back, and their edits were gone from the tree while they
+were still working.</p>
+<p>Deliver without touching anyone else's work:</p>
+<pre><code class="language-bash">git add &lt;your paths&gt; &amp;&amp; git commit -m "&lt;what changed&gt;"
+git pull --no-rebase --no-edit
+git push
+</code></pre>
+<p>The merge leaves unrelated uncommitted files where they are and refuses, naming the file, only
+when both sides changed the same one. Reading or restoring a stash that already exists passes:
+<code>git stash list</code>, <code>git stash show -p stash@{N}</code>, <code>git stash apply stash@{N}</code>.</p>
 <h2><code>tama worktrees does not know the worktree &lt;path&gt;; --except takes the path of a worktree this pass would otherwise remove.</code></h2>
 <p>From <code>tama worktrees remove</code>, exit <code>2</code>, when a value you passed to
 <code>--except</code> matches no worktree the pass would otherwise consider.
