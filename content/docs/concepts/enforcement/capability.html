@@ -39,9 +39,14 @@ session without a capability shows an explicit no-capability message
 rather than an empty table.</li>
 <li><code>tama sessions --json</code> includes the capability in each session's
 record (<a href="../cli.md#read-only-commands">cli</a>).</li>
-<li>The release/checksum binding is what makes a stale capability visible: a
-grant issued against one <a href="hook-release.md">hook release</a> does not silently
-carry over to another.</li>
+<li>The operator's consent is to the work, not to one <a href="hook-release.md">hook
+release</a>. When the session's own runtime loads another release — an install,
+<code>tama_reload_hook_runtime</code>, or the release a resumed session finds
+installed — it binds the grant the session holds to the release and catalog it
+now runs, with its grants, lifetime, expiry and remaining uses unchanged. A
+grant ends at its expiry, after its single use, at
+<code>tama sessions revoke-capability</code> or under emergency disable, never
+because a newer release was installed.</li>
 <li>A grant whose control key, catalog checksum or release id does not match the
 policy the hook runtime has loaded is not passed to any hook, and every refusal
 the runtime gives while it is held says so: <code>The session's recorded capability
