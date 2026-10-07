@@ -106,7 +106,10 @@ for the hook on that event, for a hook that asks a model; the registry's
 default is ten. Then the repository half, which records the catalogue entry,
 writes each registry binding it does not already have — or already has with
 another timeout, which it unbinds and binds again as declared — reconciles the
-sources and reseals:</p>
+sources and reseals. The registry keeps its own copy of the catalogue entry;
+when every event is already bound, the registry writer runs once over a bound
+event so a changed description, reason or side effects reaches that copy too,
+printed as <code>registry: refreshed the catalogue entry: …</code>:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
 <p>A hook is withdrawn with the same declaration that declared it. The reverse
 runs in the reverse order: each event the registry still binds to the hook is
