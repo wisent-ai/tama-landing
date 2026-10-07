@@ -2,8 +2,8 @@
 <p>What is one supervised agent session actually allowed to do right now? The
 capability document, the tool grants, the loaded release, the liveness
 contract, and every recent decision — for the one session selected in the
-rail. This is also the only screen that mutates a session, and both of its
-mutations point in the enabling direction
+rail. This is also the screen for session-scoped policy enabling and OMP
+adapter reload; reloading changes neither policy selection nor process identity
 (<a href="../concepts/session-enable.md">concepts/session-enable</a>).</p>
 <h2>Header and rail</h2>
 <p>Title <code>Session</code>; scope counts live sessions; freshness reads
@@ -15,6 +15,11 @@ loaded-hook count and runtime tone; the rail footer names the control
 channel: <code>Application Support/Tama/session-control</code>. Records are polled once
 per second while an authorized operator is signed in; the button re-reads on
 demand.</p>
+<p>For an OMP session, <strong>Reload adapter</strong> sends the same validated
+request as <code>tama sessions reload --session ID</code>. It reports success
+only after receiving that process's loaded adapter digest. An unsupported
+already-loaded entry refuses with instructions for its in-terminal reload
+command; the action never starts a replacement session.</p>
 <h2>Faults</h2>
 <p>Each alert is a distinct failure with its own verbatim title:</p>
 <ul>
@@ -32,6 +37,13 @@ action (<a href="../runbook.md#installed-and-loaded-releases-disagree">runbook</
 <li><code>The runtime holds overrides for hooks this build does not declare</code> — the
 unknown hook ids, listed.</li>
 </ul>
+<p>OMP sessions also show <strong>Loaded OMP adapter</strong>, or
+<strong>Loaded adapter identity unavailable</strong> when their entry does not
+publish a digest. <strong>Remote adapter reload unavailable</strong> identifies
+an older entry without this control operation.
+<strong>Last runtime or adapter reload failed</strong> displays the actual
+<code>lastReloadError</code>. A matching policy release alone is not evidence
+that the JavaScript adapter has been replaced.</p>
 <p>With no live session and no error: <code>No supervised session is running</code>, with
 the exact expectation — <code>Tama refuses to start an agent unless the platform has a ready kernel-enforcement backend. Open or resume a supported coding-agent session, and it appears here within a second.</code></p>
 <h2>Hook state per session</h2>

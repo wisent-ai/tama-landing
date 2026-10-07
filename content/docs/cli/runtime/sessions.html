@@ -2,6 +2,7 @@
 <p>Reports every recorded live agent session and the hook state projected into its session-control record.</p>
 <h2>Invocation</h2>
 <pre><code>tama sessions [--json] [--home &lt;path&gt;]
+tama sessions reload --session &lt;ID&gt; [--json]
 </code></pre>
 <p><code>--home</code> selects the home containing both
 <code>Library/Application Support/Tama/session-control</code> and the machine
@@ -32,8 +33,48 @@ the machine object has the same fields as
 <a href="../enforcement/status/">enforcement status</a>, and each session includes
 status, working directory, process id, liveness mode,
 <code>processAlive</code> (<code>null</code> when no usable process id was recorded),
-<code>runtimeReported</code>, counts, enabled and disabled ids, and update time.
-The command only reads state.</p>
+<code>runtimeReported</code>, counts, enabled and disabled ids, update time,
+<code>adapterDigest</code>, <code>adapterReloadSupported</code> and
+<code>lastReloadError</code>. Missing adapter fields mean the loaded adapter
+does not report them; a matching policy release does not prove that its
+JavaScript adapter is current. Listing sessions only reads state.</p>
+<h2>Reload an existing OMP adapter</h2>
+<p><code>tama sessions reload --session "$SESSION_ID" --json</code> sends a
+<code>reload-adapter</code> request to that session's control directory and
+waits for the running process's receipt. It changes neither the session nor
+its process. It does not enable or disable policies. The directory comes from
+<code>TAMA_SESSION_CONTROL_ROOT</code> when set, otherwise Tama's platform
+state directory; <code>--home</code> is a listing option, not a reload option.</p>
+<p>A successful receipt carries <code>ok: true</code>, <code>changed</code>,
+and <code>state.runtime.adapterDigest</code>. The adapter publishes that digest
+after its replacement has registered and activated. Repeating the command
+when the same adapter is loaded returns <code>changed: false</code>.
+The CLI checks that the receipt still names the requested session and process.
+Concurrent requests through the extension's reload entry share one adoption.</p>
+<p>The command refuses a missing session record, a dead process, a mismatched
+receipt, a failed adapter import or activation, and a loaded entry that does
+not support remote reload. Older already-open entries are not upgraded by
+changing files on disk: use their <code>tama_reload_hook_runtime</code> tool or
+slash command where supported. An entry loaded before the reload shell cannot
+adopt that shell in place. No refusal is reported as a recovered session.</p>
+<p>Tama Desktop exposes the same operation as <strong>Session → Reload adapter</strong>,
+alongside the loaded digest and the last reload failure. Adapter siblings
+already imported by OMP are not reloaded by this operation.</p>
+<h2>Real reload journey</h2>
+<p><code>tests/enforcement/live-reload.mjs</code> in the Tama repository runs real
+OMP RPC processes with sealed releases installed into isolated homes under
+the checkout's ignored build directory. Supply a baseline that supports
+remote reload, a candidate with a different real adapter revision, and an
+older release that lacks remote reload:</p>
+<pre><code>node tests/enforcement/live-reload.mjs --tama "$TAMA" --omp "$OMP" \
+  --baseline "$BASELINE_RELEASE" --candidate "$CANDIDATE_RELEASE" \
+  --legacy "$LEGACY_RELEASE" --artifacts "$PWD/.build/live-reload-run"</code></pre>
+<p>The journey verifies replacement in the same process and session, the
+persisted digest, unchanged reload, missing-session refusal and legacy-entry
+refusal. It retains source revision, release manifests, command exit statuses,
+RPC recordings and <code>report.json</code>. It does not prove model requests
+or recovery in the operator's existing terminals; those flows need their own
+observed results.</p>
 <h2>Refusals and failures</h2>
 <p>A missing or unreadable control directory produces an empty result and exit <code>0</code>. An invalid individual JSON file is retained as a row with <code>parseError: true</code>; an unreadable file becomes <code>readError: true</code>. These records are surfaced rather than causing a command-wide refusal.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
