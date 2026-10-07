@@ -41,6 +41,21 @@ when it arrived, so a hook that never ends holds only its own request;
 <code>status</code> and <code>reload</code> are answered at once. The OMP
 adapter keeps every request in flight side by side and orders only reloads and
 shutdown.</p>
+<p>Within one dispatch the hooks of a tool event run in registry order, one
+after another, and the first refusal ends the dispatch. The hooks of
+<code>stop</code> all run whatever the others answer, because an ending answer
+is refused for every reason at once, so the engine starts them side by side
+and waits for all of them. Checking an ending then takes as long as its
+slowest hook, not the sum of them all. Run one after another, their times
+added up past the handler budget OMP gives a <code>session_stop</code>
+handler; OMP then settled the turn as if no hook had refused, and the agent
+ended its answer with work still open. The refusal text and the
+<code>results</code> records still follow registry order, and every record
+carries the hook's own <code>ms</code>, so a slow stop hook is named by its
+record. <code>tests/completion/side_by_side.rs</code> in the Tama repository
+runs the built engine's <code>stop</code> on the installed registry and its
+real hooks, and fails when the dispatch lasted as long as its hooks' times
+added together.</p>
 <p>Each hook runs in its own process group. A session ends its turn and
 submits a prompt one at a time: the harness sends the next <code>stop</code>
 or <code>user_prompt_submit</code> only after it stopped waiting for the one
