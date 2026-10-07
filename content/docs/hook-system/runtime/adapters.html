@@ -163,11 +163,18 @@ once (<code>/restart</code> keeps the session).</p>
 own budget and then sends the request unchanged, so a slow read of Oko's ledger
 used to let prose through exactly when Oko was under load. The adapter answers
 each request from the newest answer <code>block-text-outside-tool-calls</code> gave
-in the session — a refusal requires the request to call a tool — and starts one
-fresh dispatch in the background (never two at once) whose answer decides the next
-request. Before the first answer in a session the request is forced, as a ledger
-that cannot be read already is. A request decided while work just closed is
-therefore forced once more, and the one after it is free.</p>
+in the session and starts one fresh dispatch in the background (never two at
+once) whose answer decides the next request. For an OpenAI function-tool payload,
+a refusal sets <code>tool_choice: "required"</code>. Before the first answer,
+that supported request shape is also forced. A request decided while work just
+closed can therefore require a tool once more.</p>
+<p>Anthropic Messages requests are not forced: models that reject
+<code>tool_choice</code> types <code>any</code> and <code>tool</code> would
+otherwise fail before doing any work. Unrecognized tool shapes also remain
+unchanged, with the limitation reported on stderr. The completion gate still
+checks these turns, but it does not prevent streamed prose from appearing.
+Provider acceptance, prevention of prose, and completion enforcement are
+separate outcomes; a successful model request does not prove all three.</p>
 <p>The same handler gives every model request the contracts Jeden installed most
 recently. <code>jeden contracts install --omp</code> writes them between the lines
 <code>&lt;!-- jeden contracts: start --&gt;</code> and <code>&lt;!-- jeden contracts: end --&gt;</code>
