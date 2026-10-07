@@ -99,6 +99,12 @@ that section reports what happened, in the past tense;
 <code>this session's tasks</code>: the work is every open task of every session and every open
 defect of every product;
 <code>block-stop-on-own-work: BLOCKED: this answer scopes the work to one session: "…"</code></li>
+<li>an answer that says nothing more is left that the agent can do, that its part or its session
+is finished, or that what remains belongs to the operator, a product owner or another session
+(<code>Nothing else is left in this session that I can do myself</code>, <code>reszta należy do
+właściciela</code>): the work is every open task of every session and every open defect of every
+product, and a recorded blocker stops only the one item it names;
+<code>block-stop-on-own-work: BLOCKED: NOTHING LEFT: "…"</code></li>
 <li>an ending written after a stop guard refused the previous one when nothing since then changed
 source — no <code>edit</code>, <code>write</code> or <code>git commit</code>. Re-timing a reading,
 reading files or writing an <code>oko defects note</code> is not work on an item: the answer to a
@@ -110,7 +116,8 @@ refusal is a change to the next open task or defect that can be changed in sourc
 quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
 which is a report, not a reason. Each refusal starts a new attempt: what the
 agent says after a refusal is judged on its own, so one sentence cannot refuse
-every attempt after it. The real-binary journey is
-<code>rust/crates/tama-hook-tools/tests/own_work_guard.rs</code>
-(<code>cargo test -p tama-hook-tools --test own_work_guard</code>): ten cases,
-covering the six refusals and the passes above, including exact empty sections and begging.</p>
+every attempt after it. Every shape above that depends on what the answer says is read by one
+model request (<code>objective_reviewer::stop::breaks</code>, the rule text in
+<code>rust/crates/tama-hook-tools/src/ports/block_stop_on_own_work/reading.rs</code>), with the
+facts the turn's own commands established written into it; a reviewer that cannot answer lets the
+turn end and says so on stderr, as every model-judged gate does.</p>
