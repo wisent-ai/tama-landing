@@ -1,0 +1,39 @@
+<h1>Cloud instances need the operator's consent</h1>
+<p><code>block-cloud-instances</code> refuses a shell command that runs a cloud provider's command line until the
+operator has directly consented to operations on cloud instances. It runs before every shell call; reads of files,
+edits and other tools are never touched.</p>
+<h2>Why it exists</h2>
+<p>Cloud instances cost money and hold the fleet's work. The operator's rule is that no operation on a cloud
+instance — creating, starting, stopping, resizing, deleting, listing or running on one — happens unless he said so
+himself, and that his consent is kept in a record rather than inferred from the task.</p>
+<h2>What is refused</h2>
+<p>Every command segment is read, one shell level down as well (<code>bash -c '…'</code>), and the program it runs is
+compared with the provider command lines the gate declares in
+<code>rust/crates/tama-hook-tools/src/ports/block_cloud_instances/programs.json</code>:
+<code>gcloud</code>, <code>aws</code>, <code>az</code>, <code>vastai</code>, <code>runpodctl</code>, <code>doctl</code>,
+<code>hcloud</code>, <code>oci</code>, <code>ibmcloud</code> and <code>linode-cli</code>. Every call of such a program
+waits for consent, listing included: which call of a provider's command line touches an instance is not decided by
+reading its words.</p>
+<p>The refusal names the program, its provider and the capability to record:</p>
+<pre><code>block-cloud-instances: BLOCKED: `gcloud` operates on Google Cloud cloud instances, and no operation on a cloud instance runs without the operator's direct consent. He gives it in the conversation; record it as the Tama session capability {"tool":"cloud"} with the lifetime he names, which he confirms, then run the command.</code></pre>
+<h2>What passes</h2>
+<ul>
+<li>A command with <code>--help</code> or <code>-h</code>, which runs nothing.</li>
+<li>A command that only names a provider as an argument, such as <code>echo gcloud</code> or <code>grep -rn vastai docs</code>.</li>
+<li>Stado's own commands: placement through the fleet is Stado's work, not an agent's call of a provider.</li>
+<li>Any provider command in a session whose recorded capability grants <code>{"tool": "cloud"}</code>.</li>
+</ul>
+<h2>Giving consent</h2>
+<p>The operator says in the conversation that the agent may operate on cloud instances, and for how long. The agent
+records it by writing <code>{"grants":[{"tool":"cloud"}],"lifetime":"single-use"}</code> (or
+<code>expires-at</code> or <code>current-session</code>, as he named it) to
+<code>xd://tama_request_session_capability</code>. A capability an agent asks for is granted only when the operator
+confirms it, and the session's capability file in Tama's session-control directory keeps that confirmation for the
+lifetime he named. <code>tama sessions revoke-capability --session &lt;ID&gt;</code> withdraws it at once.</p>
+<h2>Source and test</h2>
+<p>The policy: <code>rust/crates/tama-hook-tools/src/ports/block_cloud_instances/mod.rs</code>; the program:
+<code>rust/crates/tama-hook-tools/src/programs/block/consent/block_cloud_instances.rs</code>; the declaration:
+<code>hook-declarations/operator-consent/block-cloud-instances.json</code>; the real test:
+<code>tests/cloud-instances/consent.rs</code>, which runs the built hook on shell payloads. Declared with
+<code>tama hooks declare --file &lt;declaration&gt;</code> and installed with <code>tama hooks release</code>, both under
+the operator's consent; which hooks this machine runs is decided by <code>tama enforcement only &lt;hook-id&gt;…</code>.</p>

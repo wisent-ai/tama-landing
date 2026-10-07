@@ -90,6 +90,7 @@
   {"route":"off-task-work","source":"content/docs/hook-system/gates/off-task-work.html","content":"content/docs/hook-system/gates/off-task-work.html","category":"Reference"},
   {"route":"build-restart-registry","source":"content/docs/hook-system/gates/build-restart-registry.html","content":"content/docs/hook-system/gates/build-restart-registry.html","category":"Reference"},
   {"route":"known-to-operator","source":"content/docs/hook-system/gates/known-to-operator.html","content":"content/docs/hook-system/gates/known-to-operator.html","category":"Reference"},
+  {"route":"cloud-instances","source":"content/docs/hook-system/consent/cloud-instances.html","content":"content/docs/hook-system/consent/cloud-instances.html","category":"Reference"},
   {"route":"fallbacks","source":"content/docs/hook-system/code/fallbacks.html","content":"content/docs/hook-system/code/fallbacks.html","category":"Reference"},
   {"route":"incident-references","source":"content/docs/hook-system/gates/incident-references.html","content":"content/docs/hook-system/gates/incident-references.html","category":"Reference"},
   {"route":"hook-releases","source":"docs/hook-releases.md","content":"content/docs/hook-system/hook-releases.html","category":"Reference"},
