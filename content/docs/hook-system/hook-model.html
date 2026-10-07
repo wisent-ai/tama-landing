@@ -119,7 +119,12 @@ operator's recorded instruction. Its declaration format is
 number: a dotted release version such as <code>"0.7.56"</code> or <code>"1.2.3-beta.1"</code>,
 and a hexadecimal revision or digest holding a letter such as a git commit. So a version
 bump and a dependency pin pass, while a quantity beside them (<code>"retries": 7</code>) and a
-quoted decimal (<code>"port": "8792"</code>) are still refused by name.</p>
+quoted decimal (<code>"port": "8792"</code>) are still refused by name. In a
+<code>Cargo.toml</code>, the quoted text of every dependency table (<code>[dependencies]</code>,
+<code>[dev-dependencies]</code>, <code>[build-dependencies]</code>, <code>[workspace.dependencies]</code>,
+<code>[target.….dependencies]</code>) is a requirement on a release the registry publishes
+(<code>tree-sitter = "0.25"</code>), so it passes; a number in any other table of the manifest
+(<code>opt-level = 3</code>), and a table of that name in any other file, is still read.</p>
 <p>A number a protocol or a vendor states — Apple's notification payload limit, an HTTP
 status, a file format's magic number — has that document as its source. In a code file a
 literal passes when its own comment, or the comment block written directly above it, names
