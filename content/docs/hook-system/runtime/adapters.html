@@ -148,6 +148,16 @@ process, so a change to one of them needs OMP to start again; the reload's
 answer says so. And a session that started before this shell existed holds the
 old single-file adapter, which cannot reload itself: it needs OMP to start again
 once (<code>/restart</code> keeps the session).</p>
+<p>Every model request is decided at once, never by waiting on the
+<code>before_provider_request</code> hooks: OMP waits for a handler only up to its
+own budget and then sends the request unchanged, so a slow read of Oko's ledger
+used to let prose through exactly when Oko was under load. The adapter answers
+each request from the newest answer <code>block-text-outside-tool-calls</code> gave
+in the session — a refusal requires the request to call a tool — and starts one
+fresh dispatch in the background (never two at once) whose answer decides the next
+request. Before the first answer in a session the request is forced, as a ledger
+that cannot be read already is. A request decided while work just closed is
+therefore forced once more, and the one after it is free.</p>
 <p>Checked in a real <code>omp --mode rpc</code> process loading the shell with
 <code>--no-extensions --extension</code> from a copy under the checkout's ignored
 build directory: <code>/tama_reload_hook_runtime</code> with the adapter unchanged
