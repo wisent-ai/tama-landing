@@ -123,7 +123,12 @@ written back. <code>require-task-scope</code> then refuses with that one command
 instead of the Oko commands it names when Oko is installed.
 <code>check-open-items-with-model</code> uses the same ledger qualification
 when enabled. Neither guard asks a second model to reinterpret open tasks as
-permission to stop.</p>
+permission to stop.
+<code>block-text-outside-tool-calls</code> runs on Stop, after the harness has streamed and shown
+the final message, so a refused answer has already reached the operator: the refusal sends the
+turn back to work and withholds nothing. OMP has no event that retracts streamed text; its
+<code>assistant_message</code> handler replaces text only for history, persistence and the next
+request.</p>
 <p>Any executable task still marked <code>not done</code> in any session blocks completion,
 and every defect that records no fixing revision blocks it too: of every product for a session
 whose tasks name no scope, and only of the products its task contracts are scoped to
