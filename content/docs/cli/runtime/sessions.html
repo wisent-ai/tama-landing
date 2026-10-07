@@ -70,11 +70,15 @@ older release that lacks remote reload:</p>
   --baseline "$BASELINE_RELEASE" --candidate "$CANDIDATE_RELEASE" \
   --legacy "$LEGACY_RELEASE" --artifacts "$PWD/.build/live-reload-run"</code></pre>
 <p>The journey verifies replacement in the same process and session, the
-persisted digest, unchanged reload, missing-session refusal and legacy-entry
-refusal. It retains source revision, release manifests, command exit statuses,
+persisted digest, unchanged reload, missing-session refusal, unknown-operation
+refusal and legacy-entry refusal. It retains source revision, release manifests, command exit statuses,
 RPC recordings and <code>report.json</code>. It does not prove model requests
 or recovery in the operator's existing terminals; those flows need their own
 observed results.</p>
 <h2>Refusals and failures</h2>
-<p>A missing or unreadable control directory produces an empty result and exit <code>0</code>. An invalid individual JSON file is retained as a row with <code>parseError: true</code>; an unreadable file becomes <code>readError: true</code>. These records are surfaced rather than causing a command-wide refusal.</p>
+<p>For listing, a missing or unreadable control directory produces an empty result and exit <code>0</code>. An invalid individual JSON file is retained as a row with <code>parseError: true</code>; an unreadable file becomes <code>readError: true</code>. These records are surfaced rather than causing a command-wide refusal.</p>
+<p>An unknown session command is a usage error, not a successful listing.
+For reload, a missing session, a dead process, an unsupported loaded entry
+or a rejected or invalid receipt is an unsuccessful operation. A process
+that exits after publishing its receipt is not reported as a live reload.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
