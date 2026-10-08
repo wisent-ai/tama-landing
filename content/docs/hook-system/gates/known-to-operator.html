@@ -12,7 +12,7 @@ what he decided.</p>
 <h2>How it decides</h2>
 <p>Shape cannot decide this — whether a sentence restates an earlier answer, or reports the operator's own decision back
 to him, is a reading of two texts against a third — so the decider is a model, asked through Brama by the product's
-one route for that, <code>ports::model_judgement</code> (<code>oko proxy-call</code>). The session is the memory.
+one route for that, <code>ports::model_judgement</code> (<code>oko gateway send --prompt</code>). The session is the memory.
 The gate reads the live transcript the stop payload names, or the newest transcript of the payload's session id, and
 puts three texts in front of the model: every message the operator wrote this session, every earlier answer the agent
 gave him, and the answer about to be sent. The model answers <code>PASS</code>, or <code>BLOCK:</code> followed by each
