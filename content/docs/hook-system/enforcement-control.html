@@ -23,9 +23,12 @@ reports the failure and falls back to all, never none.</p>
 <p>Supervised runtimes publish one file per live session under
 <code>~/Library/Application Support/Tama/session-control/</code> (directory mode
 <code>0700</code>), schema <code>ai.wisent.tama.session-control.v2</code>. A record carries
-<code>agentId</code>, <code>sessionId</code>, a 64-hex <code>controlKey</code>, <code>pid</code>, <code>cwd</code>, <code>livenessMode</code>
-(<code>process</code> — the pid must be alive — or <code>heartbeat</code> — <code>updatedAt</code> within
-<code>heartbeatTTLSeconds</code>, clamped to 5–3600), <code>globallyDisabled</code>,
+<code>agentId</code>, <code>sessionId</code>, a 64-hex <code>controlKey</code>, <code>cwd</code>, <code>livenessMode</code>
+(<code>process</code> — <code>pid</code> names the live owner process from
+<code>TAMA_SESSION_OWNER_PID</code> — or <code>heartbeat</code> — <code>updatedAt</code> within the
+<code>heartbeatTTLSeconds</code> the launcher stated in <code>TAMA_SESSION_HEARTBEAT_TTL_SECONDS</code>
+— or <code>unknown</code>, when the launcher stated neither, with <code>livenessError</code> saying
+so; Tama Desktop lists such a session with that sentence and never controls it), <code>globallyDisabled</code>,
 <code>disabledHookIds</code>, <code>enabledHookIds</code>, the override's
 <code>emergencyChangedAt</code> generation binding, the session's <code>capability</code> (issuer,
 nonce, release and checksum binding, lifetime, expiry, remaining uses, and

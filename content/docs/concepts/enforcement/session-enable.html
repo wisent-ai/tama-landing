@@ -35,7 +35,9 @@ envelope against the exact identity tuple in its session record
 <code>controlKey</code> is a 64-hex secret, the <code>agentId</code> must start with an ASCII
 letter and be 1–32 characters, and the record must be live (<code>process</code> mode:
 the pid answers <code>kill(pid, 0)</code>; <code>heartbeat</code> mode: <code>updatedAt</code> within
-<code>heartbeatTTLSeconds</code>, clamped to 5–3600, default 900). It applies the
+the <code>heartbeatTTLSeconds</code> its launcher stated in
+<code>TAMA_SESSION_HEARTBEAT_TTL_SECONDS</code>; a record in <code>unknown</code> mode, whose
+launcher stated neither, is never live). It applies the
 override atomically as <code>&lt;controlKey&gt;.override.json</code> and answers with the
 resulting state.</p>
 <h2>What can refuse it</h2>
