@@ -26,28 +26,31 @@ can exceed the daily count without changing the default policy; change-size chec
 
 <h2>The ration</h2>
 <table>
-<thead><tr><th>Limit</th><th>Value in code</th><th>What it stops</th></tr></thead>
+<thead><tr><th>Limit</th><th>Where it comes from</th><th>What it stops</th></tr></thead>
 <tbody>
-<tr><td><code>builds_per_day</code></td><td>3 locally, the operator's number read from <code>builds_per_day</code> in <code>numeric-provenance.json</code></td><td>The local fallback refuses another build
+<tr><td><code>builds_per_day</code></td><td>The policy file; without it the operator's number, 3, read from <code>builds_per_day</code> in <code>numeric-provenance.json</code></td><td>The local fallback refuses another build
 after this count in rolling 24 hours. When Stado answers, its UTC-day fleet budget is authoritative.
 An explicitly approved and audited exception may exceed the count, not the other checks.</td></tr>
-<tr><td><code>restarts_per_day</code></td><td>10</td><td>Counted separately, so a spent build
+<tr><td><code>restarts_per_day</code></td><td>The policy file only</td><td>Counted separately, so a spent build
 allowance never holds back a service that has to come back.</td></tr>
-<tr><td><code>minimum_changed_lines</code></td><td>30</td><td>A build is measured with git against the
+<tr><td><code>minimum_changed_lines</code></td><td>The policy file only</td><td>A build is measured with git against the
 revision the last recorded build of that target carried. Under the threshold it is refused and told to
 travel with the next serious change; the same revision twice is refused as a build of nothing.</td></tr>
-<tr><td><code>window_minutes</code></td><td>60</td><td>How long one recorded intent authorizes, and the
-ceiling on <code>--minutes</code>. Four hours is the hard maximum whatever the file says.</td></tr>
+<tr><td><code>window_minutes</code></td><td>The policy file only</td><td>How long one recorded intent authorizes, and the
+ceiling on <code>--minutes</code>.</td></tr>
 </tbody>
 </table>
 <p>The limits live in <code>~/.shared-hooks/build_restart_policy.json</code> and are read with
-<code>tama build policy</code>. A machine with no policy file is still rationed by the values in
-code. Tightening a limit needs nothing; loosening one — more builds a day, a smaller change, a longer
-window — needs <code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session, because an agent
-that can raise its own allowance has none. The local rolling count comes from
-<code>~/.shared-hooks/build_restart_ledger.json</code>. Ordinary intents are retained for thirty days;
-approved exceptions remain as audit evidence. Closing an entry ends the authorization and does not
-refund it or renew its consent. A ledger or policy that cannot be read refuses the build.</p>
+<code>tama build policy</code>. A limit the file does not set has no value in code: recording an
+intent is refused with <code>&lt;file&gt; sets no &lt;field&gt;: the operator states it with `tama build
+policy &lt;option&gt; &lt;n&gt;`, which needs DEVICE_HOOK_EDIT_APPROVED=1 set outside the agent
+session</code>. Tightening a limit needs nothing; setting one the file did not state, or loosening one
+— more builds a day, a smaller change, a longer window — needs <code>DEVICE_HOOK_EDIT_APPROVED=1</code>
+set outside the agent session, because an agent that can raise its own allowance has none. The local
+rolling count comes from <code>~/.shared-hooks/build_restart_ledger.json</code>. Ordinary intents are
+retained for thirty days; approved exceptions remain as audit evidence. Closing an entry ends the
+authorization and does not refund it or renew its consent. A ledger or policy that cannot be read
+refuses the build.</p>
 <p>The recorder's local forecast waits until usage drops below the current limit, including when
 approved exceptions or a lowered limit have left usage above it. A zero limit has no timed reset.
 The gate does not infer spent usage from open entries, because closing an authorization does not
@@ -78,18 +81,18 @@ tama build policy --builds-per-day 2 --minimum-changed-lines 80</code></pre>
 whose command names no target of its own — <code>stado build submit --source .</code>,
 <code>stado release submit --source .</code>, <code>cargo build</code> — is registered against the
 repository the command runs in.</td></tr>
-<tr><td><code>--reason</code></td><td>At least eight words. A reason of one word is refused, because the
-entry exists to be read later by somebody who was not there.</td></tr>
+<tr><td><code>--reason</code></td><td>Required and not blank, because the entry exists to be read later
+by somebody who was not there.</td></tr>
 <tr><td><code>--revision</code></td><td>Required for a build, and it must be a full forty-character source
 revision. A build that cannot name what it carries is not recorded.</td></tr>
-<tr><td><code>--completed-task</code></td><td>Required for a build: at least eight words
-stating which whole task the agent has finished before building. A missing or short statement
-refuses recording and spends no allowance. Restarts do not require it.</td></tr>
+<tr><td><code>--completed-task</code></td><td>Required for a build: which whole task the agent has finished
+before building. A missing or blank statement refuses recording and spends no allowance. Restarts do not
+require it.</td></tr>
 <tr><td><code>--repository</code></td><td>Where the change is measured for a build. Without it, the
 repository the command runs in.</td></tr>
-<tr><td><code>--minutes</code></td><td>How long the entry stays open: one to the policy's window,
-sixty by default, four hours at the very most. Past that it authorizes nothing, so an entry that is
-never closed cannot become a standing permission.</td></tr>
+<tr><td><code>--minutes</code></td><td>How long the entry stays open: one to the policy's window, which is
+also the value when the option is absent. Past that it authorizes nothing, so an entry that is never
+closed cannot become a standing permission.</td></tr>
 <tr><td><code>--approval-session</code>, <code>--approval-quote</code></td><td>For builds only, together.
 The quote must match Tama's captured current user message, and Brama must verify explicit permission
 to exceed the daily count for the named product or batch. A request to add this mechanism is not

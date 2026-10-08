@@ -23,17 +23,17 @@ by name.</td></tr>
 command that names no target of its own — <code>stado release submit --source .</code>,
 <code>cargo build</code> — is registered against the repository it runs in, which is the directory name
 the gate reports in its refusal.</td></tr>
-<tr><td><code>--reason</code></td><td>At least eight words, because the entry is read later by somebody
-who was not there. A shorter reason is refused and the word count is named.</td></tr>
+<tr><td><code>--reason</code></td><td>Required: what the entry is for, because it is read later by
+somebody who was not there. A missing or blank reason is refused.</td></tr>
 <tr><td><code>--revision</code></td><td>Required for <code>--kind build</code>, and it must be a full
 forty-character source revision. A build that cannot say what it carries is not recorded.</td></tr>
-<tr><td><code>--completed-task</code></td><td>Required for a build: write at least eight
-words stating which whole task was finished before building. Missing or short text is refused
-before an intent is spent. It is an agent declaration retained in <code>completed_task</code>,
-not independent proof; do not claim completion while work remains. Restarts are unchanged.</td></tr>
-<tr><td><code>--minutes</code></td><td>How long the entry authorizes: one to the policy's window,
-sixty by default, four hours at the very most. A longer window is refused, so an entry nobody closes
-cannot become standing permission.</td></tr>
+<tr><td><code>--completed-task</code></td><td>Required for a build: which whole task was finished
+before building. Missing or blank text is refused before an intent is spent. It is an agent
+declaration retained in <code>completed_task</code>, not independent proof; do not claim completion
+while work remains. Restarts are unchanged.</td></tr>
+<tr><td><code>--minutes</code></td><td>How long the entry authorizes: one to the policy's
+<code>window_minutes</code>, which is also the value when the option is absent. A longer window is
+refused, so an entry nobody closes cannot become standing permission.</td></tr>
 <tr><td><code>--repository</code></td><td>Where a build's change is measured. Without it, the
 repository the command runs in; a directory in no repository is refused by name.</td></tr>
 <tr><td><code>--home</code></td><td>The home whose registry is written. Present so a test can drive the
@@ -113,7 +113,7 @@ this page is not evidence that the installed release supports them.</p>
 
 <h2>Tama Desktop</h2>
 <p>Open <strong>Policy → Build registry</strong>. Enter the product, full revision, repository,
-reason and <strong>Completed whole task and result</strong> (at least eight words). For an
+reason and <strong>Completed whole task and result</strong>. For an
 exception, enable <strong>Use recorded user consent for a daily-limit exception</strong> and
 supply the session and verbatim current message. <strong>Record build</strong> records one
 permission; it does not start compilation. The screen displays the statement and backend refusal,
@@ -131,15 +131,18 @@ and <code>target</code>. Unknown request fields are refused.</p>
 <pre><code>tama build policy [--json]
 tama build policy --builds-per-day 2 --restarts-per-day 6 \
   --minimum-changed-lines 80 --window-minutes 45</code></pre>
-<p>Without options it prints the file and the sentence: <em>3 builds and 10 restarts in any 24 hours;
-a build carries at least 30 changed lines; one recorded intent authorizes 60 minutes</em>. A field the
-file does not carry falls back to the value in code; for <code>builds_per_day</code> that is the
-operator's own number, <code>builds_per_day</code> in <code>numeric-provenance.json</code> with his
-words, so a machine with no policy file is still rationed. Tightening a limit needs
-nothing. Loosening one — more builds a day, a smaller minimum change, a longer window — is refused
-unless <code>DEVICE_HOOK_EDIT_APPROVED=1</code> is set outside the agent session, because an agent
-that can raise its own allowance has none. A policy or ledger that cannot be parsed refuses the build
-and names the file, rather than counting the day as unspent.</p>
+<p>Without options it prints the file and the sentence, for example <em>3 builds and 10 restarts in
+any 24 hours; a build carries at least 30 changed lines; one recorded intent authorizes 60
+minutes</em>, with the numbers the file states. <code>builds_per_day</code> the file does not state is
+the operator's own number, <code>builds_per_day</code> in <code>numeric-provenance.json</code> with his
+words. The other three have no value in code: while the file does not state one, the command and every
+intent are refused with <code>&lt;file&gt; sets no &lt;field&gt;: the operator states it with `tama
+build policy &lt;option&gt; &lt;n&gt;`, which needs DEVICE_HOOK_EDIT_APPROVED=1 set outside the agent
+session</code>. Tightening a limit needs nothing. Setting one the file did not state, or loosening one
+— more builds a day, a smaller minimum change, a longer window — is refused unless
+<code>DEVICE_HOOK_EDIT_APPROVED=1</code> is set outside the agent session, because an agent that can
+raise its own allowance has none. A policy or ledger that cannot be parsed refuses the build and names
+the file, rather than counting the day as unspent.</p>
 <h2>Read and close</h2>
 <pre><code>tama build list [--json]
 tama build close --kind build --target skarbiec [--json]
