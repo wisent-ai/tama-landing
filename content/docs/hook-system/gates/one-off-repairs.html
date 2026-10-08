@@ -22,7 +22,7 @@ a unit that must change is redeclared with <code>stado service deploy|update</co
 <code>skarbiec token-mint|token-revoke|reclaim</code> — a vault written past Stado, so nothing records the grant
 and the next replica sync removes it</td>
 <td><code>stado release catalog declare-publisher &lt;PRODUCT&gt; --owner &lt;VAULT HOST&gt; --client &lt;HOST&gt;</code>
-for a release publisher, <code>stado service grant-sync</code> for a service, <code>stado credentials grant item-read</code>
+for a release publisher, <code>stado service grant sync</code> for a service, <code>stado credentials grant add</code>
 for one read on the owner, <code>stado credentials token mint</code> for a bearer; each records against the owner's
 vault and each passes this gate. Oko's detector still lists a hand-typed <code>stado credentials token mint</code> as
 <code>credential-by-hand</code> for the judge; it is not refused, because it is the product's own route.</td></tr>
