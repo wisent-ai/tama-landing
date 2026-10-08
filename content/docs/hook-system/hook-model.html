@@ -176,7 +176,14 @@ input already carries, such as a field, status code or exit code.</p>
 <p>Comments and documentation prose are not word classifiers. Protocol fields,
 paths and command options are not English trigger words. A collection passed
 as an ordinary call argument is that call's data:
-<code>run(["transcripts", "tasks", "show"])</code> is not a classifier.
+<code>run(["transcripts", "tasks", "show"])</code> is not a classifier, and
+neither is a command line bound to a name before it runs,
+<code>let args = ["build", "status", id, "--json"]</code>: its collection also
+holds a computed value or an option, which a vocabulary of words never does.
+A list of nothing but words bound to a name is still judged, and a collection
+asked a question where it stands (<code>[…].contains(x)</code>) is reported
+whatever else it holds (<code>cargo test -p tama-cli --test
+keyword_literals_argument_vectors</code>).
 In a release manifest, <code>argv</code> is a command vector and
 <code>promotion.channels</code> names release states. Neither list classifies
 input; other word arrays in that document are still judged. An edit of a JSON
