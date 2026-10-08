@@ -121,7 +121,12 @@ operator's recorded instruction. Its declaration format is
 <code>{"value": n, "user_said": "…"}</code>. A write to a file that already exists is held to the
 literals it adds: the numbers the file held before are counted out one for one, so renaming a
 function in a file that holds a number passes, and the one number an edit adds is refused by
-name; a new file is read whole. In a data file (JSON, a
+name; a new file is read whole. A hashline edit is read as the file its section leaves behind
+(replace, insert and cut replayed against the file on disk), so text added inside a string or
+comment — a shell program held in a Rust raw string, with its <code>$1</code> and
+<code>2&gt;/dev/null</code> — is read as that string, and a number added to the code around it is
+still refused; a section with an operation that is not replayed (a block, a register paste) is
+read from its added lines alone. In a data file (JSON, a
 <code>Package.resolved</code>, a manifest) a quoted value shaped as an identifier is not a
 number: a dotted release version such as <code>"0.7.56"</code> or <code>"1.2.3-beta.1"</code>,
 and a hexadecimal revision or digest holding a letter such as a git commit. So a version
