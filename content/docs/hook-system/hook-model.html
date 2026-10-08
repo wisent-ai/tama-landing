@@ -136,7 +136,12 @@ quoted decimal (<code>"port": "8792"</code>) are still refused by name. In a
 <code>[dev-dependencies]</code>, <code>[build-dependencies]</code>, <code>[workspace.dependencies]</code>,
 <code>[target.….dependencies]</code>) is a requirement on a release the registry publishes
 (<code>tree-sitter = "0.25"</code>), so it passes; a number in any other table of the manifest
-(<code>opt-level = 3</code>), and a table of that name in any other file, is still read.</p>
+(<code>opt-level = 3</code>), and a table of that name in any other file, is still read. The
+manifest's <code>edition</code>, <code>rust-version</code> and <code>license</code> values
+(<code>edition = "2021"</code>, <code>rust-version = "1.80"</code>,
+<code>license = "BSD-3-Clause"</code>) are names Rust and the SPDX list publish, so they pass in
+<code>[package]</code> and <code>[workspace.package]</code>; the same keys in any other file are
+still read.</p>
 <p>A number a protocol or a vendor states — Apple's notification payload limit, an HTTP
 status, a file format's magic number — has that document as its source. In a code file a
 literal passes when its own comment, or the comment block written directly above it, names
