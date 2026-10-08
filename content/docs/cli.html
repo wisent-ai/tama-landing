@@ -12,7 +12,7 @@ intentionally not part of the public surface.</p>
 <li><a href="cli/validate/"><code>tama validate [--json]</code></a> — validate catalog and source integrity.</li>
 <li><a href="cli/install-plan/"><code>tama install-plan [--json]</code></a> — show enforcement targets without writing them.</li>
 <li><a href="cli/mcp-config/"><code>tama mcp-config</code></a> — print the MCP server fragment.</li>
-<li><a href="cli/model-provider/"><code>tama model-provider [show | set --origin URL --model MODEL | unset] [--json]</code></a> — choose the model service Tama asks: Brama, or an OpenAI-compatible service whose key is read from standard input.</li>
+<li><a href="cli/model-provider/"><code>tama model-provider [show | set --origin URL --model MODEL | unset | check] [--json]</code></a> — choose the model service Tama asks, Brama or an OpenAI-compatible service whose key is read from standard input, and check whether it accepts this machine.</li>
 <li><a href="cli/sessions/"><code>tama sessions [--json] [--home &lt;path&gt;]</code></a> — inspect live session records.</li>
 <li><a href="cli/sessions/"><code>tama sessions reload --session &lt;ID&gt; [--json]</code></a> — reload the installed adapter in the same OMP process and require its loaded-digest receipt.</li>
 <li><a href="cli/assignment/show/"><code>tama assignment show --session SESSION_ID [--json]</code></a> — read one session's newest operator instruction and fresh Oko task ledger, and record that both were read.</li>
@@ -41,7 +41,6 @@ intentionally not part of the public surface.</p>
 <li><a href="cli/vocabulary-report/"><code>tama vocabulary-report --repo &lt;path&gt;… [--json]</code></a> — every keyword list still in a repository, grouped by its words.</li>
 <li><a href="cli/extract-patterns/"><code>tama extract-patterns --file &lt;rust-file&gt; --const &lt;NAME&gt; --into &lt;json&gt;</code></a> — move a guard's pattern table out of Rust into a JSON declaration.</li>
 <li><a href="cli/clean/"><code>tama clean</code></a> — ask Brama for one patch per repository per round, apply it, and re-scan.</li>
-<li><a href="cli/brama-check/"><code>tama brama-check [--json]</code></a> — which Brama address this machine resolves, and what the gateway answers.</li>
 <li><a href="cli/justify/"><code>tama justify &lt;record|show|remove|list&gt;</code></a> — record, read and retire the justifications the write guards require.</li>
 <li><a href="cli/request/"><code>tama request &lt;operation&gt;</code></a> — answer one Tama Desktop request: JSON body on stdin, NDJSON events on stdout.</li>
 <li><a href="cli/provider-config/"><code>tama provider-config --provider &lt;claude|codex&gt; --dispatcher &lt;command&gt; [--json]</code></a> — print the hook block an install writes into that provider's config.</li>

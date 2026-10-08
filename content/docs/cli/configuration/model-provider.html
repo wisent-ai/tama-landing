@@ -1,9 +1,10 @@
 <h1><code>tama model-provider</code></h1>
-<p>Chooses the model service Tama's model calls ask — the objective reviewer, the stop review, frustration drafting and adaptive disputes. Brama is the default; a machine without Brama declares any OpenAI-compatible chat-completions service instead.</p>
+<p>Chooses the model service Tama's model calls ask — the objective reviewer, the stop review, frustration drafting and adaptive disputes — and checks whether it accepts this machine. Brama is the default; a machine without Brama declares any OpenAI-compatible chat-completions service instead.</p>
 <h2>Invocation</h2>
 <pre><code>tama model-provider [show] [--json]
 printf '%s' "$KEY" | tama model-provider set --origin https://api.openai.com --model gpt-5 [--json]
 tama model-provider unset [--json]
+tama model-provider check [--json]
 </code></pre>
 <h2>Output and state</h2>
 <p><code>set</code> reads the service's API key from standard input only and writes the origin, model and key owner-only (mode 0600) to <code>~/.tama/model-provider.json</code>; <code>TAMA_MODEL_PROVIDER_PATH</code> names another file. From then on every Tama model call posts to <code>&lt;origin&gt;/v1/chat/completions</code> with that key as its bearer and asks for that model. <code>unset</code> removes the file and Tama asks Brama again. Every verb prints the choice that stands afterwards: <code>provider</code> (<code>brama</code> or <code>openai-compatible</code>), <code>model</code>, and for a declared service <code>origin</code> and <code>declaredIn</code>, as <code>key: value</code> lines or as JSON with <code>--json</code>. The key is never printed.</p>
@@ -14,6 +15,25 @@ tama model-provider unset [--json]
 <li><code>the API key is read from standard input, and standard input was empty</code> — exit 2.</li>
 <li><code>no model provider is declared in &lt;file&gt;; Tama already asks Brama</code> — <code>unset</code> with nothing declared, exit 1.</li>
 <li><code>&lt;file&gt; names no complete model provider (origin, model and key); declare it again with `tama model-provider set` or remove it with `tama model-provider unset`</code> — a damaged declaration; every model call refuses with the same sentence until it is repaired.</li>
-<li><code>takes show, set or unset; got &lt;verb&gt;</code> — exit 2.</li>
+<li>With nothing declared, <code>show</code> exits 1 with the route resolver's own sentence when Brama's route cannot be resolved, instead of printing an empty <code>model</code>.</li>
+<li><code>takes show, set, unset or check; got &lt;verb&gt;</code> — exit 2.</li>
 </ul>
+<h2 id="check"><code>check</code></h2>
+<p>Presents the credential of the service in force to its bearer-only <code>GET /v1/models</code> and reports what it answered. That request is not billable and calls no provider. The bearer reaches curl through a <code>--config</code> document on standard input, never through its arguments. Tama Desktop shows the same read as the <em>Model service</em> section of the Install screen.</p>
+<h3>Identity and credential</h3>
+<p>For Brama, Tama's identity at the gateway is a Skarbiec consumer, <code>tama</code> by default and <code>TAMA_BRAMA_CONSUMER</code> when set. Its credential is a token minted for that consumer, read from <code>~/.stado/&lt;consumer&gt;-skarbiec-token</code> or from <code>TAMA_BRAMA_TOKEN_FILE</code>. Mint one with <code>skarbiec token-mint &lt;consumer&gt; --capabilities call:brama#&lt;route&gt;</code>; the grants inside the token decide which routes that consumer may ask for, and Brama learns the client and its routes by introspecting the token at Skarbiec. For a declared service the credential is the key <code>set</code> stored, and no Skarbiec grant is asked.</p>
+<p>Brama's address is resolved exactly as <a href="../clean/"><code>clean</code></a> and the objective reviewer resolve it: <code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTER_URL</code>, <code>STADO_MODEL_ROUTER_URL</code> or <code>BRAMA_URL</code> when one is set; then <code>stado service directory connect brama --consumer &lt;adapter&gt;</code>, where the adapter is <code>tama</code> by default and <code>TAMA_BRAMA_ADAPTER_CONSUMER</code> when set; then the public hostname. A declared service's address is its origin.</p>
+<h3>Output</h3>
+<p>Text output is ten lines: the <code>provider</code> (<code>brama</code> or the declared origin), the chat <code>endpoint</code> the client would post to, the <code>transport</code> verdict, the <code>probe</code> address with the HTTP status it returned, <code>detail</code> — the number of models offered on success, or the service's own error body — then <code>consumer</code>, <code>token file</code> and <code>route</code>, then what <em>this machine's authority</em> answers about that route on that bearer (for a declared service, <em>not asked</em>), and finally one <code>verdict</code>. <code>--json</code> emits the same fields as one object, including <code>local_grant</code> and <code>verdict</code>. The command writes no state.</p>
+<h3>Reading the verdict</h3>
+<p>For Brama the <code>verdict</code> line exists because <code>401</code> stands for three different states at once: a bearer can be valid at its own authority while the gateway is deployed without the variables that let it ask, and a bare status cannot tell the two apart. The sentences are:</p>
+<ul>
+<li><em>the model catalogue accepts this bearer; chat was not tested</em> — the catalogue answered <code>200</code>. A chat request may still fail at a different proxy, on its route, or at its local capability check. Inspect the actual <code>frustration-drafter</code> outcome in <a href="/docs/cli/rules/"><code>tama rules digest --json</code></a> before claiming that automatic drafts work.</li>
+<li><em>this machine's authority grants the route on this bearer, and the gateway still refuses it</em> — the gateway is not asking this authority. Check that its deployment carries <code>WC_SKARBIEC_URL</code>, <code>BRAMA_SKARBIEC_CONSUMER</code> and <code>BRAMA_SKARBIEC_TOKEN_FILE</code>.</li>
+<li><em>this machine's authority does not grant this route to this consumer</em> — issue it with <code>skarbiec grant issue &lt;consumer&gt; --capabilities call:brama#&lt;route&gt; --token-file &lt;path&gt;</code>.</li>
+<li><em>the gateway refuses this bearer and this machine's authority could not be asked</em> — the local vault or its CLI is the first thing to repair.</li>
+</ul>
+<p>For a declared service: <em>&lt;origin&gt;'s model catalogue accepts the declared key; chat was not tested</em>, or <em>&lt;origin&gt; refuses the declared key with &lt;status&gt;: declare the service again with `tama model-provider set`, or return Tama to Brama with `tama model-provider unset`</em>. Either service: <em>nothing answered at that address</em> when no HTTP answer arrived.</p>
+<h3>Refusals</h3>
+<p><code>check</code> exits <code>1</code> unless the service answered <code>200</code> through an allowed transport. A missing Brama token exits <code>1</code> with <code>no Brama token for consumer &lt;consumer&gt; at &lt;path&gt;; mint one with …</code>; an empty file is refused as <code>is empty</code> and a file holding more than one word as <code>does not hold one token</code>. An address off loopback that is not HTTPS, or one carrying credentials, a query or a fragment, is refused by the client before anything is sent. A damaged declaration is refused with the sentence above.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
