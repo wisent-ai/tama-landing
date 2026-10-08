@@ -30,6 +30,8 @@ tama hooks digest &lt;file-or-release&gt;
 <tr><td><code>digest</code></td><td>Prints a directory's release digest or a file's SHA-256; <code>artifact not found: &lt;path&gt;</code> exits two</td><td><a href="../../concepts/seal/">seal</a></td></tr>
 </tbody>
 </table>
+<h2>Records a killed core leaves behind</h2>
+<p>A core removes a hook's running record when the hook ends and ends every run it holds when its input closes; a core the system kills does neither. <code>tama hooks running</code> then says which case a record is: <code>core gone; hook still running with nobody waiting for it</code> names an orphaned hook that still runs, with what it waits on, and <code>core and hook gone; record left behind</code> names a record nothing can still be waiting on. Each core removes the second kind as it starts serving. It never signals an orphaned hook's process group, because a hook process id a dead core recorded may already belong to another program; that record stays until the hook ends. The real test is <code>tests/hooks-running/left_behind.rs</code> (<code>cargo test -p tama-cli --test hooks_running_left_behind</code>).</p>
 <h2>Exit status</h2>
 <p>A verb other than the ten above prints <code>unknown hooks command &lt;name&gt;</code> and the usage, exit two; <code>tama hooks</code> alone, <code>help</code>, <code>-h</code> or <code>--help</code> print the usage and exit zero. Each verb's own refusals are listed on the page that documents it.</p>
 <p>Return to the <a href="../">complete CLI tree</a>.</p>
