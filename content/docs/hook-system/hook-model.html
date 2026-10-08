@@ -161,14 +161,18 @@ conversation carries it (a token cache, a cloud profile, the machine registry), 
 used it in two or more stored sessions, or when <code>identity_provenance.json</code> records his
 verbatim quote declaring it. The transcript names and the checkout are asked first, so a write that
 names a session or an identifier the repository already holds does not wait on a read of every
-transcript on the machine; an untracked file beside the write counts for nothing. Any other value
+transcript on the machine; an untracked file beside the write counts for nothing. A word shaped like a
+flattened address that is part of an angle-bracket placeholder — a usage line's
+<code>&lt;gh-owner-name&gt;</code> argument — is read as the placeholder it is and never searched
+for. Any other value
 is refused naming it and saying which source was missing:
 <code>the UUID &lt;value&gt; has no provenance -- no artifact carries it and no stored user message
 contains it</code>. <code>IDENTITY_TRANSCRIPT_ROOT</code>, <code>IDENTITY_ARTIFACT_ROOTS</code> and
 <code>IDENTITY_PROVENANCE_FILE</code> move the three stores. The real tests are
-<code>tests/identity-literals/session_ids.rs</code> and <code>tests/identity-literals/tracked_ids.rs</code>
-(<code>cargo test -p tama-cli --test identity_literals_session_ids --test
-identity_literals_tracked_ids</code>), the second against a real git checkout it creates.</p>
+<code>tests/identity-literals/session_ids.rs</code>, <code>tests/identity-literals/tracked_ids.rs</code>
+and <code>tests/identity-literals/placeholders.rs</code> (<code>cargo test -p tama-cli --test
+identity_literals_session_ids --test identity_literals_tracked_ids --test
+identity_literals_placeholders</code>), the second against a real git checkout it creates.</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
 of two or more words used to classify input. Moving the collection to JSON,
 YAML or TOML does not make it acceptable. No declaration allows a word
