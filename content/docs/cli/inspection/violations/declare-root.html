@@ -1,7 +1,7 @@
-<h1><code>tama declare-root</code></h1>
+<h1><code>tama violations declare-root</code></h1>
 <p>Declares a repository root to the audit when every file it holds is fixed there by somebody else's tooling, and refuses while anything movable is still in it.</p>
 <h2>Invocation</h2>
-<pre><code>tama declare-root (--repo &lt;path&gt; | --tree &lt;dir&gt;) [...] [--apply] [--tidy] [--commit] [--push] [--withdraw] [--json]
+<pre><code>tama violations declare-root (--repo &lt;path&gt; | --tree &lt;dir&gt;) [...] [--apply] [--tidy] [--commit] [--push] [--withdraw] [--json]
 </code></pre>
 <p><code>--repo</code> names one checkout and <code>--tree</code> walks every Git checkout under a directory, so a workshop of two hundred repositories is one command. Without <code>--apply</code> the run is a report. <code>--commit</code> records what it wrote in the repository that received it, <code>--push</code> publishes that commit, and both also finish a declaration an earlier run left uncommitted in a working tree.</p>
 <h2>Why a root is different</h2>
@@ -15,4 +15,4 @@
 <p>A declaration is a claim, and a root that later gains a file somebody could move, or a claim that was wrong, must be audited again. <code>--withdraw</code> removes the paragraph this command wrote and the <code>.</code> entry under it, leaves every other exclusion in the file as it was, and deletes the file when nothing else was in it; <code>--commit</code> and <code>--push</code> carry the withdrawal the same way a declaration is carried. Without <code>--apply</code> it reports <code>would withdraw the root's declaration</code> and changes nothing. A root that is not declared is refused — <code>the root is not declared in &lt;file&gt;; there is nothing to withdraw</code> — so a repeated withdrawal never pretends to take something back twice. The report carries <code>withdrawn</code>, and the text run ends with how many roots were withdrawn.</p>
 <h2>Output and state</h2>
 <p>Text mode prints one line per repository and ends with how many roots were declared, or withdrawn; with a single target it also lists the files and their tools. JSON returns an array of reports with <code>fixed</code>, <code>movable</code>, <code>junk</code>, <code>declared</code>, <code>reason</code>, <code>withdrawn</code> when a withdrawal happened, and the commit <code>revision</code> when one was made. Exit <code>1</code> means at least one root was not declared, or under <code>--withdraw</code> not withdrawn; missing paths and unknown arguments print usage and exit <code>2</code>.</p>
-<p>Return to the <a href="../">complete CLI command tree</a>.</p>
+<p>Return to the <a href="../../">complete CLI command tree</a>.</p>

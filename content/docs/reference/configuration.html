@@ -49,7 +49,7 @@ switch (<code>emergency_disable_hooks</code>), and the generated launchers:</p>
 | <code>TAMA_PYTHON</code> | <code>tama-agent</code> launcher | Python 3 used for the universal session runtime |
 | <code>TAMA_NODE_EXECUTABLE</code>, <code>TAMA_NODE_PREFLIGHT</code> | exported by the launcher | The pinned Node executable and version guard, for semantic dispatch |
 | <code>AGENT_HOOK_REGISTRY</code> | OMP adapter | Registry path override; defaults to <code>~/.shared-hooks/registry.json</code> |
-| <code>TAMA_CLEAN_DISABLED</code> | <code>tama clean</code> | <code>1</code> disables the cleanup command entirely |
+| <code>TAMA_CLEAN_DISABLED</code> | <code>tama violations clean</code> | <code>1</code> disables the cleanup command entirely |
 | <code>TAMA_HOOK_SOURCE_REVISION</code>, <code>TAMA_HOOK_SOURCE_DIRTY</code> | <code>tama hooks seal</code> | The source identity the build expects; a tree that differs is refused |</p>
 <p>Debug-only seams (<code>TAMA_HOOK_ROOT</code> for the catalog root, <code>TAMA_TEST_IDENTITY</code>
 for UI tests) are compiled out of distributed builds

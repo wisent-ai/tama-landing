@@ -1,13 +1,13 @@
-<h1><code>tama vocabulary-report</code></h1>
+<h1><code>tama vocabulary report</code></h1>
 <p>Lists every keyword list still written into a repository's code or data files, grouped by the words themselves, so every copy of one list is removed in the same change.</p>
 <h2>Invocation</h2>
-<pre><code>tama vocabulary-report --repo &lt;path&gt; [--repo &lt;path&gt;...] [--json]
+<pre><code>tama vocabulary report --repo &lt;path&gt; [--repo &lt;path&gt;...] [--json]
 </code></pre>
 <p><code>--repo</code> names one checkout and may be repeated. <code>--json</code> selects the structured report.</p>
 <h2>Why it exists</h2>
-<p><a href="../find-violations/"><code>find-violations</code></a> answers which files break a rule, one finding per file: the right shape for a gate and the wrong one for a repair. The same words live in several files, and fixing them one file at a time is how the copies drifted apart. This report reads exactly what <code>block-keyword-literals</code> refuses — lists in code and in data files, with no declaration hiding any of them — and groups every flagged run by its word set.</p>
+<p><a href="../../violations/find/"><code>violations find</code></a> answers which files break a rule, one finding per file: the right shape for a gate and the wrong one for a repair. The same words live in several files, and fixing them one file at a time is how the copies drifted apart. This report reads exactly what <code>block-keyword-literals</code> refuses — lists in code and in data files, with no declaration hiding any of them — and groups every flagged run by its word set.</p>
 <h2>Output and state</h2>
 <p>Text output prints one block per word set: <code>N site(s): "word", "word", …</code> followed by each site as <code>path:line</code>, then a final <code>vocabularies: V, sites: S</code>. Sets written in the most places come first, then the widest sets. <code>--json</code> prints <code>{vocabularies: [{words, sites, copies}], vocabularyCount, siteCount}</code> in the same order. Nothing is written.</p>
 <h2>Refusals and failures</h2>
 <p>Without any <code>--repo</code> the usage is printed to stderr and the command exits <code>2</code>. A file that cannot be read is left out of the report rather than refused. <code>--help</code> prints the command's lines of the summary and exits <code>0</code>.</p>
-<p>Return to the <a href="../">complete CLI command tree</a>.</p>
+<p>Return to the <a href="../../">complete CLI command tree</a>.</p>

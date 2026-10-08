@@ -8,7 +8,7 @@
 | Agent supervisors | Live session status and overrides | Optional until session control | Agent adapter maintainers | Session schema <code>ai.wisent.tama.session-control.v2</code> plus capability/runtime sub-schemas |
 | macOS policy backend | Kernel/process/network enforcement | Required for supervised-agent readiness | Tama maintainers | macOS 14+, Apple silicon, signed helper identifiers fixed by release |
 | Violations CLI | Repository scan and cleanup | Optional | tama maintainers | Bundled with exact hook release; app decodes the documented JSON report |
-| Policy inspection CLI | Declared provider coverage, install plan, MCP snippet | Optional | tama maintainers | Bundled with exact hook release; read-only <code>provider coverage --json</code>, <code>install-plan --json</code>, <code>mcp-config</code> |
+| Policy inspection CLI | Declared provider coverage, install plan, MCP snippet | Optional | tama maintainers | Bundled with exact hook release; read-only <code>provider coverage --json</code>, <code>install plan --json</code>, <code>mcp config</code> |
 | GitHub Releases | Immutable product artifact distribution | Required for supported installation | Tama release maintainers | Exact <code>v&lt;SemVer&gt;</code> tag and artifact digest |
 | Local cleanup agent | Mutating violation repair | Optional | Codex operator | The current desktop workflow uses Codex explicitly; no silent provider fallback |</p>
 <h2>Wisent Auth</h2>
@@ -54,7 +54,7 @@
 <h2>Policy inspection CLI</h2>
 <p>Outcome: answer which runtime carries which hook, where an install would write, and what an MCP client needs, from the same CLI the release bundles rather than from a second implementation in the desktop.</p>
 <p>Configuration: none. The three commands take no operator input, mutate nothing, and are invoked on demand — once when their screen first opens, and again only when the operator asks.</p>
-<p>Report contract: <code>provider coverage --json</code> returns provider, coverage kind, mapping/hook/event counts, adapter path, required-live-coverage flag, evidence sentence and declared mappings. <code>install-plan --json</code> returns <code>archiveRoot</code> and a <code>levels</code> object whose members intentionally differ in shape, so the desktop renders them as label/value rows instead of forcing one type. <code>mcp-config</code> prints a JSON snippet displayed verbatim.</p>
+<p>Report contract: <code>provider coverage --json</code> returns provider, coverage kind, mapping/hook/event counts, adapter path, required-live-coverage flag, evidence sentence and declared mappings. <code>install plan --json</code> returns <code>archiveRoot</code> and a <code>levels</code> object whose members intentionally differ in shape, so the desktop renders them as label/value rows instead of forcing one type. <code>mcp config</code> prints a JSON snippet displayed verbatim.</p>
 <p>Reliability: only exit <code>0</code> is accepted; anything else, an unparseable document, an absent Node or an absent bundled CLI is reported as a failure carrying the command's own message and the command that reproduces it. Coverage is registry-declared and never presented as live execution evidence.</p>
 <p>Lifecycle: bundled with the app; the commands write nothing and hold no state.</p>
 <h2>GitHub Releases</h2>

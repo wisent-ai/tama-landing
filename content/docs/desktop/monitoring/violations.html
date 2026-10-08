@@ -3,7 +3,7 @@
 Scan is read-only and replays the release's real pre-write hook; <em>Repair</em>
 hands the working tree to one headless external agent behind a confirmed
 dialog and trusts only the final rescan. The engine is the sealed CLI's
-<code>find-violations</code> / <code>clean</code> (<a href="../cli.md#repository-scans-and-cleanup">cli</a>),
+<code>violations find</code> / <code>violations clean</code> (<a href="../cli.md#repository-scans-and-cleanup">cli</a>),
 run as the streamed jobs <code>tama request violations/scan</code> and
 <code>tama request violations/clean</code>, one process each; <em>Stop</em> ends the
 job's whole process tree.</p>
@@ -23,7 +23,7 @@ absolute, not a directory, or no <code>.git</code>.</li>
 </ul>
 <h2>Facets and counters</h2>
 <p><code>Pass</code> chooses what the next scan asks, one entry per pass of
-<code>tama find-violations</code>: <code>Every rule</code> replays the hooks;
+<code>tama violations find</code>: <code>Every rule</code> replays the hooks;
 <code>File and folder size</code>, <code>Capabilities written again</code>,
 <code>Internal names</code> and <code>Waits and time limits</code> run
 <code>--size-only</code>, <code>--duplicates</code>, <code>--internal-names</code> and
@@ -59,7 +59,7 @@ stated verbatim:</p>
 <p>Reason code <code>&lt;n&gt; violations in &lt;m&gt; repositories</code>; the listing is every file
 the findings name; footnote: <code>the agent runs with Codex; Tama refuses to start the repair when Codex is absent</code>. Actions: <code>Cancel</code>, destructive
 <code>Repair with a headless agent</code>, primary <code>Read the findings first</code>.</p>
-<p>Above the dialog sits the field <code>Repair rounds the agent may take</code>. The repair is enabled only while it holds a whole number above zero, and that number is sent as <code>maxRounds</code>, the request's form of <code>tama clean --max-rounds</code>; neither has a default. A repair started without it reports <code>Say how many repair rounds the run may take: a whole number above zero.</code></p>
+<p>Above the dialog sits the field <code>Repair rounds the agent may take</code>. The repair is enabled only while it holds a whole number above zero, and that number is sent as <code>maxRounds</code>, the request's form of <code>tama violations clean --max-rounds</code>; neither has a default. A repair started without it reports <code>Say how many repair rounds the run may take: a whole number above zero.</code></p>
 <h2>While a repair runs</h2>
 <p>The clean bar reports in the command's own place: <code>A headless agent is editing the working tree in &lt;path&gt;.</code>, on stop <code>Stopping the repair. Partial edits are preserved and rescanned.</code>, then <code>Rescanning the working tree before reporting the result.</code> A cancelled clean is a reported failure:
 <code>The clean command was cancelled. Partial working-tree edits remain visible; inspect them and complete a read-only scan before retrying.</code> A cleanup that
