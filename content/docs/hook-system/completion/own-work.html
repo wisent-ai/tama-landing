@@ -85,10 +85,8 @@ a status list said again is not work, and the refusal sends the agent to the nex
 (<code>blokada budowania</code>, <code>czeka na wspólny build</code>, <code>block-one-off-repairs</code>):
 the gate holds builds until the work is repaired and blocks nothing the operator asked for;
 <code>block-stop-on-own-work: BLOCKED: the Blockers section names the build gate ("…") …</code></li>
-<li>an answer in another language than the operator's latest message. Each text of at least twelve
-words is assigned the language whose most frequent function words make up the largest share of it,
-which recognises Polish typed without diacritics too;
-<code>block-stop-on-own-work: BLOCKED: the operator wrote in polski and this answer is in english …</code></li>
+<li>an answer in another language than the operator's latest message, as the reading model judges
+it from both texts; <code>block-stop-on-own-work: BLOCKED: WRONG LANGUAGE …</code></li>
 <li>a plan written under the heading for what was done (<em>Co zrobiono</em>, <em>Co zrobiłem</em>,
 <em>Co zostało zrobione</em>, <em>What was done</em>): <code>trzeba naprawić …</code>, a numbered
 infinitive item such as <code>1. Dodać …</code>, <code>do zrobienia</code> or the announced future tense;
