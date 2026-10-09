@@ -79,6 +79,12 @@ once, under the newest message that carries it, as <code>- &lt;time&gt; (&lt;ses
 #&lt;number&gt;, said N times since &lt;time of the oldest&gt;): &lt;text&gt;</code>. A text said once has
 no count. No text is cut: a rule is lost by cutting it, not by saying it once.
 <code>tama assignment show</code> prints the same block.</p>
+<p>A rules report that is not an array is refused with
+<code>Oko tasks rules --all --json returned a non-array rules report</code>.
+A missing or wrongly typed rule field reports
+<code>Oko tasks rules --all --json rule at index &lt;index&gt;: &lt;decoder error&gt;</code>
+in the unavailable-rules block. Tama does not replace unreadable rules with
+an empty list or invent their source session, message number or text.</p>
 
 <h2>Session-scoped enable</h2>
 <p>The desktop writes a private request file
