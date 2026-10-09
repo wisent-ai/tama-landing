@@ -18,6 +18,17 @@ session that declared nothing sees no such section.</p>
 session and message number and his words. The same block is what <code>inject-operator-rules</code>
 puts in front of a session when it starts or resumes after compaction, so a session knows what he
 already decided before it asks him. A register that cannot be read is named in place of the block.</p>
+<p>The reading asks Oko's registers for open items only, each in one call: the session's task
+ledger (<code>oko tasks --session ID --read-only --json</code>), the open defects of every product
+(<code>oko defects list --open --json</code>, so the closed and withdrawn records never travel),
+the standing rules (<code>oko tasks rules --all --json</code>) and the rulings. It never reads a
+record one at a time, and it never cuts itself off: a reading that is slow names, on stderr, the
+Oko call it is waiting on (<code>OKO_TRACE_REQUESTS</code>). The real test is
+<code>tests/assignment/show_registers.rs</code> (<code>cargo test -p tama-cli --test
+assignment_show_registers</code>, with <code>TAMA_TEST_ASSIGNMENT_SESSION</code> naming a session
+whose instruction this machine captured): it runs both forms against the machine's own Oko,
+checks that the open-defects section names exactly the defects <code>oko defects list --open</code>
+holds, and writes each form's wall time to its report beside the source revision.</p>
 <h2>Output and state</h2>
 <p>Each session has its own captured instruction and separate read receipt under the Tama state root. <code>TAMA_ASSIGNMENT_STATE</code> selects a base filename for this namespace, not a shared assignment file. An older machine-wide record is not adopted as another session's instruction. The capture preserves whitespace, and even an identical instruction submitted in a new turn requires a new read.</p>
 <p>The reader calls <code>oko transcripts tasks --session SESSION_ID --read-only --json</code>. <code>TAMA_OKO_CLI</code> selects a different Oko executable; <code>OKO_TRANSCRIPT_INDEX_PATH</code> selects the index passed as <code>--db</code>. Oko reads the fresh transcript without writing the index or waiting behind its writer. The index and task tables must already be initialized through Oko's normal writable interface, but the selected live session need not have an index entry. Oko checks the session identity in a newly discovered transcript. Human-attributed OMP steering is an operator message; runtime steering is not. See <a href="https://oko.wisent.com/docs/cli/transcripts/tasks">Oko's task reader</a> for source recovery and refusal details.</p>
