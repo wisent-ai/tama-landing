@@ -185,10 +185,16 @@ and <code>tests/identity-literals/placeholders.rs</code> (<code>cargo test -p ta
 identity_literals_session_ids --test identity_literals_tracked_ids --test
 identity_literals_placeholders</code>), the second against a real git checkout it creates.</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
-of two or more words used to classify input. Moving the collection to JSON,
+of two or more words used to classify input, and the same vocabulary written
+as a comparison: a chain of <code>==</code> (or <code>===</code>, <code>!=</code>)
+against two or more quoted words on one line, and the arms of a
+<code>matches!</code> or <code>match</code> pattern joined with <code>|</code>.
+Moving the collection to JSON,
 YAML or TOML does not make it acceptable. No declaration allows a word
 classifier: <code>keyword-provenance.json</code> is retired, and writing it is
-itself refused. A refusal identifies the file, line, collection and words.
+itself refused. A refusal identifies the file, line, kind (list, alternation,
+pattern, comparison or data list) and words:
+<code>src/k.rs:2: a pattern of 3 words decides something by keyword ("okay", "sure", "done")</code>.
 The supported choices are a model judgment through Brama or the structure the
 input already carries, such as a field, status code or exit code.</p>
 <p>Comments and documentation prose are not word classifiers. Protocol fields,
@@ -198,10 +204,17 @@ as an ordinary call argument is that call's data:
 neither is a command line bound to a name before it runs,
 <code>let args = ["build", "status", id, "--json"]</code>: its collection also
 holds a computed value or an option, which a vocabulary of words never does.
-A list of nothing but words bound to a name is still judged, and a collection
-asked a question where it stands (<code>[…].contains(x)</code>) is reported
-whatever else it holds (<code>cargo test -p tama-cli --test
-keyword_literals_argument_vectors</code>).
+The same holds for the argument list of a process call in any language —
+<code>Command::new("stado").args([…])</code>, a test fixture's
+<code>service.cli(&amp;[…])</code>, <code>spawnSync("stado", […])</code>, a Swift
+function that hands a command line back. A list of nothing but words bound to a
+name is still judged, a collection asked a question where it stands
+(<code>[…].contains(x)</code>) is reported whatever else it holds, and one
+comparison with one word (<code>flag == "--json"</code>, <code>state ==
+"completed"</code>) is not a list. The real test is
+<code>tests/keyword-literals/argument_vectors.rs</code> (<code>cargo test -p
+tama-cli --test keyword_literals_argument_vectors</code>), on the built hook with
+the write payloads above, read from its decision document.
 In a release manifest, <code>argv</code> is a command vector and <code>promotion.channels</code> names release states. Neither list classifies input; other word arrays in that document are still judged.
 An edit of a JSON file sends only the changed lines, which do not parse as a document; an array written as the value of <code>argv</code>, or of <code>channels</code> in a release manifest, is exempt the same way. The rest of the fragment is judged as quoted text.
 YAML command mappings are read as syntax: <code>argv</code> names the executable and its arguments; <code>args</code> names arguments only when the same mapping carries a nonempty string <code>program</code>; each step of a Stado catalog recipe's <code>after_install</code> is one argv, because Stado refuses any step that is not an array of strings. Block and flow sequences, quoted keys, comments and either field order are supported. Only sequences of strings are command vectors; sibling word lists, nested classifier objects, an <code>args</code> list whose program belongs to a different mapping, and an <code>after_install</code> list holding any step that is not itself a sequence remain judged.
