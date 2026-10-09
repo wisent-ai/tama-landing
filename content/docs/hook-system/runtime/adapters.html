@@ -85,7 +85,7 @@ while &lt;event&gt; was still being checked, so that tool call is over and hook
 &lt;id&gt; and the ones after it were not started</code>. A serving engine
 whose input closes ends every hook run it still holds the same way, with
 <code>the core's caller closed its input, so nobody waits for its
-answer</code>. A payload without a session id is never superseded or ended.
+answer</code>. A payload without a session id is never superseded by another session event.
 <code>tama hooks running</code> lists every hook still running.</p>
 <h3>Cancellation, judge progress and abandoned children</h3>
 <p>A dispatch requires a nonempty string <code>id</code>. To abandon it, send
@@ -119,6 +119,12 @@ the signal was sent or why termination was refused. A legacy record without
 birth identity, or a reused pid, is not enough authority to signal a process.
 The CLI returns failure on an inspection error or refused orphan termination;
 it never turns an unreadable record into an empty healthy list.</p>
+<p>In Tama Desktop, open <strong>Session</strong> and choose
+<strong>Inspect hooks and end orphans</strong>. The live adapter answers the
+same inspection, publishes it into the session record, and the screen lists
+each hook's owner, descendants and termination outcome. Hook progress appears
+there as stderr arrives. Inspection errors remain errors; a termination signal
+being sent is not presented as proof that the process has already exited.</p>
 <p>The real held-endpoint journeys in
 <code>tests/hooks-running/cancellation.rs</code> run the compiled stop hook
 against a local TCP listener that deliberately sends no answer. They check
