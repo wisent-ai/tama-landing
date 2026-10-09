@@ -43,4 +43,5 @@ commands: 100
 <li><code>provider config could not encode the hook block for &lt;provider&gt;: &lt;detail&gt;</code></li>
 </ul>
 <p>A missing <code>--provider</code> or <code>--dispatcher</code> prints the usage text and exits <code>2</code>.</p>
+<p>At invocation time, a declared harness must send an object payload. A synthesized tool input must contain every source field its adapter declares. Missing fields produce <code>&lt;provider&gt; hook &lt;event&gt;: missing required payload field &lt;path&gt; for &lt;field&gt;</code>; non-object inputs name the observed value. Tama emits these as blocking decisions in the harness's own protocol, not ordinary process failures that a fail-open harness could treat as permission to proceed.</p>
 <p>Return to the <a href="../../">complete CLI command tree</a>.</p>
