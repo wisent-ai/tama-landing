@@ -102,6 +102,16 @@ refuses the install before the transaction opens with
 <code>Provider config generation failed for &lt;provider&gt;: &lt;detail&gt;</code>; a release
 with no dispatcher refuses with <code>Approved hook release is missing the Tama
 hook dispatcher</code>;</li>
+<li>the hook file of every other harness Tama declares an adapter for and this
+machine has — <code>~/.gemini/settings.json</code>, <code>~/.qwen/settings.json</code>,
+<code>~/.factory/hooks.json</code>, <code>~/.codebuddy/settings.json</code>,
+<code>~/.cursor/hooks.json</code> (only when it exists), <code>~/.copilot/settings.json</code>,
+<code>~/.codeium/windsurf/hooks.json</code> and the Tama region of
+<code>~/.kimi-code/config.toml</code> — mode <code>0600</code>, with the block
+<a href="/docs/cli/provider/config/"><code>tama provider config</code></a> prints for that
+harness in the shape its file holds. A harness whose directory is absent is not
+written to. Every command routes through the same dispatcher, so the emergency
+state stops these harnesses' hooks as it stops Claude Code's and Codex's;</li>
 <li><code>~/.local/bin/tama-agent</code> — the generated supervisor launcher, exporting
 the pinned Node executable and preflight;</li>
 <li><code>pre-commit</code> and <code>pre-push</code> dispatchers at the user-global Git hooks path

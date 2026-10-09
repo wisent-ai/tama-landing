@@ -1,9 +1,24 @@
 <h1><code>tama provider config</code></h1>
-<p>Prints the hook block an install writes into a provider's configuration: the wiring that makes a Claude or Codex event reach the installed runtime.</p>
+<p>Prints the hook block an install writes into a provider's configuration: the wiring that makes an event of Claude Code, Codex or another coding-agent harness reach the installed runtime.</p>
 <h2>Invocation</h2>
-<pre><code>tama provider config --provider &lt;claude|codex&gt; --dispatcher &lt;command&gt; [--json]
+<pre><code>tama provider config --provider &lt;id&gt; --dispatcher &lt;command&gt; [--json]
 </code></pre>
-<p>The registry arrives on stdin, so the caller decides which registry is being described — an install pipes the one it is about to write, and a person can pipe <code>~/.shared-hooks/registry.json</code> or a source tree's copy. The dispatcher is the command that runs the installed hook dispatcher, pinned Node included; every printed command runs it for exactly one hook id through <code>TAMA_ONLY_HOOK_ID</code>.</p>
+<p>The providers are <code>claude</code>, <code>codex</code> and every harness Tama declares a hook adapter for, under the runtime id Oko and Transcript Lake use for it:</p>
+<table>
+<thead><tr><th>Id</th><th>Harness</th><th>Hook file an install writes</th><th>How a block reaches it</th></tr></thead>
+<tbody>
+<tr><td><code>gemini</code></td><td>Gemini CLI</td><td><code>~/.gemini/settings.json</code>, <code>hooks</code> key</td><td>exit code 2, reason on standard error</td></tr>
+<tr><td><code>qwen</code></td><td>Qwen Code</td><td><code>~/.qwen/settings.json</code>, <code>hooks</code> key</td><td>exit code 2, reason on standard error</td></tr>
+<tr><td><code>droid</code></td><td>Factory Droid</td><td><code>~/.factory/hooks.json</code>, keyed by event</td><td>exit code 2, reason on standard error</td></tr>
+<tr><td><code>codebuddy</code></td><td>CodeBuddy Code</td><td><code>~/.codebuddy/settings.json</code>, <code>hooks</code> key</td><td>Tama's own document, as Claude Code reads it</td></tr>
+<tr><td><code>cursor</code></td><td>Cursor and Cursor CLI</td><td><code>~/.cursor/hooks.json</code>, <code>hooks</code> key, only when that file exists (its <code>version</code> is kept)</td><td><code>{"permission":"deny","user_message","agent_message"}</code>; a pass answers <code>{"permission":"allow"}</code></td></tr>
+<tr><td><code>copilot</code></td><td>GitHub Copilot CLI</td><td><code>~/.copilot/settings.json</code>, <code>hooks</code> key (<code>PreToolUse</code> and <code>PostToolUse</code> with Claude Code's tool names)</td><td><code>{"permissionDecision":"deny","permissionDecisionReason"}</code></td></tr>
+<tr><td><code>windsurf</code></td><td>Windsurf Cascade</td><td><code>~/.codeium/windsurf/hooks.json</code>, <code>hooks</code> key</td><td>exit code 2, reason on standard error</td></tr>
+<tr><td><code>kimi</code></td><td>Kimi Code</td><td><code>~/.kimi-code/config.toml</code>, <code>[[hooks]]</code> tables between <code># BEGIN tama hooks</code> and <code># END tama hooks</code></td><td>exit code 2, reason on standard error</td></tr>
+</tbody>
+</table>
+<p>Each harness's event names, tool matchers and payload come from its own hook documentation, recorded beside the declaration in <code>tama-core/src/harnesses/harnesses.json</code>. The runtime translates each harness's payload into the Claude Code payload every hook reads before any hook runs: Gemini CLI's <code>run_shell_command</code>, Qwen Code's <code>run_shell_command</code>, Droid's <code>Execute</code> and Cursor's <code>Shell</code> arrive as <code>Bash</code>, and Windsurf's <code>pre_run_command</code>, <code>pre_read_code</code> and <code>pre_write_code</code> arrive as <code>Bash</code>, <code>Read</code> and <code>MultiEdit</code> calls built from their <code>tool_info</code>. Only a hook's command and its group's matcher reach another harness; the other fields of a Claude Code hook mean other things there.</p>
+<p>The registry arrives on stdin, so the caller decides which registry is being described — an install pipes the one it is about to write, and a person can pipe <code>~/.shared-hooks/registry.json</code> or a source tree's copy. The dispatcher is the command that runs the installed hook dispatcher, pinned Node included; every printed command runs it for exactly one hook id through <code>TAMA_ONLY_HOOK_ID</code>, with <code>TAMA_PROVIDER</code> naming the harness.</p>
 <h2>Output</h2>
 <p>Without <code>--json</code> the summary names the provider, the dispatcher, the total number of commands, and each provider event with its matchers:</p>
 <pre><code>provider: claude
@@ -15,14 +30,16 @@ commands: 100
   Stop: *
   UserPromptSubmit: *
 </code></pre>
-<p><code>--json</code> prints the block itself — provider event key to groups of <code>{ matcher, hooks }</code> — which is what <code>tama hooks install-release</code> merges into <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> (<a href="../hook-releases.md#installation">hook-releases</a>). The event and matcher table is the one <code>tama_hook_tools::registry</code> owns, so a config can never disagree with the registry installed beside it.</p>
+<p><code>--json</code> prints the block itself in the shape the provider's file holds it — for Claude Code, Codex, Gemini CLI, Qwen Code, Droid and CodeBuddy Code an event key to groups of <code>{ matcher, hooks }</code>; for Cursor, Copilot CLI and Windsurf an event key to flat entries; for Kimi Code <code>{ "hooks": [{ event, matcher, command }] }</code> — which is what <code>tama hooks install-release</code> merges into each provider's file (<a href="../hook-releases.md#installation">hook-releases</a>). The event and matcher table is the one <code>tama_hook_tools::registry</code> owns for Claude Code and Codex and the harness declaration owns for the others, so a config can never disagree with the registry installed beside it.</p>
+<p>For these additional harnesses, installation replaces Tama-generated commands for that provider while retaining unrelated hooks, including commands in mixed matcher groups. Invalid event or group shapes refuse installation with the configuration path and failed field. Kimi installation preserves text outside its managed region and refuses nested, unmatched or unterminated region markers rather than discarding user configuration.</p>
 <h2>Refusals and failures</h2>
 <p>Each of these exits <code>1</code> and writes nothing to stdout:</p>
 <ul>
 <li><code>provider config produced no wiring for &lt;provider&gt;: the registry declares no event this provider supports</code> — the block would have been empty, which is a config that enforces nothing.</li>
-<li><code>provider config does not configure the provider &lt;name&gt;; it configures claude and codex</code></li>
+<li><code>provider config does not configure the provider &lt;name&gt;; it configures claude, codex, gemini, qwen, droid, codebuddy, cursor, copilot, windsurf, kimi</code></li>
 <li><code>provider config could not parse the registry on stdin: &lt;detail&gt;</code>, or <code>provider config requires a registry object on stdin</code></li>
 <li><code>provider config requires a non-empty --dispatcher command</code></li>
+<li><code>provider config could not encode the hook block for &lt;provider&gt;: &lt;detail&gt;</code></li>
 </ul>
 <p>A missing <code>--provider</code> or <code>--dispatcher</code> prints the usage text and exits <code>2</code>.</p>
 <p>Return to the <a href="../../">complete CLI command tree</a>.</p>
