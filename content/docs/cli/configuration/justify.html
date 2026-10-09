@@ -2,10 +2,10 @@
 <p>Records, reads and retires the justifications the write guards require, so a registry that a hook demands is written by a command instead of by hand.</p>
 <h2>Invocation</h2>
 <pre><code>tama justify &lt;record|show|remove|move|list&gt; [--file &lt;path&gt;] [--to &lt;path&gt;] [--justification &lt;text&gt;]
-             [--kind file|cua] [--quote &lt;text&gt;] [--quote-match &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]
+             [--kind file|cua|ssh] [--quote &lt;text&gt;] [--quote-match &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]
 tama justify move --file &lt;old path&gt; --to &lt;new path&gt; [--kind file]
 </code></pre>
-<p><code>--kind file</code> selects <code>~/.shared-hooks/file_justifications.json</code>, keyed by absolute target path. <code>--kind cua</code> selects <code>~/.shared-hooks/cua_justifications.json</code> and records application/action grants rather than file justifications. <code>--home</code> changes the registry destination only; it does not select a different consent transcript. Whether test code may be written is not a justification: it is the operator's own approval, recorded with <a href="/docs/cli/tests/"><code>tama tests approve</code></a>, and <code>--kind test</code> is refused as an unknown kind.</p>
+<p><code>--kind file</code> selects <code>~/.shared-hooks/file_justifications.json</code>, keyed by absolute target path. <code>--kind cua</code> selects <code>~/.shared-hooks/cua_justifications.json</code> and records application/action grants rather than file justifications. <code>--kind ssh</code> selects <code>~/.shared-hooks/ssh_justification.json</code> and records the target, operation and exact path or command grants <code>block-unauthorized-ssh</code> reads. <code>--home</code> changes the registry destination only; it does not select a different consent transcript. Whether test code may be written is not a justification: it is the operator's own approval, recorded with <a href="/docs/cli/tests/"><code>tama tests approve</code></a>, and <code>--kind test</code> is refused as an unknown kind.</p>
 <h2>Why it exists</h2>
 <p>The rules that demand a justification are enforced on write, and the registries they read are long — the file registry passed seven thousand lines. A guard that refuses any edit leaving a source file over three hundred lines therefore refused every edit to the registry that another guard demanded an entry in, so the two rules together made the required entry unwritable. The command owns those files instead: it is not an exemption from either rule, it is the supported way to satisfy one of them.</p>
 <h2>Output and state</h2>
@@ -39,6 +39,29 @@ tama justify remove --kind cua --quote-match "Figma: list_windows" --json
 <li><code>&lt;registry&gt; must contain an authorizations array; nothing was changed</code></li>
 </ul>
 <p>Missing or ambiguous message matches identify the match, session and observed count. Unreadable application metadata and registry files include the failing path and underlying error. Missing consent on show/remove returns <code>no CUA grant is recorded for that quote</code>.</p>
+<h2>Record SSH consent already given in a session</h2>
+<pre><code>tama justify record --kind ssh --session &lt;current-OMP-session-id&gt; \
+  --quote-match "zgadzam sie na ssh" \
+  --target &lt;user@host the quote names&gt; --operation exec \
+  --command "&lt;the exact full command&gt;" --command "&lt;another&gt;" --json
+tama justify list --kind ssh --json
+tama justify show --kind ssh --quote-match "zgadzam sie na ssh" --json
+tama justify remove --kind ssh --quote-match "zgadzam sie na ssh" --json
+</code></pre>
+<p><code>block-unauthorized-ssh</code> admits an SSH call only when the operator's consent is the Tama session capability <code>{"tool": "ssh"}</code>, the operator's own words name every target and are a verbatim user message of the session, and the registry holds an entry covering the exact target, operation and path or command. The registry is data; writing it by hand is refused by the gates that protect the hook directory and by the numeric-literals gate, which reads a host's address as a number, so this command is the way in. <code>--target</code> repeats for every destination the quote names, exactly as the call will spell it (<code>user@host</code>, <code>host</code> or <code>user@host:port</code>). <code>read</code> and <code>write</code> are covered by exact <code>ssh://</code> or <code>sftp://</code> URLs, one per <code>--path</code>; <code>exec</code>, <code>transfer</code>, <code>tunnel</code> and <code>git</code> by exact full commands, one per <code>--command</code>. Before writing, the recorder asks the hook's own matcher whether the entry would admit each target with each path or command, so a recorded entry is one the gate reads. The same quote, targets and operation recorded again replace the earlier entry; other top-level fields of the file (the entry format kept beside the entries) are carried through unchanged. Recording grants nothing by itself: the capability and the session's transcript are read at use, by the hook.</p>
+<h2>SSH refusals</h2>
+<p>These refuse recording with exit <code>1</code> and leave the registry unchanged:</p>
+<ul>
+<li><code>sessionId must be the exact OMP session identifier</code></li>
+<li><code>supply exactly one nonempty quote or quoteMatch</code></li>
+<li><code>targets must name at least one exact SSH destination</code></li>
+<li><code>operation must name what the call does, in the gate's words</code></li>
+<li><code>give exact paths (--path, for read and write) or exact full commands (--command, for exec, transfer, tunnel and git), not both and not neither</code></li>
+<li><code>the quote must name every target; consent itself is the Tama session capability {"tool": "ssh"}</code></li>
+<li><code>the quote is not a verbatim user message in OMP session &lt;id&gt; under &lt;transcript root&gt;</code></li>
+<li><code>the gate would not admit &lt;operation&gt; to &lt;target&gt; from this entry (an operation the gate does not know, or paths where it reads commands, or commands where it reads paths); nothing was recorded</code></li>
+</ul>
+<p>Missing consent on show/remove returns <code>no SSH grant is recorded for that quote</code>; a <code>--quote-match</code> no recorded quote or several recorded quotes contain is refused naming the count. A usage error — an unknown option, a missing <code>--session</code> or <code>--operation</code>, or both or neither of <code>--quote</code> and <code>--quote-match</code> on show and remove — exits <code>2</code>.</p>
 <h2>Desktop requests</h2>
 <p><a href="/docs/desktop/justifications/">Justifications → CUA consent</a> records, lists and removes these same grants through <a href="/docs/cli/request/">tama request</a>, one process per operation. The native view displays the original quote, application, executable, actions, session and lifetime, and shows the product's refusal. No JSON has to be pasted into a protected directory.</p>
 <h2>Refusals and failures</h2>

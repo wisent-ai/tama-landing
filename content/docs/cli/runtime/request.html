@@ -26,6 +26,9 @@
 <tr><td><code>justifications/cua</code></td><td>none</td><td><code>{kind, registry, authorizations}</code></td></tr>
 <tr><td><code>justifications/cua/record</code></td><td><code>{sessionId, app, actions, quote}</code> or <code>{sessionId, app, actions, quoteMatch}</code>, with <code>actions</code> an array of strings</td><td><code>{kind, registry, sessionId, authorization}</code></td></tr>
 <tr><td><code>justifications/cua/remove</code></td><td><code>{quote}</code></td><td><code>{kind, registry, removed, count}</code></td></tr>
+<tr><td><code>justifications/ssh</code></td><td>none</td><td><code>{kind, registry, authorizations}</code>: every grant <code>block-unauthorized-ssh</code> reads</td></tr>
+<tr><td><code>justifications/ssh/record</code></td><td><code>{sessionId, targets, operation, paths, commands, quote}</code> or the same with <code>quoteMatch</code>; <code>targets</code>, <code>paths</code> and <code>commands</code> arrays of strings, exactly one of <code>paths</code> (read, write) or <code>commands</code> (exec, transfer, tunnel, git) non-empty</td><td><code>{kind, registry, sessionId, authorization}</code></td></tr>
+<tr><td><code>justifications/ssh/remove</code></td><td><code>{quote}</code></td><td><code>{kind, registry, removed, count}</code></td></tr>
 <tr><td><code>justifications/record</code></td><td><code>{kind, file, justification, expiresAt?}</code>, where <code>kind</code> is <code>file</code></td><td><code>{recorded, kind, registry}</code></td></tr>
 <tr><td><code>tests/approvals</code></td><td>none</td><td><code>{approved, record}</code>: every approval <a href="/docs/cli/tests/">tama tests list</a> reads</td></tr>
 <tr><td><code>tests/approve</code>, <code>tests/revoke</code></td><td><code>{paths}</code>, an array of files or directories; a relative path is read against the home</td><td><code>{changed, action, approved, record}</code>, the same change <code>tama tests approve|revoke</code> makes</td></tr>
