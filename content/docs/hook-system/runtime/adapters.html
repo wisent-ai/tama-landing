@@ -29,8 +29,8 @@ with LF. Closing stdin ends the process.</p>
 {"id":"event","op":"dispatch","event":"pre_tool_use:read","payload":{"session_id":"example-session","tool_name":"read","tool_input":{"path":"example.txt"}}}</code></pre>
 <p>Responses carry the request <code>id</code>, <code>ok</code>, a
 <code>result</code> or <code>error</code>, and the observed <code>state</code>.
-Status requests report their data in <code>state</code>; their
-<code>result</code> is null. A successful reload returns
+Status requests include running-hook inspection in <code>result</code> and
+<code>state.runningHooks</code>. A successful reload returns
 <code>{"reloaded":true,"changed":true}</code>, or <code>changed:false</code>
 when the validated catalog already matches. The response is produced after
 the engine has adopted the candidate, never after inserting a prompt.</p>
@@ -65,7 +65,8 @@ event, the engine ends the earlier run's process group — the hook and what it
 started, such as a model request that is never answered — and writes
 <code>tama: ended hook &lt;id&gt; (process group &lt;pid&gt;) still running for
 the previous &lt;event&gt; of session &lt;id&gt;</code> on stderr; the ended run
-is reported as a malfunction, not as a refusal. No clock is involved.</p>
+is reported as cancellation, not as a hook malfunction or a passing verdict.
+No clock is involved.</p>
 <p>A newer tool call does not end an older one, because a session runs tool
 calls side by side. The end of the turn does: the harness sends
 <code>stop</code> only after every tool call of the turn is over, and
@@ -86,6 +87,44 @@ whose input closes ends every hook run it still holds the same way, with
 <code>the core's caller closed its input, so nobody waits for its
 answer</code>. A payload without a session id is never superseded or ended.
 <code>tama hooks running</code> lists every hook still running.</p>
+<h3>Cancellation, judge progress and abandoned children</h3>
+<p>A dispatch requires a nonempty string <code>id</code>. To abandon it, send
+<code>{"id":"cancel-event","op":"cancel","dispatchId":"event"}</code>.
+The cancellation response identifies the dispatch and whether it was still
+owned by this core. The original dispatch answers <code>ok:false</code> with
+its cancellation reason. Cancellation never supplies a policy verdict.
+Closing the core's stdin also relinquishes ownership of every active hook,
+including a dispatch whose payload contains no session id.</p>
+<p>The OMP adapter forwards an event's AbortSignal, cancels outstanding work
+on a new input, session activation or shutdown, and streams hook stderr to
+the terminal and the Tama hook status indicator. Judge requests announce
+<code>czekam</code> with the route and endpoint before waiting; completion or
+failure follows on the same stream. An unavailable stop reviewer refuses
+completion with <code>TAMA_HOOK_INFRASTRUCTURE</code> and its actual cause,
+not a claim that the assistant violated the review rule. These are event
+and process-state decisions, not a Tama handler timeout.</p>
+<p>Before sending another request through a local Stado adapter, Tama reads
+the resolver's published <code>resolver-waiting.json</code> beside
+<code>STADO_RESOLVER_STATE_FILE</code>, or the standard resolver state in
+<code>~/.stado</code>. A matching outstanding connection refuses the new
+request with its service, consumer, phase, destination, host and start time.
+This names an observed unanswered connection; it does not prove that the
+service is down. An endpoint with no published resolver state is not declared
+healthy by this check.</p>
+<p><code>tama hooks running --json</code> and native runtime status list
+descendants in <code>waitingOn</code>. When the owning core is gone, they
+terminate the orphan's process group only when the recorded process birth,
+command and group still match. <code>orphanTermination</code> records whether
+the signal was sent or why termination was refused. A legacy record without
+birth identity, or a reused pid, is not enough authority to signal a process.
+The CLI returns failure on an inspection error or refused orphan termination;
+it never turns an unreadable record into an empty healthy list.</p>
+<p>The real held-endpoint journeys in
+<code>tests/hooks-running/cancellation.rs</code> run the compiled stop hook
+against a local TCP listener that deliberately sends no answer. They check
+dispatch cancellation, core-input closure, connection EOF and recorded
+progress. Reports retain the source revision, binary digest, protocol frames,
+exit status and stderr in Cargo's test artifact directory.</p>
 <p>A client can send <code>knownCatalogChecksum</code>. When it differs from
 the loaded checksum, the response also includes the loaded <code>catalog</code>,
 including on a rejected replacement. Matching clients receive no duplicate
