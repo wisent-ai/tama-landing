@@ -82,6 +82,20 @@ therefore receives the reconstructed declaration for supported range, gap and
 string edits even when the hook process runs elsewhere. This does not extend
 the supported hashline operation set or bypass a missing or invalid
 <code>user_said</code> entry.</p>
+<h2>Unavailable quote evidence is not a missing quote</h2>
+<p>A new or changed declaration first checks the writing session's transcript.
+If that file cannot be read or a matching record cannot be decoded, the refusal
+names the transcript, failed operation and actual filesystem or parser cause.
+The index search distinguishes an empty successful result from a missing,
+unreadable or corrupt <code>transcript-index.sqlite</code>, an unsuccessful
+<code>sqlite3</code> invocation and an invalid index result. None is reported
+as a completed search that found no operator quote.</p>
+<p>The standalone <code>tama hook check-numeric-literals --verify-user-quote</code>
+reads the quote from stdin and reports the same cause. Identity provenance and
+<code>tama rules remove</code> propagate this result too: an unavailable source
+cannot authorize removing a rule as supposedly unsupported by the operator.
+Existing hook diagnostics carry the same refusal to the harness; this does not
+add a separate Desktop evidence reader or qualify a live graphical session.</p>
 <h2>Real qualification</h2>
 <p><code>tests/numeric-literals/operations.rs</code> invokes the actual built
 hook in separate processes, records the declared candidate revision and binary
@@ -95,3 +109,14 @@ uses a caller directory distinct from the hook process directory, retains an
 unchanged real declaration through a whitespace edit, and refuses removal of
 a required quote field. Committed test source is not a passing
 installed-runtime result.</p>
+<p>The hashline target also includes
+<code>tests/numeric-literals/provenance/failures.rs</code>: a real directory
+where a transcript should be, an absent index, and a damaged SQLite file each
+must produce a causal refusal from the built hook. The ignored positive journey
+requires <code>TAMA_TEST_USER_TRANSCRIPT</code>,
+<code>TAMA_TEST_USER_QUOTE</code> and <code>TAMA_TEST_USER_NUMBER</code>
+from an actual operator message, then verifies that the own-session quote works
+without an index. Run that case explicitly with
+<code>--test numeric_literals_hashline_context genuine_own_quote -- --ignored</code>
+under the same declared candidate; manufactured transcript messages are not
+qualification of operator provenance.</p>
