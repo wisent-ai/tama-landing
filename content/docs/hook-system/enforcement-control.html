@@ -148,6 +148,12 @@ produce a partial user contract. Without an explicit path, session transcript
 discovery reports directory, entry and metadata failures rather than treating
 them as no conversation. An absent session identity and an empty or unreadable
 transcript-root setting are separate refusals.</p>
+<p>Stop reviewers propagate the same context failures through their normal
+infrastructure-refusal path. They do not review the last answer against an
+empty substitute contract or silently allow completion after context
+serialization fails. The real transcript journey exercises both the objective
+authority hook and <code>check-stop-asking</code> for filesystem and decode
+refusals before any reviewer request.</p>
 <p><code>tama hook block-objective-substitution</code> exposes these causes in
 its structured refusal before requesting a reviewer. The registered
 <code>objective_transcript</code> journey under <code>tests/completion/</code>
