@@ -1,8 +1,12 @@
 <h1>One-off repairs: <code>block-one-off-repairs</code></h1>
 <p>A gate on <code>pre_tool_use:bash</code> (<code>tama hook block-one-off-repairs</code>) that refuses three
 repairs made by hand against live machine state and names, in each refusal, the product command that
-owns the outcome. Every refusal starts <code>BLOCKED: one-off repair by hand.</code>, goes to stderr,
-and exits <code>2</code> before the command runs; a command the gate lets through prints nothing.</p>
+owns the outcome. Every refusal starts <code>BLOCKED: one-off repair by hand.</code>,
+appears as a <code>{"decision":"block","reason":"…"}</code> document on stdout,
+and repeats its reason on stderr. The dispatcher ends normally after that decision;
+a nonzero exit without a decision is a hook failure, not a policy refusal.
+The harness prevents the proposed command from running. An ordinary allowed command
+prints nothing; an admitted build may report consumption of its recorded capability.</p>
 <h2>Why it exists</h2>
 <p>Oko's one-off repair detector (<code>oko transcripts one-offs</code>) reads the native harness files
 and counts commands that changed live state by hand instead of through a product path. Three shapes had
