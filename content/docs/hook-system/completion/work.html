@@ -1,0 +1,199 @@
+<h1>Completion policy and work registers</h1>
+<p>Role preflight, actionable work and the distinction between a source repair and a qualified result.</p>
+<h2>Completion enforcement</h2>
+<p><code>block-supervisor-stop</code> refuses completion for a session whose local
+Oko role is <code>supervisor</code>. It reads <code>~/.oko/session-roles.json</code>
+inside the native runtime before starting any judge hook: no subprocess, database,
+network or model request. The refusal directs the supervisor to
+<code>oko sessions agents</code>, confirmation dialogs, stopped executors and
+their next open assignments. Only the operator clearing that role with
+<code>oko sessions role clear SESSION</code> releases this role guard.
+Other enabled completion guards still apply after it passes.</p>
+<p>Malformed or unreadable roles and absent session identity refuse with the
+exact operation and cause; they are not interpreted as an unassigned session.
+An absent register means no role has ever been recorded, as in Oko's contract.
+Unknown record fields are ignored. Enable it with
+<code>tama enforcement only EXISTING_HOOK_IDS block-supervisor-stop</code>,
+preserving every id currently shown by <code>tama enforcement status --json</code>.
+The Desktop Hooks inspector and session refusal records expose the same hook
+and reason; Oko Desktop's Agent sessions Role menu manages the local role.</p>
+<p>For an <code>executor</code>, the same local preflight selects an open assigned
+defect first, then open defects of products named by its recorded assignments.
+It reads Oko's atomic defect and blocker registers without running a process:
+<code>OKO_DEFECT_REGISTER</code> and <code>OKO_BLOCKER_REGISTER</code>, or
+<code>~/Library/Application Support/Oko/defects.json</code> and
+<code>blockers.json</code>. The refusal names <code>oko defects show ID</code>
+and the recorded owner for coordination. A valid open blocker naming that exact
+defect, by full or short id at the beginning of its <code>blocks</code> field,
+holds only that item; a repository-wide publication wait does not hide the queue.
+Malformed or unreadable registers refuse with their actual path and cause.</p>
+<p>This defect preflight does not establish task completion. The existing
+open-work gate still reads Oko's authoritative task ledger; its settlement may
+require a network read. Oko's cached task answer is not substituted for that
+read, because its freshness depends on shared rows. A fully local executor
+task decision is not yet delivered. The real executor journey uses isolated
+Oko role, defect and blocker mutations and requires actual external-failure
+evidence plus the real blocker reviewer; retained source is not a passing run.</p>
+<p>Every supported harness completion binding reaches the canonical
+<code>stop</code> event. OMP's blocking boundary is <code>session_stop</code>;
+<code>agent_end</code> and <code>turn_end</code> are notification-only, not
+additional cancellation APIs. This does not claim control over operator
+interruption, process exit, or OMP subagents, which do not emit
+<code>session_stop</code>. The real <code>supervisor_stop_roles</code> journey
+uses Oko role set/clear and the built runtime, checks persisted role changes,
+supervisor refusal, clearing, unknown metadata and unreadable state.
+Retained test source alone is not installed-harness qualification.</p>
+<p>Prompt text does not execute a Stop rule. Enabled hook commands do.
+<code>block-stop-with-open-work</code> reconstructs the successful tracker state
+and blocks pending or in-progress items. Once that plan is clear, including
+when every local item is marked blocked, it reads the authoritative Oko ledger
+for the native OMP session id. An absent local plan does not skip this read;
+an unavailable ledger refuses Stop with its actual error. On a machine without
+the Oko CLI (neither <code>TAMA_OKO_CLI</code> nor <code>oko</code> on
+<code>PATH</code> is an executable), the session's own tracker is the only task
+register: Stop is refused on its pending or in-progress items and allowed once
+they are clear. An installed Oko that cannot be read still refuses. The other
+gates that read Oko take the same alternative on such a machine:
+<code>block-text-outside-tool-calls</code> lets the final message through,
+<code>block-one-off-repairs</code> admits a build, compile or test because no
+register holds an item without a repair, and <code>tama task scope set</code>
+accepts the <code>--task</code> or <code>--defect</code> identifier the session
+names as the entry, with the repositories it names as the scope and nothing
+written back. <code>require-task-scope</code> then refuses with that one command
+instead of the Oko commands it names when Oko is installed.
+<code>check-open-items-with-model</code> uses the same ledger qualification
+when enabled. Neither guard asks a second model to reinterpret open tasks as
+permission to stop.
+<code>block-text-outside-tool-calls</code> runs before model requests and on Stop.
+The OMP adapter uses the latest completed gate answer and refreshes it in the background,
+so an unbounded ledger read does not consume the harness's provider-handler budget.
+For supported OpenAI function-tool payloads, an open-work refusal sets
+<code>tool_choice: "required"</code>; this shape is also forced before the first answer.
+Anthropic requests and unsupported or absent tool shapes are not forced: they are
+sent unchanged with the limitation on stderr. Their Stop gate still checks completion,
+but it runs after text may already have streamed and cannot retract that text.
+Provider acceptance, prevention of streamed prose and refusal of completion are separate outcomes;
+none is established merely by a published source revision. See <a href="/docs/enforcement-control/runtime/adapters/">the adapter contract and its limitations</a>.</p>
+<p>Any executable task still marked <code>not done</code> in any session blocks completion,
+and every defect that records no fixing revision blocks it too: of every product, unless the
+operator limited the session to some products by confirming a task contract scoped to them
+(<code>contract.terms.scope</code> with <code>contract.terms.confirmedAt</code>, written with
+<code>oko tasks state --scope … --confirm</code> by the operator); then only of those products,
+and the refusal counts the other products' open work as outside the session's scope. A scope a
+session wrote into its own contract limits nothing: the session answers for every product's open
+work. An entry in
+<code>oko blockers</code>, a <code>blocked</code> verdict, a judge outage after evidence, or a
+wait on other open work does not stand an item aside: only Oko recording a task done or
+withdrawn, or a defect fixed, removes it. A task Oko relates as <code>duplicate-of</code>
+another is counted once, as the original. The refusal names each session, ordinal and request,
+and then, separately, the open items that carry no pushed repair yet: those are written,
+committed and pushed without a build, so an answer that says the rest waits on a build is
+contradicted by the refusal itself.</p>
+<p>When Oko's ruling register (<code>oko rulings</code>) holds a ruling on a listed defect or task,
+the refusal quotes it word for word with its session and message number and says to follow it and
+never ask the operator again or list it as a blocker or next step. The register is read as a file on
+this machine (<code>OKO_RULING_REGISTER</code> moves it); one that cannot be read is named in the
+refusal rather than left out.</p>
+<p><code>block-one-off-repairs</code> reads the same register for every build, compile and test
+run, and refuses while any open item carries no repair: a task with no commit or report
+recorded by <code>oko tasks evidence</code>, or a defect with no revision recorded by
+<code>oko defects repaired</code>. A code repair is only proven by a build, so building waits for
+every repair to exist, not for every item to close; the one build then proves them, and each
+item is closed or reopened on what it shows. The refusal lists the items that still carry no
+repair. A recorded revision counts as a repair only when it comes after the defect: when the
+defect's <code>found_in</code> names a commit of the same repository, the repair must descend from
+that commit and differ from it, so a fix committed before the defect was recorded still counts;
+otherwise the repair must be committed after the defect's <code>found_at</code> time. A revision
+this machine cannot resolve is counted as recorded. A build the operator consents to in the conversation passes before that: the agent records
+the consent as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
+(or <code>{"tool": "build"}</code> for any product) with lifetime <code>single-use</code> or
+<code>expires-at</code>, and the gate lets a build through whose arguments name a granted product. A
+<code>current-session</code> grant carries no build consent and is not read, because a session-long
+grant would admit later builds the operator never agreed to. For <code>cargo</code> the products are
+the <code>-p</code>/<code>--package</code> selections, so a consent to build Tama names
+<code>tama-cli</code>. For <code>stado release submit --source PATH</code> and
+<code>stado build submit --source PATH</code> the product is the <code>product</code> the checkout's
+<code>.wisent-release.json</code> declares (the name Stado builds it under, such as
+<code>compute-wisent-com</code> for the checkout <code>compute.wisent.com</code>), else the name of the
+checkout directory PATH resolves to; a relative path such as <code>--source .</code> is resolved against the directory the
+command runs in, and a path that names no existing directory establishes no product, so only a grant
+with no product list admits it. <code>stado release submit --build ID</code> names no
+product in its arguments, so the gate reads the product from the fleet's build record
+(<code>stado build status ID --json</code>); a build the fleet does not hold is admitted only by a grant
+with no product list. When the operator withdraws his consent, the agent runs
+<code>tama sessions revoke-capability --session SESSION_ID</code>, and the gate refuses the next build
+at once.</p>
+<p>
+After producing and checking the real result,
+run <code>oko tasks verify --before-stop --session SESSION_ID</code>.
+Oko's independent Brama judge reads recorded calls and tool results as well as
+the answer, then saves each verdict. A claim or tracker update cannot replace
+that qualification. A later operator correction takes precedence. Answering
+the same refusal in prose does not release it: every later Stop repeats the
+open task identity until real work records evidence or Oko records a
+qualified blocker. A recorded judge outage only replaces the verify command
+with the instruction to record evidence; it does not make the task done.</p>
+<p>Done and withdrawn tasks do not block. An unfinished task may pause only
+with Oko's qualified receipt: the matching task ordinal and request hash,
+transcript hash, actual failed call/result, independently checked permitted
+alternatives, cause, observed state and condition for resumption. Tama rejects
+a prose-only reason, unmatched receipt, missing operation or unchecked alternative.
+The refusal names the original task and the observations still required;
+a worker's claim or local “blocked” flag never grants permission to stop.</p>
+<h3>A report is not the work it describes</h3>
+<p><code>block-stop-on-own-work</code> reads the transcript at Stop and refuses an ending
+that reports instead of working: an invented limit, a decision handed back, a plea without
+one command on the clipboard, a plan under what was done, a report said again, work scoped to
+one session, and the rest. Every refusal, what passes and the journey that proves them are on
+their own page: <a href="/docs/enforcement-control/completion/own-work/">endings a report cannot replace</a>.</p>
+<h3>An operator stop order</h3>
+<p>Every guard above releases the turn only through a tool call: finish the
+tracker, read the ledger, treat a denial, record evidence. When the operator
+has written <code>nie koduj</code> (or <code>do not code</code>, <code>nic nie rob</code>,
+<code>stop coding</code>, a bare <code>stop</code>), every tool call is forbidden, and a
+session would answer turn after turn with the same lines while the guards
+refused each one. So <code>block-stop-with-open-work</code>,
+<code>block-stale-assignment</code>, <code>block-untreated-block-stop</code>,
+<code>block-stop-with-claimed-work</code>,
+<code>block-stop-after-unresolved-hook-defect</code>,
+<code>block-stop-on-own-work</code> and
+<code>check-open-items-with-model</code> stand down while a stop order stands, and
+print <code>&lt;hook&gt;: the operator's stop order stands ("…"); ending the turn obeys it, so this guard does not refuse it.</code>
+on stderr so the release is visible in the hook evidence.</p>
+<p>The order stands from the operator's newest such message until the operator
+gives a new task — a message Oko records in the session's ledger. Questions,
+remarks and repeated stop orders in between do not lift it; a local tracker
+entry never does. Without a readable ledger only the newest operator message
+decides, so an unreadable Oko cannot revive a lifted order. Harness-injected
+user-role records (todo reminders, hook continuations, attribution
+<code>agent</code>) are not the operator speaking. The phrase list lives in
+<code>tama_hook_tools::assignment::stop_order</code>; a new form is added in a commit
+that quotes the message that needed it.</p>
+<p>The real journey is <code>tests/assignment/assignment.test.ts</code> (<code>bun run
+test:assignment</code>): an open tracker item blocks, the order lets the turn end,
+questions do not lift it, a task Oko records lifts it and the guard refuses
+again naming the item, and a missing ledger falls back to the newest message.</p>
+<p>Oko keeps diagnosis and resumption in its own ledger. Five unsuccessful rounds
+trigger diagnosis, not a demand for a person. The Tasks screen shows the same
+cause, checked operations, resumption condition and next automatic check as the CLI.
+Missing identity, transcript, ledger, or recognized task status prints
+<code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code>
+and exits <code>70</code>. Activation reports <code>taskLedger: available</code>,
+<code>completionAllowed</code> and <code>pendingTasks</code>; open work is not an unavailable dependency.</p>
+<p>The OMP adapter forwards an explicit <code>decision: block</code>. OMP must
+keep that refusal beyond its eight-round advisory continuation limit and give
+it priority over advisory <code>continue: true</code> results. Explicit user
+interruption still stops the run; queued stop handlers must not restart it.
+The hook release and OMP host are separate dependencies. Updating hooks alone
+cannot repair an older host's continuation limit.</p>
+<p><code>tests/runtime_reload/completion_journey.test.ts</code> runs actual OMP
+sessions through Oko's authenticated Brama proxy, the installed Tama release and Oko's persisted ledger.
+It verifies real file delivery before allowing completion, refusal beyond eight
+rounds, explicit interruption and a genuine missing external input checked
+through both permitted paths before a qualified pause. Reports, source identity,
+commands, provider exchanges and native transcripts remain under
+<code>rust/target/completion-journey-evidence/</code>. Set
+<code>TAMA_TEST_HOOK_RELEASE</code> and <code>TAMA_OKO_CLI</code>; an explicitly
+selected source host uses <code>TAMA_TEST_OMP_SDK_ROOT</code>.
+The worker uses <code>codex/gpt-6-astra</code>; <code>TAMA_TEST_MODEL_ROUTE</code> selects another route already authorized for Oko. The test never grants access or substitutes a fake provider.
+A source-only pass does not claim that the installed OMP host has been updated.</p>
