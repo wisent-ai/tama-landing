@@ -213,11 +213,10 @@ carries Oko's signed bearer to the gateway and prints its answer as JSON, or —
 on a machine without Brama — goes to the OpenAI-compatible service declared
 with <code>oko model-service set</code>, with its declared model. It returns
 <code>Judgement::Answered(text)</code> or
-<code>Judgement::Unavailable(reason)</code>. A judgement nobody could obtain
-is never a denial: <code>answer()</code> is <code>None</code> for an
-unavailable one, so a guard that denies on a verdict lets the turn through
-and logs the service's own words — <code>no judgement: the model service
-refused the call: … answered HTTP 503</code>.</p>
+<code>Judgement::Unavailable(reason)</code>. An unavailable judgment is not
+evidence that the source violates a rule. Each gate must distinguish that
+failure from an actual model finding. Numeric review refuses an unreviewed
+write with the failed operation, not with an allegation about its source.</p>
 <p>A judge Oko has recorded as not answering is not asked. Oko writes that
 record — <code>judge-health.json</code> beside its transcript index — from
 every verification pass and from <code>oko tasks judge
@@ -233,6 +232,32 @@ own; OMP refuses a tool call whose handler has not answered within its
 harness stopped waiting for is ended by the next event that proves it has no
 caller, as the <a href="/docs/enforcement-control/runtime/adapters/">runtime
 page</a> describes, not by a clock.</p>
+<p><code>pre-write-edit</code> never asks the numeric reviewer from the edit
+callback. When numeric candidates need review, it retains the exact prompt
+and refuses immediately with
+<code>tama hook check-unsubstantiated-constants --review &lt;request&gt;</code>.
+Run that operation outside the edit callback; it prints <code>czekam</code>,
+asks the configured Oko model route, and atomically retains its actual answer
+or failure. Repeat the unchanged edit after a valid answer. The answer is
+bound to the complete file, path, candidates, review instructions and recorded
+justification; changed input cannot inherit the previous verdict.</p>
+<p>Requests and results live under <code>session-control/numeric-reviews</code>
+in Tama state; <code>TAMA_SESSION_CONTROL_ROOT</code> scopes isolated journeys.
+Concurrent review operations refuse an already owned request rather than
+starting another model call. A missing answer, unreadable record, malformed
+reply or actual model failure remains a refusal. No background process is
+detached from the edit and no timer retries the reviewer. The CLI and the
+attached editor's decision surface show the same request and cause; Desktop
+Session and Posture show that recorded hook decision, not a claimed model
+success. Review-operation success means an answer was retained, not that the
+source passed: the repeated write applies the numeric findings.</p>
+<p><code>tests/numeric-review/retained.rs</code>, registered as
+<code>numeric_review_retained</code>, drives the built hook with a real
+persisted request and a genuinely missing Oko executable. It retains the
+declared candidate, binary digest, command, input, exit status, output and
+elapsed time under Cargo's ignored build directory. Its pending, failed,
+changed-input and malformed-justification cases do not stand in for a
+healthy model-route qualification.</p>
 <p><code>check-substantiation-with-model</code> uses the model gateway.
 That is also the route for a judgment about prose that cannot be decided
 from the input's structure; an embedded word list is not a substitute.</p>
