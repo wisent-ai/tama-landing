@@ -182,8 +182,14 @@ Normal commit and push hooks still run. The real
 <code>interactive_git_refusal</code> journey obtains the actual environment
 contract, observes Git's effective editor settings, requires a message-less
 commit and interactive rebase to refuse, and checks that a prepared-message
-commit succeeds with the expected persisted message. It remains unqualified
-until run against the declared clean candidate and observed installed adapter.</p>
+commit succeeds with the expected persisted message. Its Node consumer uses
+the production adapter bridge and checks that a malformed environment leaves
+the agent unchanged, inherited editor overrides are removed, and repeated
+activation preserves unrelated configuration. The real sealed-release
+<code>tests/enforcement/live-reload.mjs</code> journey separately requires
+managed editor state in the actual OMP adoption receipt and persisted session.
+Qualification must run these paths against the declared clean candidate;
+helper results alone do not establish installed adapter or graphical behavior.</p>
 <h2>Release activation and connection status</h2>
 <p><code>tama hooks release</code> connects the managed dispatchers to global
 <code>core.hooksPath</code> after installing the sealed runtime. Publishing a
