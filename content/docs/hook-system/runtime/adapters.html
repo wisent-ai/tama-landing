@@ -101,6 +101,11 @@ including a dispatch whose payload contains no session id.</p>
 <p>If a tool call's dispatch is cancelled, the adapter refuses that tool call
 with the cancellation cause. It neither spends a single-use grant nor admits
 the call because the abandoned dispatch returned no blocking-hook record.</p>
+<p>The before-provider text gate likewise requires an explicit pass; a cancelled
+assessment is not permission to send prose. A failed background refresh records
+its actual cause for the same session and work generation instead of retaining
+an earlier pass. Unsupported provider tool shapes remain subject to the documented
+enforcement limitation; this result handling does not add a provider cancellation API.</p>
 <p>The OMP adapter forwards an event's AbortSignal, cancels outstanding work
 on a new input, session activation or shutdown, and streams hook stderr to
 the terminal and the Tama hook status indicator. Judge requests announce
