@@ -202,4 +202,18 @@ native packaging and sealing refuse changed, missing or additional source inputs
 treating the enclosing desktop checkout as the backend's revision. The regression journey retains
 its commands, source and tool hashes, and verdict under <code>.build/source-proof/&lt;run&gt;</code>.
 It proves source handling only, not a compiled or published desktop release.</p>
+<h2>Publish the desktop's locked Swift dependencies</h2>
+<p>From the Tama Desktop checkout, publish the committed package resolution through Stado:</p>
+<pre><code>stado release catalog pin-input . --name swiftpm-cache --source . --revision HEAD --swiftpm --json</code></pre>
+<p>This resolves dependencies and publishes a checksummed archive; it does not compile or install
+the app. Commit the updated <code>.wisent-release.json</code> with the release source.
+The release recipe reads the expected digest from that manifest rather than a second checksum
+in the script, then uses <code>stado product swift restore</code> to verify and restore the cache.
+Subsequent dependency updates use the same publication command.</p>
+<p>Stado refuses changed package declarations, missing or mismatched locked revisions,
+unsafe archive entries and invalid binary-artifact paths. It reports the failed dependency or path;
+neither a missing archive nor an invalid cache falls back to fetching during compilation.
+In Stado Desktop, <strong>Releases → Publish an immutable build input</strong> exposes the same
+operation with <strong>Export the Swift package's committed resolution</strong>.
+A publication receipt proves only the input was published, not that Tama built or passed qualification.</p>
 <p>Source: <code>rust/crates/tama-cli/src/builds/mod.rs</code>.</p>
