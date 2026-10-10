@@ -140,6 +140,27 @@ too.</p>
 documents supervisor and executor roles, per-item waits, task qualification,
 source-before-build ordering, operator stop orders and real completion journeys.</p>
 <h3>Objective-authority diagnostics</h3>
+<p>An explicit <code>transcript_path</code> identifies the authority source:
+an unreadable path is not replaced by another session transcript. Objective
+review reports the failed open, read or JSON decode with that path and the
+actual filesystem or parser cause; malformed records are not skipped to
+produce a partial user contract. Without an explicit path, session transcript
+discovery reports directory, entry and metadata failures rather than treating
+them as no conversation. An absent session identity and an empty or unreadable
+transcript-root setting are separate refusals.</p>
+<p><code>tama hook block-objective-substitution</code> exposes these causes in
+its structured refusal before requesting a reviewer. The registered
+<code>objective_transcript</code> journey under <code>tests/completion/</code>
+uses genuine absent files, directory targets and malformed persisted JSON,
+retaining the declared candidate, executable digest and actual hook output.
+Its recovered-file case checks the separation of user authority and tool
+evidence and requires a real reviewer to admit the authorized read. Run the
+registered journey with <code>TAMA_TEST_SOURCE_REVISION</code> naming the clean
+candidate and the actual <code>TAMA_BRAMA_TOKEN_FILE</code>,
+<code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTER_URL</code> and
+<code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTE</code>; an unavailable reviewer is
+a failed run, not a passing recovery. Direct-hook qualification does not prove
+that the machine has selected the objective hook.</p>
 <p>The separate objective-authority hook reads no vault item. It presents a
 Skarbiec-issued token for its own consumer, <code>tama</code> unless
 <code>TAMA_BRAMA_CONSUMER</code> names another, from the owner-only file
