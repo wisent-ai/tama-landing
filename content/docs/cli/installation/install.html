@@ -156,6 +156,34 @@ run; it does not substitute for observing the Desktop screen.</p>
 <p><code>--git-hooks-path</code> chooses the dispatcher directory. Otherwise Tama uses global <code>core.hooksPath</code>, falling back to <code>~/.config/git/hooks</code>. <code>--home</code> controls home expansion and the Git configuration environment. <code>--set-git-config</code> writes global <code>core.hooksPath</code>; <code>--no-git-config</code> wins when both flags are present. <code>--json</code> selects structured output.</p>
 <h2>Output and state</h2>
 <p>Tama creates the hooks directory, writes executable managed dispatchers, and may preserve <code>pre-commit.before-tama</code>, <code>commit-msg.before-tama</code> and <code>pre-push.before-tama</code>. Output names the resolved hooks path, every installed target and whether Git global configuration changed. Existing shared history must not be rewritten without coordination; the commit-time guard prevents new invalid messages from entering it.</p>
+<h2>Git editors in agent sessions</h2>
+<p>The OMP adapter obtains process-scoped Git configuration from
+<code>tama hook pre-bash --git-environment</code> during activation. That
+local Rust operation preserves existing Git environment pairs and sets
+<code>core.editor</code> and <code>sequence.editor</code> to the running
+Tama binary's <code>hook pre-bash --git-editor</code> refusal program.
+It does not change the human's global Git configuration or silently open
+an editor. Inherited <code>GIT_EDITOR</code> and
+<code>GIT_SEQUENCE_EDITOR</code> overrides are removed from the agent
+process; explicit per-command noninteractive editors remain possible.</p>
+<p>Malformed counts, missing key/value pairs, executable lookup failures
+and malformed configuration replies retain their actual cause. The adapter
+reports <code>gitEditors</code> in runtime status and refuses tool calls
+when configuration failed; it does not drop all hooks by failing extension
+registration. The Rust command prints a <code>set</code>/<code>remove</code>
+environment contract for other agent launchers. Merely reading that contract
+does not configure a launcher: it must apply it before starting tools.</p>
+<p>Prepare messages with <code>git commit -F message-file</code> or
+<code>git commit -m 'Describe the change'</code>; preserve an existing message
+with <code>--no-edit</code>. For an authorized history rewrite, prepare the
+todo file and use
+<code>GIT_SEQUENCE_EDITOR='cp prepared.todo' git rebase -i upstream</code>.
+Normal commit and push hooks still run. The real
+<code>interactive_git_refusal</code> journey obtains the actual environment
+contract, observes Git's effective editor settings, requires a message-less
+commit and interactive rebase to refuse, and checks that a prepared-message
+commit succeeds with the expected persisted message. It remains unqualified
+until run against the declared clean candidate and observed installed adapter.</p>
 <h2>Release activation and connection status</h2>
 <p><code>tama hooks release</code> connects the managed dispatchers to global
 <code>core.hooksPath</code> after installing the sealed runtime. Publishing a
