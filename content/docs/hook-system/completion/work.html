@@ -27,13 +27,29 @@ and the recorded owner for coordination. A valid open blocker naming that exact
 defect, by full or short id at the beginning of its <code>blocks</code> field,
 holds only that item; a repository-wide publication wait does not hide the queue.
 Malformed or unreadable registers refuse with their actual path and cause.</p>
-<p>This defect preflight does not establish task completion. The existing
-open-work gate still reads Oko's authoritative task ledger; its settlement may
-require a network read. Oko's cached task answer is not substituted for that
-read, because its freshness depends on shared rows. A fully local executor
-task decision is not yet delivered. The real executor journey uses isolated
-Oko role, defect and blocker mutations and requires actual external-failure
-evidence plus the real blocker reviewer; retained source is not a passing run.</p>
+<p>Executor task settlement runs in the background
+<code>before_provider_request</code> dispatch, before the text gate. It reads
+Oko's authoritative session ledger, including relations, rather than Oko's
+private pre-settlement cache. The result is atomically retained under
+<code>TAMA_SESSION_CONTROL_ROOT/executor-work</code> (the normal session-control
+state directory when no override is set). Stop reads that local observation;
+it starts neither Oko nor a reviewer. After assigned and product defects, the
+refusal names the next own task through <code>oko tasks show ID</code>.
+An exact-item blocker holds that task only. Submitted tasks already awaiting
+review retain the existing completion reader's classification.</p>
+<p>The OMP adapter supplies <code>tama_work_generation</code>, renewed on
+activation, input and tool completion. Missing, unfinished, failed or
+different-generation observations refuse; a late reader cannot overwrite a
+newer generation. A failed generation is not automatically retried. A new work
+boundary initiates a new reading. This is an observation of the ledger at that
+boundary, not a live subscription to other sessions' remote task mutations.
+Native callers must prepare the same generation with
+<code>tama run-hook before_provider_request omp</code> before
+<code>tama run-hook stop omp</code>. Both receive the session and generation in
+their JSON input. The Desktop session refusal record uses the same reason.</p>
+<p>The real executor defect journey uses isolated Oko role, defect and blocker
+mutations and requires actual external-failure evidence plus the real blocker
+reviewer. Retained source is not a passing run or installed-harness qualification.</p>
 <p>Every supported harness completion binding reaches the canonical
 <code>stop</code> event. OMP's blocking boundary is <code>session_stop</code>;
 <code>agent_end</code> and <code>turn_end</code> are notification-only, not
@@ -46,10 +62,12 @@ Retained test source alone is not installed-harness qualification.</p>
 <p>Prompt text does not execute a Stop rule. Enabled hook commands do.
 <code>block-stop-with-open-work</code> reconstructs the successful tracker state
 and blocks pending or in-progress items. Once that plan is clear, including
-when every local item is marked blocked, it reads the authoritative Oko ledger
-for the native OMP session id. An absent local plan does not skip this read;
-an unavailable ledger refuses Stop with its actual error. On a machine without
-the Oko CLI (neither <code>TAMA_OKO_CLI</code> nor <code>oko</code> on
+when every local item is marked blocked, executor roles use the same prepared
+generation and item selection described above. Other sessions read the
+authoritative Oko ledger for the native OMP session id. An absent local plan
+does not skip the applicable reading; an unavailable ledger refuses Stop with
+its actual error. For sessions without a recorded executor role,
+when the machine has no Oko CLI (neither <code>TAMA_OKO_CLI</code> nor <code>oko</code> on
 <code>PATH</code> is an executable), the session's own tracker is the only task
 register: Stop is refused on its pending or in-progress items and allowed once
 they are clear. An installed Oko that cannot be read still refuses. The other
@@ -65,8 +83,10 @@ instead of the Oko commands it names when Oko is installed.
 when enabled. Neither guard asks a second model to reinterpret open tasks as
 permission to stop.
 <code>block-text-outside-tool-calls</code> runs before model requests and on Stop.
-The OMP adapter uses the latest completed gate answer and refreshes it in the background,
-so an unbounded ledger read does not consume the harness's provider-handler budget.
+The OMP adapter uses a completed gate answer from the current session and work
+generation and refreshes it in the background; a late answer from an older
+generation cannot authorize prose. The ledger read does not consume the
+harness's provider-handler budget.
 For supported OpenAI function-tool payloads, an open-work refusal sets
 <code>tool_choice: "required"</code>; this shape is also forced before the first answer.
 Anthropic requests and unsupported or absent tool shapes are not forced: they are
@@ -74,7 +94,8 @@ sent unchanged with the limitation on stderr. Their Stop gate still checks compl
 but it runs after text may already have streamed and cannot retract that text.
 Provider acceptance, prevention of streamed prose and refusal of completion are separate outcomes;
 none is established merely by a published source revision. See <a href="/docs/enforcement-control/runtime/adapters/">the adapter contract and its limitations</a>.</p>
-<p>Any executable task still marked <code>not done</code> in any session blocks completion,
+<p>For sessions outside the executor role policy above, any executable task
+still marked <code>not done</code> in any session blocks completion,
 and every defect that records no fixing revision blocks it too: of every product, unless the
 operator limited the session to some products by confirming a task contract scoped to them
 (<code>contract.terms.scope</code> with <code>contract.terms.confirmedAt</code>, written with
