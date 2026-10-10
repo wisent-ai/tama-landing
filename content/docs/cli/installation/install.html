@@ -34,6 +34,7 @@ is refused by name.</p>
 <code>stado quality check</code>. Brama's push reviewer follows the formatting
 checks. A release install writes the same dispatcher. Graphical Git clients
 invoke the same hook and receive the same refusal and file diagnostics.</p>
+<p>A failed <code>stado quality check</code> can name an unavailable release input or another dependency, not just a formatting defect. The dispatcher preserves that operation's diagnostic and refuses the push; it does not prescribe rewriting commits for an infrastructure failure. Resolve the reported cause before another push. Only actual formatter diffs justify formatting the affected source.</p>
 <h2>Review before creating a commit</h2>
 <p>The managed <code>commit-msg</code> dispatcher runs the preserved hook chain
 first, then <code>tama hook review-commit &lt;message-file&gt;</code>. Brama
