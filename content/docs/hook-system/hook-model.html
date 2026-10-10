@@ -75,6 +75,10 @@ earlier one wrote. The real test is <code>tests/hooks-running/together.rs</code>
 (<code>cargo test -p tama-cli --test hooks_running_together</code>): two gates that can only both
 end when they run at the same time, one reading a named pipe and one writing it, and a third that
 refuses after them.</p>
+<h2>Write target validation</h2>
+<p>Every normalized write or edit needs a nonempty string <code>tool_input.file_path</code>. Shared write guards refuse a missing, empty or non-string target before resolving it against <code>cwd</code>; the working directory is never substituted as the file.</p>
+<p>The refusal names <code>tool_input.file_path</code> and its actual shape error. Correct the adapter's per-file normalization, not the parent directory's file count. Relative paths that name existing files keep their ordinary checks. The same reason is retained in the Session decision table and Posture.</p>
+<p>The real <code>write_payload_targets</code> journey invokes the built guards with malformed targets and an existing relative file, binds the declared clean source revision and executable digest, and retains inputs, commands, statuses and output. Its definition is not an installed multi-file edit qualification.</p>
 <h2>Quoted data and executable input</h2>
 <p>A Bash request is parsed as shell syntax. Literal arguments remain data when
 they contain apostrophes, escaped quotes, newlines, or examples of commands.
