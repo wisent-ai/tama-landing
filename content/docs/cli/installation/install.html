@@ -70,6 +70,11 @@ on macOS, or <code>$XDG_STATE_HOME/tama/git-dispatch</code> on other Unix hosts
 It does not use the system temporary directory. Normal completion, refusal,
 and handled termination remove that dispatch's input and directory; allocation
 or input-write failure refuses the Git operation before any chained hook runs.</p>
+<p>The installed Git journey also supplies an absent <code>TMPDIR</code>
+under its retained evidence directory. The push must still reach the actual
+formatter's named-file refusal and leave the remote unchanged. This catches a
+dispatcher that fails while creating a system-temp input spool, before its
+consumer reads Git's refs. The command log retains that environment input.</p>
 <p>Reviewer HTTP diagnostics report measured DNS lookup, TCP connection, TLS,
 first-response-byte and total transfer times, alongside the actual status and
 Brama cause. A fast readiness response is not evidence that the authenticated
