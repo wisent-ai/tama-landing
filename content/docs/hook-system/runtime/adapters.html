@@ -125,6 +125,9 @@ or new work generation does require a new assessment. Actual OMP completion and 
 journeys must qualify that lifecycle; a native hook result or source revision
 alone does not establish it. Operator interruption and notification-only events
 remain outside the adapter's cancellation-return contract.</p>
+<p>Post-compaction context belongs to the session and work generation that
+requested it. If either changes while the native hook runs, the adapter discards
+the late context and records why; this guard does not prevent compaction or prove restoration.</p>
 <p>Before sending another request through a local Stado adapter, Tama reads
 the resolver's published <code>resolver-waiting.json</code> beside
 <code>STADO_RESOLVER_STATE_FILE</code>, or the standard resolver state in
