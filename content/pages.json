@@ -86,6 +86,7 @@
   {"route":"enforcement-control/completion/own-work","source":"content/docs/hook-system/completion/own-work.html","content":"content/docs/hook-system/completion/own-work.html","category":"Reference"},
   {"route":"hook-model","source":"docs/hook-model.md","content":"content/docs/hook-system/hook-model.html","category":"Reference"},
   {"route":"hook-model/numbers","source":"content/docs/hook-system/numbers/operations.html","content":"content/docs/hook-system/numbers/operations.html","category":"Reference"},
+  {"route":"hook-model/identities","source":"content/docs/hook-system/identity/provenance.html","content":"content/docs/hook-system/identity/provenance.html","category":"Reference"},
   {"route":"adaptive","source":"docs/ADAPTIVE.md","content":"content/docs/hook-system/adaptive.html","category":"Reference"},
   {"route":"hook-management","source":"docs/HOOK-MANAGEMENT.md","content":"content/docs/hook-system/hook-management.html","category":"Reference"},
   {"route":"hook-management/runtime/hook-warming","source":"content/docs/hook-system/runtime/hook-warming.html","content":"content/docs/hook-system/runtime/hook-warming.html","category":"Reference"},
