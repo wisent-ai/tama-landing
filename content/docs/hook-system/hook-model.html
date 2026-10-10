@@ -250,8 +250,8 @@ file keeps it where the rest of the fleet and the operator's other machines cann
 names that route. When the owning store really cannot serve the data, record why with
 <code>tama justify record --kind file --file &lt;path&gt; --justification "&lt;why stado database cannot
 serve it&gt;"</code> — the reason has to name <em>stado database</em> — and write again. Stado itself, the
-owner of durable data, is not judged; only code files are read, and a line the repository already
-holds is not judged again.</p>
+owner of durable data, is not judged; only code files are read. Existing lines in the target or changed
+donor files follow the <a href="../gates/writes/committed-lines/">committed-line lookup contract</a>.</p>
 <p><code>pre-write-edit</code> refuses a failed read quietly replaced with a stand-in value (zero, minus
 one, an empty list, map or string, <code>null</code>, <code>nil</code>, <code>undefined</code>), by the
 code's shape: a catch body that assigns one, a JavaScript <code>.catch</code> arrow that returns one, a
