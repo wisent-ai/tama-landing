@@ -1,19 +1,19 @@
 <h1><code>tama install</code></h1>
 <p>Installs Tama-managed user-global Git dispatchers for <code>pre-commit</code> and <code>pre-push</code>, preserving a pre-existing unmanaged hook once as <code>.before-tama</code>.</p>
 <p>Before every push, <code>repo-githooks/rust/pre-push</code> invokes
-<code>tama hook check-rust-format</code>. For every commit the push places on
-the remote it writes that commit's files out with <code>git archive</code>
-under the checkout's Git directory, finds the tracked Cargo manifests there,
+<code>tama hook check-rust-format</code>. For each non-deleted pushed ref it checks
+the referenced commit's tree using a private Git index and <code>read-tree</code>/<code>checkout-index</code>
+under the checkout's ignored <code>.build/tama-rust-format/</code> directory, finds its tracked Cargo manifests,
 asks Cargo for their workspace roots and runs
 <code>cargo fmt --all --check --manifest-path &lt;Cargo.toml&gt;</code> once per
 workspace, including registered tests outside the crate directory, then removes
-the copy. A commit without tracked Cargo manifests needs no Rust check. This
-works without a Wisent release manifest or Stado installation.</p>
+the snapshot. A commit without tracked Cargo manifests needs no Rust check. This
+works without a Wisent release manifest or Stado installation. Declare <code>.build/</code> in the repository's ignore policy; the gate refuses non-ignored scratch storage. No clone, branch checkout or change to the caller's index is made.</p>
 <p>The formatter's file diffs and concrete failure reach Git's stderr. The
 working tree is not read: formatting that exists only uncommitted cannot
 qualify an unformatted commit, and another session's uncommitted edit in the
 same checkout cannot refuse a formatted one. Any pushed revision is checked,
-whether or not it is checked out. No gate changes files.</p>
+whether or not it is checked out. The gate changes no working source files. A missing committed root formatter configuration uses rustfmt's built-in defaults within the snapshot, never an uncommitted ancestor configuration. A workspace outside the snapshot is refused.</p>
 <p>For products whose <code>.wisent-release.json</code> also declares a
 <code>fmt</code> quality gate, the dispatcher then runs
 <code>stado quality check</code>. Brama's push reviewer follows the formatting
@@ -26,11 +26,15 @@ the workspace that registers that test, commit the result, then push again:</p>
 git add tests/harnesses/payload.rs
 git commit -m "Format registered harness test"
 git push</code></pre>
-<p><code>check-rust-format: push refused: &lt;ref&gt; (&lt;commit&gt;) is not formatted</code>
-followed by the formatter's diff names the commit and its files; other
-refusals name an unreadable manifest, a revision Git cannot resolve, or the
-<code>git archive</code> or <code>tar</code> step that failed. Fix that cause;
+<p><code>check-rust-format: push refused: commit &lt;commit&gt;: &lt;operation and cause&gt;</code>
+and the formatter's diff identify the pushed commit and its files. Other refusals name
+an unreadable manifest, unresolved revision, failed Git export operation, unignored scratch path,
+escaping workspace or cleanup failure. A cleanup failure is retained alongside a formatter failure. Fix that cause;
 the remote branch is not updated by a refused push.</p>
+<p>The real journeys <code>tests/review/format.rs</code> and <code>tests/review/installed.mjs</code> push through actual Git, Cargo/rustfmt, the managed dispatcher and the real review and LFS dependencies. They check that uncommitted formatting cannot repair an unformatted commit, and that a formatted commit can be pushed while another session's source and invalid formatter configuration remain unchanged. Remote refs and transferred LFS bytes establish the final state; command logs and source identities are retained. These definitions are not an executed qualification.</p>
+<pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test review_format -- --ignored --nocapture
+node --test tests/review/installed.mjs</code></pre>
+<p>Run only when qualification is permitted. The Cargo journey uses its built candidate; the installed journey records the actual sealed runtime identity. Both require Git LFS and authorized Brama review access; unavailable real dependencies are failures, not skipped passes.</p>
 <h2>Invocation</h2>
 <pre><code>tama install [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;]
              [--set-git-config] [--no-git-config] [--json]
