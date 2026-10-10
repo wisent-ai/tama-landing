@@ -41,18 +41,23 @@ configured reviewer. Commands, exit statuses, source revision and binary
 digest are retained under Cargo's build directory.</p>
 <h3>Owned pending stop assessment</h3>
 <p><code>node tests/hooks-running/stop-review.mjs</code> requires
-<code>TAMA_TEST_EXECUTABLE</code> and <code>TAMA_TEST_SOURCE_REVISION</code>.
+<code>TAMA_TEST_EXECUTABLE</code>, <code>TAMA_TEST_SOURCE_REVISION</code> and
+the real installed <code>TAMA_TEST_OKO_BIN</code>.
 It checks the clean candidate and retains the executable digest before invoking
 the real native core and stop hook. The listener uses an internal interface
 declared by the operating system and an OS-assigned port; it deliberately does
 not answer. The journey requires an immediate pending refusal, reuse of the
 same candidate's assessment, and caller cancellation ending the actual HTTP
 connection without publishing a late verdict. A fresh native inspection must
-find no surviving hook. The following phase uses the caller's actual Brama
+find no surviving hook. A local role phase then uses real Oko set, clear and
+reassignment commands, verifying that an unchanged candidate cannot retain an
+obsolete refusal or pass; an unreadable role file must cancel its assessment.
+It retains the installed Oko digest separately from the candidate Tama digest.
+The following phase uses the caller's actual Brama
 configuration and the same real stop hook: it requires a pending refusal
 followed by a completed passing verdict, reused for the unchanged candidate.
 An unavailable reviewer fails qualification with its actual cause; no authored
-provider answer replaces it. Progress from both phases and the final result
+provider answer replaces it. Progress from all phases and the final result
 stay under <code>.build/stop-review/</code>.</p>
 <p>This exercises the shipped assessment module and native transport, not
 OMP's automatic refusal continuation or operator-interruption lifecycle;
