@@ -44,8 +44,9 @@ shutdown.</p>
 <p>Within one dispatch the hooks of a tool event run in registry order, one
 after another, and the first refusal ends the dispatch. The selected
 <code>block-supervisor-stop</code> policy runs in-process first, reading only
-Oko's local role register. Its refusal returns immediately without starting
-any other stop hook. When it passes, the remaining <code>stop</code> hooks
+Oko's local role and executor-work state. Its refusal returns without starting
+any other stop hook (see <a href="/docs/enforcement-control/completion/work/">completion work</a>).
+When it passes, the remaining <code>stop</code> hooks
 run side by side and the engine waits for all of their reasons.
 Checking that remaining review then takes as long as its
 slowest hook, not the sum of them all. Run one after another, their times
@@ -108,6 +109,22 @@ failure follows on the same stream. An unavailable stop reviewer refuses
 completion with <code>TAMA_HOOK_INFRASTRUCTURE</code> and its actual cause,
 not a claim that the assistant violated the review rule. These are event
 and process-state decisions, not a Tama handler timeout.</p>
+<p>OMP's <code>session_stop</code> callback does not await that dispatch.
+It immediately refuses an unfinished assessment, naming the pending stop hooks
+and their measured elapsed time. One owned assessment serves repeat requests for
+the same candidate. Its identity includes the session, work generation, assistant
+message, transcript file identity and stamp, and current enforcement selection.
+A changed candidate cancels the older assessment; only a completed pass for the
+exact unchanged candidate authorizes completion. A cancelled or failed assessment
+is not a pass. New input, activation, shutdown and tool completion relinquish
+ownership. A late result never sends a continuation message or restarts the
+session. This removes the previous idle-session continuation path.</p>
+<p>Fail-closed assessment is not a promise that OMP will replay an unchanged
+candidate after a refusal: a harness that appends messages or changes the work
+generation needs a new assessment. Actual OMP completion and interruption
+journeys must qualify that lifecycle; a native hook result or source revision
+alone does not establish it. Operator interruption and notification-only events
+remain outside the adapter's cancellation-return contract.</p>
 <p>Before sending another request through a local Stado adapter, Tama reads
 the resolver's published <code>resolver-waiting.json</code> beside
 <code>STADO_RESOLVER_STATE_FILE</code>, or the standard resolver state in
