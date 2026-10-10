@@ -48,11 +48,15 @@ declared by the operating system and an OS-assigned port; it deliberately does
 not answer. The journey requires an immediate pending refusal, reuse of the
 same candidate's assessment, and caller cancellation ending the actual HTTP
 connection without publishing a late verdict. A fresh native inspection must
-find no surviving hook. Evidence stays under <code>.build/stop-review/</code>.</p>
-<p>This exercises the shipped assessment module and native transport, not a
-substitute provider response. It does not qualify healthy Brama completion or
-OMP's automatic refusal continuation and operator-interruption lifecycle;
-those require separate real harness runs. A test definition is not a pass.</p>
+find no surviving hook. The following phase uses the caller's actual Brama
+configuration and the same real stop hook: it requires a pending refusal
+followed by a completed passing verdict, reused for the unchanged candidate.
+An unavailable reviewer fails qualification with its actual cause; no authored
+provider answer replaces it. Progress from both phases and the final result
+stay under <code>.build/stop-review/</code>.</p>
+<p>This exercises the shipped assessment module and native transport, not
+OMP's automatic refusal continuation or operator-interruption lifecycle;
+those still require separate real harness runs. A test definition is not a pass.</p>
 <h3>Native hook request suite</h3>
 <pre><code class="language-bash">cargo test --manifest-path rust/Cargo.toml --target-dir .build/cargo -p tama-cli --test ssh_quoting
 </code></pre>
