@@ -66,3 +66,4 @@ the findings name; footnote: <code>the agent runs with Codex; Tama refuses to st
 prints no summary reports <code>The cleanup finished without printing a summary.</code> Scan results with exit status 0 and 1 are both valid reports
 (clean, and with violations); anything else is the backend's own refusal
 sentence, surfaced verbatim (<a href="../runbook.md#the-backend-refuses-a-repository">runbook</a>).</p>
+<p>A successful cleanup command is not a clean final state when the rescan contains errors. Repository problems, findings and per-repository scan errors must all be absent before repair reports success. An unreadable name authority remains a scan error even when no internal name was matched; inspect its recorded cause rather than treating missing evidence as a clean repository.</p>
