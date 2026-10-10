@@ -157,16 +157,16 @@ instead of the Oko commands it names when Oko is installed.
 <code>check-open-items-with-model</code> uses the same ledger qualification
 when enabled. Neither guard asks a second model to reinterpret open tasks as
 permission to stop.
-<code>block-text-outside-tool-calls</code> runs before every model request and on Stop. Before a
-request it refuses while Oko holds open work, and the OMP adapter then sets the request's
-<code>tool_choice</code> through OMP's <code>before_provider_request</code> event (Anthropic
-<code>any</code>, with extended thinking dropped because Anthropic refuses both together, and
-with OMP's <code>clear_thinking</code> context edit dropped too, because Anthropic refuses that
-edit once thinking is off; OpenAI
-<code>required</code>), so the model writes no prose and nothing reaches the operator's screen. A
-request with no tools or a tool shape the adapter does not know is sent unchanged with a line on
-the adapter's standard error; for it the Stop refusal still sends the turn back to work, but
-comes after OMP has streamed the text, because OMP has no event that retracts streamed text.</p>
+<code>block-text-outside-tool-calls</code> runs before model requests and on Stop.
+The OMP adapter uses the latest completed gate answer and refreshes it in the background,
+so an unbounded ledger read does not consume the harness's provider-handler budget.
+For supported OpenAI function-tool payloads, an open-work refusal sets
+<code>tool_choice: "required"</code>; this shape is also forced before the first answer.
+Anthropic requests and unsupported or absent tool shapes are not forced: they are
+sent unchanged with the limitation on stderr. Their Stop gate still checks completion,
+but it runs after text may already have streamed and cannot retract that text.
+Provider acceptance, prevention of streamed prose and refusal of completion are separate outcomes;
+none is established merely by a published source revision. See <a href="../enforcement-control/runtime/adapters/">the adapter contract and its limitations</a>.</p>
 <p>Any executable task still marked <code>not done</code> in any session blocks completion,
 and every defect that records no fixing revision blocks it too: of every product, unless the
 operator limited the session to some products by confirming a task contract scoped to them
