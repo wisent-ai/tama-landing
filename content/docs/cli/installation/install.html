@@ -59,6 +59,20 @@ node --test tests/review/installed.mjs</code></pre>
 preserves an existing Git LFS hook as <code>pre-push.before-tama</code>; the
 dispatcher replays the original push arguments and ref input to that hook after
 formatting and review succeed. The sealed runtime's binaries lead its PATH.</p>
+<p>Each dispatch stores Git's ref input in a private, uniquely allocated
+directory under Tama state: <code>~/Library/Application Support/Tama/git-dispatch</code>
+on macOS, or <code>$XDG_STATE_HOME/tama/git-dispatch</code> on other Unix hosts
+(<code>~/.local/state/tama/git-dispatch</code> when that variable is absent).
+It does not use the system temporary directory. Normal completion, refusal,
+and handled termination remove that dispatch's input and directory; allocation
+or input-write failure refuses the Git operation before any chained hook runs.</p>
+<p>Reviewer HTTP diagnostics report measured DNS lookup, TCP connection, TLS,
+first-response-byte and total transfer times, alongside the actual status and
+Brama cause. A fast readiness response is not evidence that the authenticated
+review request answered quickly, and a degraded gateway is not evidence that
+every route is unavailable. No inferred outage, successful process or empty
+model reply authorizes an unreviewed push. Malformed response JSON retains its
+parser cause; absent or non-text normalized content names the exact field.</p>
 <pre><code>tama hooks status
 tama hooks status --home /path/to/home --json</code></pre>
 <p>Status reports the configured user-global directory, each dispatcher, whether
