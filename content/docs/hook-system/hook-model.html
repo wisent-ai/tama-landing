@@ -119,7 +119,12 @@ missing-target entries are the ones to renew or remove.</p>
 for declaration, manifest, source-citation and syntax-based operation rules.</p>
 <h2>Identities</h2>
 <p><code>block-identity-literals</code> refuses an email address, a UUID, or an identifier that
-flattens an address when nothing issued it. A value passes when the harness issued it as the name
+flattens an address when nothing issued it. It reads only the lines a write adds — the
+<code>+</code> lines of a hashline section or patch, an edit's replacement, a new file's content —
+never the lines the file already holds: an identity already on the page was sourced by the write
+that put it there, and judging it again sent every edit of a long changelog or README through the
+stores once per address the page carried, past the harness's limit on a hook, so the edit was
+refused as a timeout. A value passes when the harness issued it as the name
 of a stored transcript (a session id: OMP names each session's transcript under
 <code>~/.omp/agent/sessions</code> after it), when a file the written path's own git checkout
 already tracks carries it (a product's published identifier — a journey version id in a seed, a
@@ -136,10 +141,13 @@ is refused naming it and saying which source was missing:
 <code>the UUID &lt;value&gt; has no provenance -- no artifact carries it and no stored user message
 contains it</code>. <code>IDENTITY_TRANSCRIPT_ROOT</code>, <code>IDENTITY_ARTIFACT_ROOTS</code> and
 <code>IDENTITY_PROVENANCE_FILE</code> move the three stores. The real tests are
-<code>tests/identity-literals/session_ids.rs</code>, <code>tests/identity-literals/tracked_ids.rs</code>
-and <code>tests/identity-literals/placeholders.rs</code> (<code>cargo test -p tama-cli --test
+<code>tests/identity-literals/session_ids.rs</code>, <code>tests/identity-literals/tracked_ids.rs</code>,
+<code>tests/identity-literals/placeholders.rs</code> and
+<code>tests/identity-literals/added_lines.rs</code> (<code>cargo test -p tama-cli --test
 identity_literals_session_ids --test identity_literals_tracked_ids --test
-identity_literals_placeholders</code>), the second against a real git checkout it creates.</p>
+identity_literals_placeholders --test identity_literals_added_lines</code>), the second against a
+real git checkout it creates and the last editing a page that already carries an unsourced id on a
+line the edit leaves alone.</p>
 <p>When transcript content is required, hook subprocesses share per-file identity
 snapshots under Tama's state directory in <code>identity-mentions</code>.
 Each snapshot is bound to the source file's device, inode, byte length,
