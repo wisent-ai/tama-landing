@@ -50,6 +50,16 @@ their JSON input. The Desktop session refusal record uses the same reason.</p>
 <p>The real executor defect journey uses isolated Oko role, defect and blocker
 mutations and requires actual external-failure evidence plus the real blocker
 reviewer. Retained source is not a passing run or installed-harness qualification.</p>
+<p>The registered <code>tests/supervisor-stop/tasks.rs</code> journey reads a
+real executor's Oko ledger without mutating its tasks or role. Declare
+<code>TAMA_TEST_SOURCE_REVISION</code>, <code>TAMA_TEST_OKO_BIN</code>,
+<code>TAMA_TEST_EXECUTOR_SESSION</code> and <code>TAMA_TEST_EXECUTOR_TASK</code>,
+then run <code>cargo test -p tama-cli --test supervisor_stop_roles
+settled_tasks_refuse_locally_and_failed_or_superseded_readings_never_pass -- --ignored</code>.
+It isolates the prepared state, records both binary digests and every command,
+prepares through actual Oko, and proves local refusal with the Oko executable
+absent. It also covers different-generation refusal, genuine executable failure
+and a fresh-generation recovery. This definition still requires execution.</p>
 <p>Every supported harness completion binding reaches the canonical
 <code>stop</code> event. OMP's blocking boundary is <code>session_stop</code>;
 <code>agent_end</code> and <code>turn_end</code> are notification-only, not
