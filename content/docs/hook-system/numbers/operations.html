@@ -68,6 +68,12 @@ boundaries against one validate inputs. This is not permission for
 <code>const DEFAULT_RETRIES = 0</code>, an invented group identifier, an arbitrary
 removal count, or an unrelated comparison with <code>-1</code>. Other languages
 and malformed syntax retain the normal numeric policy.</p>
+<p>Syntax byte positions are converted to character positions in one forward
+pass, rather than rescanning the preceding file for every numeric operation.
+Unicode text between operations and multiline tuple selectors retain their
+actual lexical positions. A permitted field or array access does not admit a
+separate policy value between those accesses; the real native-operation
+journey covers both forms.</p>
 <p>The native interface remains <code>tama hook check-numeric-literals</code>,
 with a harness write or edit payload on stdin. Refusals name each new literal,
 its file and line; the existing hook-result surfaces display that same result.
