@@ -100,6 +100,10 @@ The real formatter journeys cover an external registered test and inherited
 workspace edition. Removing a declared target's real source then requires a
 causal formatter refusal and an unchanged remote ref. These definitions still
 require an authorized real run.</p>
+<p>A declaration, source-read or formatter-execution failure is not a verdict
+that the Rust text needs reformatting. The refusal names the failed operation
+and directs repair there; only actual formatting findings ask for formatting
+folded into the unpublished source change.</p>
 <h2>Reviewing the committed file, not only the patch</h2>
 <p>The reviewer receives every new commit's message and patch, followed by complete UTF-8 text for its changed files. Each source record names the commit, path, Git object and mode. Imports, persisted fields and guards outside a diff hunk remain visible. Source comes from immutable Git objects, never uncommitted files; merge-parent changes are deduplicated by path in the resulting commit. Deleted content remains in the patch. Binary blobs and submodule references are explicitly identified without claiming to review omitted contents.</p>
 <p>A failed Git read or unreadable path metadata refuses the review with its operation and cause. A malformed or unavailable reviewer response is not a source verdict and cannot authorize the push. A source finding must name the actual commit and file; a missing line in a patch does not establish that it is absent from the file. Command-line and graphical Git pushes use this same dispatcher and diagnostic stream.</p>
