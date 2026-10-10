@@ -6,6 +6,22 @@
 <h2>Test approvals</h2>
 <p><strong>Test approvals</strong> opens the operator's record of where test code may be written: the same record <a href="/docs/cli/tests/">tama tests</a> reads and writes, at <code>~/.config/agent-policy/approved_tests.json</code>. It lists every approved path with the time it was approved. Enter an absolute file or directory path and choose <strong>Approve</strong> to run <code>tama request tests/approve</code>; an approved directory covers everything below it. <strong>Revoke</strong> asks for confirmation and runs <code>tama request tests/revoke</code>, after which test code under that path is refused again. The list shown after either action is the record as written. A refusal appears under <strong>Refused</strong> in the product's exact words.</p>
 <p>The application runs outside any agent session, so an approval here is the operator's own; <code>block-unapproved-tests</code> refuses an agent that tries to run the same command or write the record.</p>
+<h2>Review tracked test files</h2>
+<p>Inside <strong>Test approvals</strong>, enter a repository path in
+<strong>Review tracked test files</strong> and choose <strong>Review</strong>.
+The view owns <code>tama request tests/review</code> with
+<code>{"root":"&lt;repository&gt;"}</code>, the same foreground operation as
+<code>tama tests review &lt;repository&gt;</code>. Relative paths are resolved
+against the operator's home. Reviewing classifies tracked test content through
+Brama and retains verdicts; it neither approves nor executes tests.</p>
+<p>The waiting indicator remains visible until the operation answers.
+<strong>Cancel</strong> or closing the view cancels its native request.
+The prior result is cleared before a new review. A backend failure appears
+under <strong>Review failed</strong> with its actual cause, rather than keeping
+an earlier success; a completed request displays the backend's result.
+An unreadable verdict store is a failure, not an empty review. Real graphical
+qualification must verify waiting, cancellation and these persisted-state
+refusals in the installed application.</p>
 <h2>CUA consent</h2>
 <p><strong>CUA consent</strong> opens a separate grant sheet even when the catalogue has no file justification requirements. The form takes the OMP session ID, installed application name, comma-separated actions and either an exact quote or text matching one original user message. The default matching mode retrieves the full message without retyping its whitespace.</p>
 <p><strong>Record consent</strong> sends those fields as the body of <code>tama request justifications/cua/record</code>. Tama verifies the real message and installed application, then the sheet rereads the registry. A refusal appears under <strong>Refused</strong> using the product's exact message. A successful recording does not start the driver or claim that a GUI action ran.</p>
