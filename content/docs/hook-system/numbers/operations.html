@@ -94,9 +94,14 @@ replacement whose <code>old_string</code> is absent refuses with the target
 path instead of judging unchanged source or replacement text alone. A
 multi-edit refusal retains the failed operation; no partial edit is applied
 by a guard. Numeric, keyword, browser and Supabase write consumers propagate
-the same shared reconstruction error. Unsupported hashline operations still
-use added-line classification, so this does not establish complete replay of
-every editor operation.</p>
+the same shared reconstruction error. Unsupported hashline block, register,
+move and remove operations refuse with the operation and target instead of
+substituting added lines. Single-path unified patches likewise report that
+complete reconstruction is unavailable. These diagnostics do not implement
+those operations: use a supported range, gap, string edit or explicit whole-file
+write when the harness contract permits it. No fragment establishes Rust import
+or return-type context. An explicit empty text write remains a complete empty
+document; missing operations and non-text content are diagnosed, not emptied.</p>
 <p>Supported hashline gaps and ranges are checked against the actual source
 line count. An out-of-range insertion or deletion, or a reversed replacement
 range, refuses as <code>cannot replay edit of &lt;path&gt;: &lt;cause&gt;</code>.
@@ -106,7 +111,8 @@ invalid coordinate. Empty-source insertions retain the documented
 <p>The registered numeric operations journey includes
 <code>tests/numeric-literals/reconstruction.rs</code>: an actual directory
 source, malformed UTF-8, unmatched single and multi-edit replacements,
-invalid hashline coordinates and matching-source recovery through the built
+invalid hashline coordinates, incomplete replay, missing operations, non-text
+content, explicit empty writes and matching-source recovery through the built
 hook. It retains candidate-bound exchanges and
 checks that guard evaluation leaves the source unchanged. These are test
 definitions until the authorized qualification run executes them.</p>
