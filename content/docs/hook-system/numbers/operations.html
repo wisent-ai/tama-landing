@@ -1,0 +1,79 @@
+<h1>Numeric values and standard operations</h1>
+<p><code>block-numeric-literals</code> checks numeric choices against the
+operator's recorded instruction. Its declaration format is
+<code>numeric-provenance.json</code> with entries
+<code>{"value": n, "user_said": "…"}</code>. A write to a file that already exists is held to the
+literals it adds: the numbers the file held before are counted out one for one, so renaming a
+function in a file that holds a number passes, and the one number an edit adds is refused by
+name; a new file is read whole. A hashline edit is read as the file its section leaves behind
+(replace, insert and cut replayed against the file on disk), so text added inside a string or
+comment — a shell program held in a Rust raw string, with its <code>$1</code> and
+<code>2&gt;/dev/null</code> — is read as that string, and a number added to the code around it is
+still refused; a section with an operation that is not replayed (a block, a register paste) is
+read from its added lines alone. In a data file (JSON, a
+<code>Package.resolved</code>, a manifest) a quoted value shaped as an identifier is not a
+number: a dotted release version such as <code>"0.7.56"</code> or <code>"1.2.3-beta.1"</code>,
+and a hexadecimal revision or digest holding a letter such as a git commit. So a version
+bump and a dependency pin pass, while a quantity beside them (<code>"retries": 7</code>) and a
+quoted decimal (<code>"port": "8792"</code>) are still refused by name. In a
+<code>Cargo.toml</code>, the quoted text of every dependency table (<code>[dependencies]</code>,
+<code>[dev-dependencies]</code>, <code>[build-dependencies]</code>, <code>[workspace.dependencies]</code>,
+<code>[target.….dependencies]</code>) is a requirement on a release the registry publishes
+(<code>tree-sitter = "0.25"</code>), so it passes; a number in any other table of the manifest
+(<code>opt-level = 3</code>), and a table of that name in any other file, is still read. The
+manifest's <code>edition</code>, <code>rust-version</code> and <code>license</code> values
+(<code>edition = "2021"</code>, <code>rust-version = "1.80"</code>,
+<code>license = "BSD-3-Clause"</code>) are names Rust and the SPDX list publish, so they pass in
+<code>[package]</code> and <code>[workspace.package]</code>; the same keys in any other file are
+still read.</p>
+<p>A number a protocol or a vendor states — Apple's notification payload limit, an HTTP
+status, a file format's magic number — has that document as its source. In a code file a
+literal passes when its own comment, or the comment block written directly above it, names
+the document by address:</p>
+<pre><code>// Apple's limit for a notification payload:
+// https://developer.apple.com/documentation/usernotifications/generating-a-remote-notification
+const APNS_ALERT_PAYLOAD_BYTES: usize = 4096;</code></pre>
+<p>A blank line ends the comment block, and an address a program writes in a string cites
+nothing. The real test for the rule is <code>tests/numeric-literals/identifiers.rs</code>
+(<code>cargo test -p tama-cli --test numeric_literals_identifiers</code>).</p>
+<p>A file written below a directory its checkout's <code>.gitignore</code> ignores — the build
+directory where a run keeps its throwaway state and evidence reports, such as
+<code>&lt;repo&gt;/.build/&lt;area&gt;/report.json</code> or <code>&lt;repo&gt;/target/&lt;area&gt;</code> — is not
+scanned: nothing there is committed, so none of its session ids, times or counts decides what a
+product does. The hook asks git about the file's directory, not the file: an ignored file in a
+tracked directory, such as a local settings file or <code>.env</code>, is read by the product and is
+still scanned. The real test is <code>tests/numeric-literals/build_directory.rs</code>
+(<code>cargo test -p tama-cli --test numeric_literals_build_directory</code>), run against a real git
+checkout it creates for each case.</p>
+<h2>Standard operations are not configuration choices</h2>
+<p>The Rust and JavaScript syntax trees distinguish documented operation
+arguments from invented defaults. A sole zero argument to Rust
+<code>CommandExt::process_group</code> or <code>PermissionsExt::set_mode</code>
+is an OS operation, not a retry count. JavaScript first-element indexing,
+<code>at(0)</code>, and <code>splice(index, 1)</code> describe element access or
+removal. Comparisons of a directly called <code>findIndex</code> result or its
+preceding same-scope <code>const</code> binding with <code>-1</code> use the
+language's absent-element sentinel.</p>
+<p><code>assert.equal</code> and <code>assert.strictEqual</code> comparisons of
+process <code>status</code>, <code>code</code> or <code>exitCode</code> with zero
+check successful termination. Sign comparisons against zero and positive-integer
+boundaries against one validate inputs. This is not permission for
+<code>const DEFAULT_RETRIES = 0</code>, an invented group identifier, an arbitrary
+removal count, or an unrelated comparison with <code>-1</code>. Other languages
+and malformed syntax retain the normal numeric policy.</p>
+<p>The native interface remains <code>tama hook check-numeric-literals</code>,
+with a harness write or edit payload on stdin. Refusals name each new literal,
+its file and line; the existing hook-result surfaces display that same result.
+Framed hashline edits preserve the surrounding dependency table, so adding a
+Cargo dependency feature does not turn its unchanged release requirement into a
+new runtime value.</p>
+<h2>Real qualification</h2>
+<p><code>tests/numeric-literals/operations.rs</code> invokes the actual built
+hook in separate processes, records the declared candidate revision and binary
+digest before evaluation, and retains each payload, command, exit status and
+output. It covers accepted operations and meaningful numeric refusals, including
+a Unicode prefix before an index. From the Rust workspace, run
+<code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate-revision&gt; cargo test -p tama-cli
+--test numeric_literals_operations --test numeric_literals_hashline_context</code>
+only as part of the authorized qualification run. Committed test source is not a
+passing installed-runtime result.</p>
