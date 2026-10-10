@@ -45,9 +45,10 @@ when native configuration inspection returns a count. The shared
 configurations and Kimi's complete TOML document. A mapping counts only when
 its native event, matcher and generated dispatch command match.</p>
 <p>A null installed count means inspection is unavailable, not zero installed
-hooks and not evidence that the provider has no supported configuration. Read
-the accompanying warning note for the configuration path and actual read,
-parse or shape error. An inspected configuration without matching commands
+hooks and not evidence that the provider has no supported configuration. The
+inspector omits the installed-count field and shows the accompanying warning
+note with the configuration path and actual read, parse or shape error.
+An inspected configuration without matching commands
 reports zero. Neither a count nor its configuration declares live enforcement;
 the <a href="/docs/cli/provider/config/">provider configuration reference</a>
 describes the native inspection and qualification boundary.</p>
