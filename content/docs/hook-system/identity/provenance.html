@@ -43,6 +43,12 @@ atomically published so another hook can reuse them. There is no clock-based
 expiry. Removed, replaced, appended or permission-changed files do not retain
 their old provenance verdict. Only actual user-message identity tokens count;
 assistant messages are not independent operator evidence.</p>
+<p>The shared index applies the transcript-name reader's artifact boundary:
+a directory beside a JSONL transcript with the same stem is not traversed.
+Its artifacts and subagent files cannot count as another independent user
+session. This avoids reopening artifact subtrees during each metadata walk;
+the real journey verifies both a nested user-shaped artifact and malformed
+artifact content while genuine independent transcript evidence still passes.</p>
 <p>A read, parse or publication failure names its path and operation and refuses
 the write as unavailable provenance, rather than claiming the identity was
 invented. Cold or changed reads announce <code>czekam</code>; a contending hook
