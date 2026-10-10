@@ -88,6 +88,16 @@ therefore receives the reconstructed declaration for supported range, gap and
 string edits even when the hook process runs elsewhere. This does not extend
 the supported hashline operation set or bypass a missing or invalid
 <code>user_said</code> entry.</p>
+<p>Before counting out existing literals or unchanged provenance entries, the
+guard reads the existing file once. A missing file is a new-file case; a
+directory, permission failure or invalid UTF-8 is not. The refusal names
+<code>cannot read existing numeric source &lt;path&gt;: &lt;cause&gt;</code>,
+preserving the filesystem or decoding error. Correct the named source before
+resubmitting the write; no operator quote is searched to compensate for an
+unreadable file. The same cause reaches the CLI and harness hook diagnostics.
+The real <code>numeric_literals_existing_file</code> journey covers refusal on
+an actual directory, absence after its removal and recovery with readable
+source, retaining the candidate identity and hook exchanges.</p>
 <h2>Unavailable quote evidence is not a missing quote</h2>
 <p>A new or changed declaration first checks the writing session's transcript.
 If that file cannot be read or a matching record cannot be decoded, the refusal
