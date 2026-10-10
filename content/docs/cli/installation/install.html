@@ -91,8 +91,12 @@ separate consumer reads it back. A later commit uses that unchanged field,
 while a contradictory working edit removes it; review must use the committed
 writer. Committing the actual removal then makes the persisted consumer fail
 and must produce a retained <code>source_finding</code>, not an infrastructure
-failure, without advancing the remote. Import and persistence findings are
-qualified against the same commit-addressed source mechanism.</p>
+failure, without advancing the remote. Both missing-import and removed-field
+findings must identify the exact candidate commit in the retained result. The
+journeys inspect that same outcome through <code>tama reviews show/list</code>
+and the native <code>reviews/show</code> interface, including invalid and absent
+record refusals. This qualifies the shared reader only when the real journeys
+run; it does not substitute for observing the Desktop screen.</p>
 <pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test review_push -- --ignored --nocapture</code></pre>
 <p>Set <code>TAMA_TEST_SOURCE_REVISION</code> to the exact candidate and run only when qualification is permitted. The journey requires a real configured model provider and Node; an infrastructure refusal is not a passing source-refusal case. Source-context inclusion does not by itself qualify the reviewer's factual accuracy or an installed runtime.</p>
 <p>The review fixtures begin with an empty remote. Every publication, including the first, passes through the candidate review hook; setup does not bypass review to seed a branch. Remote-state evidence distinguishes an absent branch from a published commit, and a failed Git read remains a failure. This also lets the outage journey reach the actual dependency refusal without requiring a successful reviewer during setup.</p>
