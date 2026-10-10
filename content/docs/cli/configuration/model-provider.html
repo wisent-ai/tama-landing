@@ -59,4 +59,11 @@ catalogue endpoint. It requires the transport-policy cause before the HTTP
 response wait and checks that the fixture credential never enters output.
 This negative case performs no model call and is not proof of a working
 provider or of interruption cleanup.</p>
+<p>The owned-runtime cancellation journey also dispatches the actual
+<code>model-provider check --json</code> command against a TCP listener that
+accepts the catalogue request but sends no response. Cancellation must close
+that real connection, report a cancelled dispatch and leave no running hook.
+Candidate receipts name the dispatched command as well as the runtime binary;
+the journey sends no invented provider response and does not qualify a
+standalone CLI signal handler or a Desktop interaction.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
