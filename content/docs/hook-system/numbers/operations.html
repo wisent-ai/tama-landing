@@ -106,6 +106,13 @@ document; missing operations and non-text content are diagnosed, not emptied.</p
 <code>new_string</code> fields. Null, boolean or missing replacements do not
 become empty deletions or appended fragments. The refusal names the target and
 field; an intentional deletion supplies an explicit empty replacement string.</p>
+<p>The browser and Supabase consumers use this reconstruction only for executable
+<code>xd://mcp__node_repl_js</code> write payloads, not ordinary file writes.
+The registered <code>tests/tool-payload/targets.rs</code> journey invokes both
+actual built guards with malformed content and then valid program text,
+requiring a named infrastructure refusal followed by allowance. It retains the
+candidate and hook exchanges; it never executes the device program, browser or
+Supabase CLI. This is decision-boundary coverage, not a live device journey.</p>
 <p>Supported hashline gaps and ranges are checked against the actual source
 line count. An out-of-range insertion or deletion, or a reversed replacement
 range, refuses as <code>cannot replay edit of &lt;path&gt;: &lt;cause&gt;</code>.
