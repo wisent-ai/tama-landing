@@ -279,7 +279,12 @@ starts, with <code>env</code>, <code>sudo</code>, <code>nohup</code> and
 (<code>bash -lc "tama enforcement all"</code>); and a command substitution, which
 is code even inside double quotes (<code>echo "$(tama install)"</code>).</p>
 <p>Reporting runs stay allowed and always did: <code>tama enforcement
-status</code>, <code>generate-configs.mjs</code> without <code>--apply</code>,
+status</code>, <code>tama install plan</code> (with its options and inside a wrapper
+such as <code>cd … &amp;&amp;</code> or <code>env</code>: it shows the runtime scopes and
+target paths and creates no directory, writes no configuration and activates no
+hook; the verb is the word right after <code>install</code>, as the CLI reads it, so
+<code>tama install --home ~ plan</code> is still the installer),
+<code>generate-configs.mjs</code> without <code>--apply</code>,
 <code>seal-registry.mjs --check</code>, <code>oko hooks install
 --preview</code>. The command is cut only after its quotes are read, so a
 semicolon inside a quoted evidence message stays one argument instead of
