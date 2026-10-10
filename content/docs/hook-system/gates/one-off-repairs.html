@@ -23,6 +23,14 @@ instead of multiplying repository count by session count.</p>
 and location. The attached runtime relays these lines as progress to the editor
 and Tama Desktop Session view. Cache read, parse, publication and Git failures
 name the affected path and cause; no elapsed-time threshold decides validity.</p>
+<p>The <code>repair_history_shared</code> regression uses genuine repositories
+and separate reader processes. Before running repository operations, it requires
+<code>TAMA_TEST_SOURCE_REVISION</code> to match the clean tracked candidate and
+retains the test executable digest in <code>candidate.json</code>. Git trace
+events distinguish a shared cold read, unchanged-ref reuse and refresh after a
+real commit. This cache-level evidence does not by itself qualify the build
+gate, text gate or graphical progress relay; their actual interfaces require
+separate execution evidence.</p>
 <h2>What is refused, and the route each refusal names</h2>
 <table>
 <thead><tr><th>Refused command</th><th>The route the refusal names</th></tr></thead>
