@@ -31,14 +31,19 @@ events distinguish a shared cold read, unchanged-ref reuse and refresh after a
 real commit. This cache-level evidence does not by itself qualify the build
 gate, text gate or graphical progress relay; their actual interfaces require
 separate execution evidence.</p>
-<p>The separate <code>repair_history_presence</code> journey invokes the built
-<code>block-text-outside-tool-calls</code> hook against the actual authenticated
-Oko register. It requires <code>TAMA_TEST_OKO_EXECUTABLE</code> to name the
-installed Oko binary and an existing open defect, retains both executable
-digests and the real register response, and rejects a dependency-error refusal
-as proof. Git trace events must show no history command during the hook.
-It does not create artificial register rows or claim coverage of stop and
-build-order decisions.</p>
+<p>The separate <code>repair_history_presence</code> journeys invoke the built
+<code>block-text-outside-tool-calls</code> and <code>block-stop-with-open-work</code>
+hooks against the actual authenticated Oko register. They require
+<code>TAMA_TEST_OKO_EXECUTABLE</code> to name the installed Oko binary and an
+existing open defect, retain both executable digests and the real register
+response, and reject a dependency-error refusal as proof. The stop case also
+requires <code>TAMA_TEST_OKO_SESSION</code>, a real non-executor session without
+local pending tracker entries, and <code>TAMA_TEST_OPEN_DEFECT</code>, the full
+identity of an actual open defect in that session's scope. Its refusal must
+name that defect. Git trace events must show no history command during either
+hook. The journeys do not create artificial register rows, change session roles
+or qualify the executor prepared-work path, build-order decisions or graphical
+progress relay.</p>
 <h2>What is refused, and the route each refusal names</h2>
 <table>
 <thead><tr><th>Refused command</th><th>The route the refusal names</th></tr></thead>
