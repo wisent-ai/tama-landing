@@ -17,7 +17,9 @@ session that declared nothing sees no such section.</p>
 (<code>oko rulings list</code>): for each task or defect he decided, the newest ruling, with its
 session and message number and his words. The same block is what <code>inject-operator-rules</code>
 puts in front of a session when it starts or resumes after compaction, so a session knows what he
-already decided before it asks him. A register that cannot be read is named in place of the block.</p>
+already decided before it asks him. A ruling register that cannot be read is named in place of its block.</p>
+<p>Standing-rule restoration is required, not a diagnostic substitute. If <code>oko tasks rules --all --json</code> cannot run, fails or returns an invalid report, <code>tama hook inject-operator-rules</code> exits unsuccessfully, emits no context payload and writes <code>TAMA_HOOK_INFRASTRUCTURE: cannot restore operator rules for SessionStart: &lt;operation and cause&gt;</code> to stderr. The readable assignment command propagates that same failed read and writes no successful read receipt. A successfully read empty ledger remains distinct from an unavailable ledger.</p>
+<p><code>tests/operator-rules/distinct.rs</code> covers real-ledger replay and a genuinely absent Oko executable. The refusal case runs the built hook, retains the command, exit status and stderr beside its source revision, and checks that no replacement context is emitted. Run qualification only when authorized; source changes do not establish that an installed provider or graphical session has restored its rules.</p>
 <p>The reading asks Oko's registers for open items only, each in one call: the session's task
 ledger (<code>oko tasks --session ID --read-only --json</code>), the open defects of every product
 (<code>oko defects list --open --json</code>, so the closed and withdrawn records never travel),
@@ -39,7 +41,7 @@ holds, and writes each form's wall time to its report beside the source revision
 <ul>
 <li>An unknown command, unknown option, missing session or missing option value exits <code>2</code> and explains the required invocation.</li>
 <li>A missing or unreadable instruction exits <code>1</code> and names the session; check <code>record-current-assignment</code>. Another session's record is never a fallback.</li>
-<li>An unavailable Oko executable, unknown session, unreadable index or transcript, failed process or invalid report exits <code>1</code>. The diagnostic identifies the actual operation and error. Each Oko read has an eight-second deadline; a timeout is a failed read, not an empty task list.</li>
+<li>An unavailable Oko executable, unknown session, unreadable index or transcript, failed process or invalid report exits <code>1</code>. The diagnostic identifies the actual operation and error. A failed standing-rule read is not converted into an empty rule list or a successful readable assignment.</li>
 <li>A new instruction arriving during the read requires another read. Failed output delivery or receipt writing exits <code>1</code> without acknowledging the new state.</li>
 <li>The stop guard refuses when it cannot verify the current state, rather than accepting a stale receipt. With no captured instruction it preserves the existing no-record policy; a stop event without a session identifier is refused.</li>
 </ul>
