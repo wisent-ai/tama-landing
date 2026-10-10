@@ -44,7 +44,7 @@ tama show block-git-hook-bypass
 tama show block-git-hook-bypass --json
 tama validate --json
 tama install plan --json</code></pre>
-<p>The install plan separates agent runtime adapters, editor coverage, the MCP server, user-global Git dispatchers, repository Git entrypoints, and operating-system policy. An installed surface proves only its declared scope; Tama does not infer native Kimi, arbitrary editor-save, or device-wide coverage.</p>
+<p>The install plan separates agent runtime adapters, editor coverage, the MCP server, user-global Git dispatchers, repository Git entrypoints, and operating-system policy. Its text and JSON views list native harness targets from the shared adapter declaration. A target path is not proof of live native enforcement, arbitrary editor-save coverage, or device-wide coverage.</p>
 <h2>Installation and repository cleanup</h2>
 <p><code>tama install</code> writes the user-global <code>pre-commit</code> and <code>pre-push</code> dispatchers only. It preserves existing hooks and changes global Git configuration only when explicitly requested. It does not activate every agent, editor, MCP, or operating-system integration.</p>
 <p><code>tama violations find</code> scans tracked and untracked-but-not-ignored repository files through the real pre-write policy without changing them. <code>tama violations clean</code> gives the structured report to a bounded model worker and rescans under the same hooks; generated lock and registry files stay outside that repair loop.</p>
