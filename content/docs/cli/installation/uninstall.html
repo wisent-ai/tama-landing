@@ -1,13 +1,13 @@
 <h1><code>tama uninstall</code></h1>
-<p>The reverse of <a href="../install/"><code>tama install</code></a>: removes the Tama-managed <code>pre-commit</code> and <code>pre-push</code> dispatchers and puts back the hook each one displaced, kept beside it as <code>.before-tama</code>. A hook Tama did not write is left alone, by name.</p>
+<p>The reverse of <a href="../install/"><code>tama install</code></a>: removes the Tama-managed <code>pre-commit</code>, <code>commit-msg</code> and <code>pre-push</code> dispatchers and restores the hook each displaced from <code>.before-tama</code>. A hook Tama did not write is left alone.</p>
 <h2>Invocation</h2>
 <pre><code>tama uninstall [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;] [--unset-git-config] [--json]
 </code></pre>
 <p><code>--git-hooks-path</code> names the dispatcher directory; otherwise Tama uses global <code>core.hooksPath</code>, falling back to <code>~/.config/git/hooks</code>, exactly as <code>install</code> chose it. <code>--home</code> controls home expansion and the Git configuration environment. <code>--unset-git-config</code> clears global <code>core.hooksPath</code>, and only when it still points at the directory being emptied: a person's own hooks path is never taken away. <code>--json</code> selects structured output.</p>
 <h2>Output and state</h2>
-<p>Each hook ends as one of <code>removed</code> (the managed dispatcher is gone and nothing was displaced), <code>restored</code> (the dispatcher is gone and the <code>.before-tama</code> hook is back under its own name), <code>absent</code> (there was nothing at that path) or <code>kept</code> (the file there is not a Tama dispatcher). Output names the resolved hooks path, both outcomes and whether Git global configuration was unset; a second run reports <code>absent</code> twice and changes nothing.</p>
-<pre><code>{"hooksPath":String,"preCommit":{"target":String,"outcome":String},"prePush":{"target":String,"outcome":String},"unsetGlobalConfig":Boolean}
+<p>Each hook ends as <code>removed</code>, <code>restored</code>, <code>absent</code> or <code>kept</code>. Output names every target and outcome, the resolved hooks path and whether Git global configuration was unset. A restored foreign hook is kept on subsequent runs.</p>
+<pre><code>{"hooksPath":String,"preCommit":{"target":String,"outcome":String},"commitMsg":{"target":String,"outcome":String},"prePush":{"target":String,"outcome":String},"unsetGlobalConfig":Boolean}
 </code></pre>
 <h2>Refusals and failures</h2>
-<p>Filesystem and process errors are written to stderr and exit <code>1</code>. Both hooks are handled before the configuration is touched, so a refused <code>--unset-git-config</code> — <code>core.hooksPath is not &lt;path&gt;, so it is not Tama's to unset; the dispatchers were handled first</code> — leaves the dispatchers removed and the configuration as it was. When Git's unset returns nonzero, Tama reports Git's stderr, or exactly <code>git config --unset failed</code> when Git produced no message.</p>
+<p>Filesystem and process errors reach stderr with a nonzero exit. Every hook is handled before configuration is touched. If <code>core.hooksPath</code> names another directory, unsetting it is refused with that cause; completed hook removals are not silently reversed. A failed Git configuration operation retains its actual stderr.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>

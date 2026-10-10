@@ -29,6 +29,16 @@ post-install result. MCP configuration must resolve to the selected release.</li
 normal product interface and verified from the resulting state.</li>
 </ul>
 <h2>Required suites</h2>
+<h3>Managed commit-message review</h3>
+<p><code>tests/commit-review/managed.rs</code> installs the real dispatcher in
+an isolated Git fixture, preserves Git's actual message hook, creates a valid
+commit through Brama, refuses incident-bearing messages and formatting-only
+changes without advancing HEAD, then restores the original hook on uninstall.
+Run <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test
+commit_review_managed -- --ignored --nocapture</code> only when qualification
+is permitted, with the exact <code>TAMA_TEST_SOURCE_REVISION</code> and real
+configured reviewer. Commands, exit statuses, source revision and binary
+digest are retained under Cargo's build directory.</p>
 <h3>Native hook request suite</h3>
 <pre><code class="language-bash">cargo test --manifest-path rust/Cargo.toml --target-dir .build/cargo -p tama-cli --test ssh_quoting
 </code></pre>
