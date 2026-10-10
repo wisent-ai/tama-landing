@@ -55,6 +55,12 @@ is an OS operation, not a retry count. JavaScript first-element indexing,
 a directly called <code>findIndex</code> result or its
 preceding same-scope <code>const</code> binding with <code>-1</code> use the
 language's absent-element sentinel.</p>
+<p>Rust tuple selectors such as <code>pair.0</code> and <code>pair.1</code>
+identify fields, not configuration quantities. Equality or inequality of a
+Rust <code>len()</code>, <code>child_count()</code> or
+<code>named_child_count()</code> result with zero checks an empty collection
+or syntax-tree leaf. A comparison with a nonzero chosen count and a bare
+policy variable compared with zero remain subject to numeric provenance.</p>
 <p><code>assert.equal</code> and <code>assert.strictEqual</code> comparisons of
 process <code>status</code>, <code>code</code> or <code>exitCode</code> with zero
 check successful termination. Sign comparisons against zero and positive-integer
