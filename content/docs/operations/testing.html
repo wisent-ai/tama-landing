@@ -74,19 +74,16 @@ through a provider session, and inspect its decision in <strong>Session</strong>
 and <strong>Posture</strong>. A source pass cannot stand in for that journey.
 Use the normal authorization controls; a guard refusal is a blocked run, not
 permission to alter its selection or approval records.</p>
-<h3>Swift contract suite</h3>
-<p>Command, after explicit human test approval:</p>
-<pre><code class="language-bash">stado product swift --package-path ~/Documents/CodingProjects/Wisent/tama-desktop test \
-  --test-product TamaDesktopPackageTests \
-  --filter 'JustificationRegistryTests|SessionControlClientTests|ViolationsClientTests'
-</code></pre>
-<p>Scope: the selected deterministic tests under
-<code>tama-desktop/Tests/TamaDesktopTests</code>. The canonical builder uses the
-existing source checkouts and writes its workspace, command records and build
-artifacts under the package's <code>.build</code> and
-<code>.wisent-output/native</code> directories. Missing canonical sources are
-refused rather than cloned. This selection covers only the selected Swift
-contracts, not signed-app or SourceKit editor qualification.</p>
+<h3>Desktop contract qualification</h3>
+<p>The desktop package currently declares the <code>Tama</code> executable and no Swift test
+product. Do not invoke an undeclared test product or treat successful compilation as a contract
+test. Qualification must exercise the actual CLI request boundary and the corresponding desktop
+screen, retaining the exact source revision, commands, observed state and supported recordings.</p>
+<p>For coverage inspection, use the real installed-configuration journey described in
+<a href="/docs/cli/provider/config/">provider configuration</a>, then inspect the same counts and
+failure causes on <a href="/docs/desktop/coverage/">Coverage</a>. A null count must remain unknown
+with its actual inspection cause; an inspected configuration with no mappings must show zero.
+Dispatcher evidence alone does not qualify the graphical result or live harness enforcement.</p>
 <h3>Signed build contract</h3>
 <p>Command, after explicit approval and with dedicated release credentials:</p>
 <pre><code class="language-bash">TAMA_INSTALL_AFTER_BUILD=no \
