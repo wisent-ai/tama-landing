@@ -178,8 +178,8 @@ real HTTP connection and supervisor lifetime lock to close when the core dies.
 Before launch, qualification checks the declared
 <code>TAMA_TEST_SOURCE_REVISION</code> against a clean tracked source tree and
 retains the binary digest and actual command, including the sandbox profile.
-Reports retain birth records, protocol frames, exit status and stderr in Cargo's
-test artifact directory.
+Reports retain birth records, protocol frames, numeric exit status, signal
+termination and stderr in Cargo's test artifact directory before outcome assertions.
 <code>owned-hook</code> refuses direct invocation without its inherited core
 channel or when it does not lead its own process group.</p>
 <p>A client can send <code>knownCatalogChecksum</code>. When it differs from
