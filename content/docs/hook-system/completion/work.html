@@ -28,7 +28,10 @@ defect, by full or short id at the beginning of its <code>blocks</code> field,
 holds only that item; a repository-wide publication wait does not hide the queue.
 Malformed or unreadable registers refuse with their actual path and cause.</p>
 <p>Executor task settlement runs in the background
-<code>before_provider_request</code> dispatch, before the text gate. It reads
+<code>before_provider_request</code> dispatch, before the text gate, only when
+the local defect selection cannot already name actionable work. A known actionable
+defect keeps Stop refused without reading the remote task ledger or manufacturing
+an empty ready snapshot. Once no such defect remains, preparation reads
 Oko's authoritative session ledger, including relations, rather than Oko's
 private pre-settlement cache. The result is atomically retained under
 <code>TAMA_SESSION_CONTROL_ROOT/executor-work</code> (the normal session-control
@@ -49,7 +52,10 @@ Native callers must prepare the same generation with
 their JSON input. The Desktop session refusal record uses the same reason.</p>
 <p>The real executor defect journey uses isolated Oko role, defect and blocker
 mutations and requires actual external-failure evidence plus the real blocker
-reviewer. Retained source is not a passing run or installed-harness qualification.</p>
+reviewer. With actionable defects it also removes access to the Oko executable,
+requires preparation to avoid task settlement, confirms no task snapshot was
+created and requires Stop to name the same persisted defect. Retained source
+is not a passing run or installed-harness qualification.</p>
 <p>The registered <code>tests/supervisor-stop/tasks.rs</code> journey reads a
 real executor's Oko ledger without mutating its tasks or role. Declare
 <code>TAMA_TEST_SOURCE_REVISION</code>, <code>TAMA_TEST_OKO_BIN</code>,
