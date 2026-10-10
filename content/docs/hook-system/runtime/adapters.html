@@ -221,6 +221,7 @@ reload operations to a persistent <code>tama run-hook --serve omp</code> process
 The reload tool and slash command return after the native operation completes;
 they do not insert a prompt or ask OMP to restart. Runtime status includes the
 observed native <code>core.processId</code>, separate from the OMP session pid.</p>
+<p>Anchored edits accept the patch string in <code>patch</code>, <code>input</code>, <code>raw_input</code> or <code>content</code>. Each file header becomes its own hook target; the session directory is never a substitute for a missing target. A multi-file edit must be assessed for every target before the harness applies it.</p>
 <p>OMP imports an extension module once per process and has no way to import it
 again, so <code>omp-shared-hooks.js</code> is only a shell: it imports the adapter
 itself, from <code>shared-hooks/omp/adapter.js</code>, under that file's SHA-256
