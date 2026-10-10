@@ -9,6 +9,20 @@ and counts commands that changed live state by hand instead of through a product
 no gate at all — service cycles, grants minted from the shell (sometimes into a vault replica its owner
 then overwrote) and binary copies over installed programs. Each fixes one machine once and is gone at the
 next sync, image refresh or build.</p>
+<h2>Shared repair histories</h2>
+<p>Checking whether any defect remains open does not read Git history.
+The text gate, stop gate and open-work listing read the register's open records
+directly. Only repair-ordering decisions for builds load commit ancestry.</p>
+<p>Tama keeps ref-keyed snapshots under <code>git-histories</code> in its
+platform state directory. Sessions share a file lock for each canonical checkout;
+after another reader finishes, they reuse its snapshot. Changed branches, tags
+or HEAD cause a fresh read. Global reader-slot locks and bounded worker threads
+limit simultaneous Git readers to the machine's reported available parallelism,
+instead of multiplying repository count by session count.</p>
+<p>Lock and Git waits print <code>czekam</code> on stderr, with their operation
+and location. The attached runtime relays these lines as progress to the editor
+and Tama Desktop Session view. Cache read, parse, publication and Git failures
+name the affected path and cause; no elapsed-time threshold decides validity.</p>
 <h2>What is refused, and the route each refusal names</h2>
 <table>
 <thead><tr><th>Refused command</th><th>The route the refusal names</th></tr></thead>
