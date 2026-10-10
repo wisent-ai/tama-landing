@@ -17,7 +17,7 @@ tama reviews show &lt;id&gt; [--json]</code></pre>
 <h2>Refusals</h2>
 <ul>
 <li>Unknown commands or arguments print the supported invocations.</li>
-<li>A path, parent component, empty ID or normalized alias refuses with <code>invalid retained review id</code>.</li>
+<li>A path, parent component, empty ID or normalized alias refuses with <code>invalid retained review id</code>. An ID containing NUL also refuses before filesystem access: NUL cannot be part of an entry name. Native JSON requests report this as invalid input, not an unreadable review record.</li>
 <li>A missing record remains an unreadable row naming the missing directory. Inspection never creates it.</li>
 <li>Symbolic-link records and result files are refused instead of intentionally traversed. The reader also refuses non-directory records and non-file results.</li>
 <li>JSON decode errors retain the result path and parser cause. Unknown outcomes and invalid outcome/detail combinations are not successful records.</li>
@@ -31,4 +31,4 @@ tama reviews show &lt;id&gt; [--json]</code></pre>
 <li>Run <code>tama reviews list</code>, then <code>tama reviews show &lt;id&gt;</code> for that exchange, or select it in Desktop → Reviews.</li>
 <li>For a source finding, inspect the named committed source. For a review failure such as <code>subscription_reauthorization_required</code>, repair the named provider operation through its documented account flow; rewriting source cannot repair authorization.</li>
 </ol>
-<p>The real Git/reviewer qualification journeys exercise inspection against their actual retained refusals, preserve the remote state and verify path and missing-record refusals. Healthy-review and unavailable-subscription profiles remain separate. Source presence is not evidence of an executed or installed qualification.</p>
+<p>The real Git/reviewer qualification journeys exercise inspection against their actual retained refusals, preserve the remote state and verify path, native NUL-input and missing-record refusals. Healthy-review and unavailable-subscription profiles remain separate. Source presence is not evidence of an executed or installed qualification.</p>
