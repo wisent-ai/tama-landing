@@ -225,13 +225,22 @@ records it as the Tama session capability
 grant's session, release and catalog before a hook reads it.
 <code>tama hooks declare</code>, <code>undeclare</code> and
 <code>release</code> run from the shell, outside the runner, so they read the
-capability every live session recorded, validated the same way: an expired,
-withdrawn or emergency-suspended grant admits nothing. The command names the
-session whose grant it used on stderr
-(<code>owner consent: the hook-edit capability recorded in session …</code>) and
-hands the consent to the catalogue and registry writers it starts, so
-<code>stado product install tama --surface cli</code> finishes on the operator's
-word alone.</li>
+capability of the one session that runs them: the session whose record's
+<code>pid</code> is the command's own process or one of its ancestors in the
+operating system's process tree. No other session's capability is read —
+consent given in one conversation never authorizes a command started from
+another. The grant is validated the same way: an expired, withdrawn or
+emergency-suspended grant admits nothing. The command names the session on
+stderr (<code>owner consent: the hook-edit capability recorded in session …,
+which runs this command</code>) and hands the consent to the catalogue and
+registry writers it starts, so <code>stado product install tama --surface cli</code>
+finishes on the operator's word alone. Without it the refusal names what is
+missing: <code>session &lt;id&gt;, which runs this command, holds no live
+capability; it needs {"tool":"tama","actions":["hook-edit"]}</code>, the
+capability the session holds that does not grant it, or <code>no agent session
+recorded in &lt;session-control directory&gt; holds a process this command runs
+under (processes &lt;pid&gt; &lt;- &lt;parent&gt; …)</code>; <code>tama hooks release</code>
+prints that cause as <code>owner consent refused: …</code> before its own refusal.</li>
 <li><strong>In his own shell.</strong> <code>DEVICE_HOOK_EDIT_APPROVED=1</code>,
 exported outside the session. <a href="cli/adaptive/apply.md"><code>tama adaptive
 apply</code></a> and <a href="cli/adaptive/install.md"><code>tama adaptive
