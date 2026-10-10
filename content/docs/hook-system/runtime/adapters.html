@@ -42,10 +42,12 @@ when it arrived, so a hook that never ends holds only its own request;
 adapter keeps every request in flight side by side and orders only reloads and
 shutdown.</p>
 <p>Within one dispatch the hooks of a tool event run in registry order, one
-after another, and the first refusal ends the dispatch. The hooks of
-<code>stop</code> all run whatever the others answer, because an ending answer
-is refused for every reason at once, so the engine starts them side by side
-and waits for all of them. Checking an ending then takes as long as its
+after another, and the first refusal ends the dispatch. The selected
+<code>block-supervisor-stop</code> policy runs in-process first, reading only
+Oko's local role register. Its refusal returns immediately without starting
+any other stop hook. When it passes, the remaining <code>stop</code> hooks
+run side by side and the engine waits for all of their reasons.
+Checking that remaining review then takes as long as its
 slowest hook, not the sum of them all. Run one after another, their times
 added up past the handler budget OMP gives a <code>session_stop</code>
 handler; OMP then settled the turn as if no hook had refused, and the agent
@@ -114,14 +116,22 @@ request with its service, consumer, phase, destination, host and start time.
 This names an observed unanswered connection; it does not prove that the
 service is down. An endpoint with no published resolver state is not declared
 healthy by this check.</p>
-<p><code>tama hooks running --json</code> and native runtime status list
-descendants in <code>waitingOn</code>. When the owning core is gone, they
-terminate the orphan's process group only when the recorded process birth,
-command and group still match. <code>orphanTermination</code> records whether
-the signal was sent or why termination was refused. A legacy record without
-birth identity, or a reused pid, is not enough authority to signal a process.
-The CLI returns failure on an inspection error or refused orphan termination;
-it never turns an unreadable record into an empty healthy list.</p>
+<p>Each hook has a native <code>owned-hook</code> supervisor in its own
+process group. The core holds a kernel lifetime channel; cancellation closes
+it, and a killed core closes it automatically. On EOF the supervisor ends
+its own group, including the hook and HTTP children. It does not query another
+process's birth through <code>ps</code>, so sandboxed runtimes need no external
+process-inspection permission.</p>
+<p>The supervisor records its own start and group before starting the hook.
+It writes and syncs a complete temporary document, then atomically renames it
+to an <code>in-flight</code> record containing a distinct birth stamp.
+It holds that record's inode locked while alive. <code>tama hooks running --json</code>
+and native runtime status read this lock and report <code>hookBirthIdentity</code>
+and <code>ownershipState</code> without guessing from a reused PID.
+An unlocked ended record is removed; <code>coreAlive: null</code> means the core
+was not separately inspected, not that it is dead. Legacy records still use
+process inspection and report any missing identity or permission refusal.
+An unreadable record remains an error, never an empty healthy list.</p>
 <p>In Tama Desktop, open <strong>Session</strong> and choose
 <strong>Inspect hooks and end orphans</strong>. The live adapter answers the
 same inspection, publishes it into the session record, and the screen lists
@@ -131,9 +141,13 @@ being sent is not presented as proof that the process has already exited.</p>
 <p>The real held-endpoint journeys in
 <code>tests/hooks-running/cancellation.rs</code> run the compiled stop hook
 against a local TCP listener that deliberately sends no answer. They check
-dispatch cancellation, core-input closure, connection EOF and recorded
-progress. Reports retain the source revision, binary digest, protocol frames,
-exit status and stderr in Cargo's test artifact directory.</p>
+dispatch cancellation, core-input closure, core death, connection EOF and recorded
+progress. The sandbox journey denies external process information and still
+requires the real HTTP connection to close when the core dies. Reports retain
+the source revision, binary digest, birth records, protocol frames, exit status
+and stderr in Cargo's test artifact directory.
+<code>owned-hook</code> refuses direct invocation without its inherited core
+channel or when it does not lead its own process group.</p>
 <p>A client can send <code>knownCatalogChecksum</code>. When it differs from
 the loaded checksum, the response also includes the loaded <code>catalog</code>,
 including on a rejected replacement. Matching clients receive no duplicate
