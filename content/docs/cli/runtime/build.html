@@ -210,6 +210,9 @@ the app. Commit the updated <code>.wisent-release.json</code> with the release s
 The release recipe reads the expected digest from that manifest rather than a second checksum
 in the script, then uses <code>stado product swift restore</code> to verify and restore the cache.
 Subsequent dependency updates use the same publication command.</p>
+<p>The updater is already a locked Swift package inside this cache. The release no longer
+requires a separate updater archive that it never compiled; its source is verified with the
+other <code>Package.resolved</code> dependencies during restoration.</p>
 <p>Stado refuses changed package declarations, missing or mismatched locked revisions,
 unsafe archive entries and invalid binary-artifact paths. It reports the failed dependency or path;
 neither a missing archive nor an invalid cache falls back to fetching during compilation.
