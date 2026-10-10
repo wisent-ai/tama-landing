@@ -41,13 +41,22 @@ tama model-provider check [--json]
 <h3>Visible child waits in provider code</h3>
 <p><code>block-silent-waits</code> checks added Rust waits through <code>tama hook block-silent-waits</code>, reading the write or edit payload on stdin. A child reap inside the shared <code>stado_wait::blocking</code> API is a visible wait, including a multiline closure, just as a wait inside <code>stado::wait</code> or <code>crate::wait</code> is. A sibling bare <code>child.wait()</code> outside that call remains refused. The decision names the file, operation and offending line; installed Session/Posture surfaces consume that same decision.</p>
 <p>The existing <code>silent_waits_refusal</code> journey retains the declared clean candidate, built executable digest, payloads, commands, statuses and decisions. It covers a shared-crate multiline reap, a bare sibling and an unrelated namespace ending in the same spelling. Source acceptance of a wait wrapper does not qualify provider reachability, cancellation or an installed graphical decision.</p>
-<p>If writing a chat request into the HTTP client's input pipe fails, Tama
+<p>Chat and catalogue requests validate the transport policy and resolver
+channel before starting the HTTP client. They disable implicit curl startup
+configuration, so a user curl configuration cannot silently add retries or
+redirect handling to the declared request. Catalogue response collection prints
+the shared visible wait just like chat collection.</p>
+<p>If writing a request into the HTTP client's input pipe fails, Tama
 terminates its owned client and visibly collects its output before returning.
 The refusal preserves the original input error together with the observed
 client exit and stderr, or the concrete termination/collection error. Cleanup
 failure never replaces the primary request failure or becomes a successful
-empty answer. This chat transport behavior is separate from the catalogue
-probe above.</p>
+empty answer.</p>
 <h2>Route qualification</h2>
 <p>The registered <code>model_provider_route</code> journey under <code>tests/model-provider/route.rs</code> invokes the actual built CLI, retains candidate revision, binary digest, command, exit status and output, and checks genuine absent-executable and directory-read refusals. <code>TAMA_TEST_SOURCE_REVISION</code> must identify the clean candidate. Its explicit real-discovery case requires <code>TAMA_TEST_BRAMA_HOME</code>: an isolated, configured home with a real installed Stado, real Brama credentials and no remembered route. It refuses the operator's home, retains the Stado digest and published route, and requires the real catalogue to accept the credential. Catalogue acceptance does not qualify chat, cancellation or the Desktop surface.</p>
+<p>The same journey includes the real CLI refusal for a plaintext remote
+catalogue endpoint. It requires the transport-policy cause before the HTTP
+response wait and checks that the fixture credential never enters output.
+This negative case performs no model call and is not proof of a working
+provider or of interruption cleanup.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
