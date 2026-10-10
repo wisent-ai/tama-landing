@@ -45,6 +45,13 @@ isolated repository's actual index, checks CLI/native/write-hook refusal
 and unchanged verdict state, then restores that index and checks recovery.
 It is a qualification definition, not a claim that the installed version
 has passed that journey.</p>
+<p>The write guard distinguishes a path without a Git marker from a broken
+or unreadable repository. Directory inspection, root resolution and an
+invalid <code>.git</code> file report their actual causes; a failed
+<code>git rev-parse</code> is not permission to treat the write as outside
+version control. The inventory journey also replaces an isolated Git marker
+with an invalid gitfile and verifies refusal, unchanged source and recovery
+after restoring the original repository metadata.</p>
 <p>The real storage journey in <code>tests/smoke-tests/storage.rs</code>, included
 by the existing smoke-test qualification target, uses a directory and malformed
 persisted JSON at an isolated verdict path. It checks CLI failure, retained
