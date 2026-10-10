@@ -26,8 +26,11 @@ name the affected path and cause; no elapsed-time threshold decides validity.</p
 <p>The <code>repair_history_shared</code> regression uses genuine repositories
 and separate reader processes. Before running repository operations, it requires
 <code>TAMA_TEST_SOURCE_REVISION</code> to match the clean tracked candidate and
-retains the test executable digest in <code>candidate.json</code>. Git trace
-events distinguish a shared cold read, unchanged-ref reuse and refresh after a
+retains the test executable digest in <code>candidate.json</code>. Every Git
+operation and completed independent reader retains its command, exit status,
+stdout and stderr in <code>commands.jsonl</code>; each reader's invocation is
+also saved before it starts. Git trace events distinguish a shared cold read,
+unchanged-ref reuse and refresh after a
 real commit. This cache-level evidence does not by itself qualify the build
 gate, text gate or graphical progress relay; their actual interfaces require
 separate execution evidence.</p>
