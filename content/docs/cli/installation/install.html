@@ -75,6 +75,12 @@ updated by a refused push.</p>
 <pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test review_format -- --ignored --nocapture
 node --test tests/review/installed.mjs</code></pre>
 <p>Run only when qualification is permitted. Set <code>TAMA_TEST_SOURCE_REVISION</code> to the exact committed candidate for the Cargo journey; it refuses a different revision or edited tracked source and retains the executable digest before the first push. The installed journey records the actual sealed runtime identity. Both require Git LFS and authorized Brama review access; unavailable real dependencies are failures, not skipped passes.</p>
+<p>The remote-held formatting case lives in
+<code>tests/review/format/remote.rs</code> and is registered by the same
+<code>review_format</code> target. It shares the declared-candidate and executable
+identity preflight; recording whichever revision happens to be checked out is
+not sufficient qualification. Both cases retain identity before fixture pushes
+and refuse dirty tracked source.</p>
 <h2>Reviewing the committed file, not only the patch</h2>
 <p>The reviewer receives every new commit's message and patch, followed by complete UTF-8 text for its changed files. Each source record names the commit, path, Git object and mode. Imports, persisted fields and guards outside a diff hunk remain visible. Source comes from immutable Git objects, never uncommitted files; merge-parent changes are deduplicated by path in the resulting commit. Deleted content remains in the patch. Binary blobs and submodule references are explicitly identified without claiming to review omitted contents.</p>
 <p>A failed Git read or unreadable path metadata refuses the review with its operation and cause. A malformed or unavailable reviewer response is not a source verdict and cannot authorize the push. A source finding must name the actual commit and file; a missing line in a patch does not establish that it is absent from the file. Command-line and graphical Git pushes use this same dispatcher and diagnostic stream.</p>
