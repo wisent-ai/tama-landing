@@ -97,10 +97,17 @@ by a guard. Numeric, keyword, browser and Supabase write consumers propagate
 the same shared reconstruction error. Unsupported hashline operations still
 use added-line classification, so this does not establish complete replay of
 every editor operation.</p>
+<p>Supported hashline gaps and ranges are checked against the actual source
+line count. An out-of-range insertion or deletion, or a reversed replacement
+range, refuses as <code>cannot replay edit of &lt;path&gt;: &lt;cause&gt;</code>.
+It cannot be judged as unchanged source merely because no line consumed the
+invalid coordinate. Empty-source insertions retain the documented
+<code>PUT &lt;1:</code> and <code>PUT &gt;$:</code> cases.</p>
 <p>The registered numeric operations journey includes
 <code>tests/numeric-literals/reconstruction.rs</code>: an actual directory
-source, unmatched single and multi-edit replacements, and matching-source
-recovery through the built hook. It retains candidate-bound exchanges and
+source, malformed UTF-8, unmatched single and multi-edit replacements,
+invalid hashline coordinates and matching-source recovery through the built
+hook. It retains candidate-bound exchanges and
 checks that guard evaluation leaves the source unchanged. These are test
 definitions until the authorized qualification run executes them.</p>
 <p>Before counting out existing literals or unchanged provenance entries, the
