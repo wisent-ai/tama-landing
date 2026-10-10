@@ -47,6 +47,11 @@ unchanged-ref reuse and refresh after a
 real commit. This cache-level evidence does not by itself qualify the build
 gate, text gate or graphical progress relay; their actual interfaces require
 separate execution evidence.</p>
+<p>Qualification collects every successfully started reader before asserting a
+result. Executable lookup, invocation retention, spawn and wait failures retain
+their operation and cause; one reader's failure does not abandon its already
+started sibling. Completed command exchanges and named reader-error files stay
+in the run directory, including failing runs.</p>
 <p>The separate <code>repair_history_presence</code> journeys invoke the built
 <code>block-text-outside-tool-calls</code> and <code>block-stop-with-open-work</code>
 hooks against the actual authenticated Oko register. They require
