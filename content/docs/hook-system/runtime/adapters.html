@@ -113,15 +113,15 @@ and process-state decisions, not a Tama handler timeout.</p>
 It immediately refuses an unfinished assessment, naming the pending stop hooks
 and their measured elapsed time. One owned assessment serves repeat requests for
 the same candidate. Its identity includes the session, work generation, assistant
-message, transcript file identity and stamp, and current enforcement selection.
+message, transcript file identity, and current enforcement selection.
 A changed candidate cancels the older assessment; only a completed pass for the
 exact unchanged candidate authorizes completion. A cancelled or failed assessment
-is not a pass. New input, activation, shutdown and tool completion relinquish
-ownership. A late result never sends a continuation message or restarts the
+is not a pass. New input, activation, compaction, shutdown and tool completion
+relinquish ownership. A late result never sends a continuation message or restarts the
 session. This removes the previous idle-session continuation path.</p>
-<p>Fail-closed assessment is not a promise that OMP will replay an unchanged
-candidate after a refusal: a harness that appends messages or changes the work
-generation needs a new assessment. Actual OMP completion and interruption
+<p>Harness refusal continuations appended to the same transcript do not by
+themselves change the candidate. A changed completion message, replaced transcript
+or new work generation does require a new assessment. Actual OMP completion and interruption
 journeys must qualify that lifecycle; a native hook result or source revision
 alone does not establish it. Operator interruption and notification-only events
 remain outside the adapter's cancellation-return contract.</p>
