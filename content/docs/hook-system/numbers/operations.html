@@ -115,6 +115,12 @@ uses a caller directory distinct from the hook process directory, retains an
 unchanged real declaration through a whitespace edit, and refuses removal of
 a required quote field. Committed test source is not a passing
 installed-runtime result.</p>
+<p>The operations target also sends the same Rust lifetime and escaped-character
+source through a write payload and a multi-file hashline edit. Both must return
+an empty allowance, and evaluating the policy must leave the fixture files
+unchanged. This distinguishes literal classification from edit-context
+reconstruction; authoring the case alone does not establish that an installed
+release handles either input correctly.</p>
 <p>A direct numeric hook refusal is a successful process carrying a structured
 <code>{"decision":"block","reason":"…"}</code> document and the same cause on
 stderr. Exit success alone is not policy acceptance; a crashed process is not
