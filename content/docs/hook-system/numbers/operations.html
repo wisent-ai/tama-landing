@@ -115,6 +115,18 @@ uses a caller directory distinct from the hook process directory, retains an
 unchanged real declaration through a whitespace edit, and refuses removal of
 a required quote field. Committed test source is not a passing
 installed-runtime result.</p>
+<p>A direct numeric hook refusal is a successful process carrying a structured
+<code>{"decision":"block","reason":"…"}</code> document and the same cause on
+stderr. Exit success alone is not policy acceptance; a crashed process is not
+a policy denial. Numeric operation, raw-string, identifier and existing-file
+journeys distinguish these outcomes rather than treating a process status as
+the decision.</p>
+<p>The existing-file journey creates its own Git repository under the ignored
+build directory, never temporary files beside tracked test source. It requires
+<code>TAMA_TEST_SOURCE_REVISION</code>, checks the actual clean tracked candidate
+and retains the built binary digest before fixture initialization. Candidate,
+setup and hook reports survive fixture cleanup; source-only changes to these
+journeys do not establish runtime qualification.</p>
 <p>The hashline target also includes
 <code>tests/numeric-literals/provenance/failures.rs</code>: a real directory
 where a transcript should be, an absent index, and a damaged SQLite file each
