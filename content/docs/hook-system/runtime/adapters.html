@@ -150,6 +150,10 @@ was not separately inspected, not that it is dead. Legacy records still use
 process inspection; refusals name the <code>ps -A -o pid=,ppid=,pgid=,lstart=,command=</code>
 interface and its actual OS or command failure. New owned records do not require that interface.
 An unreadable record remains an error, never an empty healthy list.</p>
+<p>Concurrent inspectors may observe an ended record disappearing between
+enumeration, reading and acquiring its lock. That absence is normal completed
+cleanup, not a process-inspection failure. Permission, decoding and lock errors
+remain explicit refusals; missing records never authorize a PID-based signal.</p>
 <p>In Tama Desktop, open <strong>Session</strong> and choose
 <strong>Inspect hooks and end orphans</strong>. The live adapter answers the
 same inspection, publishes it into the session record, and the screen lists
