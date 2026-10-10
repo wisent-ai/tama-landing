@@ -48,6 +48,13 @@ the write as unavailable provenance, rather than claiming the identity was
 invented. Cold or changed reads announce <code>czekam</code>; a contending hook
 announces its lock wait. These source mechanisms require actual cross-process
 qualification before an installed runtime is claimed to avoid repeated scans.</p>
+<p>The explicit identity-provenance register follows the same diagnostic
+boundary: a genuinely absent file means no declarations, while an unreadable
+existing path names the failed read, exact path and filesystem cause and
+refuses the write. A warmed transcript index does not conceal that register
+failure. The real mention journey replaces its isolated register with a
+directory and checks the observed cause, then removes it to verify the
+documented absent-register state.</p>
 <p><code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate-revision&gt; cargo test -p
 tama-cli --test identity_literals_mentions</code> runs the actual hook in
 separate processes against isolated persisted transcripts. It retains the
