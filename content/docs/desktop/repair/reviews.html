@@ -1,0 +1,13 @@
+<h1>Reviews</h1>
+<p>The Reviews destination in the Repair group inspects retained Git push reviews. It has the same local control authorization boundary as Merges. It does not run a model, retry a push or change credentials.</p>
+<h2>Read an exchange</h2>
+<ol>
+<li>Choose <strong>Reviews</strong>, then <strong>Refresh</strong>. The initial screen says the records have not been read; loading and failure are distinct states.</li>
+<li>The table lists retained IDs and their recorded outcome, or <strong>Unreadable result</strong>. An empty inspected directory is different from a missing or unreadable directory, which is an error.</li>
+<li>Select a row. The detail pane re-reads that exact record and displays its ID, retained directory, outcome and full cause. Refresh clears the old selection; a failed request cannot leave a prior result presented as current.</li>
+</ol>
+<h2>Interpret the result</h2>
+<p><strong>Passed</strong> means the reviewer passed that exchange, not that Git published the ref. <strong>Source finding</strong> names a grounded finding to repair. <strong>Review unavailable</strong> names the failed review operation or dependency; it does not ask you to amend source merely because a provider failed.</p>
+<p>Unreadable records keep their exact filesystem or JSON cause. A missing result is not guessed to be a pass, an unfinished exchange or a legacy record. The directory identifies retained envelopes, answers and grounding evidence for further inspection.</p>
+<h2>Shared command</h2>
+<p>The screen uses <code>reviews/list</code> and <code>reviews/show</code>, one <code>tama request</code> process per operation. These call the same reader as <a href="/docs/cli/reviews/">tama reviews list and show</a>. Native request failures are shown and reported under <code>tama.reviews.list</code> or <code>tama.reviews.show</code>. The screen offers no publication or provider-repair mutation.</p>

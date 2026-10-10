@@ -1,0 +1,34 @@
+<h1>tama reviews</h1>
+<p>Inspect the results retained by Tama's Git push gate without repeating a push, calling a model or changing provider credentials. The <a href="/docs/desktop/reviews/">Reviews screen</a> reads the same records.</p>
+<h2>Invocation</h2>
+<pre><code>tama reviews list [--json]
+tama reviews show &lt;id&gt; [--json]</code></pre>
+<p>Use an exact ID from <code>list</code>. It is a retained exchange identifier, not a repository path. Inspection uses Tama's existing per-user state directory; it accepts no alternate home or arbitrary record path.</p>
+<h2>Outcome and cause</h2>
+<table><thead><tr><th>Outcome</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>pass</code></td><td>The reviewer passed this exchange. This is not proof that Git subsequently published the ref.</td></tr>
+<tr><td><code>source_finding</code></td><td>A grounded source finding refused the push. <code>detail</code> names the actual finding and required repair.</td></tr>
+<tr><td><code>review_failure</code></td><td>The review operation failed. <code>detail</code> names its Git, provider, protocol or grounding cause. This does not establish a source defect.</td></tr>
+</tbody></table>
+<p>A missing or malformed result is shown as unreadable, never as a passing review. An exchange still in progress, or one retained before result recording was available, can have an unreadable result; the reader reports the actual file error rather than guessing which condition applies.</p>
+<h2>Structured results</h2>
+<p><code>list --json</code> returns <code>{directory, records}</code>. Each record, also returned by <code>show --json</code>, has <code>{id, directory, result, error}</code>. Exactly one of <code>result</code> and <code>error</code> is non-null. A result is <code>{outcome, detail}</code>: passing reviews have null detail; refusals retain a nonempty cause. The directory identifies the retained envelope, answer and any grounding or reassessment evidence.</p>
+<p>The CLI exits successfully when every selected record was readable, even when its recorded review refused publication. An unreadable entry makes inspection exit unsuccessfully while preserving all listing rows. A missing or unreadable root refuses the whole operation with its path and operating-system cause; it is not an empty listing.</p>
+<h2>Refusals</h2>
+<ul>
+<li>Unknown commands or arguments print the supported invocations.</li>
+<li>A path, parent component, empty ID or normalized alias refuses with <code>invalid retained review id</code>.</li>
+<li>A missing record remains an unreadable row naming the missing directory. Inspection never creates it.</li>
+<li>Symbolic-link records and result files are refused instead of intentionally traversed. The reader also refuses non-directory records and non-file results.</li>
+<li>JSON decode errors retain the result path and parser cause. Unknown outcomes and invalid outcome/detail combinations are not successful records.</li>
+</ul>
+<h2>Native requests</h2>
+<p><code>tama request reviews/list</code> takes an empty object; <code>tama request reviews/show</code> takes <code>{"id":"&lt;retained-id&gt;"}</code>. They return the same listing or record in the normal <a href="/docs/cli/request/">native response envelope</a>. Per-record read failures stay in <code>error</code>, so one unreadable exchange does not hide the others.</p>
+<h2>Quickstart: understand a refused push</h2>
+<ol>
+<li>Follow <a href="/docs/quick-start/">installation and first use</a>, then <a href="/docs/cli/model-provider/">configure a model provider</a> and install the <a href="/docs/cli/install/">managed Git dispatchers</a>. Inspection itself makes no provider request.</li>
+<li>In your own repository, make a normal commit and push it through the installed gate. A refusal prints <code>review retained at &lt;directory&gt;</code>. Do not manufacture a broken commit merely to inspect a failure.</li>
+<li>Run <code>tama reviews list</code>, then <code>tama reviews show &lt;id&gt;</code> for that exchange, or select it in Desktop → Reviews.</li>
+<li>For a source finding, inspect the named committed source. For a review failure such as <code>subscription_reauthorization_required</code>, repair the named provider operation through its documented account flow; rewriting source cannot repair authorization.</li>
+</ol>
+<p>The real Git/reviewer qualification journeys exercise inspection against their actual retained refusals, preserve the remote state and verify path and missing-record refusals. Healthy-review and unavailable-subscription profiles remain separate. Source presence is not evidence of an executed or installed qualification.</p>

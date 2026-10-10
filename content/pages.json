@@ -24,6 +24,7 @@
   {"route":"desktop/settings","source":"docs/desktop/settings.md","content":"content/docs/desktop/configuration/settings.html","category":"Desktop app"},
   {"route":"desktop/copies","source":"content/docs/desktop/repair/copies.html","content":"content/docs/desktop/repair/copies.html","category":"Desktop app"},
   {"route":"desktop/merges","source":"content/docs/desktop/repair/merges.html","content":"content/docs/desktop/repair/merges.html","category":"Desktop app"},
+  {"route":"desktop/reviews","source":"content/docs/desktop/repair/reviews.html","content":"content/docs/desktop/repair/reviews.html","category":"Desktop app"},
   {"route":"desktop/learning","source":"content/docs/desktop/hooks/learning.html","content":"content/docs/desktop/hooks/learning.html","category":"Desktop app"},
 
   {"route":"architecture","source":"docs/architecture.md","content":"content/docs/reference/architecture.html","category":"Reference"},
@@ -77,6 +78,7 @@
   {"route":"cli/hooks","source":"content/docs/cli/policy/hooks.html","content":"content/docs/cli/policy/hooks.html","category":"CLI reference"},
   {"route":"cli/task/scope","source":"content/docs/cli/assignment/task-scope.html","content":"content/docs/cli/assignment/task-scope.html","category":"CLI reference"},
   {"route":"cli/merges/review","source":"content/docs/cli/runtime/merges-review.html","content":"content/docs/cli/runtime/merges-review.html","category":"CLI reference"},
+  {"route":"cli/reviews","source":"content/docs/cli/reviews/reviews.html","content":"content/docs/cli/reviews/reviews.html","category":"CLI reference"},
   {"route":"configuration","source":"docs/configuration.md","content":"content/docs/reference/configuration.html","category":"Reference"},
   {"route":"enforcement-control","source":"content/docs/hook-system/enforcement-control.html","content":"content/docs/hook-system/enforcement-control.html","category":"Reference"},
   {"route":"enforcement-control/runtime/adapters","source":"content/docs/hook-system/runtime/adapters.html","content":"content/docs/hook-system/runtime/adapters.html","category":"Reference"},
