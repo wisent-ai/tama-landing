@@ -189,7 +189,7 @@ this machine (<code>OKO_RULING_REGISTER</code> moves it); one that cannot be rea
 refusal rather than left out.</p>
 <p><code>block-one-off-repairs</code> reads the same register for every build, compile and test
 run, and refuses while any open item carries no repair: a task with no commit or report
-recorded by <code>oko transcripts tasks evidence</code>, or a defect with no revision recorded by
+recorded by <code>oko tasks evidence</code>, or a defect with no revision recorded by
 <code>oko defects repaired</code>. A code repair is only proven by a build, so building waits for
 every repair to exist, not for every item to close; the one build then proves them, and each
 item is closed or reopened on what it shows. The refusal lists the items that still carry no
@@ -218,7 +218,7 @@ with no product list. When the operator withdraws his consent, the agent runs
 at once.</p>
 <p>
 After producing and checking the real result,
-run <code>oko transcripts tasks verify --before-stop --session SESSION_ID</code>.
+run <code>oko tasks verify --before-stop --session SESSION_ID</code>.
 Oko's independent Brama judge reads recorded calls and tool results as well as
 the answer, then saves each verdict. A claim or tracker update cannot replace
 that qualification. A later operator correction takes precedence. Answering

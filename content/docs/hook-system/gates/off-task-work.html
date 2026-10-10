@@ -36,9 +36,9 @@ stderr: <code>defect &lt;ID&gt; is also declared by session &lt;SESSION&gt;; wor
 The exit status is still <code>0</code>.</p>
 <p>A task's scope lives in its Oko contract, not in the session. With <code>--task</code> and no
 <code>--repository</code>, <code>set</code> takes the repositories the contract lists
-(<code>oko transcripts tasks show &lt;task&gt; --json</code>, field <code>current.contract.terms.scope</code>). Given
+(<code>oko tasks show &lt;task&gt; --json</code>, field <code>current.contract.terms.scope</code>). Given
 repositories that differ from the contract's are written back into it with
-<code>oko transcripts tasks state &lt;task&gt; --scope &lt;repo&gt;… --by &lt;SESSION&gt;</code>, so the next session
+<code>oko tasks state &lt;task&gt; --scope &lt;repo&gt;… --by &lt;SESSION&gt;</code>, so the next session
 handed the same task declares the same scope, and the change appears in the contract's history. If Oko refuses that
 write, <code>set</code> fails with Oko's sentence and declares nothing. A scope with no repository — none given and
 none in the contract — is refused: work that touches nothing changes nothing.</p>

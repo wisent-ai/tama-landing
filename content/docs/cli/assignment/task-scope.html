@@ -34,13 +34,13 @@ current  yes — this scope was declared for the instruction being served
 </code></pre>
 <p>A well-formed <code>set</code> that names nothing the registers hold open exits one:</p>
 <pre><code>task scope set requires --defect &lt;ID&gt; or --task &lt;ID&gt;: every change belongs to a defect in Oko's register or a task in its task register, and a change that belongs to neither is the drift this gate exists to stop
-task scope set requires at least one --repository, or a --task whose Oko contract lists its scope (`oko transcripts tasks state &lt;task&gt; --scope &lt;repo&gt;`): work that touches nothing changes nothing
+task scope set requires at least one --repository, or a --task whose Oko contract lists its scope (`oko tasks state &lt;task&gt; --scope &lt;repo&gt;`): work that touches nothing changes nothing
 Oko's register holds no defect &lt;ID&gt;: &lt;Oko's answer&gt;
 defect &lt;ID&gt; is already closed, so no work belongs to it; record what is wrong now with `oko defects record`
-defect &lt;ID&gt; is being repaired by session &lt;other&gt;, which declared it; a second session on it duplicates or overwrites that work
 Oko's task register holds no task &lt;ID&gt;: &lt;Oko's answer&gt;
 task &lt;ID&gt; is not open, so there is no work to resume
 no operator instruction is recorded for session &lt;ID&gt;, so there is nothing to declare a scope for; the capture hook records it when the operator writes
 </code></pre>
+<p>Another session declaring the same defect is not a refusal. The command prints who else declared it and directs the sessions to read the shared notes and work together using anchored edits; it still records the scope.</p>
 <p>A session that recorded a defect with no fix and no repair plan is told that this is its first work, and how to plan it and take it up. <code>show</code> on a session with no scope exits one and names the <code>set</code> to run. A scope file that cannot be created, written or removed is reported with the path and the cause.</p>
 <p>Return to <a href="../show/">assignment show</a> or the <a href="../../">complete CLI tree</a>.</p>

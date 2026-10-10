@@ -169,12 +169,12 @@ tama build fail --target oko --revision 6db504ea --failure "cargo test: 2 failed
 accumulated. <code>pending</code> fetches the repository and prints the revision the last recorded
 build of the product carried, the commits on <code>origin/main</code> since, how many lines they
 change against the policy's minimum, whether a build is due, and the Oko tasks whose recorded
-evidence names one of those commits (read with <code>oko transcripts tasks carried --commit
+evidence names one of those commits (read with <code>oko tasks carried --commit
 &lt;revision&gt;…</code>). JSON: <code>last_built</code>, <code>tip</code>, <code>commits</code>,
 <code>changed_lines</code>, <code>minimum_changed_lines</code>, <code>due</code>, <code>tasks</code>.</p>
 <p><code>fail</code> is how a failed batched build reopens work. It takes the commits the build of
 <code>--revision</code> carried — those after the revision the build before it carried — finds the
-tasks whose evidence names them, and reopens each with <code>oko transcripts tasks defect</code>,
+tasks whose evidence names them, and reopens each with <code>oko tasks defect</code>,
 giving <em>the batched build of &lt;product&gt; at &lt;revision&gt; failed: &lt;failure&gt;</em> as the
 reason. The build's ledger row records the failure and still counts against the day's allowance.
 JSON: <code>since</code>, <code>commits</code>, <code>reopened</code>, and <code>refused</code> with

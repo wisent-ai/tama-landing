@@ -65,7 +65,7 @@ command — quoted text is blanked everywhere else, and a statement is exactly a
 after the program itself parses as a database client, so a sentence naming <code>psql</code> still runs
 nothing</td>
 <td>The command that owns those rows: <code>oko transcripts reindex</code> and
-<code>oko transcripts tasks …</code> for Oko's catalogue, a service's own CLI for its store. A change of
+<code>oko tasks …</code> for Oko's catalogue, a service's own CLI for its store. A change of
 shape belongs in a migration that ships with the product and runs on every host, not in one shell.</td></tr>
 <tr><td><code>sleep</code>, with any interval: time passed by hand in place of an outcome observed. A
 read after a sleep can as easily return the state from before the wait</td>
@@ -113,7 +113,7 @@ reports a failure it did not have, and why it was slow is thrown away with it �
 answers in milliseconds can be killed while it pays the operating system's first-run assessment</td>
 <td>Let the command answer and read what it says. Where an outcome genuinely has to be waited for, the
 product that owns it waits: <code>stado job watch &lt;ID&gt; --follow</code>,
-<code>stado release status &lt;PRODUCT&gt;</code>, <code>oko transcripts tasks --session
+<code>stado release status &lt;PRODUCT&gt;</code>, <code>oko tasks --session
 &lt;ID&gt;</code>.</td></tr>
 <tr><td>The toolchain answering only the shell that typed it: <code>cargo test</code>, <code>cargo check</code>,
 <code>cargo build</code>, <code>cargo clippy</code>, and the same words after <code>swift</code>,
@@ -137,7 +137,7 @@ product carries no repair: <code>stado host build</code>, <code>stado product ca
 <code>stado release submit|prepare|newest</code>. An exact release install
 (<code>stado product install|update … --release-version &lt;V&gt; --source-commit &lt;REV&gt;</code>) and a
 <code>--dry-run</code> compile nothing and pass.</td>
-<td>Code, commit and push the repair of every open item and record it (<code>oko transcripts tasks evidence
+<td>Code, commit and push the repair of every open item and record it (<code>oko tasks evidence
 &lt;task&gt; --commit &lt;repo@rev&gt;</code>, <code>oko defects repaired &lt;id&gt; --revision &lt;repo@rev&gt;</code>);
 then build once over all of it. One item is not waited on: an item whose repair an installed Tama hook
 refuses while that hook's own repair is pushed, so the build is what unblocks it. It is held for the build
