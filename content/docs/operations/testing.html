@@ -39,6 +39,20 @@ commit_review_managed -- --ignored --nocapture</code> only when qualification
 is permitted, with the exact <code>TAMA_TEST_SOURCE_REVISION</code> and real
 configured reviewer. Commands, exit statuses, source revision and binary
 digest are retained under Cargo's build directory.</p>
+<h3>Owned pending stop assessment</h3>
+<p><code>node tests/hooks-running/stop-review.mjs</code> requires
+<code>TAMA_TEST_EXECUTABLE</code> and <code>TAMA_TEST_SOURCE_REVISION</code>.
+It checks the clean candidate and retains the executable digest before invoking
+the real native core and stop hook. The listener uses an internal interface
+declared by the operating system and an OS-assigned port; it deliberately does
+not answer. The journey requires an immediate pending refusal, reuse of the
+same candidate's assessment, and caller cancellation ending the actual HTTP
+connection without publishing a late verdict. A fresh native inspection must
+find no surviving hook. Evidence stays under <code>.build/stop-review/</code>.</p>
+<p>This exercises the shipped assessment module and native transport, not a
+substitute provider response. It does not qualify healthy Brama completion or
+OMP's automatic refusal continuation and operator-interruption lifecycle;
+those require separate real harness runs. A test definition is not a pass.</p>
 <h3>Native hook request suite</h3>
 <pre><code class="language-bash">cargo test --manifest-path rust/Cargo.toml --target-dir .build/cargo -p tama-cli --test ssh_quoting
 </code></pre>
