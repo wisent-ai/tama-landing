@@ -54,6 +54,7 @@ and Desktop Reviews expose its retained envelope, answer and outcome through
 the same reader as push reviews. Install plan and hook status include
 <code>commit-msg</code>; neither wiring nor a source commit proves a real
 commit was accepted or refused.</p>
+<p>A grounded commit refusal prints <code>review retained at &lt;directory&gt;</code>, just as a failed review operation does. Inspect that record's <code>result.json</code> to distinguish <code>source_finding</code> from <code>review_failure</code>; the quoted offending text belongs to the retained finding. The real managed-commit journey checks this outcome and unchanged Git HEAD, rather than treating an incidental stderr sentence as proof that policy ran.</p>
 <p>See <a href="/docs/testing/">Testing and qualification</a>
 for the real commit-review journey and its retained evidence contract.</p>
 <h2>Example: a registered test needs formatting</h2>
