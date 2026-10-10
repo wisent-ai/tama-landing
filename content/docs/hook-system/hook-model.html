@@ -64,6 +64,17 @@ The engine reads only that document as a refusal. A hook that ends nonzero witho
 missing binary, a gate that printed <code>TAMA_HOOK_INFRASTRUCTURE:</code> because it could not
 decide — crashed; the engine logs <code>hook &lt;id&gt; malfunctioned: …</code> and the action goes on,
 because a crash is not a policy decision. Nothing reads the wording of a crash to tell it apart.</p>
+<p>The hooks of a tool-call event (<code>pre_tool_use:*</code>) and of <code>stop</code> are
+started together and their answers read in registry order: a tool call is refused by the first
+gate in that order that refuses, with that gate alone named, and the end of a turn is refused for
+every reason at once. Each gate is a process, and starting twenty of them one after another on a
+loaded workstation took longer than the harness waits for a hook, so an edit was refused as a
+timeout by no gate at all. The hooks of a session event (<code>session_start</code>,
+<code>user_prompt_submit</code>) still run one after another, in case a later one reads what an
+earlier one wrote. The real test is <code>tests/hooks-running/together.rs</code>
+(<code>cargo test -p tama-cli --test hooks_running_together</code>): two gates that can only both
+end when they run at the same time, one reading a named pipe and one writing it, and a third that
+refuses after them.</p>
 <h2>Quoted data and executable input</h2>
 <p>A Bash request is parsed as shell syntax. Literal arguments remain data when
 they contain apostrophes, escaped quotes, newlines, or examples of commands.
