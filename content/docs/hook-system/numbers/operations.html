@@ -88,6 +88,21 @@ therefore receives the reconstructed declaration for supported range, gap and
 string edits even when the hook process runs elsewhere. This does not extend
 the supported hashline operation set or bypass a missing or invalid
 <code>user_said</code> entry.</p>
+<p>Edit reconstruction preserves source read and UTF-8 decoding failures as
+<code>cannot read edit source &lt;path&gt;: &lt;cause&gt;</code>. A string
+replacement whose <code>old_string</code> is absent refuses with the target
+path instead of judging unchanged source or replacement text alone. A
+multi-edit refusal retains the failed operation; no partial edit is applied
+by a guard. Numeric, keyword, browser and Supabase write consumers propagate
+the same shared reconstruction error. Unsupported hashline operations still
+use added-line classification, so this does not establish complete replay of
+every editor operation.</p>
+<p>The registered numeric operations journey includes
+<code>tests/numeric-literals/reconstruction.rs</code>: an actual directory
+source, unmatched single and multi-edit replacements, and matching-source
+recovery through the built hook. It retains candidate-bound exchanges and
+checks that guard evaluation leaves the source unchanged. These are test
+definitions until the authorized qualification run executes them.</p>
 <p>Before counting out existing literals or unchanged provenance entries, the
 guard reads the existing file once. A missing file is a new-file case; a
 directory, permission failure or invalid UTF-8 is not. The refusal names
