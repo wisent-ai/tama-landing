@@ -38,6 +38,15 @@
 </ul>
 <p>Prose is decided by the line's shape, not by the file's extension: a line made mostly of plain words, the text after a comment marker, and each quoted string. A date or a hash inside code is data and is not reported. Each finding prints as <code>line N: &lt;kind&gt; `&lt;value&gt;`: &lt;the line&gt;</code>. A source that cannot be read is reported under <code>errors</code> with the reason, because the names it would have supplied were not checked. A path whose content must carry such data is declared, with its reason, in the repository's <code>.tama/violations-ignore</code>.</p>
 <p>A malformed vault listing is also an authority error: the document must be an array, and every item must have a string <code>id</code>. The write hook prints the failed authority and its cause with <code>TAMA_HOOK_INFRASTRUCTURE</code>, exits unsuccessfully and emits no partial policy decision. An unavailable authority is not permission to write. CLI and native scans retain the same errors, and the Desktop final rescan cannot report successful cleanup while any remain. Repair the named authority or its unreadable input before repeating the check; rewriting otherwise valid source does not repair the dependency.</p>
+<p>Public product names also come from the local workspace and its release
+declarations. An absent workspace or absent release declaration contributes no
+declared name; an unreadable directory entry, unreadable declaration or malformed
+declaration is an authority error with its path and filesystem or JSON cause.
+Tama does not silently classify a product's name as internal after losing the
+declaration that establishes it as public. The real
+<code>internal_names_writes</code> journey covers a directory in place of a
+declaration and malformed persisted JSON through the built write hook; its
+recorded candidate and binary identity must accompany an authorized run.</p>
 <p>The fix is a rewrite, not a deletion: describe the behaviour and the reason for it, read a host from the Stado registry at run time, and keep the incident itself in Oko.</p>
 <h2>Waits and time limits</h2>
 <p>The workshop rule is that no repository waits a guessed interval, limits how long work may run, or kills work on a timer: when something breaks it fails with its own error, and when something has to happen first the code waits for that outcome, not for a number of seconds. <code>--time-limits</code> answers whether a repository keeps that rule. It skips the hook replay and reports every line the time-limit gate of <code>pre-write-edit</code> would refuse in a write — one finding per line, not the first per file, because a clean-up needs every site. The gate's own shapes are the definition, so the scan and the guard cannot disagree:</p>
