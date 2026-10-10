@@ -47,6 +47,13 @@ declaration that establishes it as public. The real
 <code>internal_names_writes</code> journey covers a directory in place of a
 declaration and malformed persisted JSON through the built write hook; its
 recorded candidate and binary identity must accompany an authorized run.</p>
+<p>The shell gate <code>tama hook pre-bash</code> uses the same host registry
+when deciding whether an SSH target belongs to the fleet. A registry read or
+JSON error refuses the operation with
+<code>cannot determine the SSH target's fleet membership</code>, its path and
+the underlying cause, rather than treating unavailable names as an empty fleet.
+The registered authority journey also exercises these failures through the
+real shell hook; it inspects the decision without opening an SSH connection.</p>
 <p>The fix is a rewrite, not a deletion: describe the behaviour and the reason for it, read a host from the Stado registry at run time, and keep the incident itself in Oko.</p>
 <h2>Waits and time limits</h2>
 <p>The workshop rule is that no repository waits a guessed interval, limits how long work may run, or kills work on a timer: when something breaks it fails with its own error, and when something has to happen first the code waits for that outcome, not for a number of seconds. <code>--time-limits</code> answers whether a repository keeps that rule. It skips the hook replay and reports every line the time-limit gate of <code>pre-write-edit</code> would refuse in a write — one finding per line, not the first per file, because a clean-up needs every site. The gate's own shapes are the definition, so the scan and the guard cannot disagree:</p>
