@@ -152,6 +152,23 @@ Unknown record fields are ignored. Enable it with
 preserving every id currently shown by <code>tama enforcement status --json</code>.
 The Desktop Hooks inspector and session refusal records expose the same hook
 and reason; Oko Desktop's Agent sessions Role menu manages the local role.</p>
+<p>For an <code>executor</code>, the same local preflight selects an open assigned
+defect first, then open defects of products named by its recorded assignments.
+It reads Oko's atomic defect and blocker registers without running a process:
+<code>OKO_DEFECT_REGISTER</code> and <code>OKO_BLOCKER_REGISTER</code>, or
+<code>~/Library/Application Support/Oko/defects.json</code> and
+<code>blockers.json</code>. The refusal names <code>oko defects show ID</code>
+and the recorded owner for coordination. A valid open blocker naming that exact
+defect, by full or short id at the beginning of its <code>blocks</code> field,
+holds only that item; a repository-wide publication wait does not hide the queue.
+Malformed or unreadable registers refuse with their actual path and cause.</p>
+<p>This defect preflight does not establish task completion. The existing
+open-work gate still reads Oko's authoritative task ledger; its settlement may
+require a network read. Oko's cached task answer is not substituted for that
+read, because its freshness depends on shared rows. A fully local executor
+task decision is not yet delivered. The real executor journey uses isolated
+Oko role, defect and blocker mutations and requires actual external-failure
+evidence plus the real blocker reviewer; retained source is not a passing run.</p>
 <p>Every supported harness completion binding reaches the canonical
 <code>stop</code> event. OMP's blocking boundary is <code>session_stop</code>;
 <code>agent_end</code> and <code>turn_end</code> are notification-only, not
