@@ -147,7 +147,8 @@ and native runtime status read this lock and report <code>hookBirthIdentity</cod
 and <code>ownershipState</code> without guessing from a reused PID.
 An unlocked ended record is removed; <code>coreAlive: null</code> means the core
 was not separately inspected, not that it is dead. Legacy records still use
-process inspection and report any missing identity or permission refusal.
+process inspection; refusals name the <code>ps -A -o pid=,ppid=,pgid=,lstart=,command=</code>
+interface and its actual OS or command failure. New owned records do not require that interface.
 An unreadable record remains an error, never an empty healthy list.</p>
 <p>In Tama Desktop, open <strong>Session</strong> and choose
 <strong>Inspect hooks and end orphans</strong>. The live adapter answers the
@@ -159,10 +160,14 @@ being sent is not presented as proof that the process has already exited.</p>
 <code>tests/hooks-running/cancellation.rs</code> run the compiled stop hook
 against a local TCP listener that deliberately sends no answer. They check
 dispatch cancellation, core-input closure, core death, connection EOF and recorded
-progress. The sandbox journey denies external process information and still
-requires the real HTTP connection to close when the core dies. Reports retain
-the source revision, binary digest, birth records, protocol frames, exit status
-and stderr in Cargo's test artifact directory.
+progress. The sandbox journey denies external process information, requires live
+status to identify the waiting hook without an identity error, and requires the
+real HTTP connection and supervisor lifetime lock to close when the core dies.
+Before launch, qualification checks the declared
+<code>TAMA_TEST_SOURCE_REVISION</code> against a clean tracked source tree and
+retains the binary digest and actual command, including the sandbox profile.
+Reports retain birth records, protocol frames, exit status and stderr in Cargo's
+test artifact directory.
 <code>owned-hook</code> refuses direct invocation without its inherited core
 channel or when it does not lead its own process group.</p>
 <p>A client can send <code>knownCatalogChecksum</code>. When it differs from
