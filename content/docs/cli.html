@@ -27,17 +27,29 @@ intentionally not part of the public surface.</p>
 <h2>Command declaration review</h2>
 <p>When <code>block-one-off-commands</code> finds a declaration without a kept
 verdict, it refuses the write immediately and names
-<code>tama commands judge &lt;request&gt;</code>. Run that command to await the
-real judge and read <code>PASS</code> or <code>BLOCK</code> with its reason for
-each declaration, then repeat the write. A failed judge call remains a refusal,
-not an approval. Its diagnostic is also retained in
-<code>command-verdicts/judge.log</code> under Tama's state directory.</p>
+<code>tama commands judge &lt;request&gt;</code>. The write atomically publishes
+the request but starts no background judge. Run the named foreground command to
+own the real review and read <code>PASS</code> or <code>BLOCK</code> with its
+reason for each declaration, then repeat the write. A failed judge call remains
+a refusal, not an approval. Its actual diagnostic is also retained in
+<code>command-verdicts/judge.log</code> under Tama's state directory; inability
+to retain that diagnostic is reported separately without losing the review cause.</p>
 <p>Verdicts belong to the file path, command name and declaration together.
 Copying a declaration into another file requires its own review, because the
 judge receives that file's product context. Simultaneous requests for the same
 declarations share a locked request record; they never overwrite a record while
-its judge reads it. The hook decision appears in the attached editor's refusal
-surface as well as the CLI output.</p>
+its judge reads it. A second judge invocation refuses a request already owned by
+another review instead of starting a competing model call. The hook decision
+appears in the attached editor's refusal surface as well as the CLI output.</p>
+<p>When qualification is permitted, <code>one_off_commands_kept_verdicts</code>
+invokes the actual built hook and foreground CLI with the real Oko model route,
+then checks the persisted verdict and a repeated write. Its negative journey
+uses an isolated home and executable path genuinely without Oko: the CLI must
+retain its failure and the same declaration must remain refused. Both require
+<code>TAMA_TEST_SOURCE_REVISION</code>, matching clean source and retained
+executable, input and output evidence. Runs keep separate build directories and
+never delete earlier evidence. Definitions alone do not qualify the installed
+editor or Desktop decision surface.</p>
 <h2>Machine enforcement</h2>
 <ul>
 <li><a href="cli/enforcement/status/"><code>tama enforcement status [--json]</code></a> — read the durable machine selection.</li>
