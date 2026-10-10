@@ -67,9 +67,9 @@ text into the session as a displayed custom message right after the compaction:
 it steers the turn the compaction resumes, and is appended to the conversation
 when the session is idle. When the hook refuses or cannot be dispatched, the
 same message carries <code>Tama's session_start:compact hooks refused or failed:</code>
-and the reason, so the session knows it continues without the rules. When the
-ledger cannot be read, the text says <code>Operator's standing rules are unavailable
-in this session:</code> with the failed <code>oko</code> call and its error. The same
+and the reason. An unavailable rule ledger or an unreadable ruling register makes
+the hook exit unsuccessfully with <code>TAMA_HOOK_INFRASTRUCTURE</code> and its actual operation and cause;
+no partial context is emitted. The adapter's failure message proves neither restoration nor prevention of continuation. The same
 delivery carries a passing <code>user_prompt_submit</code> hook's context ahead of the
 turn the prompt starts. A message becomes a standing rule when the session that
 received it records it with <code>oko tasks kind &lt;session&gt; &lt;number&gt; rule --by
@@ -83,8 +83,8 @@ no count. No text is cut: a rule is lost by cutting it, not by saying it once.
 <code>Oko tasks rules --all --json returned a non-array rules report</code>.
 A missing or wrongly typed rule field reports
 <code>Oko tasks rules --all --json rule at index &lt;index&gt;: &lt;decoder error&gt;</code>
-in the unavailable-rules block. Tama does not replace unreadable rules with
-an empty list or invent their source session, message number or text.</p>
+as the hook's infrastructure failure, without a successful context payload. Tama does not replace unreadable rules with
+an empty list or invent their source session, message number or text. See <a href="../cli/assignment/show/">assignment restoration and its real qualification contract</a>.</p>
 
 <h2>Session-scoped enable</h2>
 <p>The desktop writes a private request file
