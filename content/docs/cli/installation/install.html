@@ -1,6 +1,32 @@
 <h1><code>tama install</code></h1>
 <p>Installs Tama-managed user-global Git dispatchers for <code>pre-commit</code> and <code>pre-push</code>, preserving a pre-existing unmanaged hook once as <code>.before-tama</code>.</p>
-<p>Before a push from a Wisent product checkout whose <code>.wisent-release.json</code> declares a formatting gate (a quality gate named <code>fmt</code>), the <code>pre-push</code> dispatcher runs <code>stado quality check</code> there: that gate exactly as the release build runs it, writing nothing. When it fails the push is refused with <code>tama: stado quality check refused this push of &lt;checkout&gt;; run stado quality format there, commit the result and push again</code>, so an unformatted commit never reaches main and fails every other session's build of that product. A product that declares no formatting gate has nothing for the push to check. A release install writes the same dispatcher.</p>
+<p>Before every push, <code>repo-githooks/rust/pre-push</code> invokes
+<code>tama hook check-rust-format</code>. It discovers tracked Cargo manifests,
+asks Cargo for their workspace roots and runs
+<code>cargo fmt --all --check --manifest-path &lt;Cargo.toml&gt;</code> once per
+workspace, including registered tests outside the crate directory. A repository
+without tracked Cargo manifests needs no Rust check. This works without a Wisent
+release manifest or Stado installation.</p>
+<p>The formatter's file diffs and concrete failure reach Git's stderr. The
+gate refuses modified Rust sources or formatter settings that differ from HEAD,
+so formatting only the working tree cannot qualify an unformatted commit.
+A pushed commit other than the checked-out HEAD is refused: check out that
+revision in the same checkout before pushing. No gate changes files.</p>
+<p>For products whose <code>.wisent-release.json</code> also declares a
+<code>fmt</code> quality gate, the dispatcher then runs
+<code>stado quality check</code>. Brama's push reviewer follows the formatting
+checks. A release install writes the same dispatcher. Graphical Git clients
+invoke the same hook and receive the same refusal and file diagnostics.</p>
+<h2>Example: a registered test needs formatting</h2>
+<p>If a push reports <code>Diff in tests/harnesses/payload.rs</code>, format
+the workspace that registers that test, commit the result, then push again:</p>
+<pre><code>cargo fmt --all --manifest-path rust/Cargo.toml
+git add tests/harnesses/payload.rs
+git commit -m "Format registered harness test"
+git push</code></pre>
+<p><code>check-rust-format: push refused</code> names a failed formatter,
+uncommitted source, an unreadable manifest, or the mismatched pushed revision.
+Fix that cause; the remote branch is not updated by a refused push.</p>
 <h2>Invocation</h2>
 <pre><code>tama install [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;]
              [--set-git-config] [--no-git-config] [--json]

@@ -95,6 +95,9 @@ owned by this core. The original dispatch answers <code>ok:false</code> with
 its cancellation reason. Cancellation never supplies a policy verdict.
 Closing the core's stdin also relinquishes ownership of every active hook,
 including a dispatch whose payload contains no session id.</p>
+<p>If a tool call's dispatch is cancelled, the adapter refuses that tool call
+with the cancellation cause. It neither spends a single-use grant nor admits
+the call because the abandoned dispatch returned no blocking-hook record.</p>
 <p>The OMP adapter forwards an event's AbortSignal, cancels outstanding work
 on a new input, session activation or shutdown, and streams hook stderr to
 the terminal and the Tama hook status indicator. Judge requests announce
