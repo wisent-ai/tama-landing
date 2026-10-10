@@ -34,6 +34,26 @@ Fix that cause; the remote branch is not updated by a refused push.</p>
 <p><code>--git-hooks-path</code> chooses the dispatcher directory. Otherwise Tama uses global <code>core.hooksPath</code>, falling back to <code>~/.config/git/hooks</code>. <code>--home</code> controls home expansion and the Git configuration environment. <code>--set-git-config</code> writes global <code>core.hooksPath</code>; <code>--no-git-config</code> wins when both flags are present. <code>--json</code> selects structured output.</p>
 <h2>Output and state</h2>
 <p>Tama creates the hooks directory, writes executable managed dispatchers, and may create <code>pre-commit.before-tama</code> and <code>pre-push.before-tama</code>. Output names the resolved hooks path, both installed targets and whether Git global configuration changed.</p>
+<h2>Release activation and connection status</h2>
+<p><code>tama hooks release</code> connects the managed dispatchers to global
+<code>core.hooksPath</code> after installing the sealed runtime. Publishing a
+<code>repo-githooks</code> file alone does not connect it to Git. Activation
+preserves an existing Git LFS hook as <code>pre-push.before-tama</code>; the
+dispatcher replays the original push arguments and ref input to that hook after
+formatting and review succeed. The sealed runtime's binaries lead its PATH.</p>
+<pre><code>tama hooks status
+tama hooks status --home /path/to/home --json</code></pre>
+<p>Status reports the configured user-global directory, each dispatcher, whether
+the Rust gate is referenced and present, and the preserved original hook path.
+The same descriptions appear in Desktop's installation plan. This is a wiring
+inspection, not a successful push claim. Repository-local
+<code>core.hooksPath</code> overrides are outside this user-global report.</p>
+<p>If the runtime installs but connecting Git fails, release activation refuses
+and names that operation and its cause. If a foreign hook and its
+<code>.before-tama</code> backup contain different content, installation refuses
+instead of overwriting either version. Resolve that hook-chain conflict before
+activating again. An emergency-disabled dispatcher remains protected from
+implicit reactivation.</p>
 <h2>Refusals and failures</h2>
 <p>Filesystem and process errors are written to stderr and exit <code>1</code>. When requested Git configuration returns nonzero, Tama reports Git's stderr, or exactly <code>git config failed</code> when Git produced no message. Without <code>--set-git-config</code>, the command deliberately leaves Git configuration untouched.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
