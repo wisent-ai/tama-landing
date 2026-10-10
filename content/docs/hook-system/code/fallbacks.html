@@ -43,3 +43,14 @@ with no declared construct, and a write that names no file.</p>
 payloads (a hashline edit, a string edit, a whole-file write, refusals and passes):
 <code>tests/fallbacks/refusal.rs</code> (<code>cargo test -p tama-cli --test fallbacks_refusal</code>); declaration:
 <code>hook-declarations/code-discipline/block-fallbacks.json</code>.</p>
+<h2>Retained qualification evidence</h2>
+<p>The real-binary target requires <code>TAMA_TEST_SOURCE_REVISION</code> to
+match the clean tracked checkout. Before invoking the hook, it retains the
+candidate revision, actual executable digest and Git command outcomes.
+Each invocation uses an isolated home and working directory beneath the ignored
+test target directory, retaining its payload, command, exit status, stdout and
+stderr even when a policy assertion fails. Invoke
+<code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate&gt; cargo test -p tama-cli --test fallbacks_refusal</code>
+only during the permitted qualification run. These existing cases qualify
+lexical construct refusal; they do not establish complete Rust callable
+resolution or distinguish every diverging error closure.</p>
