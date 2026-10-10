@@ -35,6 +35,16 @@ The foreground command retains that same cause in its review log. Publishing
 reviewed verdicts reports the failed encoding, directory creation, staging or
 rename operation; it cannot print a successful persistence result after a
 failed write. Correct the named storage failure before reviewing again.</p>
+<p>Tracked-file inventory and blob reads name the actual Git command,
+repository, exit status and diagnostic. An unreadable index is not an empty
+test inventory; an unreadable blob is not a file the reviewer may skip.
+Directory reviews must all succeed before their verdicts are published.
+The native request and Test approvals screen receive the same failure as the
+CLI. The real <code>tests/smoke-tests/inventory.rs</code> journey damages an
+isolated repository's actual index, checks CLI/native/write-hook refusal
+and unchanged verdict state, then restores that index and checks recovery.
+It is a qualification definition, not a claim that the installed version
+has passed that journey.</p>
 <p>The real storage journey in <code>tests/smoke-tests/storage.rs</code>, included
 by the existing smoke-test qualification target, uses a directory and malformed
 persisted JSON at an isolated verdict path. It checks CLI failure, retained
