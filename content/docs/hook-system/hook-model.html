@@ -184,6 +184,21 @@ contains it</code>. <code>IDENTITY_TRANSCRIPT_ROOT</code>, <code>IDENTITY_ARTIFA
 and <code>tests/identity-literals/placeholders.rs</code> (<code>cargo test -p tama-cli --test
 identity_literals_session_ids --test identity_literals_tracked_ids --test
 identity_literals_placeholders</code>), the second against a real git checkout it creates.</p>
+<p>When transcript content is required, hook subprocesses share per-file identity
+snapshots under Tama's state directory in <code>identity-mentions</code>.
+Each snapshot is bound to the source file's device, inode, byte length,
+modification time and metadata-change time, plus the identity extractor.
+Unchanged files are not reopened for their transcript bodies. A per-file OS
+lock gives a changed file one reader across sessions, and completed shards are
+atomically published so another hook can reuse them. There is no clock-based
+expiry. Removed, replaced, appended or permission-changed files do not retain
+their old provenance verdict. Only actual user-message identity tokens count;
+assistant messages are not independent operator evidence.</p>
+<p>A read, parse or publication failure names its path and operation and refuses
+the write as unavailable provenance, rather than claiming the identity was
+invented. Cold or changed reads announce <code>czekam</code>; a contending hook
+announces its lock wait. These source mechanisms require actual cross-process
+qualification before an installed runtime is claimed to avoid repeated scans.</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
 of two or more words used to classify input, and the same vocabulary written
 as a comparison: a chain of <code>==</code> (or <code>===</code>, <code>!=</code>)
