@@ -61,6 +61,16 @@ built text hook. The refusal must name the malformed identity, leave the file
 unchanged and perform no history scan. Restoring the copied record must restore
 the ordinary open-work refusal. This is a persisted corruption case, not a
 replacement Oko executable or a canned CLI response.</p>
+<p>The same test target includes a build-order refusal journey requiring
+<code>TAMA_TEST_REPAIR_DEFECT</code>, the full identity of an actual open record
+with a repository-addressed repair. It copies that observed record into an
+isolated register, verifies it through the genuine Oko CLI, and invokes only
+<code>tama hook block-one-off-repairs</code> with a build proposal; it never runs
+the proposed build. An absent checkout in the isolated home must produce a
+refusal naming the exact checkout and observed filesystem cause, with the
+register unchanged. Candidate digests, command exchanges and the pre-spawn hook
+invocation are retained. This negative case does not qualify successful repair
+ordering or the graphical diagnostic surface.</p>
 <h2>What is refused, and the route each refusal names</h2>
 <table>
 <thead><tr><th>Refused command</th><th>The route the refusal names</th></tr></thead>
