@@ -156,9 +156,15 @@ carry every catalogued hook for every event the provider supports. Running
 <code>shared-hooks/generate-configs.mjs --apply</code> afterwards is not part of this
 route; it writes a checkout's own narrower wiring over what the install just
 produced.</p>
-<p>The real install tests drive exactly these commands into a scratch home under
-<code>.build/install-evidence/</code>, and assert the installed symlink, both provider
-configs and an empty drift report.</p>
+<p>The real native-provider installation journey is the repository's
+<code>harness_install</code> Cargo target. It installs a genuine sealed release
+over recorded native configuration in an isolated Cargo-build-directory home,
+checks preservation, installed coverage and repeat installation, then verifies
+that invalid configuration is refused without replacing installed state.
+Its <code>--session-control-only</code> mode still writes native provider
+configuration; it excludes Git entrypoint installation. Inputs and execution
+requirements are documented in
+<a href="/docs/cli/provider/config/">provider configuration</a>.</p>
 <h2>Verifying a release by hand</h2>
 <p><code>tama hooks integrity</code> answers <em>which file drifted</em>, not just that one
 did, and writes nothing:</p>
