@@ -1,19 +1,34 @@
 <h1><code>tama install</code></h1>
 <p>Installs Tama-managed user-global Git dispatchers for <code>pre-commit</code>, <code>commit-msg</code> and <code>pre-push</code>, preserving each pre-existing unmanaged hook once as <code>.before-tama</code>.</p>
 <p>Before every push, <code>repo-githooks/rust/pre-push</code> invokes
-<code>tama hook check-rust-format</code>. For each non-deleted pushed ref it checks
-the referenced commit's tree using a private Git index and <code>read-tree</code>/<code>checkout-index</code>
-under the checkout's ignored <code>.build/tama-rust-format/</code> directory, finds its tracked Cargo manifests,
-asks Cargo for their workspace roots and runs
-<code>cargo fmt --all --check --manifest-path &lt;Cargo.toml&gt;</code> once per
-workspace, including registered tests outside the crate directory, then removes
-the snapshot. A commit without tracked Cargo manifests needs no Rust check. This
-works without a Wisent release manifest or Stado installation. Declare <code>.build/</code> in the repository's ignore policy; the gate refuses non-ignored scratch storage. No clone, branch checkout or change to the caller's index is made.</p>
+<code>tama hook check-rust-format</code>. For each non-deleted pushed ref it
+takes the Rust files the push changes — those <code>git diff --name-only
+&lt;remote's current commit&gt; &lt;pushed commit&gt;</code> lists as added,
+modified or renamed, or every Rust file of the commit when the remote ref is
+new or its commit was never fetched — writes the pushed commit's tree out
+with a private Git index (<code>read-tree</code>/<code>checkout-index</code>)
+under the checkout's ignored <code>.build/tama-rust-format/</code> directory,
+and runs <code>rustfmt --check --edition &lt;edition&gt; &lt;file&gt;</code> on
+each of those files there, the edition read from the nearest committed
+<code>Cargo.toml</code> above the file (its package's, else the workspace
+root's), then removes the snapshot. A push that changes no Rust file needs
+no check. This works without a Wisent release manifest or Stado
+installation. Declare <code>.build/</code> in the repository's ignore policy;
+the gate refuses non-ignored scratch storage. No clone, branch checkout or
+change to the caller's index is made.</p>
 <p>The formatter's file diffs and concrete failure reach Git's stderr. The
 working tree is not read: formatting that exists only uncommitted cannot
 qualify an unformatted commit, and another session's uncommitted edit in the
-same checkout cannot refuse a formatted one. Any pushed revision is checked,
-whether or not it is checked out. The gate changes no working source files. A missing committed root formatter configuration uses rustfmt's built-in defaults within the snapshot, never an uncommitted ancestor configuration. A workspace outside the snapshot is refused.</p>
+same checkout cannot refuse a formatted one. A file the push does not change
+is not read either: a file already unformatted on the remote holds back only
+the push that changes it, whose author formats it as part of that change —
+never a push that leaves it alone, and never through a reformat-only commit
+of someone else's file, which push review refuses. Any pushed revision is
+checked, whether or not it is checked out. The gate changes no working source
+files. A missing committed root formatter configuration uses rustfmt's
+built-in defaults within the snapshot, never an uncommitted ancestor
+configuration. A file above which no committed manifest declares an edition
+is refused by name.</p>
 <p>For products whose <code>.wisent-release.json</code> also declares a
 <code>fmt</code> quality gate, the dispatcher then runs
 <code>stado quality check</code>. Brama's push reviewer follows the formatting
@@ -41,18 +56,22 @@ commit was accepted or refused.</p>
 <p>See <a href="/docs/operations/testing/">Testing and qualification</a>
 for the real commit-review journey and its retained evidence contract.</p>
 <h2>Example: a registered test needs formatting</h2>
-<p>If a push reports <code>Diff in tests/harnesses/payload.rs</code>, format
-the workspace that registers that test and fold the result into the unpublished change:</p>
+<p>If a push reports <code>tests/harnesses/payload.rs (edition 2021)</code>
+with the formatter's diff, format that file and fold the result into the
+unpublished change that touches it:</p>
 <pre><code>cargo fmt --all --manifest-path rust/Cargo.toml
 git add tests/harnesses/payload.rs
 git commit --amend --no-edit
 git push</code></pre>
-<p><code>check-rust-format: push refused: commit &lt;commit&gt;: &lt;operation and cause&gt;</code>
-and the formatter's diff identify the pushed commit and its files. Other refusals name
-an unreadable manifest, unresolved revision, failed Git export operation, unignored scratch path,
-escaping workspace or cleanup failure. A cleanup failure is retained alongside a formatter failure. Fix that cause;
-the remote branch is not updated by a refused push.</p>
-<p>The real journeys <code>tests/review/format.rs</code> and <code>tests/review/installed.mjs</code> push through actual Git, Cargo/rustfmt, the managed dispatcher and the real review and LFS dependencies. They check that uncommitted formatting cannot repair an unformatted commit, and that a formatted commit can be pushed while another session's source and invalid formatter configuration remain unchanged. Remote refs and transferred LFS bytes establish the final state; command logs and source identities are retained. These definitions are not an executed qualification.</p>
+<p><code>check-rust-format: push refused: commit &lt;commit&gt;: N Rust file(s)
+this push changes are not in the form rustfmt writes:</code> followed by each
+file, its edition and the formatter's diff identify the pushed commit and its
+files. Other refusals name an unreadable manifest, a file with no committed
+edition above it, an unresolved revision, a failed Git export operation, an
+unignored scratch path or a cleanup failure. A cleanup failure is retained
+alongside a formatter failure. Fix that cause; the remote branch is not
+updated by a refused push.</p>
+<p>The real journeys <code>tests/review/format.rs</code> and <code>tests/review/installed.mjs</code> push through actual Git, Cargo/rustfmt, the managed dispatcher and the real review and LFS dependencies. They check that uncommitted formatting cannot repair an unformatted commit, that a formatted commit can be pushed while another session's source and invalid formatter configuration remain unchanged, and that a file left unformatted on the remote before the dispatchers were installed refuses only the push that changes it, naming that file alone, while a push that leaves it alone reaches the remote. Remote refs and transferred LFS bytes establish the final state; command logs and source identities are retained. These definitions are not an executed qualification.</p>
 <pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test review_format -- --ignored --nocapture
 node --test tests/review/installed.mjs</code></pre>
 <p>Run only when qualification is permitted. Set <code>TAMA_TEST_SOURCE_REVISION</code> to the exact committed candidate for the Cargo journey; it refuses a different revision or edited tracked source and retains the executable digest before the first push. The installed journey records the actual sealed runtime identity. Both require Git LFS and authorized Brama review access; unavailable real dependencies are failures, not skipped passes.</p>
