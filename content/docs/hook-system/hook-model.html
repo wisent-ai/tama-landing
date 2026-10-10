@@ -155,6 +155,12 @@ the write as unavailable provenance, rather than claiming the identity was
 invented. Cold or changed reads announce <code>czekam</code>; a contending hook
 announces its lock wait. These source mechanisms require actual cross-process
 qualification before an installed runtime is claimed to avoid repeated scans.</p>
+<p><code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate-revision&gt; cargo test -p
+tama-cli --test identity_literals_mentions</code> runs the actual hook in
+separate processes against isolated persisted transcripts. It retains the
+candidate and binary digest, commands and outcomes, covering a warm shared
+index, assistant exclusion, equal-size/equal-time replacement, deletion,
+malformed records and permission loss. Test source alone is not qualification.</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
 of two or more words used to classify input, and the same vocabulary written
 as a comparison: a chain of <code>==</code> (or <code>===</code>, <code>!=</code>)
