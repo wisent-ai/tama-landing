@@ -38,13 +38,18 @@ the config installs fewer mappings than the registry declares; fields
 <code>yes</code> / <code>no</code> / <code>not declared</code>, the release's own statement of whether it
 demands live coverage evidence for this provider. Below, the evidence
 sentence and any registry note, verbatim.</p>
-<p><code>Installed in its config</code> reads <code>&lt;n&gt; of &lt;m&gt; installed</code> for the two
-providers whose config Tama writes, counted by matching each declared
-mapping against the commands in that config, and <code>no config Tama writes</code>
-for OMP, Git, the editor adapters and kimi — where the question has no
-answer rather than the answer zero. The same numbers come from
-<code>tama request coverage</code> as <code>mappingCount</code> and <code>installedMappingCount</code>, and
-<code>tama validate</code> turns a shortfall into one <code>install drift</code> line per missing
-mapping.</p>
+<p><code>Installed in its config</code> reads <code>&lt;n&gt; of &lt;m&gt; installed</code>
+when native configuration inspection returns a count. The shared
+<code>tama request coverage</code> response supplies <code>mappingCount</code> and
+<code>installedMappingCount</code>; inspection includes supported native JSON
+configurations and Kimi's complete TOML document. A mapping counts only when
+its native event, matcher and generated dispatch command match.</p>
+<p>A null installed count means inspection is unavailable, not zero installed
+hooks and not evidence that the provider has no supported configuration. Read
+the accompanying warning note for the configuration path and actual read,
+parse or shape error. An inspected configuration without matching commands
+reports zero. Neither a count nor its configuration declares live enforcement;
+the <a href="/docs/cli/provider/config/">provider configuration reference</a>
+describes the native inspection and qualification boundary.</p>
 <p>Coverage is what <em>should</em> dispatch; what is loaded and deciding right now is
 <a href="posture.md">Posture</a> (<a href="../concepts/posture.md#not-to-be-confused-with">concepts/posture</a>).</p>
