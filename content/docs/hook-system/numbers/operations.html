@@ -74,6 +74,14 @@ its file and line; the existing hook-result surfaces display that same result.
 Framed hashline edits preserve the surrounding dependency table, so adding a
 Cargo dependency feature does not turn its unchanged release requirement into a
 new runtime value.</p>
+<p>Before reconstruction, relative hashline headers and string-edit targets
+resolve against the hook payload's <code>cwd</code>. They do not name a
+same-spelled file beside the hook executable. Local <code>file:</code> URLs use
+their local target; device URIs remain device text. The provenance validator
+therefore receives the reconstructed declaration for supported range, gap and
+string edits even when the hook process runs elsewhere. This does not extend
+the supported hashline operation set or bypass a missing or invalid
+<code>user_said</code> entry.</p>
 <h2>Real qualification</h2>
 <p><code>tests/numeric-literals/operations.rs</code> invokes the actual built
 hook in separate processes, records the declared candidate revision and binary
@@ -82,5 +90,8 @@ output. It covers accepted operations and meaningful numeric refusals, including
 a Unicode prefix before an index. From the Rust workspace, run
 <code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate-revision&gt; cargo test -p tama-cli
 --test numeric_literals_operations --test numeric_literals_hashline_context</code>
-only as part of the authorized qualification run. Committed test source is not a
-passing installed-runtime result.</p>
+only as part of the authorized qualification run. The hashline journey also
+uses a caller directory distinct from the hook process directory, retains an
+unchanged real declaration through a whitespace edit, and refuses removal of
+a required quote field. Committed test source is not a passing
+installed-runtime result.</p>
