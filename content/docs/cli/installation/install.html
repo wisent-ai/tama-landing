@@ -34,7 +34,7 @@ the remote branch is not updated by a refused push.</p>
 <p>The real journeys <code>tests/review/format.rs</code> and <code>tests/review/installed.mjs</code> push through actual Git, Cargo/rustfmt, the managed dispatcher and the real review and LFS dependencies. They check that uncommitted formatting cannot repair an unformatted commit, and that a formatted commit can be pushed while another session's source and invalid formatter configuration remain unchanged. Remote refs and transferred LFS bytes establish the final state; command logs and source identities are retained. These definitions are not an executed qualification.</p>
 <pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test review_format -- --ignored --nocapture
 node --test tests/review/installed.mjs</code></pre>
-<p>Run only when qualification is permitted. The Cargo journey uses its built candidate; the installed journey records the actual sealed runtime identity. Both require Git LFS and authorized Brama review access; unavailable real dependencies are failures, not skipped passes.</p>
+<p>Run only when qualification is permitted. Set <code>TAMA_TEST_SOURCE_REVISION</code> to the exact committed candidate for the Cargo journey; it refuses a different revision or edited tracked source and retains the executable digest before the first push. The installed journey records the actual sealed runtime identity. Both require Git LFS and authorized Brama review access; unavailable real dependencies are failures, not skipped passes.</p>
 <h2>Invocation</h2>
 <pre><code>tama install [--git-hooks-path &lt;path&gt;] [--home &lt;path&gt;]
              [--set-git-config] [--no-git-config] [--json]
