@@ -27,6 +27,21 @@ tama tests review &lt;root&gt;
 <p>Whether test code is a smoke test is read by Brama's reviewer, not by a word list. Proposed test content still uses a direct reviewer call. Existing tracked tests are judged from verdicts kept by Git blob id in <code>smoke-test-verdicts.json</code> under Tama's state directory, or the file named by <code>TAMA_SMOKE_TEST_VERDICTS</code>. When tracked files have no verdict, the hook names <code>tama tests review &lt;root&gt;</code> but starts no background reviewer. The current write uses retained findings; an unread file is not itself a finding. Run the named foreground command to review those files. This ownership rule does not remove the separate synchronous review of proposed test content.</p>
 <h2>Reading unread test files</h2>
 <p><code>tama tests review &lt;root&gt;</code> owns the review of tracked files without verdicts and merges returned answers under the verdict-store lock. Its per-repository lock lives in <code>smoke-test-reviews/</code> beside the store. A concurrent invocation refuses an already-owned review instead of starting another model call or waiting for it. The command reports how many files were reviewed and which stored verdicts call them smoke tests. Returned failures are appended to <code>smoke-test-reviews/review.log</code>; a logging failure is reported alongside, never instead of, the primary cause. No root or more than one root remains a usage error. Qualification must separately cover the actual model route, persisted verdicts, direct proposed-test review and attached editor diagnostics; a foreground ownership change alone is not proof that all write-review paths are fast or qualified.</p>
+<p>An absent verdict file is an initial empty store. An existing file that
+cannot be read or decoded is not: both the foreground review and the write
+guard refuse with <code>cannot read test verdicts &lt;path&gt;: &lt;cause&gt;</code>
+or <code>cannot decode test verdicts &lt;path&gt;: &lt;cause&gt;</code>.
+The foreground command retains that same cause in its review log. Publishing
+reviewed verdicts reports the failed encoding, directory creation, staging or
+rename operation; it cannot print a successful persistence result after a
+failed write. Correct the named storage failure before reviewing again.</p>
+<p>The real storage journey in <code>tests/smoke-tests/storage.rs</code>, included
+by the existing smoke-test qualification target, uses a directory and malformed
+persisted JSON at an isolated verdict path. It checks CLI failure, retained
+diagnostics, the actual write-hook refusal and unchanged source, then recovery
+with a valid empty store and the distinct absent-store initial state. It uses
+the declared clean candidate and recorded binary identity; no provider stands
+in for a storage failure.</p>
 <h2>Refusals</h2>
 <p><code>approve</code> and <code>revoke</code> with no path print <code>tama tests: name at least one path</code> and the usage and exit <code>2</code>; a record that cannot be written prints <code>tama tests: the approval record was not written: &lt;path&gt;: &lt;error&gt;</code> and exits <code>1</code>. <code>audit</code> refuses an unknown option with <code>tama tests audit takes [&lt;root&gt;…] [--remove] [--json]; unknown option &lt;option&gt;</code> and exit <code>2</code>; a root that is neither a repository nor holds one with <code>&lt;root&gt; is not a repository and holds none</code>, an unreadable root with <code>&lt;root&gt; is neither a repository nor a readable directory: &lt;error&gt;</code>, a failed <code>git ls-files</code> with its own error and a file that cannot be deleted with <code>&lt;path&gt;: &lt;error&gt;</code>, each exit <code>1</code>. An unknown subcommand prints the usage and exits <code>2</code>.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
