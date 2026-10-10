@@ -194,14 +194,14 @@ its entry once. Record the completed task and intent, then run the command again
 <h2>Package a matching desktop backend</h2>
 <p>In the Tama Desktop checkout, pin the pushed Tama commit before releasing the app:</p>
 <pre><code>bash Release/tama-source.sh pin --revision FULL_TAMA_COMMIT
-bash Release/tama-source.sh verify
-bash Tests/builds/source_pin.sh</code></pre>
+bash Release/tama-source.sh verify</code></pre>
 <p>The producer updates <code>Release/tama-revision</code> and its immutable archive and checksum.
 Both release lanes use that revision. Stado unpacks the verified archive with its recorded origin;
 native packaging and sealing refuse changed, missing or additional source inputs rather than
-treating the enclosing desktop checkout as the backend's revision. The regression journey retains
-its commands, source and tool hashes, and verdict under <code>.build/source-proof/&lt;run&gt;</code>.
-It proves source handling only, not a compiled or published desktop release.</p>
+treating the enclosing desktop checkout as the backend's revision.
+The verification command checks the archive digest and recorded Git commit and prints the archive
+path. That result proves source handling only, not a compiled or published desktop release.
+Retained qualification evidence must name the exact revision and consumer it exercised.</p>
 <h2>Publish the desktop's locked Swift dependencies</h2>
 <p>From the Tama Desktop checkout, publish the committed package resolution through Stado:</p>
 <pre><code>stado release catalog pin-input . --name swiftpm-cache --source . --revision HEAD --swiftpm --json</code></pre>
