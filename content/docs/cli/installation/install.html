@@ -106,6 +106,15 @@ and directs repair there; only actual formatting findings ask for formatting
 folded into the unpublished source change.</p>
 <h2>Reviewing the committed file, not only the patch</h2>
 <p>The reviewer receives every new commit's message and patch, followed by complete UTF-8 text for its changed files. Each source record names the commit, path, Git object and mode. Imports, persisted fields and guards outside a diff hunk remain visible. Source comes from immutable Git objects, never uncommitted files; merge-parent changes are deduplicated by path in the resulting commit. Deleted content remains in the patch. Binary blobs and submodule references are explicitly identified without claiming to review omitted contents.</p>
+<p>The revision selector is the same separate Git argument for the patch and
+source enumeration. Merge source records use the resulting commit's destination
+blob, not either parent's old blob. The real
+<code>tests/review/attribution/merge.rs</code> journey creates conflicting parent
+edits, resolves them through an actual Git merge, runs the resolved module's
+Node consumer and pushes through the actual reviewer. Its retained envelope
+must contain one record for the merged path with the resolved blob and text.
+This journey is registered in <code>review_push</code> and remains unqualified
+until an authorized real run.</p>
 <p>A failed Git read or unreadable path metadata refuses the review with its operation and cause. A malformed or unavailable reviewer response is not a source verdict and cannot authorize the push. A source finding must name the actual commit and file; a missing line in a patch does not establish that it is absent from the file. Command-line and graphical Git pushes use this same dispatcher and diagnostic stream.</p>
 <h2>Every finding is confronted with the commit it names</h2>
 <p>A <code>BLOCK</code> is a findings document: <code>BLOCK: {"findings":[{"commit","path","quote","problem","require"}]}</code>, where <code>quote</code> is text copied from that path at the exact full pushed commit identifier. Abbreviated or unrelated identifiers, empty quotes and quotes absent from a successfully read file are set aside as ungrounded. A failed <code>git show &lt;commit&gt;:&lt;path&gt;</code> instead stops review immediately with its exit status and actual cause; it is not converted into an allegation another model response can waive. A grounded refusal names the commit, path, quote, problem and required source change. Quote presence verifies attribution, not the correctness of every semantic allegation; the real import and persistence journeys qualify that separate boundary.</p>
