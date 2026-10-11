@@ -1,5 +1,25 @@
 <h1><code>tama install</code></h1>
 <p>Installs Tama-managed user-global Git dispatchers for <code>pre-commit</code>, <code>commit-msg</code> and <code>pre-push</code>, preserving each pre-existing unmanaged hook once as <code>.before-tama</code>.</p>
+<p>Before anything else, a push asks <code>tama hook review-route</code>
+whether a reviewer can be addressed at all. Every push ends at
+<code>tama hook review-push</code>, so the reviewer's route is resolved first,
+exactly as the review will resolve it: a provider declared with
+<code>tama model-provider set</code>, otherwise Brama's address from
+<code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTER_URL</code>,
+<code>STADO_MODEL_ROUTER_URL</code> or <code>BRAMA_URL</code> or the fleet's
+route, and Tama's token for it. When that fails the push is refused at once,
+before the formatting and quality checks spend minutes on a result nobody could
+use: <code>review-route: no reviewer can be addressed, so this push is refused
+before its checks run: &lt;cause&gt;</code>, followed by
+<code>tama: no reviewer can be addressed, so this push of &lt;repository&gt; was
+refused before its checks ran</code>. The cause is the failed lookup's own,
+for example <code>Brama URL must be HTTP or HTTPS</code> or the fleet route
+read that failed. Whether the reviewer then answers is still the review's to
+find out. The real <code>review_route</code> journey
+(<code>tests/review/route/preflight.rs</code>) installs the dispatchers into
+an isolated hooks directory, declares an address that is not HTTP, pushes an
+unformatted registered test and requires this refusal, with the formatting gate
+never run and the remote unchanged.</p>
 <p>Before every push, <code>repo-githooks/rust/pre-push</code> invokes
 <code>tama hook check-rust-format</code>. For each non-deleted pushed ref it
 takes the Rust files the push changes — those <code>git diff --name-only

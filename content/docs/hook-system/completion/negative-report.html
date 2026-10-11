@@ -1,0 +1,48 @@
+<h1>A supervisor's negative report needs its repair</h1>
+<p>Part of <a href="../../">enforcement control</a>, completion enforcement.</p>
+<p><code>block-unrepaired-negative-report</code> reads the ending answer of a
+session whose local Oko role is <code>supervisor</code>
+(<code>~/.oko/session-roles.json</code>, the register <code>oko sessions role</code>
+writes); any other session passes untouched. A supervisor is the session
+answerable for what does not work, so an answer that tells the operator
+something is broken and ends there reports a failure instead of repairing it.</p>
+<h2>What is read</h2>
+<p>Brama's reviewer, through the same stop path as the other judged gates, names
+every sentence of the answer that tells the operator something does not work or
+cannot proceed: a product or service down or failing, an executor stopped, stuck
+or on a usage limit, a build or push refused or not done, a feature missing. A
+sentence the turn's own tool evidence answers with a product action, such as
+<code>oko sessions model</code> moving an executor to an account with capacity or a
+reassignment of the work, is covered and not named. For every other sentence the
+reviewer names the Oko defect it cites, or none.</p>
+<p>Whether a cited defect carries a repair is read from Oko, never decided by the
+model: <code>oko defects show &lt;id&gt; --json</code> must report a
+<code>repaired_in</code> revision (the repair is recorded) or an
+<code>owner</code> session (the repair is in progress there).</p>
+<h2>What is refused</h2>
+<p>A sentence citing no defect, or a defect with neither field, refuses the stop:</p>
+<pre><code>BLOCKED: a supervisor does not report a broken, stopped, refused or missing state without its repair. Not so here:
+- "&lt;sentence&gt;": it names no Oko defect and no action of this turn answers it
+- "&lt;sentence&gt;": defect &lt;id&gt; has no recorded repair and no session owns it</code></pre>
+<p>The refusal then names the ways out: record the defect with its repair
+(<code>oko defects record</code>, <code>oko defects repaired</code>) or assign it to a
+working session, or take the product action that answers it in the turn, and
+cite it in the answer. A defect Oko cannot read is quoted with what Oko answered.
+An unreadable role register refuses with its path and cause, because unreadable is
+not evidence that the session is no supervisor, and an unavailable reviewer
+refuses with <code>TAMA_HOOK_INFRASTRUCTURE: block-unrepaired-negative-report: review
+unavailable: &lt;cause&gt;</code>.</p>
+<h2>Source and proof</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/programs/block/supervisor/negative_report.rs</code>;
+declaration: <code>hook-declarations/answer-discipline/blockers/block-unrepaired-negative-report.json</code>.
+The hook runs once its declaration is registered in the hook registry and selected
+for enforcement, like every other stop gate.</p>
+<p>The real journey <code>tests/supervisor-stop/negative_report.rs</code> runs the
+built hook in isolated homes against the real reviewer
+(<code>TAMA_BRAMA_TOKEN_FILE</code>, <code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTER_URL</code>,
+<code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTE</code>) and the real Oko register
+(<code>NEGATIVE_REPORT_OKO_CLI</code>, with <code>NEGATIVE_REPORT_REPAIRED_DEFECT</code>
+naming a defect whose repair Oko records): an unrepaired report is refused
+quoting its sentence, the same report citing the repaired defect passes, and a
+session without the supervisor role is not judged. Its source alone is not a
+passing run.</p>
