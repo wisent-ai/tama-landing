@@ -164,17 +164,19 @@ repair. A recorded revision counts as a repair only when it comes after the defe
 defect's <code>found_in</code> names a commit of the same repository, the repair must descend from
 that commit and differ from it, so a fix committed before the defect was recorded still counts;
 otherwise the repair must be committed after the defect's <code>found_at</code> time. A revision
-this machine cannot resolve is counted as recorded. A build the operator consents to in the conversation passes before that: the agent records
-the consent as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
-(or <code>{"tool": "build"}</code> for any product) with lifetime <code>single-use</code> or
-<code>expires-at</code>, and the gate lets a build through whose arguments name a granted product. A
-<code>current-session</code> grant carries no build consent and is not read, because a session-long
-grant would admit later builds the operator never agreed to. For <code>cargo</code> the products are
+this machine cannot resolve is counted as recorded. A build the operator consents to passes before
+that. His Oko ruling is read first: the newest ruling on <code>build</code>,
+<code>build:&lt;product&gt;</code>, <code>no-build</code> or <code>no-build:&lt;product&gt;</code>
+decides for the products built. Otherwise the agent records the consent he gave in the
+conversation as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
+(or <code>{"tool": "build"}</code> for any product) with the lifetime he named —
+<code>single-use</code>, <code>expires-at</code> or <code>current-session</code> — and the gate lets
+a build through whose arguments name a granted product. For <code>cargo</code> the products are
 the <code>-p</code>/<code>--package</code> selections, so a consent to build Tama names
 <code>tama-cli</code>. For <code>stado release submit --source PATH</code> and
 <code>stado build submit --source PATH</code> the product is the <code>product</code> the checkout's
-<code>.wisent-release.json</code> declares (the name Stado builds it under, such as
-<code>compute-wisent-com</code> for the checkout <code>compute.wisent.com</code>), else the name of the
+<code>.wisent-release.json</code> declares (the name Stado builds it under, which a checkout whose
+directory name is not a product name declares), else the name of the
 checkout directory PATH resolves to; a relative path such as <code>--source .</code> is resolved against the directory the
 command runs in, and a path that names no existing directory establishes no product, so only a grant
 with no product list admits it. <code>stado release submit --build ID</code> names no
