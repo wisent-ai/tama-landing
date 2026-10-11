@@ -1,0 +1,43 @@
+<h1>How the build gate reads open work</h1>
+<p>Part of <a href="../../">enforcement control</a>, completion enforcement. The policy the gate
+applies — a build, compile or test waits until every open item carries a repair — is on the
+<a href="../work/">completion policy and work registers</a> page; this page says where the gate
+reads that work from and how it refuses when it cannot.</p>
+<h2>Defects live, tasks from the recorded reading</h2>
+<p><code>block-one-off-repairs</code> answers a build within the time the harness gives a hook.
+It reads Oko's defect register live, because that register answers at once and one defect with
+no recorded repair already holds the build. Tasks are read from the session's last recorded
+reading of open work, not from every session's ledger at that moment: reading every session's
+ledger inline took minutes, and the harness ended the hook by its own limit instead of the gate
+giving a verdict.</p>
+<p>Every reader of open work records that reading when Oko answers it — the stop gate
+(<code>block-stop-with-open-work</code>) at the end of each turn, the text gate and the
+open-work reminder among them. The record holds the session id, the time the reading completed
+and the line of every open task that carried no repair, and is kept under Tama's state root at
+<code>owed/&lt;sha256 of the session id&gt;.json</code>, replaced whole in one rename. Defects are
+not kept there; the gate reads them live.</p>
+<h2>What the gate answers</h2>
+<ul>
+<li>A defect with no recorded repair, unless it is held for the build: the build is refused and
+the defects are listed by identifier and product.</li>
+<li>A recorded reading that lists tasks with no repair: the build is refused and those tasks are
+listed. A task repaired after the reading still holds the build until the next reading records
+it, at the latest when the turn ends.</li>
+<li>A recorded reading with no unrepaired task and no defect waiting: the build is admitted (an
+operator's recorded build consent admits it before that, as the policy page describes).</li>
+<li>No recorded reading for the session: the build is refused with <code>no reading of open work
+is recorded for session &lt;id&gt; at &lt;path&gt;: it is recorded each time Oko's open work is read
+for this session, and the stop gate reads it when the turn ends</code>. A record that cannot be
+read or decoded, or that names another session, is refused with its path and the cause.</li>
+</ul>
+<p>Each Oko reading the gates make announces itself on stderr through the shared wait mechanism
+before it waits and when it ends, so a reading that stands still names the command it stands
+on.</p>
+<h2>Qualification</h2>
+<p><code>tests/build-gate/recorded.rs</code> runs the built <code>tama hook
+block-one-off-repairs</code> on <code>cargo build</code>, the way OMP's PreToolUse dispatch runs
+it, against the real Oko CLI with an isolated empty defect register
+(<code>OKO_DEFECT_REGISTER</code>) and a session id made for the run: with no recorded reading
+it is refused naming the missing reading, with a recorded unrepaired task it is refused naming
+that task, and with an empty reading it is admitted. The run's own record is removed at the
+end.</p>
