@@ -43,7 +43,16 @@ publish a digest. <strong>Remote adapter reload unavailable</strong> identifies
 an older entry without this control operation.
 <strong>Last runtime or adapter reload failed</strong> displays the actual
 <code>lastReloadError</code>. A matching policy release alone is not evidence
-that the JavaScript adapter has been replaced.</p>
+that the JavaScript adapter has been replaced.
+<strong>Agent Git editors not configured</strong> (danger) shows the adapter's
+<code>gitEditors.error</code> verbatim when <code>tama --git-environment</code>
+failed for the session, whose ordinary tool calls are then refused; a failure
+published without a cause is named as a broken status contract.
+<strong>Agent Git editors not reported</strong> (warning) identifies an adapter
+that predates managed Git editors, so a Git command that opens an editor can
+wait for a keyboard; <strong>Reload adapter</strong> loads the installed one. A
+session whose <code>gitEditors.configured</code> is true shows neither. The same
+<code>runtime.gitEditors</code> object is in <code>tama sessions --json</code>.</p>
 <p>With no live session and no error: <code>No supervised session is running</code>, with
 the exact expectation — <code>Tama refuses to start an agent unless the platform has a ready kernel-enforcement backend. Open or resume a supported coding-agent session, and it appears here within a second.</code></p>
 <h2>Hook state per session</h2>
