@@ -61,6 +61,18 @@ invoke the same hook and receive the same refusal and file diagnostics.</p>
 <p>A failed <code>stado quality check</code> can name an unavailable release input or another dependency, not just a formatting defect. The dispatcher preserves that operation's diagnostic and refuses the push; it does not prescribe rewriting commits for an infrastructure failure. Resolve the reported cause before another push. Only actual formatter diffs justify formatting the affected source.</p>
 <p>The real <code>external_target_modules_keep_the_declaring_package_edition</code> journey runs the formatter hook against an isolated Git tree containing a root package and an external target with a different edition. It requires the external module to retain its declared edition despite a contradictory working manifest, then requires a committed formatting defect to name that module and edition. It retains source/binary identity and command results; the separate installed push journeys qualify review and Git LFS integration.</p>
 <h2>Review before creating a commit</h2>
+<p>Before any model is asked, <code>tama hook review-commit</code> reads the
+message Git will record (its <code>#</code> comment lines dropped) with the
+same rule <code>block-internal-names</code> applies to files: a fleet host,
+account or vault item name anywhere, or a date or a hex id of seven or more
+digits in either case (a commit, defect, task or session id) in its prose. A
+message is published with its repository, so any such detail refuses the
+commit with <code>the commit message would carry internal details</code>, one
+line per value, and the incident it came from goes to Oko instead. This
+refusal needs no reviewer, works while Brama is unreachable and retains no
+review. A source of names that cannot be read (the Stado registry, the vault
+listing, the product declarations) stops the commit naming that source; it
+never lets a message through unchecked.</p>
 <p>The managed <code>commit-msg</code> dispatcher runs the preserved hook chain
 first, then <code>tama hook review-commit &lt;message-file&gt;</code>. Brama
 reads the final message and exact staged patch under the same message and
