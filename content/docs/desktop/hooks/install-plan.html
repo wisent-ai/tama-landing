@@ -24,8 +24,9 @@ A sealed release's plan reports, among others:
 <p>The user-global Git section adds one row per managed hook, labelled <code>Git hook pre-commit</code> and
 <code>Git hook pre-push</code>, whose value is the sentence <code>tama install plan</code> prints for it:
 <code>managed</code>, <code>held aside</code> (where the dispatcher sits, and whether a recorded bypass lets a
-re-enable restore it), <code>foreign</code> with the first statement of the hook in its place, or
-<code>absent</code>. A held or foreign <code>pre-push</code> means the push-time formatting gate does not run.</p>
+re-enable restore it), <code>foreign</code> with the first statement of the hook in its place,
+<code>unreadable: &lt;cause&gt;</code> when a hook is in place that cannot be read, or
+<code>absent</code>. A held, foreign or unreadable <code>pre-push</code> means the push-time formatting gate is not known to run.</p>
 <h2>MCP server</h2>
 <p><code>Paste this into a client configuration to expose the bundled Tama tools.</code>
 The snippet is the answer of <code>tama request mcp-config</code> — the same JSON
