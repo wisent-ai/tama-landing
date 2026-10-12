@@ -108,6 +108,17 @@ whose input closes ends every hook run it still holds the same way, with
 <code>the core's caller closed its input, so nobody waits for its
 answer</code>. A payload without a session id is never superseded by another session event.
 <code>tama hooks running</code> lists every hook still running.</p>
+<p>Within a turn, a call's own result ends its check. OMP stops waiting for an extension's
+<code>tool_call</code> handler at its own limit and does not tell the extension, so the pre-tool hooks of that
+call would keep running until the turn ends. When the <code>post_tool_use</code> dispatch of a call (same
+<code>session_id</code>, <code>tool_name</code> and <code>tool_input</code>) arrives while a
+<code>pre_tool_use</code> dispatch of that call is still in flight, the engine cancels that dispatch and its hook
+process groups and writes <code>tama: ended pre-tool dispatch &lt;id&gt; of &lt;tool&gt; in session &lt;id&gt;: the
+call's result already arrived, so the harness stopped waiting for this check</code> on stderr. Two identical calls
+of one session in flight at once are one call to this reading. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test abandoned_calls_answered</code> sends a
+pre-tool dispatch whose hook never ends and then the call's result, and requires the pre-tool dispatch answered and
+named on stderr.</p>
 <h3>Cancellation, judge progress and abandoned children</h3>
 <p>A dispatch requires a nonempty string <code>id</code>. To abandon it, send
 <code>{"id":"cancel-event","op":"cancel","dispatchId":"event"}</code>.
