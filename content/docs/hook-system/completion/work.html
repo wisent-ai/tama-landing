@@ -167,7 +167,18 @@ otherwise the repair must be committed after the defect's <code>found_at</code> 
 this machine cannot resolve is counted as recorded. A build the operator consents to passes before
 that. His Oko ruling is read first: the newest ruling on <code>build</code>,
 <code>build:&lt;product&gt;</code>, <code>no-build</code> or <code>no-build:&lt;product&gt;</code>
-decides for the products built. Otherwise the agent records the consent he gave in the
+decides for the products built. Then his answer to a build-consent ask: <code>tama build consent ask
+--target &lt;product&gt; --command &lt;the build&gt;</code> files an Oko ask on subject
+<code>build:&lt;product&gt;</code> with two choices, <code>zgoda na tę jedną budowę</code> and
+<code>nie</code>, on the channels he chose. His consent answer admits one build of that product: the
+gate reads <code>oko asks list</code>, takes the newest consent answer on that subject it has not spent,
+admits the build, prints <code>build admitted by the operator's answer to ask &lt;id&gt; on
+build:&lt;product&gt; at &lt;time&gt;, now spent</code> and records the ask in
+<code>~/.shared-hooks/build_consent_spent.json</code>, so the next build needs his next answer. A
+refusal, an ask still waiting, or a spent record that cannot be read admits nothing; the last says
+<code>&lt;path&gt; is not a list of ask ids</code> or <code>&lt;path&gt; cannot be read</code> on
+stderr. <code>tama build consent ask</code> without <code>--target</code> or <code>--command</code>
+is refused by name before Oko is asked. Otherwise the agent records the consent he gave in the
 conversation as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
 (or <code>{"tool": "build"}</code> for any product) with the lifetime he named —
 <code>single-use</code>, <code>expires-at</code> or <code>current-session</code> — and the gate lets
