@@ -1,9 +1,11 @@
 <h1><code>tama assignment attest</code></h1>
 <p>Reads a task's own attestation that it is finished and says whether it stands. On a machine that declared no model (<a href="../../configuration/model-provider/#none"><code>tama model-provider set --none</code></a>), this is what the stop gates read in place of a model's judgement, so a session can end and its work can be accepted with neither Brama nor any other model installed.</p>
 <h2>Invocation</h2>
-<pre><code>tama assignment attest FILE [--session SESSION_ID] [--json]
+<pre><code>tama assignment attest FILE [--session SESSION_ID | --commit SHA] [--json]
 </code></pre>
-<p>FILE is one JSON document. With <code>--session</code> an attestation that stands is recorded for that session under the Tama state root (<code>attestations/&lt;session&gt;.json</code>), which is where the stop gates look for it; one that does not stand is never recorded. Without <code>--session</code> the command only reads.</p>
+<p>FILE is one JSON document. With <code>--session</code> an attestation that stands is recorded for that session under the Tama state root (<code>attestations/&lt;session&gt;.json</code>), which is where the stop gates look for it; one that does not stand is never recorded. Without <code>--session</code> or <code>--commit</code> the command only reads.</p>
+<h2 id="commit">A pushed commit</h2>
+<p>With <code>--commit SHA</code> (any spelling Git resolves in the current repository) FILE attests that commit against the push reviewer's standard, declared in <code>push_attestations.json</code>: every pushed patch read line by line; no defect; no needless abstraction or duplication; no swallowed error or fallback; no guessed number; no failure hidden by pausing or retrying; no narrating comment, host, account, date or internal id; tests that exercise behaviour; no commit that only reformats or patches another; documentation that matches the code; and the harsh senior review, with <code>harsh_senior_review_findings</code> empty. Each claim is explained in at least the operator's stated number of words. One that stands is recorded under <code>push-attestations/&lt;full sha&gt;.json</code>, where <code>review-push</code> reads it for each pushed tip when no model is declared; the output says <code>FILE attests commit SHA</code>. <code>--session</code> and <code>--commit</code> together are refused.</p>
 <h2>What an attestation holds</h2>
 <pre><code>{
   "attestations": {
@@ -43,5 +45,5 @@
 <li>At a stop gate with no model declared: <code>session &lt;id&gt; recorded none: write it and record it with `tama assignment attest FILE --session &lt;id&gt;`</code>, or <code>session &lt;id&gt;'s recorded attestation does not stand: &lt;reasons&gt;</code>; a hook payload with no <code>session_id</code> is refused as an infrastructure failure.</li>
 </ul>
 <h2>Tests</h2>
-<p><code>tests/task-attestation/</code> runs the built binary in an isolated home: <code>attest.rs</code> (a complete attestation, a missing claim, an unconfirmed and short claim, non-empty lists), <code>no_model.rs</code> (<code>set --none</code>, <code>check</code> refused, <code>review-push</code> standing aside, a stop gate refusing without and passing with a recorded attestation) and <code>desktop.rs</code> (the Desktop operations). The claims and the word minimum are read from the product's own declarations.</p>
+<p><code>tests/task-attestation/</code> runs the built binary in an isolated home: <code>attest.rs</code> (a complete attestation, a missing claim, an unconfirmed and short claim, non-empty lists), <code>no_model.rs</code> (<code>set --none</code>, <code>check</code> refused, a stop gate refusing without and passing with a recorded attestation), <code>push.rs</code> (a real repository's commit refused by <code>review-push</code> without an attestation, an attestation with a finding refused and not recorded, then the push passing once one stands) and <code>desktop.rs</code> (the Desktop operations). The claims and the word minimum are read from the product's own declarations.</p>
 <p>Return to <a href="../../">the complete CLI tree</a>.</p>
