@@ -211,14 +211,30 @@ serves no traffic refuses the request with its declared reason
 (<code>judge request to … not sent: Brama declares it serves no traffic at …/readyz: no provider capability or subscription is configured</code>),
 and a readiness answer with an error status refuses with Brama's report, so a
 request Brama cannot serve ends with a named refusal and is never left waiting.
-There is no time limit: a request Brama accepts waits until Brama answers or
-its hook process ends. A provider declared with <code>tama model-provider set</code>
-declares no readiness and is not asked. The journey
+There is no time limit. While a request Brama accepted waits, Tama asks the
+same readiness again, each answer pacing the next question: a Brama that stops
+declaring it serves, or an adapter that stops answering the readiness question,
+ends the hook's own waiting client, and the request is refused with
+<code>the judge request to … was ended while it waited: Brama no longer declares it serves (…)</code>
+carrying Brama's declaration, so a request forwarded to a Brama that never
+answers does not hold the adapter for every later judge. A request Brama keeps
+declaring it serves waits until Brama answers or its hook process ends; a
+resolver that forwards the readiness question too and holds it unanswered
+leaves the watch waiting with the client, which Stado's own refusal of a
+forwarded connection its remote never answers frees. A provider declared with
+<code>tama model-provider set</code> declares no readiness and is neither asked
+nor watched. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hooks_judge_channel</code>
 runs the built <code>tama model-provider check</code> against a loopback listener
 that never answers: a waiting request of a running process is refused naming
 the process and its command, and one whose hook ended has its waiting client
-ended and its record removed.</p>
+ended and its record removed. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hooks_readiness_watch</code>
+runs the built <code>tama hook block-objective-substitution</code> preflight
+against a Brama stand-in that declares itself ready once, never answers the
+chat request and then declares it serves no traffic: the hook ends its client,
+refuses with the stand-in's declaration, and the stand-in sees the chat
+connection closed.</p>
 <p>Malformed wait records refuse with their state path and JSON cause before chat or catalogue HTTP starts; they are not an empty list. Required fields follow Stado's published record contract; omitted legacy <code>bind</code> and <code>phase</code> retain the producer's compatibility defaults, and newer unrelated fields are tolerated. The registered <code>model_provider_route</code> malformed-state journey requires <code>TAMA_TEST_SOURCE_REVISION</code>, an isolated configured <code>TAMA_TEST_BRAMA_HOME</code> and a real <code>TAMA_TEST_RESOLVER_ENDPOINT</code>. It retains candidate and binary identity plus the actual CLI refusal for a malformed persisted record. This negative journey does not qualify resolver begin/end publication or healthy-channel recovery; those require their real lifecycle run.</p>
 <p>Each hook has a native <code>owned-hook</code> supervisor in its own
 process group. The core holds a kernel lifetime channel; cancellation closes
