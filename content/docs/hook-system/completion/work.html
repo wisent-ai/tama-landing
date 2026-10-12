@@ -219,6 +219,18 @@ alternatives, cause, observed state and condition for resumption. Tama rejects
 a prose-only reason, unmatched receipt, missing operation or unchecked alternative.
 The refusal names the original task and the observations still required;
 a worker's claim or local “blocked” flag never grants permission to stop.</p>
+<h3>A refusal is shown once</h3>
+<p>The core records each session's last turn ending in <code>turn-end.&lt;session&gt;.json</code> beside
+its control files: when the stop was received, when it was answered and the whole decision sent. A
+stop refused with exactly the refusal the previous stop of the session got is still refused, but the
+harness is sent one line, <code>BLOCKED: the same refusal as this session's previous ending, given N
+times in a row, is not printed again; its full text is `decision.reason` in &lt;path&gt;</code>; the
+record keeps the full refusal and every time it was given (<code>givenAtMs</code>). A different refusal,
+or the first one after a stop that passed, is given in full. <code>block-stop-with-open-work</code> lists
+the open defects and tasks once per session (<code>open-work-listed.&lt;session&gt;.json</code>); later
+refusals give their counts, the next item, and the commands that list them. A marker that cannot be
+written is said on standard error and the list is given in full. Real journey
+<code>tests/stop-gate/identical_endings.rs</code>.</p>
 <h3>A report is not the work it describes</h3>
 <p><code>block-stop-on-own-work</code> refuses an ending that reports instead of working, with no
 model: from the transcript, an ending said again after a refusal with no source changed, a plea
