@@ -1,0 +1,39 @@
+<h1>Git authorship: <code>block-git-authorship</code></h1>
+<p>A gate on shell, eval and process-start calls (<code>tama hook block-git-authorship</code>) that refuses every
+way of asking git who wrote something. Every agent in this workshop commits through the operator's git
+identity, so an author line, a blame line, a shortlog or a mailmap names him whatever an agent did; who
+decided something is answered by the transcripts (<code>oko tasks --session &lt;id&gt; --full</code>,
+<code>oko tasks rules --session &lt;id&gt;</code>). The refusal carries a <code>reason:</code> line naming which
+way the command asked.</p>
+<h2>What is refused</h2>
+<table>
+<thead><tr><th>The command</th><th>Reason line</th></tr></thead>
+<tbody>
+<tr><td><code>git blame</code>, <code>git annotate</code>, <code>git shortlog</code>, <code>git check-mailmap</code></td>
+<td>git blame, annotate, shortlog or check-mailmap answers only with a name</td></tr>
+<tr><td><code>--author</code>, <code>--committer</code>, <code>--use-mailmap</code>, <code>--mailmap</code></td>
+<td>--author, --committer or a mailmap selects commits by who made them</td></tr>
+<tr><td>A format with <code>%an</code>, <code>%ae</code>, <code>%al</code>, <code>%cn</code>, <code>%ce</code>,
+<code>%cl</code>, or <code>%(author…)</code>, <code>%(committer…)</code>, <code>%(tagger…)</code></td>
+<td>the format asks for an author or committer identity</td></tr>
+<tr><td><code>--pretty</code> or <code>--format</code> set to <code>medium</code>, <code>full</code>,
+<code>fuller</code>, <code>raw</code>, <code>email</code> or <code>mboxrd</code></td>
+<td>that built-in format prints the author line</td></tr>
+<tr><td><code>git log</code>, <code>git show</code>, <code>git whatchanged</code> with no format chosen
+(<code>--oneline</code>, <code>--pretty</code>, <code>--format</code> or <code>--no-patch</code>)</td>
+<td>git log, show and whatchanged print the author line unless a format says otherwise</td></tr>
+</tbody>
+</table>
+<p>The subcommand is read after git's global options, including those that take their value as the next word
+(<code>-C &lt;path&gt;</code>, <code>-c &lt;name&gt;=&lt;value&gt;</code>, <code>--git-dir</code>,
+<code>--work-tree</code>, <code>--namespace</code>), so <code>git -C repo blame</code> is the same question as
+<code>git blame</code>. Each pattern is assembled from git's own subcommand, option and placeholder names.</p>
+<h2>What passes</h2>
+<p>History without an identity: <code>git log --oneline</code>, <code>--format=%h</code>,
+<code>--format=%s</code>, <code>--format=%ad</code>; every other git command; a command that only mentions
+<code>git blame</code> inside quoted text.</p>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_git_authorship/mod.rs</code>. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test git_authorship_requests</code> runs the built
+hook on each refused shape, <code>git -C repo shortlog</code> among them, and requires its reason line, and on
+the passing shapes requires no refusal.</p>
