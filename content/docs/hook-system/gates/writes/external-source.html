@@ -1,0 +1,32 @@
+<h1>External source: <code>block-external-source-edits</code></h1>
+<p>A gate on writes, patches and shell commands (<code>tama hook block-external-source-edits</code>) that refuses a
+change to source someone else owns: installed dependency source (<code>node_modules</code>,
+<code>site-packages</code>, Cargo's registry and similar) and a checkout whose <code>upstream</code> or
+<code>origin</code> is a fork of, or a repository owned by, an account other than the one signed in to GitHub. The
+refusal says what the path resolves to and to use documented configuration, APIs or a separately owned extension
+instead.</p>
+<h2>How a shell command is read</h2>
+<p>Where a command reaches is read from its structure: each operand that names a path (an existing file or
+directory, a path whose directory exists, or a word the shell expands), git's <code>-C</code>,
+<code>--git-dir</code> and <code>--work-tree</code>, the directory <code>cd</code> moves to, and the directory the
+command runs in. A command line handed to a shell is read the same way. A shell redirection (<code>&gt;</code>,
+<code>&gt;&gt;</code>, <code>1&gt;</code>, <code>2&gt;</code>) into external source writes it, so it is refused by the
+shell's grammar alone. A command that reaches no external source passes without asking anyone.</p>
+<p>When a command reaches external source, a model reads through Oko's model call whether it changes it
+(<code>block_external_source_edits/judge-prompt.md</code>): writing, creating, deleting, moving, copying onto,
+truncating, re-permissioning or editing in place a path there, mutating a repository there, or running code out of
+an external checkout. Reading, listing, searching, copying from and diffing pass. No list of program names or git
+subcommands decides it. The refusal is the ownership reason followed by
+<code>the command changes it: &lt;the model's sentence&gt;</code>. A word that still holds <code>$</code>,
+<code>*</code>, <code>?</code> or a backtick after expansion is reported as <code>not a concrete path; source
+ownership cannot be established</code> and the model judges whether the command changes it. When no judgement can
+be obtained the command passes and stderr says
+<code>block-external-source-edits: no judgement, the command passes: …</code>.</p>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_external_source_edits/</code>. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test external_source_edits_shell</code> builds a
+project with a <code>node_modules</code> package in its own git checkout, requires redirections into the package
+refused without a judge, a copy onto it to pass with the stderr note when the judge is down, and commands that never
+reach it never to ask; with <code>TAMA_TEST_EXTERNAL_JUDGE=1</code> and <code>-- --ignored</code> it asks the real
+judge and requires copying onto, deleting and editing the package in place refused, and reading or copying from it
+passed.</p>

@@ -99,6 +99,7 @@
   {"route":"keychain-prompts","source":"content/docs/hook-system/gates/credentials/keychain-prompts.html","content":"content/docs/hook-system/gates/credentials/keychain-prompts.html","category":"Reference"},
   {"route":"oko-weles-boundary","source":"content/docs/hook-system/gates/boundaries/oko-weles.html","content":"content/docs/hook-system/gates/boundaries/oko-weles.html","category":"Reference"},
   {"route":"shell-commands","source":"content/docs/hook-system/gates/boundaries/shell-commands.html","content":"content/docs/hook-system/gates/boundaries/shell-commands.html","category":"Reference"},
+  {"route":"external-source","source":"content/docs/hook-system/gates/writes/external-source.html","content":"content/docs/hook-system/gates/writes/external-source.html","category":"Reference"},
   {"route":"known-to-operator","source":"content/docs/hook-system/gates/known-to-operator.html","content":"content/docs/hook-system/gates/known-to-operator.html","category":"Reference"},
   {"route":"cloud-instances","source":"content/docs/hook-system/consent/cloud-instances.html","content":"content/docs/hook-system/consent/cloud-instances.html","category":"Reference"},
   {"route":"fallbacks","source":"content/docs/hook-system/code/fallbacks.html","content":"content/docs/hook-system/code/fallbacks.html","category":"Reference"},
