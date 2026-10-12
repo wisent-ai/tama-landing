@@ -124,3 +124,8 @@ plain word after those commands, its last path part, or the directory the comman
 operator's own words in the conversation name that product, record them as the Tama session capability
 <code>{"tool": "repository", "actions": ["create:&lt;name&gt;"]}</code> with the lifetime he named, and the
 same command passes; otherwise build the capability inside the product that already owns it.</p>
+<h2><code>BLOCKED: this command creates a repository without naming it, and the payload names no working directory to read the name from; …</code></h2>
+<p>From the same hook, when <code>gh repo create</code> or <code>git init</code> names no repository and the
+tool call carries no working directory (neither in its arguments nor beside them), so there is no name to hold
+consent for. Name the repository on the command line, or run it from the harness that sends the working
+directory, and the refusal above applies to that name.</p>
