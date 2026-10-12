@@ -279,6 +279,15 @@ those characters are outside quotes, so a sentence that names a writer inside a
 quoted argument — an evidence message, a commit body, a report of a refusal —
 runs nothing and is allowed. A token with spaces in it is an argument, not a
 program or a path, for the same reason.</p>
+<p>A shell payload that names hook source or configuration where the name can act — outside its quoted data — is
+a change to it whatever program it runs, and needs the owner's consent: no list of writer programs, language
+write calls or patch appliers decides it, because every writer such a list left out went through. Any other
+execution payload (code an evaluator runs) needs consent when its code names a protected path at all. Read a hook
+with the harness's read tool, which changes nothing. A payload naming one of the operator's break-glass files
+(the emergency state file, its backup folder, a session override) is refused outright. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hook_config_shell_mentions</code> requires
+<code>cp</code>, an unlisted writer and a redirection onto the registry refused, the same path inside a commit
+message passed, and a command naming the emergency state file refused.</p>
 <p>What still refuses: the writer as the command's program or script argument,
 including a quoted path (<code>node 'shared-hooks/generate-configs.mjs'
 --apply</code>); <code>tama install</code>, <code>tama enforcement only|all</code>
