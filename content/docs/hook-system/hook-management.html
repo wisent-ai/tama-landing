@@ -252,6 +252,17 @@ capability <code>{"tool": "tests"}</code> recorded after the operator agrees in 
 conversation, under <code>tama tests approve &lt;path&gt;</code> run in his own
 terminal, or under <code>DEVICE_LEVEL_TESTS_APPROVED=1</code>. A session can never
 write the approval record or run <code>tama tests approve</code> itself.</p>
+<p><code>block-device-level-tests-without-consent</code> reads a write tool by the path it names and a shell
+command in two steps. Which test files the command reaches is structure: a test path (the runners' own
+conventions — a test directory, a <code>.test.</code>/<code>.spec.</code> file, an XCTest
+<code>…Tests.swift</code>) named outside quoted data, and the targets a patch file it names declares in its own
+<code>---</code>/<code>+++</code> or <code>*** … File:</code> headers. A redirection onto a test path is refused
+outright. Whether the command changes what it reaches is read by a model through Oko's model call, asked only when
+a test is reached; staging, committing and running tests pass. With no judgement the command passes and stderr says
+<code>capture-direct-test-request: no judgement, the command passes: …</code>. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test device_level_tests_shell</code> covers the
+redirection, the judge-down note for a copy and for a patch naming a test, and (with
+<code>TAMA_TEST_DEVICE_TESTS_JUDGE=1</code> and <code>-- --ignored</code>) the real judge's refusals.</p>
 <p>For a live hook the supported route is a validated proposal:</p>
 <pre><code>tama adaptive repair &lt;hook-id&gt; --patch-file &lt;path&gt;
 DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;</code></pre>
