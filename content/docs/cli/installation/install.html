@@ -249,12 +249,25 @@ every route is unavailable. No inferred outage, successful process or empty
 model reply authorizes an unreviewed push. Malformed response JSON retains its
 parser cause; absent or non-text normalized content names the exact field.</p>
 <pre><code>tama hooks status
-tama hooks status --home /path/to/home --json</code></pre>
+tama hooks status --home /path/to/home --json
+tama hooks status --repo ~/code/my-service</code></pre>
 <p>Status reports the configured user-global directory, each dispatcher, whether
 the Rust gate is referenced and present, and the preserved original hook path.
 The same descriptions appear in Desktop's installation plan. This is a wiring
-inspection, not a successful push claim. Repository-local
-<code>core.hooksPath</code> overrides are outside this user-global report.</p>
+inspection, not a successful push claim.</p>
+<p>Git reads one hooks directory per repository, and a repository's own
+<code>core.hooksPath</code> wins over the global one. A repository that sets it
+runs that directory instead of the dispatcher, so the Rust format check, the
+quality check and <code>review-push</code> never run on its commits and pushes,
+and its pushes leave unreviewed without a word. <code>--repo PATH</code> reads
+that repository's own setting: with none, it says Git runs the dispatcher and
+exits <code>0</code>; with one, it names the directory, says which gates do not
+run and how to remove the override, and exits <code>1</code>. JSON mode carries
+it as <code>repository</code> (<code>repository</code>, <code>hooksPath</code>,
+<code>bypassesDispatcher</code>, <code>description</code>) beside
+<code>userGlobalGit</code>. A repository needs no hooks path of its own: the
+dispatcher runs its <code>.githooks/&lt;hook&gt;</code> after its own gates. A
+path that is not a Git work tree is refused with Git's own answer.</p>
 <p>If the runtime installs but connecting Git fails, release activation refuses
 and names that operation and its cause. If a foreign hook and its
 <code>.before-tama</code> backup contain different content, installation refuses

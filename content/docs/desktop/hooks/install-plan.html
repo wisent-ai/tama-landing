@@ -20,7 +20,12 @@ Fields are the plan's own keys with camel case humanized into labels
 (<code>codexSettings</code> reads as CODEX SETTINGS); a target the plan reports as
 null renders <code>Not configured</code> — omitting the row would hide the fact.
 A sealed release's plan reports, among others:
-<code>user-global Git hooks: ~/.config/git/hooks</code>, <code>repo/project Git hooks: git config core.hooksPath .githooks</code>, and <code>OS-level policy: outside Tama</code>.</p>
+<code>user-global Git hooks: ~/.config/git/hooks</code> and <code>OS-level policy: outside Tama</code>.
+The repo/project Git section's detail is its note: the user-global dispatcher runs each
+repository's own <code>.githooks/&lt;hook&gt;</code> after its gates, and a repository must not
+set a <code>core.hooksPath</code> of its own, because Git then runs that directory instead and
+neither the Rust format check, the quality check nor <code>review-push</code> runs on its pushes.
+<code>tama hooks status --repo &lt;path&gt;</code> names such an override.</p>
 <p>The user-global Git section adds one row per managed hook, labelled <code>Git hook pre-commit</code> and
 <code>Git hook pre-push</code>, whose value is the sentence <code>tama install plan</code> prints for it:
 <code>managed</code>, <code>held aside</code> (where the dispatcher sits, and whether a recorded bypass lets a
