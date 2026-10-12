@@ -93,6 +93,11 @@ runtime, <code>tama_hook_runtime_status</code> answers at once without asking th
 <code>core</code> is <code>null</code>, <code>coreNotAsked</code> says which operation holds it since
 when, and the answer is an error. <code>tama hooks running</code> names the hook process itself from
 any terminal.</p>
+<p><code>lastDecision.results</code> carries, for every hook that ran, <code>ms</code> (how long the
+hook ran once its process existed) and <code>startMs</code> (how long it took to get there: the
+supervisor spawned and its lifetime and dispatch registered). A dispatch whose
+<code>runningMs</code> is far above every <code>ms</code> is slow in starting its hooks, and
+<code>startMs</code> says which ones; one slow <code>ms</code> names the slow gate.</p>
 <h2>Where it surfaces</h2>
 <ul>
 <li>The <strong>Session</strong> screen renders the live record and can request one-hook or
