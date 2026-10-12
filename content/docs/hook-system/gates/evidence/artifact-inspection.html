@@ -11,6 +11,7 @@ a file that exists in one of the places a run of the label writes its artifacts:
 wrote there counts; no list of file extensions decides it. A frame
 (<code>.work/&lt;label&gt;/frame_&lt;digest prefix&gt;_…</code>) is tied to its recording by the digest prefix and must
 still hold the content the marker recorded. Reading a file the run never wrote, a file elsewhere, or naming an
+artifact in a shell command is not looking at it.</p>
 <h2>Failure snapshots</h2>
 <p><code>check-failure-inspection</code> holds a claim that a run failed until the turn has read that run's failure
 snapshot or frames. They are read by Weles' run layout and their names —
@@ -19,7 +20,6 @@ snapshot or frames. They are read by Weles' run layout and their names —
 journey <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test failure_inspection_artefacts --
 --ignored</code> (with <code>TAMA_TEST_FAILURE_JUDGE=1</code>, because whether an answer claims a failure is the
 judge's reading) requires a read <code>.webp</code> snapshot to admit the claim and an unread one to hold it.</p>
-artifact in a shell command is not looking at it.</p>
 <h2>Where it comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/check_artifact_inspection/</code>. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test artifact_inspection_locations</code> builds a
