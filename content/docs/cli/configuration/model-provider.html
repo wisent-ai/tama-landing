@@ -1,21 +1,33 @@
 <h1><code>tama model-provider</code></h1>
-<p>Chooses the model service Tama's model calls ask — the objective reviewer, the stop review, frustration drafting and adaptive disputes — and checks whether it accepts this machine. Brama is the default; a machine without Brama declares any OpenAI-compatible chat-completions service instead.</p>
+<p>Chooses the model service Tama's model calls ask — the objective reviewer, the stop review, frustration drafting and adaptive disputes — and checks whether it accepts this machine. Brama is the default; a machine without Brama declares any OpenAI-compatible chat-completions service instead, or declares that it has no model at all.</p>
 <h2>Invocation</h2>
 <pre><code>tama model-provider [show] [--json]
 printf '%s' "$KEY" | tama model-provider set --origin https://api.openai.com --model gpt-5 [--json]
+tama model-provider set --none [--json]
 tama model-provider unset [--json]
 tama model-provider check [--json]
 </code></pre>
+<h2 id="none">A machine with no model</h2>
+<p>Tama does not need Brama, or any model, to hold a session to its rules. <code>set --none</code> writes <code>{"provider": "none"}</code> into the same declaration file, and <code>show</code> then prints <code>provider: none</code>, <code>model: -</code>, <code>declaredIn</code> and <code>judgedBy</code>. From then on:</p>
+<ul>
+<li>Every deterministic hook enforces exactly as before.</li>
+<li>A stop gate that would ask a model whether the ending answer breaks its rule reads the session's recorded attestation instead: the task's own JSON statement that it is finished, checked by <a href="../../assignment/attest/"><code>tama assignment attest</code></a>. With no attestation recorded the gate refuses and names the command that records one; with one that falls short it refuses with each field's reason.</li>
+<li>A hook that only asks a model a question about a text (whether it claims a failure, which tests are smoke tests) finds nothing and writes <code>&lt;hook&gt;: no model is declared on this machine, so this question is not read</code> to its log.</li>
+<li><code>review-push</code> reads no source review and writes <code>review-push: no model is declared on this machine (tama model-provider show), so no source review is read; the push rests on the formatter and quality gates</code>; the formatter and <code>stado quality check</code> the dispatcher runs before it still refuse a push.</li>
+<li><code>check</code> exits 1 with <code>no model is declared on this machine, so there is no service to check</code>.</li>
+</ul>
+<p><code>unset</code> returns Tama to Brama. Tama Desktop's <em>Model service</em> section sends the same operations: <code>tama request model-provider</code> (the choice and its check; with no model the check says there is no service instead of probing Brama), <code>tama request model-provider/set</code> with <code>{"none": true}</code>, and <code>tama request model-provider/unset</code>. A service and its key are declared only in the terminal, so the key never crosses a request; <code>model-provider/set</code> with any other body is refused with that sentence.</p>
 <h2>Output and state</h2>
 <p><code>set</code> reads the service's API key from standard input only and writes the origin, model and key owner-only (mode 0600) to <code>~/.tama/model-provider.json</code>; <code>TAMA_MODEL_PROVIDER_PATH</code> names another file. From then on every Tama model call posts to <code>&lt;origin&gt;/v1/chat/completions</code> with that key as its bearer and asks for that model. <code>unset</code> removes the file and Tama asks Brama again. Every verb prints the choice that stands afterwards: <code>provider</code> (<code>brama</code> or <code>openai-compatible</code>), <code>model</code>, and for a declared service <code>origin</code> and <code>declaredIn</code>, as <code>key: value</code> lines or as JSON with <code>--json</code>. The key is never printed.</p>
 <h2>Refusals and failures</h2>
 <ul>
-<li><code>set needs --origin URL and --model MODEL; the API key is read from standard input</code> — exit 2.</li>
+<li><code>set needs --origin URL and --model MODEL (the API key is read from standard input), or --none for a machine with no model</code> — exit 2.</li>
 <li><code>--origin must be HTTPS, or HTTP on loopback, with no credentials, query or fragment, and --model must name a model: got "…" and "…"</code> — exit 2.</li>
 <li><code>the API key is read from standard input, and standard input was empty</code> — exit 2.</li>
 <li><code>no model provider is declared in &lt;file&gt;; Tama already asks Brama</code> — <code>unset</code> with nothing declared, exit 1.</li>
 <li><code>&lt;file&gt; names no complete model provider (origin, model and key); declare it again with `tama model-provider set` or remove it with `tama model-provider unset`</code> — a damaged declaration; every model call refuses with the same sentence until it is repaired.</li>
 <li>With nothing declared, <code>show</code> exits 1 with the route resolver's own sentence when Brama's route cannot be resolved, instead of printing an empty <code>model</code>.</li>
+<li><code>the model provider declaration &lt;file&gt; cannot be read: &lt;cause&gt;</code> or <code>&lt;file&gt; is not a model provider declaration: &lt;cause&gt;</code> — every verb, and every hook that reads the choice, refuses with the cause.</li>
 <li><code>takes show, set, unset or check; got &lt;verb&gt;</code> — exit 2.</li>
 </ul>
 <h2 id="check"><code>check</code></h2>

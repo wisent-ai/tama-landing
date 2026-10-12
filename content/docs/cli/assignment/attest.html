@@ -1,0 +1,47 @@
+<h1><code>tama assignment attest</code></h1>
+<p>Reads a task's own attestation that it is finished and says whether it stands. On a machine that declared no model (<a href="../../configuration/model-provider/#none"><code>tama model-provider set --none</code></a>), this is what the stop gates read in place of a model's judgement, so a session can end and its work can be accepted with neither Brama nor any other model installed.</p>
+<h2>Invocation</h2>
+<pre><code>tama assignment attest FILE [--session SESSION_ID] [--json]
+</code></pre>
+<p>FILE is one JSON document. With <code>--session</code> an attestation that stands is recorded for that session under the Tama state root (<code>attestations/&lt;session&gt;.json</code>), which is where the stop gates look for it; one that does not stand is never recorded. Without <code>--session</code> the command only reads.</p>
+<h2>What an attestation holds</h2>
+<pre><code>{
+  "attestations": {
+    "read_what_the_user_really_wants": {"confirmed": true, "how": "…"},
+    "…": {"confirmed": true, "how": "…"}
+  },
+  "next_steps": [],
+  "harsh_senior_review_findings": []
+}
+</code></pre>
+<p>The claims are declared in <code>rust/crates/tama-hook-tools/src/ports/task_attestation/attestations.json</code>, and every one must be present with <code>"confirmed": true</code> and a <code>how</code> that explains, in the agent's own words, how the claim holds, in at least the number of words the operator stated (<code>attestation_min_words</code> in the stated-numbers declaration, with his words beside it):</p>
+<ul>
+<li><code>read_what_the_user_really_wants</code> — the messages, what they mean beyond their words, and what the user refuses.</li>
+<li><code>read_existing_rules_and_earlier_answers</code> — the rules and the user's earlier answers on this subject, none of them broken.</li>
+<li><code>wrote_real_tests_that_passed</code> — real tests of the actual product, its success path and refusals, passing.</li>
+<li><code>analyzed_how_it_fits_other_tasks</code> — what it unblocks, what it touches, what of the other tasks and defects remains.</li>
+<li><code>fixed_the_cause_not_the_symptom</code> — the same failure does not return for the next case.</li>
+<li><code>cli_gui_docs_match</code> — the CLI, the GUI and the documentation carry the same behaviour.</li>
+<li><code>delivered</code> — committed and pushed, with what a release still needs named.</li>
+<li><code>no_blockers_task_fully_closed</code> — nothing blocks the task.</li>
+<li><code>nothing_further_is_possible_even_with_operator_work</code> — even with the operator's own work there is nothing further.</li>
+<li><code>harsh_senior_review_performed</code> — as a very strict senior engineer who hates AI, what was attacked, what was checked, and why each attack failed.</li>
+</ul>
+<p>Two lists must be present and empty. <code>next_steps</code>: a step that continues the task is the task's work, asked for or not, so it is done before attesting. <code>harsh_senior_review_findings</code>: every finding of that review means the task is not finished.</p>
+<p>What is checked needs no model: presence, confirmation, length and the empty lists. Whether the words are true cannot be decided without a model; they stay on record, and a false one is the agent's defect.</p>
+<h2>Output</h2>
+<p>An attestation that stands prints <code>assignment attest: FILE attests a finished task</code> (and <code>recorded at &lt;path&gt;</code> with <code>--session</code>) and exits 0. Otherwise every reason is printed on its own line and the exit status is 1. <code>--json</code> prints <code>{"file", "finished", "refusals", "recorded"}</code>.</p>
+<p>Tama Desktop sends the same reading as <code>tama request assignment/attest</code> with <code>{"attestation": {...}, "session": "&lt;id&gt;"}</code>; the answer is <code>{"finished", "refusals", "recorded"}</code> with the same sentences. A refused attestation is an answer, not a failed request.</p>
+<h2>Refusals</h2>
+<ul>
+<li><code>attestations.&lt;key&gt; is missing: attest "&lt;claim&gt;"</code></li>
+<li><code>attestations.&lt;key&gt;.confirmed is not true: the task is not finished while "&lt;claim&gt;" does not hold</code></li>
+<li><code>attestations.&lt;key&gt;.how is missing: explain in your own words how "&lt;claim&gt;" holds</code></li>
+<li><code>attestations.&lt;key&gt;.how explains in N words how "&lt;claim&gt;" holds; the operator asks for at least M</code></li>
+<li><code>&lt;list&gt; names N item(s); &lt;why&gt;: &lt;the items&gt;</code> and <code>&lt;list&gt; is missing: write it as a list, and attest only when it is empty (&lt;why&gt;)</code></li>
+<li><code>the attestation FILE cannot be read: &lt;cause&gt;</code>, <code>FILE is not JSON: &lt;cause&gt;</code>, <code>--session needs the session id</code>, <code>unknown option &lt;flag&gt;</code> and <code>the attestation stands but was not recorded: &lt;cause&gt;</code> — exit 1.</li>
+<li>At a stop gate with no model declared: <code>session &lt;id&gt; recorded none: write it and record it with `tama assignment attest FILE --session &lt;id&gt;`</code>, or <code>session &lt;id&gt;'s recorded attestation does not stand: &lt;reasons&gt;</code>; a hook payload with no <code>session_id</code> is refused as an infrastructure failure.</li>
+</ul>
+<h2>Tests</h2>
+<p><code>tests/task-attestation/</code> runs the built binary in an isolated home: <code>attest.rs</code> (a complete attestation, a missing claim, an unconfirmed and short claim, non-empty lists), <code>no_model.rs</code> (<code>set --none</code>, <code>check</code> refused, <code>review-push</code> standing aside, a stop gate refusing without and passing with a recorded attestation) and <code>desktop.rs</code> (the Desktop operations). The claims and the word minimum are read from the product's own declarations.</p>
+<p>Return to <a href="../../">the complete CLI tree</a>.</p>
