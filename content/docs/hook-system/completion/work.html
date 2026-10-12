@@ -219,6 +219,23 @@ that reports instead of working: an invented limit, a decision handed back, a pl
 one command on the clipboard, a plan under what was done, a report said again, work scoped to
 one session, and the rest. Every refusal, what passes and the journey that proves them are on
 their own page: <a href="/docs/enforcement-control/completion/own-work/">endings a report cannot replace</a>.</p>
+<h3>A correction is a record, not words</h3>
+<p><code>block-unlinked-operator-messages</code> refuses the end of a turn while any operator
+message of the session is linked to no Oko record. It runs
+<code>oko rulings unlinked --session SESSION_ID</code>, which reads the session's transcript and
+names, for each of the operator's messages, the ruling recorded from it or the defect its task
+is related to; a message linked to neither is a correction that stayed words, the lesson he had
+to teach again in the next session. Oko's own refusal is relayed, with the two commands that
+link the message: <code>oko rulings record --session SESSION_ID --ordinal N --subject &lt;task or
+defect&gt; --by SESSION_ID</code>, or <code>oko tasks relate &lt;task&gt; … &lt;defect&gt;</code> for the
+defect that names the rule and its mechanism (<code>oko rulings enforce</code>, <code>oko rulings
+audit</code>). No model decides it, so the gate holds while no model answers. A stop payload
+without a session is refused; an Oko that cannot be run is refused by name; a machine without
+the Oko CLI has no register to read and the gate says nothing there. Program:
+<code>rust/crates/tama-hook-tools/src/programs/assignment/linked/block_unlinked_operator_messages.rs</code>;
+declaration: <code>hook-declarations/assignment-discipline/block-unlinked-operator-messages.json</code>;
+real journey <code>tests/operator-rules/unlinked.rs</code> against the real Oko CLI, a transcript
+and registers of the run's own.</p>
 <h3>An operator stop order</h3>
 <p>Every guard above releases the turn only through a tool call: finish the
 tracker, read the ledger, treat a denial, record evidence. When the operator
