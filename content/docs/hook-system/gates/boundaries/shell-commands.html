@@ -1,0 +1,50 @@
+<h1>Shell commands: <code>pre-bash</code> and <code>block-inline-execution</code></h1>
+<p>Two gates read every shell command an agent runs. <code>tama hook block-inline-execution</code> refuses a program
+written inline instead of in a checked-in file; <code>tama hook pre-bash</code> refuses throwaway work and commands
+that cross a product boundary. Neither decides by a list of program names: an interpreter, wrapper or cloud CLI
+nobody listed walked past every list that did.</p>
+<h2>What is read from structure</h2>
+<p>Identity and shape stay structural, because they are facts a command carries:</p>
+<ul>
+<li>the tool itself: the evaluator, notebook and REPL tools, a browser <code>run</code>, a debugger
+<code>evaluate</code>, and a write to one of their devices are inline execution by what they are;</li>
+<li>Weles' own entry points (its keeper, trajectory folder, session start), the Supabase program, the LSI/PARP/NCBR
+endpoints, the Overleaf history API, and the OpenAI and Anthropic key and host names;</li>
+<li>a browser's cookie store by its own file name, and a raw <code>ssh</code> to a host the Stado registry declares;</li>
+<li>writes into <code>~/.shared-hooks</code>, <code>git checkout</code>, patch and interactive Git modes, a tool's
+co-author trailer, and pull-request work against a <code>wisent-supabase-*</code> repository.</li>
+</ul>
+<p>Hook bypass on commit and push (<code>--no-verify</code>, <code>commit -n</code>) is
+<code>block-git-hook-bypass</code>'s, which runs beside <code>pre-bash</code> on every shell call.</p>
+<h2>What a model reads</h2>
+<p>What a command does is read by a model through Oko's model call, and only after every structural rule passed it.
+<code>block-inline-execution</code> asks only when the command's syntax can carry source at all (quoting, a
+here-document, a process substitution, <code>/dev/stdin</code>, a command list or group, <code>eval</code>), and is
+answered whether an interpreter's execute flag, a filter-language program, shell control flow or fed source runs
+there. <code>pre-bash</code> asks with the command and its working directory, and the model names the first forbidden
+shape it does: a write into <code>to_check</code>, a scratch script under <code>/tmp</code>, a source file written
+through the shell, a keyword search over code, a browser engine started directly, a program run out of a Weles
+checkout, a cloud/cluster/IaC/hosting CLI, a file under <code>DO_NOT_RUN_quarantine_*</code> executed, a local
+direct-API helper, or a script run out of the hook tree (which passes under <code>HOOK_EDIT_AUTHORIZED=1</code> in
+settings). The refusal is the operator's sentence for that shape.</p>
+<p>When no judgement can be obtained the command passes and stderr says so, with the judge's recorded state:</p>
+<pre><code>block-inline-execution: no judgement, the command passes: …
+pre-bash: no judgement, the command passes: …</code></pre>
+<p>A judge answer naming a shape it was not asked for passes with
+<code>pre-bash: the judge answered a shape it was not asked for (…); the command passes</code>.</p>
+<h2>Trajectory runs</h2>
+<p><code>pre-bash</code> counts a trajectory run when the command names the trajectory path or a script whose own
+source starts a Weles session, whatever program the script is handed to. The counters live in
+<code>~/.shared-hooks/state/trajectory_runs.json</code>; <code>post-trajectory-capture</code> reads the same script the
+same way.</p>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_inline_execution/</code> and
+<code>rust/crates/tama-hook-tools/src/ports/pre_bash/</code> (prompt: <code>vocabulary/throwaway-prompt.md</code>).
+Journeys, run against the built hook with the judge recorded as not answering:</p>
+<pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test inline_execution_judged
+cargo test --manifest-path rust/Cargo.toml -p tama-cli --test pre_bash_throwaway
+cargo test --manifest-path rust/Cargo.toml -p tama-cli --test pre_bash_trajectory_runs</code></pre>
+<p>With <code>TAMA_TEST_INLINE_JUDGE=1</code> or <code>TAMA_TEST_THROWAWAY_JUDGE=1</code> and <code>-- --ignored</code>
+the first two ask the real judge: <code>python3 -c</code> and a shell loop refused and a commit message passed; a
+keyword search, <code>gcloud compute instances list</code> and an executed quarantined file refused, and listing the
+quarantine or reading one file passed.</p>
