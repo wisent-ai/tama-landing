@@ -1,7 +1,7 @@
 <h1>One-off repairs: <code>block-one-off-repairs</code></h1>
-<p>A gate on <code>pre_tool_use:bash</code> (<code>tama hook block-one-off-repairs</code>) that refuses three
-repairs made by hand against live machine state and names, in each refusal, the product command that
-owns the outcome. Every refusal starts <code>BLOCKED: one-off repair by hand.</code>,
+<p>A gate on <code>pre_tool_use:bash</code> (<code>tama hook block-one-off-repairs</code>) that refuses repairs
+made by hand against live machine state, and builds while the build hold stands, and names, in each refusal,
+the product command that owns the outcome. Every refusal starts <code>BLOCKED: one-off repair by hand.</code>,
 appears as a <code>{"decision":"block","reason":"…"}</code> document on stdout,
 and repeats its reason on stderr. The dispatcher ends normally after that decision;
 a nonzero exit without a decision is a hook failure, not a policy refusal.
@@ -9,10 +9,22 @@ The harness prevents the proposed command from running. An ordinary allowed comm
 prints nothing; an admitted build may report consumption of its recorded capability.</p>
 <h2>Why it exists</h2>
 <p>Oko's one-off repair detector (<code>oko transcripts one-offs</code>) reads the native harness files
-and counts commands that changed live state by hand instead of through a product path. Three shapes had
-no gate at all — service cycles, grants minted from the shell (sometimes into a vault replica its owner
-then overwrote) and binary copies over installed programs. Each fixes one machine once and is gone at the
-next sync, image refresh or build.</p>
+and counts commands that changed live state by hand instead of through a product path: service cycles,
+grants minted from the shell, binary copies over installed programs, rows and settings changed by hand,
+waits in place of a read. Each fixes one machine once and is gone at the next sync, image refresh or
+build.</p>
+<h2>Two readings</h2>
+<p>What a command's structure states is read directly, and holds whether or not a model answers: a
+compile while the build hold stands (the program a line runs and the subcommand its toolchain documents as
+building, testing or running a suite, and the fleet's own compile commands), an install the register
+already says will fail, and a Python run. Everything else a command might do by hand is read by a model,
+through Oko's model call, against the operator's rule and the route of each outcome
+(<code>block_one_off_repairs/judge-prompt.md</code>): which verb of which launcher, client, store or
+watcher does it is not a list anybody can finish, and the verb lists this gate used to carry were the
+keyword logic <code>block-keyword-literals</code> refuses. The refusal is the model's sentence naming what
+the command does by hand and the route that owns it. When no judgement can be obtained the command passes
+and stderr says <code>block-one-off-repairs: no judgement, the command passes: …</code> with the judge's
+recorded state; the build hold never depends on a judgement.</p>
 <h2>Shared repair histories</h2>
 <p>Checking whether any defect remains open does not read Git history.
 The text gate, stop gate and open-work listing read the register's open records
@@ -85,137 +97,95 @@ refusal naming the exact checkout and observed filesystem cause, with the
 register unchanged. Candidate digests, command exchanges and the pre-spawn hook
 invocation are retained. This negative case does not qualify successful repair
 ordering or the graphical diagnostic surface.</p>
-<h2>What is refused, and the route each refusal names</h2>
+<h2>What the model refuses, and the route each refusal names</h2>
+<table>
+<thead><tr><th>What the command does by hand</th><th>The route the refusal names</th></tr></thead>
+<tbody>
+<tr><td>Cycles a running service or process: restarts, stops, unloads, bootstraps or kills it through any
+launcher (<code>launchctl kickstart</code>, <code>systemctl restart</code>, <code>brew services restart</code>,
+<code>kill &lt;pid&gt;</code>, <code>pkill</code>)</td>
+<td><code>stado service restart &lt;NAME&gt;</code>, <code>stado service refresh-image &lt;LABEL&gt; --if-needed</code>;
+a unit that must change is redeclared with <code>stado service deploy|update</code>.</td></tr>
+<tr><td>Writes a grant or mints a bearer straight into a vault past Stado (<code>skarbiec grant ensure</code>,
+<code>skarbiec token-mint</code>)</td>
+<td><code>stado credentials token mint</code> and <code>stado credentials token sync</code> for a bearer;
+<code>stado service grant sync</code>, <code>stado credentials grant add</code> or
+<code>stado release catalog declare-publisher</code> for a grant.</td></tr>
+<tr><td>Changes rows or a table's shape through a database client, or the keys of a key-value store</td>
+<td>The command that owns those rows (<code>oko transcripts reindex</code>, <code>oko tasks …</code>, a
+service's own CLI); a change of shape belongs in a migration that ships with the product.</td></tr>
+<tr><td>Writes a machine setting (<code>defaults write</code>, <code>plutil</code>, <code>scutil</code>,
+<code>networksetup</code>)</td>
+<td>Declared where the product reads it: <code>stado registry set --path &lt;FIELD&gt; --value &lt;VALUE&gt;</code>,
+the product's own command, a browser policy through Weles.</td></tr>
+<tr><td>Copies or links a built executable over an installed one, or signs one with the ad-hoc identity</td>
+<td><code>oko install</code>, <code>stado product update &lt;PRODUCT&gt; --surface cli</code>,
+<code>stado release install-local</code>, <code>stado host reconcile --apply</code>; signing happens in
+<code>stado release prepare</code> and <code>stado release submit</code>.</td></tr>
+<tr><td>Renames, removes, overwrites or changes the mode of a hook's own file</td>
+<td><code>tama enforcement only &lt;hook-id&gt;…</code>, <code>tama adaptive repair &lt;hook-id&gt; --patch-file
+&lt;path&gt;</code>, <code>tama hooks release</code>.</td></tr>
+<tr><td>Redirects output into the operator's own state (<code>~/.stado</code>, <code>~/.oko</code>,
+<code>~/.shared-hooks</code> and the like)</td>
+<td><code>stado credentials token mint</code> for a bearer, <code>stado registry set</code> for a fleet
+declaration, the product's own command for its configuration.</td></tr>
+<tr><td>Makes scratch space outside the repository's ignored build directory</td>
+<td>The repository's build directory (<code>.build</code>, <code>rust/target</code>) or
+<code>~/.wisent-output</code>.</td></tr>
+<tr><td>Passes time instead of reading an outcome, blocks on a remote run, polls a build status, or hands a
+command a guessed number of seconds to give up at</td>
+<td>Continue the next open task; read an outcome only when the work in hand needs its value —
+<code>stado release status &lt;PRODUCT&gt;</code>, <code>stado release doctor &lt;PRODUCT&gt; --target
+&lt;HOST&gt;</code>, <code>oko tasks --session &lt;ID&gt;</code>.</td></tr>
+<tr><td>Searches a whole tree from the shell (a filter over a pipe is not one)</td>
+<td>The harness's own read and search; a product's own command for what it holds.</td></tr>
+<tr><td>Frees one host once where a declaration owns the outcome (<code>stado space reclaim</code>)</td>
+<td><code>stado space report &lt;HOST&gt;</code> shows what the janitor's cleaners cover; a tree no
+cleaner covers is a Stado defect to record and repair.</td></tr>
+<tr><td>Reformats a shared tree (<code>cargo fmt</code> over the checkout)</td>
+<td>The repository's own pre-commit dispatcher formats what is being committed.</td></tr>
+<tr><td>Puts an older version back (<code>stado release restore-local</code>, <code>stado release
+rollback</code>, <code>stado product rollback</code>)</td>
+<td>Rollbacks are forbidden: find the failed step in <code>stado product status &lt;PRODUCT&gt; --surface
+&lt;SURFACE&gt;</code>, commit and push the forward repair, install the new revision.</td></tr>
+</tbody>
+</table>
+<p>Reads pass: listing, printing, status and logs (<code>launchctl print</code>, <code>kill -0</code>, a
+<code>select</code>, <code>defaults read</code>), a filter over a pipe, reading one named file, the product
+routes above, writing inside the repository, version control on it, and any <code>--help</code>. A command
+that only mentions a restart in quoted text restarts nothing.</p>
+<h2>What the structure refuses</h2>
 <table>
 <thead><tr><th>Refused command</th><th>The route the refusal names</th></tr></thead>
 <tbody>
-<tr><td><code>launchctl kickstart|bootout|bootstrap|unload|load|stop|start|kill|disable|enable|remove</code>,
-<code>systemctl restart|stop|start|reload|kill|try-restart</code>, <code>kill &lt;pid&gt;</code>,
-<code>pkill</code>, <code>killall</code></td>
-<td><code>stado service restart &lt;NAME&gt;</code>, <code>stado service refresh-image &lt;LABEL&gt; --if-needed</code>;
-a unit that must change is redeclared with <code>stado service deploy|update</code>.</td></tr>
-<tr><td><code>skarbiec grant ensure|issue|add|widen|replace|revoke|rotate</code>,
-<code>skarbiec token-mint|token-revoke|reclaim</code> — a vault written past Stado, so nothing records the grant
-and the next replica sync removes it</td>
-<td><code>stado release catalog declare-publisher &lt;PRODUCT&gt; --owner &lt;VAULT HOST&gt; --client &lt;HOST&gt;</code>
-for a release publisher, <code>stado service grant sync</code> for a service, <code>stado credentials grant add</code>
-for one read on the owner, <code>stado credentials token mint</code> for a bearer; each records against the owner's
-vault and each passes this gate. Oko's detector still lists a hand-typed <code>stado credentials token mint</code> as
-<code>credential-by-hand</code> for the judge; it is not refused, because it is the product's own route.</td></tr>
-<tr><td><code>cp</code>, <code>install</code>, <code>mv</code> or <code>ln -s</code> whose last argument is under
-<code>~/.local/bin</code>, <code>~/.stado/bin</code>, <code>~/.oko/bin</code>, <code>~/.cargo/bin</code>,
-<code>/usr/local/bin</code> or <code>/opt/homebrew/bin</code> (with <code>~</code>, <code>$HOME</code> and
-<code>/Users/&lt;name&gt;</code> read as the same home)</td>
-<td><code>oko install</code> for Oko, <code>stado product update &lt;PRODUCT&gt; --surface cli</code> for a catalogued
-product, <code>stado release install-local</code> for a delivered release, <code>stado host reconcile --apply</code>
-for a host behind its declaration.</td></tr>
-<tr><td><code>mv</code>, <code>cp</code>, <code>install</code> or <code>ln</code> landing under a hook root, and
-<code>rm</code>, <code>chmod</code>, <code>truncate</code> or <code>chown</code> naming a path under one:
-<code>~/.shared-hooks</code>, the installed <code>Tama/hooks-runtime</code> release,
-<code>~/.claude/hooks</code>, <code>~/.config/tama/hooks</code>. Renaming a hook file aside, running what it
-forbids and renaming it back is invisible to the write gate, which reads write and edit payloads, not a
-shell rename</td>
-<td><code>tama enforcement only &lt;hook-id&gt;…</code> and <code>tama enforcement status</code> decide what this
-machine runs; a hook's source is changed with <code>tama adaptive repair &lt;hook-id&gt; --patch-file &lt;path&gt;</code>
-and <code>DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;</code>; the installed release is
-rebuilt with <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>.</td></tr>
-<tr><td><code>psql</code>, <code>sqlite3</code>, <code>mysql</code>, <code>mariadb</code>, <code>duckdb</code> or
-<code>clickhouse-client</code> whose quoted statement begins with <code>insert</code>, <code>update</code>,
-<code>delete</code>, <code>drop</code>, <code>alter</code>, <code>truncate</code>, <code>upsert</code>,
-<code>grant</code>, <code>revoke</code> or <code>create</code>. The statement is read from the original
-command — quoted text is blanked everywhere else, and a statement is exactly a quoted argument — and only
-after the program itself parses as a database client, so a sentence naming <code>psql</code> still runs
-nothing</td>
-<td>The command that owns those rows: <code>oko transcripts reindex</code> and
-<code>oko tasks …</code> for Oko's catalogue, a service's own CLI for its store. A change of
-shape belongs in a migration that ships with the product and runs on every host, not in one shell.</td></tr>
-<tr><td><code>sleep</code>, with any interval: time passed by hand in place of an outcome observed. A
-read after a sleep can as easily return the state from before the wait</td>
-<td>Continue the next open task. Read an outcome only when the work in hand needs its value —
-<code>stado release doctor &lt;PRODUCT&gt; --target &lt;HOST&gt;</code>, <code>stado release status
-&lt;PRODUCT&gt;</code> — never to see whether a run has moved. Where no such read exists, the missing read
-is the defect to build.</td></tr>
-<tr><td><code>gh run watch</code>, <code>gh run view</code>, <code>gh run list</code>, <code>gh pr checks … --watch</code>, <code>stado job watch … --follow</code>
-or <code>watch</code>: the session blocks until a remote run ends while the operator's tasks stay open</td>
-<td>Continue the next open task. Reading the same run again with <code>gh run view</code> to see whether
-it moved is the same wait in smaller pieces: read a run only when the work in hand needs its result.</td></tr>
-<tr><td><code>gh run rerun</code> and <code>gh workflow run</code>: a CI build started by hand for one
-revision, which spends a runner on a single commit the same way a local build does</td>
-<td>Commit and push. The build runs once, in the release built over the accumulated commits:
-<code>tama build record --kind build --target &lt;PRODUCT&gt; --revision &lt;REV&gt;</code> states it
-against the fleet's ration and <code>stado release status &lt;PRODUCT&gt;</code> is the register of
-attempts.</td></tr>
-<tr><td><code>stado space reclaim</code>: a sweep that frees one host this once. The same session ran it
-three times in one day and the host was back under its watermark after the next builds</td>
-<td>What a host reclaims on its own is declared: <code>stado space cleaners &lt;HOST&gt; --declare
-&lt;CLEANER&gt;</code> adds the stage, <code>stado space watermark &lt;HOST&gt;</code> sets the level the
-janitor measures against, <code>stado space work-root &lt;HOST&gt;</code> says where the fleet's work may
-accumulate. <code>stado space report &lt;HOST&gt;</code> reads without changing anything.</td></tr>
-<tr><td><code>stado release submit</code>: a release built from whatever the shell's working copy happens
-to hold, at the moment somebody typed it, so the next commit needs the same person again</td>
-<td>A product is released from what was pushed, once, over the accumulated commits:
-<code>tama build record --kind build --target &lt;PRODUCT&gt; --revision &lt;REV&gt;</code> states the
-build against the fleet's ration, <code>stado queue budget</code> says what is left of it,
-<code>stado release status &lt;PRODUCT&gt;</code> is the register of attempts. Bytes already qualified
-are promoted with <code>stado release promote</code>, and a publication that stopped part-way is
-continued with <code>stado release resume &lt;ID&gt;</code>.</td></tr>
-<tr><td><code>stado release restore-local</code>, <code>stado release rollback</code>,
-<code>stado product rollback</code>: an older version put back on a host, which undoes every commit
-delivered since it, before the session recorded that the way forward failed</td>
-<td>Try the forward path first. When it fails, record it:
-<code>oko blockers record --blocks &lt;task or defect&gt; --failed &lt;the forward command as run&gt;
---error &lt;its exact answer&gt; --tried &lt;the other forward route&gt; --resumes-when &lt;what has to
-change&gt; --session &lt;SESSION&gt;</code>. An open entry recorded in the same session lets the rollback
-through; the answer then names the commits between the two versions it undoes
-(<code>git log &lt;older&gt;..&lt;newer&gt;</code>). When Oko's register cannot be read, the rollback is
-refused. <code>--help</code> always passes.</td></tr>
-<tr><td><code>timeout</code> or <code>gtimeout</code> in front of another command: a number of seconds
-nobody measured, standing in for the answer the command was going to give. The command killed at it
-reports a failure it did not have, and why it was slow is thrown away with it — a gate that normally
-answers in milliseconds can be killed while it pays the operating system's first-run assessment</td>
-<td>Let the command answer and read what it says. Where an outcome genuinely has to be waited for, the
-product that owns it waits: <code>stado job watch &lt;ID&gt; --follow</code>,
-<code>stado release status &lt;PRODUCT&gt;</code>, <code>oko tasks --session
-&lt;ID&gt;</code>.</td></tr>
-<tr><td>The toolchain answering only the shell that typed it: <code>cargo test</code>, <code>cargo check</code>,
-<code>cargo build</code>, <code>cargo clippy</code>, and the same words after <code>swift</code>,
-<code>go</code>, <code>npm</code>, <code>pnpm</code> or <code>yarn</code>. <code>cargo install</code> is the
-worst of them: it compiles this working copy and then replaces a program on this machine with bytes nobody
-reviewed, from a revision nobody published.</td>
-<td>The suite and the lint run once, batched, over the commits that accumulated:
-<code>stado builds status &lt;RECIPE&gt;</code> reads the per-platform jobs. A build that really is the
-next step is rationed first with <code>tama build record --kind build --target &lt;PRODUCT&gt; --revision
-&lt;REV&gt;</code> and enqueued with <code>stado builds run &lt;RECIPE&gt;</code>. When the task itself needs a
-compile, a suite or a run — a real test the work requires — the recorded route is <code>stado product cargo
-&lt;build|check|test|run&gt; --manifest-path &lt;Cargo.toml&gt;</code>, which compiles the canonical checkout,
-binds the result to the source revision and keeps the command and its output; every <code>cargo</code> refusal
-names it, and nothing is reported as impossible to compile before that route has refused. What a machine runs is
-installed from a delivered release: <code>stado release status &lt;PRODUCT&gt;</code> says what was published
-and <code>stado release install-local</code> installs that archive. <code>cargo fmt</code> and any
-<code>--help</code> still pass.</td></tr>
-<tr><td>A Stado command that compiles, while any open Oko task of any session or any open defect of any
-product carries no repair: <code>stado host build</code>, <code>stado product cargo|swift</code>,
-<code>stado product install|update|sync</code> of a source recipe, <code>stado build submit|newest</code>,
-<code>stado release submit|prepare|newest</code>. An exact release install
-(<code>stado product install|update … --release-version &lt;V&gt; --source-commit &lt;REV&gt;</code>) and a
-<code>--dry-run</code> compile nothing and pass.</td>
+<tr><td>A compile, while any open Oko task of any session or any open defect of any product carries no
+repair: <code>cargo build|check|test|clippy|run|bench|doc|install</code>; <code>swift build|test|run</code>,
+<code>go build|test|install</code>, <code>npm|pnpm|yarn|bun run|build|test|start|dev|install</code> (and
+<code>npm ci</code>), <code>npx tsc|vite|next|jest|vitest|playwright|webpack|esbuild</code>,
+<code>dotnet build|test|publish</code>, <code>mvn package|install|test</code>, <code>gradle
+build|test|assemble</code>, <code>gh run|rerun</code>, <code>xcrun swift|xcodebuild</code>; every invocation of
+<code>xcodebuild</code>, <code>make</code>, <code>cmake</code>, <code>ninja</code>, <code>swiftc</code>,
+<code>rustc</code>, <code>gcc</code>, <code>g++</code>, <code>clang</code>, <code>clang++</code> and
+<code>tsc</code>; and the fleet's own compiles, <code>stado host build</code>, <code>stado product
+cargo|swift|install|update|sync</code>, <code>stado build submit|newest</code>, <code>stado release
+submit|prepare|newest</code>. An exact release install (<code>--release-version</code>) and a
+<code>--dry-run</code> compile nothing and pass, and a package manager's <code>run &lt;script&gt;</code> whose
+script only runs one repository file through <code>node</code>, loading no builtin that starts a program or
+only a test loads, is no compile.</td>
 <td>Code, commit and push the repair of every open item and record it (<code>oko tasks evidence
-&lt;task&gt; --commit &lt;repo@rev&gt;</code>, <code>oko defects repaired &lt;id&gt; --revision &lt;repo@rev&gt;</code>);
+&lt;task&gt; --commit &lt;revision&gt;</code>, <code>oko defects repaired &lt;id&gt; --revision &lt;revision&gt;</code>);
 then build once over all of it. One item is not waited on: an item whose repair an installed Tama hook
 refuses while that hook's own repair is pushed, so the build is what unblocks it. It is held for the build
 only when the register says so in three records — an open blocker (<code>oko blockers record</code>) naming the
 item, whose error opens with the refusing hook's id (<code>block-numeric-literals: BLOCKED: …</code>), and an
-open Tama defect whose surface names that hook and which carries a pushed repair. A blocker whose error is
-prose, or a hook whose defect has no repair yet, holds nothing. The stop guard reads the same three records;
-an unreadable blocker register holds nothing and its refusal says why.</td></tr>
+open Tama defect whose surface names that hook and which carries a pushed repair. The operator's consent,
+recorded as the Tama session capability <code>{"tool": "build"}</code>, admits a build before that.</td></tr>
 <tr><td><code>stado product install|update|sync</code> of any product other than Stado, run by a Stado whose
 revision (<code>stado --version</code>) does not contain a repair Oko records against Stado or against that
 product (<code>oko defects repaired &lt;id&gt; --revision stado@&lt;rev&gt;</code>) and that repair was committed no
 later than the installed Stado's revision. This applies even to a build the operator consented to: the register
-already says how that install would end. A repair committed after the installed Stado did not exist when it was
-built and is not demanded, so a Stado main that moves faster than one Stado build does not refuse every install.
-The refusal lists each such defect with its revision; a revision that cannot be compared with the installed Stado
-refuses too.</td>
+already says how that install would end. The refusal lists each such defect with its revision; a revision that
+cannot be compared with the installed Stado refuses too.</td>
 <td>Update Stado first (<code>stado product update stado --surface cli</code>), then install the product.</td></tr>
 <tr><td>A Python module or script handed to any python interpreter, whatever its path or version:
 <code>python3 -m &lt;module&gt;</code>, <code>python3 tools/x.py</code>. Python is not used in this workshop.</td>
@@ -223,32 +193,18 @@ refuses too.</td>
 build, in the product's own language.</td></tr>
 </tbody>
 </table>
-<h2>What passes</h2>
-<p>Reads of the same programs: <code>launchctl list|print|blame</code>, <code>kill -0 &lt;pid&gt;</code> and
-<code>kill -l</code>, <code>skarbiec grant list|show|verify</code>, any invocation carrying <code>--help</code>,
-a query or a schema read (<code>sqlite3 ~/.oko/index.sqlite "SELECT COUNT(*) FROM sessions"</code>,
-<code>sqlite3 … .schema</code>), a copy <em>out</em> of an install or hook root
-(<code>cp ~/.stado/bin/oko .build/before</code>,
-<code>cp ~/.shared-hooks/registry.json rust/target/registry-before.json</code>), a read of either
-(<code>cat ~/.shared-hooks/registry.json</code>, <code>ls -la ~/.shared-hooks</code>), and a copy between
-build directories. The command is read the way a shell reads it — cut at separators outside quotes, quoted
-text and here-document bodies blanked, <code>env</code>, <code>sudo</code> and <code>nohup</code> stepped
-over — so <code>grep 'launchctl kickstart' notes.md</code> and a commit message that mentions
-<code>skarbiec grant ensure</code> run nothing and are allowed. A deadline wrapper is stepped over the same
-way when the guard reads which program a line runs, and then refused on its own: it is the duration after
-it that gives it away, so <code>--field timeout</code> and a path that ends in the word pass.
-The reads that replace a wait pass with everything else: <code>stado job watch &lt;ID&gt; --follow</code>,
-<code>stado release status</code>, <code>stado space report &lt;HOST&gt;</code>,
-<code>stado builds run &lt;RECIPE&gt;</code> and <code>stado release resume &lt;ID&gt;</code>.</p>
 <h2>Where the refusal comes from</h2>
-<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_one_off_repairs/mod.rs</code>; binary:
-<code>src/bin/block/ownership/block_one_off_repairs.rs</code>; the real-binary test that holds each command to its
-exit status and route: <code>rust/crates/tama-hook-tools/tests/one_off_repair_guard.rs</code>; the declaration
-the registration reads: <code>hook-declarations/block-one-off-repairs.json</code>. The detector that counts the
-same shapes after the fact, across every stored transcript, is Oko's <code>transcripts one-offs</code>
-(categories <code>service-cycle</code>, <code>credential-by-hand</code>, <code>binary-copy</code>,
-<code>data-by-hand</code>, and <code>live-config-edit</code> for a hook's own file); a refusal here is recorded
-there as <code>refused by hook</code>. Registration is
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_one_off_repairs/</code> (<code>mod.rs</code> for the
+order, <code>vocabulary.rs</code> for the toolchains' compile structure, <code>judged.rs</code> and
+<code>judge-prompt.md</code> for the model's reading); binary:
+<code>src/programs/block/ownership/block_one_off_repairs.rs</code>. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test one_off_repairs_judged</code> runs the built
+hook with the judge recorded as not answering and requires a service cycle to pass with the stderr note and
+<code>cargo build</code> to be refused by the build hold; with <code>TAMA_TEST_ONE_OFF_JUDGE=1</code> and
+<code>-- --ignored</code> it asks the real judge and requires the service cycle refused with
+<code>stado service restart</code> in the reason and a <code>launchctl print</code> passed. The detector that
+counts the same shapes after the fact, across every stored transcript, is Oko's <code>transcripts one-offs</code>;
+a refusal here is recorded there as <code>refused by hook</code>. Registration is
 <a href="/docs/hook-management/">two commands</a>:
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/block-one-off-repairs.json</code>
 for the catalogue entry, the registry entry and the reseal, and
