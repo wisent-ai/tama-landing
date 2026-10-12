@@ -48,7 +48,12 @@ with LF. Closing stdin ends the process.</p>
 <p>Responses carry the request <code>id</code>, <code>ok</code>, a
 <code>result</code> or <code>error</code>, and the observed <code>state</code>.
 Status requests include running-hook inspection in <code>result</code> and
-<code>state.runningHooks</code>. A successful reload returns
+<code>state.runningHooks</code>. Its <code>dispatched</code> list names every
+hook this runtime is running now — session, event, hook id, process group
+and <code>runningForMs</code> — from the runtime's own dispatch registry, so a
+hook in flight is named even where no other process may be inspected; the
+records left by a runtime that is gone follow under <code>running</code>, and
+<code>recordsUnread</code> says why they could not be read. A successful reload returns
 <code>{"reloaded":true,"changed":true}</code>, or <code>changed:false</code>
 when the validated catalog already matches. The response is produced after
 the engine has adopted the candidate, never after inserting a prompt.</p>
