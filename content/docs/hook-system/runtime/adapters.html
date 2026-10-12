@@ -18,6 +18,24 @@ It preserves stdin, stdout, stderr, exit status and signals. Failure to start
 the native engine, or a registry startup failure, exits <code>1</code> with
 <code>TAMA_HOOK_INFRASTRUCTURE</code>; it does not fall back to a JavaScript
 policy engine or report a passing policy decision.</p>
+<h3>Which tool calls a gate reads as a shell or a write</h3>
+<p>Harnesses spell the same tool differently: Claude sends <code>Bash</code>,
+OMP sends <code>bash</code>, Codex sends <code>exec_command</code>, and the
+function bridge prefixes <code>functions.</code>. Every gate that reads a
+shell command or a written file asks Tama's one tool declaration, after
+lower-casing the payload's <code>tool_name</code>. The shell spellings are
+<code>bash</code>, <code>functions.bash</code>, <code>exec_command</code>,
+<code>functions.exec_command</code>, <code>shell</code>, <code>exec</code>,
+<code>run_command</code> and <code>run_package_script</code>; the write
+spellings are the whole-file writes, anchored and multi edits, the notebook
+tools and the patch tools in each of their names. A gate never keeps a
+shorter list of its own: a list that held <code>Bash</code> alone let every
+OMP shell call through unread. To see a gate read an OMP call, pipe it the
+payload directly:</p>
+<pre><code>printf '%s' '{"tool_name":"bash","tool_input":{"command":"git commit --no-verify -m x"}}' \
+  | tama hook block-git-hook-bypass</code></pre>
+<p>The refusal on stdout names the bypass; a gate that printed nothing for
+this payload is not reading OMP's shell spelling.</p>
 <h3>Persistent runtime protocol</h3>
 <pre><code>tama run-hook --serve omp</code></pre>
 <p>This starts the common engine, not an OMP agent. It first emits a JSON
