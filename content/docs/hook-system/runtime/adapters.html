@@ -53,7 +53,20 @@ hook this runtime is running now — session, event, hook id, process group
 and <code>runningForMs</code> — from the runtime's own dispatch registry, so a
 hook in flight is named even where no other process may be inspected; the
 records left by a runtime that is gone follow under <code>running</code>, and
-<code>recordsUnread</code> says why they could not be read. A successful reload returns
+<code>recordsUnread</code> says why they could not be read. <code>dispatchStages</code>
+says where each dispatch spends its life, from the runtime's own clock:
+<code>running</code> lists every dispatch in flight with the <code>stage</code> it is in
+and <code>inStageForMs</code>, and <code>lastByEvent</code> holds the last finished
+dispatch of every event with each stage's <code>atMs</code> and <code>tookMs</code> and
+the <code>slowestStage</code>. The stages are <code>received</code> (taken off the
+pipe), <code>runtimeLocked</code> (the runtime lock was free), <code>registryRefreshed</code>
+(the hook registry re-read), <code>threadStarted</code>, <code>sessionStateRead</code>
+(the session's overrides, capability and enforcement selection read),
+<code>hooksEnded</code> (a tool call's or turn end's hooks all ended; each hook's own
+<code>ms</code> and <code>startMs</code> are in <code>lastDecision.results</code>) and
+<code>answered</code>. A tool call refused at the harness's limit while every hook answered
+in milliseconds names here the stage that took the time; time before
+<code>received</code> was spent in the adapter or the pipe, not in the runtime. A successful reload returns
 <code>{"reloaded":true,"changed":true}</code>, or <code>changed:false</code>
 when the validated catalog already matches. The response is produced after
 the engine has adopted the candidate, never after inserting a prompt.</p>
@@ -61,7 +74,10 @@ the engine has adopted the candidate, never after inserting a prompt.</p>
 client matches each to its request by <code>id</code>. Each
 <code>dispatch</code> runs on its own thread against the generation loaded
 when it arrived, so a hook that never ends holds only its own request;
-<code>status</code> and <code>reload</code> are answered at once. The OMP
+a <code>status</code> read runs on its own thread outside the runtime lock, because
+inspecting running hooks can ask the operating system about processes, and on the
+reading thread under the lock it held every dispatch that arrived meanwhile unread;
+<code>reload</code> is answered at once. The OMP
 adapter keeps every request in flight side by side and orders only reloads and
 shutdown.</p>
 <p>Within one dispatch the hooks of a tool event run in registry order, one
