@@ -115,66 +115,59 @@ cancel an already accepted job. See the <a href="/docs/cli/build/">build command
 complete flow and request fields. Older Tama releases do not enforce this statement.</p>
 
 <h2>What is refused</h2>
-<table>
-<thead><tr><th>Kind</th><th>Commands</th></tr></thead>
-<tbody>
-<tr><td>build</td><td><code>stado build submit</code>,
-<code>stado release submit|prepare|resume|rollback|promote-version</code>,
-<code>cargo build</code>, <code>cargo install</code>, <code>swift build</code>, <code>xcodebuild</code>,
-<code>make</code> and <code>gmake</code> targets starting <code>build</code>, <code>release</code>,
-<code>test</code> or <code>check</code>, <code>npm|pnpm|yarn|bun run|test|install</code> (and <code>npm
-start|ci</code>), <code>vercel deploy|build|redeploy|promote</code>,
-and <code>git push</code> in a checkout whose root holds <code>vercel.json</code> or
-<code>.vercel/project.json</code></td></tr>
-<tr><td>restart</td><td><code>stado service restart|ensure|deploy|stop|bootout|refresh-image</code>,
-<code>stado host reboot</code>, <code>launchctl kickstart|bootout|bootstrap|load|unload</code>,
-<code>systemctl restart|start|stop</code>, <code>brew services restart|start|stop</code></td></tr>
-</tbody>
-</table>
+<p>Whether a command builds or restarts is read by a model through Oko's model call
+(<code>block_unregistered_build_or_restart/judge-prompt.md</code>), not from a list of programs and
+subcommands: every build tool, script name or service manager such a list left out built or restarted
+unregistered. A <strong>build</strong> compiles, bundles, packages or releases a product: a build tool's
+build, release or install step (<code>cargo build</code>, <code>swift build</code>, <code>xcodebuild</code>,
+<code>stado release submit</code>, a project's build script through its package manager), or a push of a
+checkout that builds on every push. A <strong>restart</strong> starts, stops, restarts, reloads or
+reinstalls a running service (<code>launchctl kickstart</code>, <code>systemctl restart</code>,
+<code>stado service restart</code>). The model names each build's directory and each restart's service; the
+build's target is the repository that directory belongs to, read from the checkout.</p>
 <p>The refusal prints the <code>tama build record</code> line for that exact kind and target, so the
-route out of it is the command itself.</p>
+route out of it is the command itself. When no judgement can be obtained the command passes and stderr
+says <code>block-unregistered-build-or-restart: no judgement, the command passes: …</code>.</p>
 <p>A push is a build when the repository builds on every push: a Vercel-linked checkout
 (<code>.vercel/project.json</code> or <code>vercel.json</code>), where Vercel starts a production
 build, or a repository carrying a CI definition that runs a build or a suite on <code>push</code>,
 <code>pull_request</code> or <code>pull_request_target</code> (under <code>.github/workflows/</code>,
 <code>.circleci/</code>, <code>.buildkite/</code>, <code>.woodpecker/</code>, or a
 <code>.gitlab-ci.yml</code>, <code>azure-pipelines.yml</code>, <code>bitbucket-pipelines.yml</code> or
-<code>.travis.yml</code>). Such a push is refused until a build entry with the whole-task statement is
+<code>.travis.yml</code>). Whether this checkout builds on every push is read from the checkout and handed
+to the model as a fact; such a push is refused until a build entry with the whole-task statement is
 recorded for that repository. A push from a checkout with none of these, and reads such as
-<code>vercel inspect</code>, pass. The steps are read with the shell gate's own build vocabulary, so a
-workflow that only lints or runs on a tag does not make a push a build.</p>
+<code>vercel inspect</code>, pass.</p>
 <p>The write gate (<code>pre-write-edit</code>) refuses the other half: a write or edit that adds such a
 build or suite step to a CI definition firing on every commit is refused with the step it found, so a
 build refused in the shell cannot move into a runner.</p>
-<p><code>git -C &lt;path&gt; push</code> is read from <code>&lt;path&gt;</code>, and every command from the
-working directory the payload names (or this process's own when it names none), moved by any
-<code>cd</code> or <code>pushd</code> earlier on the line.</p>
+<p>The model reads directory changes on the line (<code>cd</code>, <code>git -C &lt;path&gt;</code>) and
+names the directory a build runs in; it is resolved from the working directory the payload names (or this
+process's own when it names none).</p>
 
 <h2>What passes</h2>
-<p>Reads of the same programs: <code>stado build status</code>, <code>stado release status</code>,
-<code>stado service list</code>, <code>launchctl list|print</code>, any invocation carrying
-<code>--help</code>, <code>cargo test</code>, <code>cargo fmt --check</code> and <code>cargo clippy</code>
-are not build commands for this gate.
-Other gates may still refuse hand-run compilation or tests; passing this gate is not permission to
-bypass the shared build process. The command is read the way a shell reads it, cut at separators outside quotes with
-quoted text blanked and <code>env</code>, <code>sudo</code>, <code>nohup</code> and <code>timeout</code>
-stepped over, so <code>grep 'cargo build' notes.md</code> and a commit message that mentions a restart run
-nothing and are allowed.</p>
+<p>Reads of the same programs (<code>stado build status</code>, <code>launchctl list</code>), help requests,
+formatting, linting, type-checking and tests that produce no product are not build commands for this gate,
+and neither is a command that only mentions a build in data, such as <code>grep 'cargo build' notes.md</code>
+or a commit message. Other gates may still refuse hand-run compilation or tests; passing this gate is not
+permission to bypass the shared build process.</p>
 
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_unregistered_build_or_restart/mod.rs</code>,
-with each program's build and restart grammar (subcommand path, where the target is named, the flag that
-says where it runs) declared as typed shapes in <code>shapes.rs</code>, the reading in <code>detect.rs</code>
-and the registry reader in <code>registry/</code>; its program:
+with the judged reading in <code>detect.rs</code> and <code>judge-prompt.md</code>, where a command runs and
+whether a push builds in <code>directory.rs</code>, and the registry reader in <code>registry/</code>; its
+program:
 <code>rust/crates/tama-hook-tools/src/programs/block/safety/execution/block_unregistered_build_or_restart.rs</code>,
 run as <code>tama hook block-unregistered-build-or-restart</code>; the writer:
 <code>rust/crates/tama-cli/src/builds/mod.rs</code>; the declaration the registration
 reads: <code>hook-declarations/block-unregistered-build-or-restart.json</code>. The journey
-<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test build_restart_shapes</code> runs the built
-hook in a real git checkout under an isolated home: <code>cargo build</code> is refused naming the checkout,
-<code>launchctl kickstart -k system/com.example.unit</code> is refused naming the unit, a quoted mention and a
-<code>--help</code> pass, and after <code>tama build record --kind restart --target system/com.example.unit</code>
-writes its entry the restart passes. Registration is
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test build_restart_judged</code> runs the built
+hook in a real git checkout under an isolated home: with the judge recorded as not answering a build passes
+with the stderr note, and <code>tama build record --kind restart --target system/com.example.unit</code>
+writes its registry entry; with <code>TAMA_TEST_BUILD_JUDGE=1</code> and <code>-- --ignored</code> it asks
+the real judge and requires <code>cargo build</code> refused naming the checkout,
+<code>launchctl kickstart -k system/com.example.unit</code> refused naming the unit, a quoted mention and a
+<code>--help</code> passed, and the restart passed once recorded. Registration is
 <a href="/docs/hook-management/">two commands</a>:
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/block-unregistered-build-or-restart.json</code>
 for the catalogue entry, the registry entry and the reseal, and
