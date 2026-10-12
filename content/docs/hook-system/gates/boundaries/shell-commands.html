@@ -13,6 +13,10 @@ endpoints, the Overleaf history API, and the OpenAI and Anthropic key and host n
 <li>a browser's cookie store by its own file name, and a raw <code>ssh</code> to a host the Stado registry declares;</li>
 <li>writes into <code>~/.shared-hooks</code>, <code>git checkout</code>, patch and interactive Git modes, a tool's
 co-author trailer, and pull-request work against a <code>wisent-supabase-*</code> repository.</li>
+<li>an <code>ssh</code>, <code>scp</code> or <code>rsync</code> line that reaches an installed package
+(<code>/site-packages/</code>) or a systemd unit directory without a <code># justify: &lt;reason&gt;</code> marker,
+whatever program writes there and whatever kind of file it is (<code>BLOCKED: unsubstantiated constant injection
+detected</code>; journey <code>pre_bash_remote_constants</code>).</li>
 </ul>
 <p>Hook bypass on commit and push (<code>--no-verify</code>, <code>commit -n</code>) is
 <code>block-git-hook-bypass</code>'s, which runs beside <code>pre-bash</code> on every shell call.</p>
