@@ -1,0 +1,20 @@
+<h1>Artifact inspection: <code>check-artifact-inspection</code></h1>
+<p>A trajectory may run again only once the session has looked at what its last run left behind.
+<code>tama hook check-artifact-inspection &lt;label&gt; &lt;command&gt; &lt;transcript&gt;</code> answers that question for
+<code>pre-bash</code>'s trajectory counter: a first run needs <code>WELES_FIRST_RUN=1</code> or written notes, and a
+later run needs evidence that an artifact of the label was opened since.</p>
+<h2>What counts as looking</h2>
+<p>The evidence is a read-tool call in the session transcript (Claude's <code>Read</code>, OMP's <code>read</code>) on
+a file that exists in one of the places a run of the label writes its artifacts: <code>recordings/&lt;label&gt;/</code>,
+<code>.work/&lt;label&gt;/</code>, a page capture under <code>.work/</code> whose name holds the label and
+<code>outerHTML</code>, or a <code>-diag/</code> folder of the label under <code>.work/</code>. Whatever format the run
+wrote there counts; no list of file extensions decides it. A frame
+(<code>.work/&lt;label&gt;/frame_&lt;digest prefix&gt;_…</code>) is tied to its recording by the digest prefix and must
+still hold the content the marker recorded. Reading a file the run never wrote, a file elsewhere, or naming an
+artifact in a shell command is not looking at it.</p>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/check_artifact_inspection/</code>. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test artifact_inspection_locations</code> builds a
+repository with a recording, a frame and a text artifact on disk, and requires a read of each, in Claude's and OMP's
+transcript records, to admit the next run, and a read of an unwritten recording or of <code>README.md</code> to hold
+it.</p>
