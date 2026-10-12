@@ -136,7 +136,9 @@ for declaration, manifest, source-citation and syntax-based operation rules.</p>
 <p>See <a href="/docs/hook-model/identities/">identity provenance and incremental checking</a>
 for sources, refusal diagnostics, shared transcript snapshots and real prose journeys.</p>
 <p><code>block-keyword-literals</code> refuses collections and regex alternations
-of two or more words used to classify input, and the same vocabulary written
+of two or more words used to classify input — an alternation inside a quoted
+literal, or inside a regex literal of a JavaScript or TypeScript file
+(<code>/Try again|Retry/i</code>) — and the same vocabulary written
 as a comparison: a chain of <code>==</code> (or <code>===</code>, <code>!=</code>)
 against two or more quoted words on one line, and the arms of a
 <code>matches!</code> or <code>match</code> pattern joined with <code>|</code>.
