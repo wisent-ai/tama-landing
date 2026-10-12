@@ -263,6 +263,14 @@ a test is reached; staging, committing and running tests pass. With no judgement
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test device_level_tests_shell</code> covers the
 redirection, the judge-down note for a copy and for a patch naming a test, and (with
 <code>TAMA_TEST_DEVICE_TESTS_JUDGE=1</code> and <code>-- --ignored</code>) the real judge's refusals.</p>
+<p>Audits follow it too: <code>block-unapproved-audits</code> refuses an audit workflow until
+<code>DEVICE_LEVEL_AUDITS_APPROVED=1</code> is set outside the session or the device-level audit policy
+(<code>~/.config/agent-policy/device_level_audits.json</code>, or the file <code>DEVICE_LEVEL_AUDITS_POLICY</code>
+names) enables it. A file tool aimed at that policy, a shell command naming it outside its quoted data, or any
+other call naming it is refused as <code>attempted in-session audit policy mutation</code>, whatever program would
+write it; read the policy with the harness's read tool. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test audits_policy</code> requires <code>cp</code>,
+an unlisted writer and a redirection onto the policy refused and its name in a commit message passed.</p>
 <p>For a live hook the supported route is a validated proposal:</p>
 <pre><code>tama adaptive repair &lt;hook-id&gt; --patch-file &lt;path&gt;
 DEVICE_HOOK_EDIT_APPROVED=1 tama adaptive apply &lt;proposal-dir&gt;</code></pre>
