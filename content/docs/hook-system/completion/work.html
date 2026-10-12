@@ -107,9 +107,15 @@ authoritative Oko ledger for the native OMP session id. An absent local plan
 does not skip the applicable reading; an unavailable ledger refuses Stop with
 its actual error. For sessions without a recorded executor role,
 when the machine has no Oko CLI (neither <code>TAMA_OKO_CLI</code> nor <code>oko</code> on
-<code>PATH</code> is an executable), the session's own tracker is the only task
-register: Stop is refused on its pending or in-progress items and allowed once
-they are clear. An installed Oko that cannot be read still refuses. The other
+<code>PATH</code> is an executable), the session's own registers are the only task
+registers: Stop is refused on the tracker's pending or in-progress items and, once
+they are clear, on the task-scope declaration while it still names a task or a
+defect, with <code>BLOCKED: this machine has no Oko CLI, and the session's own
+declaration still names open work: &lt;entry&gt; — "&lt;the operator's words&gt;"</code>
+and the way out, <code>tama task scope clear --session &lt;ID&gt;</code>; a cleared
+declaration lets the next Stop through, and a declaration that cannot be read
+refuses as an unreadable ledger (<code>cannot confirm completion …</code>), never
+as an empty one. An installed Oko that cannot be read still refuses. The other
 gates that read Oko take the same alternative on such a machine:
 <code>block-text-outside-tool-calls</code> lets the final message through,
 <code>block-one-off-repairs</code> admits a build, compile or test because no
@@ -214,11 +220,13 @@ a prose-only reason, unmatched receipt, missing operation or unchecked alternati
 The refusal names the original task and the observations still required;
 a worker's claim or local “blocked” flag never grants permission to stop.</p>
 <h3>A report is not the work it describes</h3>
-<p><code>block-stop-on-own-work</code> reads the transcript at Stop and refuses an ending
-that reports instead of working: an invented limit, a decision handed back, a plea without
-one command on the clipboard, a plan under what was done, a report said again, work scoped to
-one session, and the rest. Every refusal, what passes and the journey that proves them are on
-their own page: <a href="/docs/enforcement-control/completion/own-work/">endings a report cannot replace</a>.</p>
+<p><code>block-stop-on-own-work</code> refuses an ending that reports instead of working, with no
+model: from the transcript, an ending said again after a refusal with no source changed, a plea
+without one command on the clipboard or with one that cannot run, and a defect recorded with no
+repair; from the answer itself, the turn-end attestation it carries word for word (no invented
+limit, no decision handed back, no own work under blockers, and the rest). Every refusal and the
+journeys that prove them are on their own page:
+<a href="/docs/enforcement-control/completion/own-work/">endings a report cannot replace</a>.</p>
 <h3>A correction is a record, not words</h3>
 <p><code>block-unlinked-operator-messages</code> refuses the end of a turn while any operator
 message of the session is linked to no Oko record. It runs
