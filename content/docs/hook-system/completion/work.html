@@ -98,18 +98,6 @@ interruption, process exit, or OMP subagents, which do not emit
 uses Oko role set/clear and the built runtime, checks persisted role changes,
 supervisor refusal, clearing, unknown metadata and unreadable state.
 Retained test source alone is not installed-harness qualification.</p>
-<p>Before any plan or ledger is read, <code>block-stop-with-open-work</code>
-asks Oko whether every operator message of the session is linked to an Oko
-record: it runs <code>oko rulings unlinked --session &lt;session&gt;</code> and
-refuses Stop while that command exits non-zero, quoting Oko's sentence that
-names each message linked to neither a recorded ruling nor a related defect.
-The turn ends once each message is bound, with <code>oko rulings record</code>
-or by relating its task to the process defect that names the general rule and
-the mechanism (hook, CLI refusal or real test) enforcing it, so a correction
-the operator gave once is not taught again in the next session. The verdict is
-Oko's exit status; no model reads the messages. A reading that cannot run
-refuses too, naming the command and its error. Executor sessions are held the
-same way. On a machine without the Oko CLI the check does not run.</p>
 <p>Prompt text does not execute a Stop rule. Enabled hook commands do.
 <code>block-stop-with-open-work</code> reconstructs the successful tracker state
 and blocks pending or in-progress items. Once that plan is clear, including
