@@ -121,7 +121,9 @@ complete flow and request fields. Older Tama releases do not enforce this statem
 <tr><td>build</td><td><code>stado build submit</code>,
 <code>stado release submit|prepare|resume|rollback|promote-version</code>,
 <code>cargo build</code>, <code>cargo install</code>, <code>swift build</code>, <code>xcodebuild</code>,
-<code>npm run build</code>, <code>bun run build</code>, <code>vercel deploy|build|redeploy|promote</code>,
+<code>make</code> and <code>gmake</code> targets starting <code>build</code>, <code>release</code>,
+<code>test</code> or <code>check</code>, <code>npm|pnpm|yarn|bun run|test|install</code> (and <code>npm
+start|ci</code>), <code>vercel deploy|build|redeploy|promote</code>,
 and <code>git push</code> in a checkout whose root holds <code>vercel.json</code> or
 <code>.vercel/project.json</code></td></tr>
 <tr><td>restart</td><td><code>stado service restart|ensure|deploy|stop|bootout|refresh-image</code>,
@@ -144,8 +146,9 @@ workflow that only lints or runs on a tag does not make a push a build.</p>
 <p>The write gate (<code>pre-write-edit</code>) refuses the other half: a write or edit that adds such a
 build or suite step to a CI definition firing on every commit is refused with the step it found, so a
 build refused in the shell cannot move into a runner.</p>
-<p><code>git -C &lt;path&gt; push</code> is read from the directory the command runs in, not from
-<code>&lt;path&gt;</code>.</p>
+<p><code>git -C &lt;path&gt; push</code> is read from <code>&lt;path&gt;</code>, and every command from the
+working directory the payload names (or this process's own when it names none), moved by any
+<code>cd</code> or <code>pushd</code> earlier on the line.</p>
 
 <h2>What passes</h2>
 <p>Reads of the same programs: <code>stado build status</code>, <code>stado release status</code>,
@@ -160,12 +163,18 @@ nothing and are allowed.</p>
 
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_unregistered_build_or_restart/mod.rs</code>,
-with the command vocabulary as data in <code>vocabulary.json</code> beside it and the registry reader in
-<code>registry.rs</code>; its program:
+with each program's build and restart grammar (subcommand path, where the target is named, the flag that
+says where it runs) declared as typed shapes in <code>shapes.rs</code>, the reading in <code>detect.rs</code>
+and the registry reader in <code>registry/</code>; its program:
 <code>rust/crates/tama-hook-tools/src/programs/block/safety/execution/block_unregistered_build_or_restart.rs</code>,
 run as <code>tama hook block-unregistered-build-or-restart</code>; the writer:
 <code>rust/crates/tama-cli/src/builds/mod.rs</code>; the declaration the registration
-reads: <code>hook-declarations/block-unregistered-build-or-restart.json</code>. Registration is
+reads: <code>hook-declarations/block-unregistered-build-or-restart.json</code>. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test build_restart_shapes</code> runs the built
+hook in a real git checkout under an isolated home: <code>cargo build</code> is refused naming the checkout,
+<code>launchctl kickstart -k system/com.example.unit</code> is refused naming the unit, a quoted mention and a
+<code>--help</code> pass, and after <code>tama build record --kind restart --target system/com.example.unit</code>
+writes its entry the restart passes. Registration is
 <a href="/docs/hook-management/">two commands</a>:
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/block-unregistered-build-or-restart.json</code>
 for the catalogue entry, the registry entry and the reseal, and
