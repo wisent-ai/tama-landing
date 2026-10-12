@@ -1,136 +1,24 @@
 <h1>Endings a report cannot replace</h1>
 <p>Part of <a href="../../">enforcement control</a>, completion enforcement.</p>
-<p>The report's three parts are found by their headings' form and position, not their words: a heading is a
-markdown heading line (<code>##</code>) or a line that is only bold text, and among the headings of the last
-heading's form the last heads next steps, the one before it blockers, and the one before that what was done. A
-short answer carrying only <em>Blokady</em> and <em>Następne kroki</em> reads the same way, a deeper subheading
-stays inside its part, and a part's heading written twice, whatever it says, is refused with
-<code>block-stop-on-own-work: BLOCKED: this answer carries the section "…" twice</code>. The journey
-<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test stop_gate_report_headings</code> requires
-that refusal for <code>## Blokady</code>, <code>## Przeszkody</code> and <code>**Obstacles**</code> written twice,
-and none for three distinct headings with a subheading.</p>
-<p><code>block-stop-on-own-work</code> reads the transcript at Stop — the final
-message, what the agent said and thought since the operator last spoke, and
-every earlier refusal, and the tool calls made since the operator last spoke — and
-refuses these endings, each quoted back in the
-refusal:</p>
+<p><code>block-stop-on-own-work</code> is a Stop gate. It refuses a turn that ends on a report instead of on the work the report itself describes, and it decides everything by structure, with no model: the transcript's own records, the tool calls made since the operator last spoke, and the claims the ending answer carries word for word.</p>
+<h2>What the answer carries</h2>
+<p>What the answer says is its turn-end attestation: every claim this gate declares in <code>standards/turn.json</code> must stand in the ending answer word for word (runs of spaces and line breaks count as one space), and only when it is true. <a href="/docs/cli/attestation/"><code>tama attestation standard --turn</code></a> prints them; <code>tama attestation check --turn block-stop-on-own-work --file &lt;answer&gt;</code> gives this gate's verdict before the turn ends. The claims are:</p>
 <ul>
-<li>a capacity, budget or clock nobody set, given as the reason the identified
-fix is not built (<code>remaining session capacity</code>, <code>brak czasu w tej
-sesji</code>); a limit the operator wrote in their own last message passes;</li>
-<li>a repository of this workshop, checked out under
-<code>~/Documents/CodingProjects/Wisent</code>, named under <em>Blokery</em> as the
-place the fix has to be made while <em>Następne kroki</em> says none — the
-refusal names the checkout path;</li>
-<li>the report a stop guard already refused, said again with a sentence moved
-(three-word runs compared; the refusal gives the share), whatever its <em>Następne kroki</em> say;</li>
-<li>a line under <em>Następne kroki</em> that hands the operator a decision or a
-go-ahead about the work (<code>Decyzja, czy budować te trzy zmiany</code>,
-<code>czy mam</code>, <code>potwierdź</code>, <code>whether to build</code>, <code>let me
-know</code>) or announces the agent's own next move (<code>Zbuduję</code>,
-<code>I will</code>). A decision is refused even when the line begs or names a
-cost (<code>Błagam o decyzję w sprawie kosztu …</code>). The refusal quotes the line:
-<code>block-stop-on-own-work: BLOCKED: under Następne kroki this report hands the operator a decision: "…". That decision is yours …</code></li>
-<li>a report that begs but does not hand the operator exactly one command: under
-<em>Następne kroki</em> the begging carries one command written as a code span, and on
-macOS that command is what <code>pbpaste</code> returns, because the agent copied it with
-<code>printf '%s' '&lt;command&gt;' | pbcopy</code> before answering. Two commands, none, or a
-clipboard holding something else are refused:
-<code>block-stop-on-own-work: BLOCKED: this report begs with 2 commands …</code>,
-<code>… begs with `…`, but the clipboard holds something else …</code></li>
-<li>a begged command that cannot succeed. Each step run by a program <code>stado product install</code>
-placed in <code>~/.stado/bin</code> is asked for its own <code>--help</code> usage line, and every option
-that line requires must be in the step. A program whose help offers <code>--check-arguments</code>
-(<code>stado product install|update</code> does) is asked to parse the whole step with it, which
-catches the pairs clap enforces outside the usage line, such as <code>--release-version</code> with
-<code>--source-commit</code>. A <code>stado product</code> step installs a published release when it
-pins <code>--release-version</code>, whatever its verb: Stado refuses that option on every command that
-does not install. A chain that installs a product's release after a
-<code>stado release submit</code> of that product is refused: the submit only queues the build. The
-product of <code>submit --source &lt;checkout&gt;</code> is the checkout's name and the
-<code>product</code> of its <code>.wisent-release.json</code>; <code>submit --build &lt;id&gt;</code>
-names no product, so any release install after it in the chain is refused.
-A step that builds a product from its checkout — a <code>stado product &lt;verb&gt; &lt;product&gt;</code>
-step without <code>--release-version</code> whose own <code>--help</code> offers that option, with
-the checkout at <code>~/Documents/CodingProjects/Wisent/&lt;product&gt;</code> — is also checked with
-<code>stado quality check --root &lt;checkout&gt;</code>, which runs the formatting gate over the same
-committed tree the install would build (not the live worktree, so another session's uncommitted edit
-neither fails nor rescues the plea); a plea never sends the operator to a build that stops at that gate. A Stado without
-<code>quality check</code> leaves that second check unmade;
-<code>block-stop-on-own-work: BLOCKED: this report begs with a command that cannot succeed: `…` builds … and `stado quality check --root …` refuses it …</code></li>
-<li>an answer that leaves work undone because something is paid, when nobody read the price
-(<code>nie założyłem, bo jest płatny</code>, <code>did not create it because it costs</code>): the
-provider's credit balance and the resource's price are read through the organization's accounts
-first, and the work is done within the free credits;
-<code>block-stop-on-own-work: BLOCKED: this answer leaves work undone because of a cost: "…"</code></li>
-<li>a <em>Blokady</em>/<em>Blockers</em> or <em>Kolejne kroki</em>/<em>Następne kroki</em>/<em>Next steps</em>
-line that begins as an empty value and adds commentary, or says only that the
-agent is not assigning the operator work (<code>Brak przy zapisie defektu. Sam
-zapis nie jest jego naprawą.</code>, <code>Nie wyznaczam Ci zadania.</code>). Write
-exactly <code>Brak.</code>/<code>None.</code> or name a concrete blocker.</li>
-<li>a <em>Blokady</em> or <em>Następne kroki</em> line that gives the operator
-something to do: a condition on his action (<code>Dopóki ich nie
-zainstalujesz …</code>), an instruction (<code>uruchom</code>, <code>zainstaluj</code>,
-<code>wyeksportuj</code>, <code>ustaw</code>, <code>you must</code>) or a place he is
-sent to (<code>w swoim terminalu</code>). The agent gives the operator no tasks.
-When it is completely blocked it may beg (<code>Błagam</code>, <code>I beg</code>)
-with one command on his clipboard, as above; a report that begs is not refused by this rule.</li>
-<li>an answer that says the operator never said something (<code>nie ma takiego cytatu</code>,
-<code>you never said</code>) from a turn whose tool calls include no
-<code>oko transcripts search</code> without <code>--session</code>: absence is stated only after every
-transcript was searched, and a partial, failed or timed-out search is reported as incomplete;
-<code>block-stop-on-own-work: BLOCKED: "…" says the operator never said something, and this turn searched no transcript beyond one session …</code></li>
-<li>an answer that admits a mistake (<code>to było nieprawdą</code>, <code>nie przeszukałem</code>,
-<code>my mistake</code>) from a turn that ran no <code>oko defects record</code> or
-<code>oko defects note</code>: the mistake is recorded before the answer, without being dictated;
-<code>block-stop-on-own-work: BLOCKED: the answer admits a mistake ("…") and this turn recorded nothing about it …</code></li>
-<li>a turn that ran <code>oko defects record</code> and changed no source — no
-<code>edit</code>, <code>write</code> or <code>git commit</code> since the operator last spoke:
-recording a defect starts its repair;
-<code>block-stop-on-own-work: BLOCKED: this turn recorded a defect and changed no source for it …</code></li>
-<li>an ending that restates one of the agent's last five answers to earlier operator messages — at
-least the same share of three-word runs as a refused report — from a turn that changed no source:
-a status list said again is not work, and the refusal sends the agent to the next open task;
-<code>block-stop-on-own-work: BLOCKED: this ending restates an answer already given (…% of its word runs), and this turn changed no source …</code></li>
-<li>a <em>Blokady</em>/<em>Blockers</em> section that names the machine's own build gate
-(<code>blokada budowania</code>, <code>czeka na wspólny build</code>, <code>block-one-off-repairs</code>):
-the gate holds builds until the work is repaired and blocks nothing the operator asked for;
-<code>block-stop-on-own-work: BLOCKED: the Blockers section names the build gate ("…") …</code></li>
-<li>an answer in another language than the operator's latest message, as the reading model judges
-it from both texts; <code>block-stop-on-own-work: BLOCKED: WRONG LANGUAGE …</code></li>
-<li>a plan written under the heading for what was done (<em>Co zrobiono</em>, <em>Co zrobiłem</em>,
-<em>Co zostało zrobione</em>, <em>What was done</em>): <code>trzeba naprawić …</code>, a numbered
-infinitive item such as <code>1. Dodać …</code>, <code>do zrobienia</code> or the announced future tense;
-that section reports what happened, in the past tense;
-<code>block-stop-on-own-work: BLOCKED: the section for what was done carries a plan: "…"</code></li>
-<li>an answer that scopes the work to one session — <code>lista zadań tej sesji</code>,
-<code>Sesja ma jedno zadanie</code>, <code>usterki, na których pracuje ta sesja</code>,
-<code>this session's tasks</code>: the work is every open task of every session and every open
-defect of every product;
-<code>block-stop-on-own-work: BLOCKED: this answer scopes the work to one session: "…"</code></li>
-<li>an answer that says nothing more is left that the agent can do, that its part or its session
-is finished, or that what remains belongs to the operator, a product owner or another session
-(<code>Nothing else is left in this session that I can do myself</code>, <code>reszta należy do
-właściciela</code>): the work is every open task of every session and every open defect of every
-product, and a recorded blocker stops only the one item it names;
-<code>block-stop-on-own-work: BLOCKED: NOTHING LEFT: "…"</code></li>
-<li>an ending written after a stop guard refused the previous one when nothing since then changed
-source — no <code>edit</code>, <code>write</code> or <code>git commit</code>. Re-timing a reading,
-reading files or writing an <code>oko defects note</code> is not work on an item: the answer to a
-refusal is a change to the next open task or defect that can be changed in source
-(<code>oko tasks --open</code>, <code>oko defects list --open</code>);
-<code>block-stop-on-own-work: BLOCKED: a stop guard refused the previous ending and nothing since then changed source …</code>.
-This refusal, and <code>block-idle-answer</code>'s refusal of an answer with no tool call after a stop
-refusal, stand down when Oko's defect register answers that every open defect already carries a
-recorded repair: nothing is left to change in source, only the held build remains. A register that
-cannot be read keeps both refusals.</li>
+<li>This answer gives no invented limit as the reason work is not done, announces no stop, claims no absent words or tasks without searching every transcript and every task register, and admits no mistake without recording it as a defect.</li>
+<li>Under blockers and next steps this answer gives the user nothing to do and hands back no decision, names no build gate, judge outage or own work as a blocker, and says neither that nothing is left nor that the work belongs to one session.</li>
+<li>This answer is in the language of the user's latest message, records as many separate defects as the user asked for, leaves no work undone because of a cost nobody checked, carries no plan and no inability under what was done, explains no empty blockers or next steps, and announces no next step of my own.</li>
 </ul>
-<p>What passes: a report that begs with one command on the clipboard; a report that says what changed since the refusal; and a
-quoted phrase, in <code>„…”</code>, <code>"…"</code>, <code>«…»</code> or backticks,
-which is a report, not a reason. Each refusal starts a new attempt: what the
-agent says after a refusal is judged on its own, so one sentence cannot refuse
-every attempt after it. Every shape above that depends on what the answer says is read by one
-model request (<code>objective_reviewer::stop::breaks</code>, the rule text in
-<code>rust/crates/tama-hook-tools/src/ports/block_stop_on_own_work/reading.rs</code>), with the
-facts the turn's own commands established written into it; a reviewer that cannot answer lets the
-turn end and says so on stderr, as every model-judged gate does.</p>
+<p>An answer that lacks one is refused with <code>BLOCKED: block-stop-on-own-work: the answer this turn ends with does not carry its turn-end attestation:</code> and one <code>    missing: "&lt;claim&gt;"</code> line per missing claim. A false claim is the agent's defect, on record in the transcript.</p>
+<h2>What is read from the transcript</h2>
+<p>The report's three parts are found by their headings' form and position, not their words: a heading is a markdown heading line (<code>##</code>) or a line that is only bold text, and among the headings of the last heading's form the last heads next steps, the one before it blockers, and the one before that what was done. A deeper subheading stays inside its part. The gate refuses, before reading the attestation:</p>
+<ul>
+<li>an ending written after a stop guard refused the previous one when nothing since then changed source — no <code>edit</code>, <code>write</code> or <code>git commit</code>; <code>block-stop-on-own-work: BLOCKED: a stop guard refused the previous ending and nothing since then changed source …</code>. A session Oko records as a supervisor answers a refusal with its executors' progress instead. This refusal, and <code>block-idle-answer</code>'s refusal of an answer with no tool call after a stop refusal, stand down when Oko's defect register answers that every open defect already carries a recorded repair; a register that cannot be read keeps both.</li>
+<li>a part's heading written twice, whatever it says: <code>block-stop-on-own-work: BLOCKED: this answer carries the section "…" twice</code>.</li>
+<li>a turn that ran <code>oko defects record</code> and changed no source: <code>block-stop-on-own-work: BLOCKED: this turn recorded a defect and changed no source for it …</code>.</li>
+<li>an ending that restates one of the agent's last answers to earlier operator messages, or a report a stop guard already refused said again, by the share of three-word runs they share, from a turn that changed no source: <code>block-stop-on-own-work: BLOCKED: this ending restates an answer already given (…% of its word runs), and this turn changed no source …</code>.</li>
+<li>a report that begs but does not hand the operator exactly one command: under next steps the begging carries one command written as a code span, and on macOS that command is what <code>pbpaste</code> returns, because the agent copied it with <code>printf '%s' '&lt;command&gt;' | pbcopy</code> before answering; <code>block-stop-on-own-work: BLOCKED: this report begs with 2 commands …</code>, <code>… begs with `…`, but the clipboard holds something else …</code>.</li>
+<li>a begged command that cannot succeed. Each step run by a program <code>stado product install</code> placed in <code>~/.stado/bin</code> is asked for its own <code>--help</code> usage line, and every option that line requires must be in the step; a program whose help offers <code>--check-arguments</code> is asked to parse the whole step with it. A chain that installs a product's release after a <code>stado release submit</code> of that product is refused: the submit only queues the build. A step that builds a product from its checkout is also checked with <code>stado quality check --root &lt;checkout&gt;</code> over the committed tree; <code>block-stop-on-own-work: BLOCKED: this report begs with a command that cannot succeed: `…` …</code>.</li>
+</ul>
+<p>A transcript that cannot be read refuses with <code>block-stop-on-own-work: TAMA_HOOK_INFRASTRUCTURE: this ending cannot be judged: &lt;cause&gt;</code>. An empty ending is not judged.</p>
+<h2>Tests</h2>
+<p><code>tests/task-attestation/turn.rs</code> runs the built <code>tama hook block-stop-on-own-work</code>, with every other turn-end hook the declaration names, in an isolated home with no model declared and no Brama: an answer without the claims is refused naming each one, and the same answer carrying them, wrapped over lines, passes. <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test stop_gate_report_headings</code> requires the repeated-heading refusal for <code>## Blokady</code>, <code>## Przeszkody</code> and <code>**Obstacles**</code> written twice, and none for three distinct headings with a subheading.</p>

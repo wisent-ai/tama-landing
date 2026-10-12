@@ -196,7 +196,7 @@ Tama keeps a record of it under <code>~/.tama/judge-channels/</code>: the hook
 process, its command line, the HTTP client process, the route, the endpoint and
 when it was sent. The record goes when the client ends. The refusal above then
 names the request and its owner:</p>
-<pre><code>judge request to http://127.0.0.1:&lt;port&gt;/v1/chat/completions not started: resolver at … reports 1 unanswered connection(s) on this adapter: service brama consumer tama phase answer to … since …; it is route &lt;route&gt; to &lt;endpoint&gt; sent by hook process &lt;pid&gt; (`tama hook review-push`) through client process &lt;pid&gt;, waiting for &lt;n&gt; s; it ends when that process ends or Brama answers; another request is not sent while that channel is waiting</code></pre>
+<pre><code>judge request to http://127.0.0.1:&lt;port&gt;/v1/chat/completions not started: resolver at … reports 1 unanswered connection(s) on this adapter: service brama consumer tama phase answer to … since …; it is route &lt;route&gt; to &lt;endpoint&gt; sent by hook process &lt;pid&gt; (`tama hook check-speculation`) through client process &lt;pid&gt;, waiting for &lt;n&gt; s; it ends when that process ends or Brama answers; another request is not sent while that channel is waiting</code></pre>
 <p>Ending that process ends the request. A record whose hook process has
 already ended is nobody's channel: the next judge request ends its client
 (only while that process still runs the judge's HTTP client,

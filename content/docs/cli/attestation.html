@@ -1,38 +1,49 @@
 <h1><code>tama attestation</code></h1>
-<p>Keeps the attestations an agent records for itself. Every <strong>commit</strong> carries its own: an attestation that the commit meets the push reviewer's standard, carries no private information and is a general primitive rather than a one-off fix. <code>review-push</code> refuses a push while any commit it adds lacks one that stands, and the commit gate refuses <code>git commit</code> while the commit it builds on lacks one; the tip of a push speaks for no commit under it. On a machine that declared no model (<a href="../configuration/model-provider/#none"><code>tama model-provider set --none</code></a>), a <strong>session</strong>'s attestation says its task is finished and the stop gates read it in place of a model's judgement, so a session can end and a commit can be pushed with neither Brama nor any other model installed.</p>
+<p>An agent's own attestation, read without any model. A <strong>commit</strong> carries its attestation in its own message: every claim of the commit standard, word for word. <code>review-push</code> reads every commit a push adds and refuses the push at the first commit whose message lacks a claim, naming the commit and each missing claim. An <strong>answer</strong> that ends a turn carries the claims each turn-end stop hook declares (<code>check-stop-asking</code>, <code>block-false-blockers</code>, <code>block-stop-on-own-work</code>), and those hooks refuse an answer that lacks one in the same way. Nothing else is asked: no model, no key, no Brama and no other product, so a push and a turn end are judged the same on a machine with nothing but Git and Tama. A <strong>session</strong>'s attestation that its task is finished is different: it is recorded, and on a machine that declared no model (<a href="../configuration/model-provider/#none"><code>tama model-provider set --none</code></a>) the stop gates that would otherwise ask a model read it instead.</p>
 <h2>Invocation</h2>
-<pre><code>tama attestation record --file PATH (--session ID | --commit REV [--repository PATH]) [--json]
-tama attestation show (--session ID | --commit REV [--repository PATH]) [--json]
+<pre><code>tama attestation standard (--commit | --turn | --session ID) [--json]
+tama attestation check (--commit REV [--repository PATH] | --turn HOOK --file PATH) [--json]
+tama attestation record --file PATH --session ID [--json]
+tama attestation show --session ID [--json]
+tama attestation remove --session ID [--json]
 tama attestation list [--json]
-tama attestation remove (--session ID | --commit REV [--repository PATH]) [--json]
-tama attestation standard (--session ID | --commit REV [--repository PATH]) [--json]
 </code></pre>
-<p>Every verb but <code>list</code> names one subject: a session by its id, or a commit by any revision Git resolves in <code>--repository</code> (the current directory when it is not given). A commit is kept under its full name, so a short and a full spelling find the same record.</p>
 <ul>
-<li><code>record</code> judges the JSON document in <code>--file</code> against its subject's standard and keeps it only when it stands. Recording again replaces the kept record; a refused attestation leaves the kept one as it was. Records live under the Tama state root, in <code>attestations/session/&lt;id&gt;.json</code> and <code>attestations/commit/&lt;full commit&gt;.json</code>.</li>
-<li><code>show</code> prints the kept record and how it stands against today's standard.</li>
-<li><code>list</code> prints every kept record, sessions first, and how each stands today.</li>
-<li><code>remove</code> deletes the kept record.</li>
-<li><code>standard</code> prints every claim the subject's attestation must confirm, each as <code>attestation: claim &lt;key&gt;: &lt;claim&gt;</code>, then each list that must stay empty as <code>attestation: empty &lt;key&gt;: &lt;why&gt;</code>; with <code>--json</code>, <code>{"kind", "id", "standard": {"required": [{"key", "claim"}], "must_be_empty": [{"key", "why"}]}}</code>.</li>
+<li><code>standard --commit</code> prints the commit standard's claims, one per line and nothing else, so the output is pasted into a commit message as it is. With <code>--json</code>: <code>{"kind": "commit", "claims": [...]}</code>.</li>
+<li><code>standard --turn</code> prints every turn-end claim as <code>&lt;hook&gt;: &lt;claim&gt;</code>. With <code>--json</code>: <code>{"kind": "turn", "hooks": {"&lt;hook&gt;": [...]}}</code>.</li>
+<li><code>check --commit REV</code> reads the message of the commit <code>REV</code> names in <code>--repository</code> (the current directory when it is not given) and names every claim it lacks, the same claims <code>review-push</code> would name. <code>check --turn HOOK --file PATH</code> reads the answer in <code>PATH</code> against the claims <code>HOOK</code> declares, the same verdict the hook gives. Exit 0 when every claim stands, 1 when one is missing.</li>
+<li><code>standard --session ID</code> prints the task standard a session's recorded attestation confirms, each claim as <code>attestation: claim &lt;key&gt;: &lt;claim&gt;</code> and each list that must stay empty as <code>attestation: empty &lt;key&gt;: &lt;why&gt;</code>.</li>
+<li><code>record</code> judges the JSON document in <code>--file</code> against the task standard and keeps it only when it stands, under the Tama state root in <code>attestations/session/&lt;id&gt;.json</code>; recording again replaces the kept record, and a refused attestation leaves the kept one as it was. <code>show</code> prints the kept record and how it stands against today's standard, <code>list</code> every kept record, <code>remove</code> deletes one.</li>
 </ul>
 <h2>Quickstart</h2>
+<p>A commit that carries its attestation, checked before it is pushed:</p>
+<pre><code>$ git commit -m "Parse a balance from its text"
+$ tama attestation check --commit HEAD
+attestation: commit &lt;sha&gt; does not carry its attestation
+    missing: "&lt;claim&gt;"
+    …
+$ git commit --amend -m "Parse a balance from its text
+
+$(tama attestation standard --commit)"
+$ tama attestation check --commit HEAD
+attestation: commit &lt;sha&gt; carries every claim
+$ git push            # review-push reads the same message and lets it through
+</code></pre>
+<p>An answer checked before the turn ends with it:</p>
+<pre><code>$ tama attestation standard --turn
+$ tama attestation check --turn check-stop-asking --file answer.md
+</code></pre>
+<p>A session on a machine with no model:</p>
 <pre><code>$ tama model-provider set --none
-provider: none
+$ tama attestation standard --session "$SESSION"
 $ tama attestation record --file done.json --session "$SESSION"
 attestation: session &lt;session&gt; stands
 attestation: recorded at ~/Library/Application Support/Tama/attestations/session/&lt;session&gt;.json
-$ git commit -m "second change"   # the commit gate refuses: the commit it builds on carries no attestation that stands
-$ tama attestation standard --commit HEAD   # the claims to attest, in words
-$ tama attestation record --file first.json --commit HEAD
-$ git commit -m "second change"
-$ git push            # review-push refuses: commit &lt;sha&gt; needs its own attestation
-$ tama attestation record --file push.json --commit HEAD
-attestation: commit &lt;sha&gt; stands
-attestation: recorded at ~/Library/Application Support/Tama/attestations/commit/&lt;sha&gt;.json
-$ git push            # passes
-$ tama attestation list
 </code></pre>
-<h2>What an attestation holds</h2>
+<h2>How a carried attestation is read</h2>
+<p>Every claim the declaration lists must stand in the text word for word. Runs of spaces and line breaks count as one space, so a claim wrapped over lines reads as written; nothing else is forgiven: a reworded, shortened or translated claim is missing. The claims come from <code>standards/commit.json</code> (its <code>required[].claim</code>) and <code>standards/turn.json</code> (each hook's list) beside the attestation module, the same files the gates read. A claim is carried only when it is true; a false one is the agent's defect, on record in the commit or the transcript.</p>
+<p>Every commit carries its own: the tip of a push speaks for no commit under it. For a ref the remote does not hold yet, the commits read are those no ref Git keeps for that remote already holds.</p>
+<h2>What a session's recorded attestation holds</h2>
 <pre><code>{
   "attestations": {
     "&lt;claim key&gt;": {"confirmed": true, "how": "…"},
@@ -42,46 +53,17 @@ $ tama attestation list
   "harsh_senior_review_findings": []
 }
 </code></pre>
-<p>Every claim the subject's standard declares must be present with <code>"confirmed": true</code> and a <code>how</code> that explains, in the agent's own words, how the claim holds, in at least the number of words the operator stated (<code>attestation_min_words</code> in the stated-numbers declaration, with his words beside it). Every list the standard names must be present and empty.</p>
-<h3 id="session">A session: <code>standards/task.json</code></h3>
+<p>Every claim of <code>standards/task.json</code> must be present with <code>"confirmed": true</code> and a <code>how</code> that explains, in the agent's own words, how the claim holds, in at least the number of words the operator stated (<code>attestation_min_words</code> in the stated-numbers declaration). <code>next_steps</code> and <code>harsh_senior_review_findings</code> must be present and empty: a step that continues the task is the task's work, and every finding means the task is not finished.</p>
+<h2>Output and refusals</h2>
 <ul>
-<li><code>read_what_the_user_really_wants</code> — the messages, what they mean beyond their words, and what the user refuses.</li>
-<li><code>read_existing_rules_and_earlier_answers</code> — the rules and the user's earlier answers on this subject, none of them broken.</li>
-<li><code>wrote_real_tests_that_passed</code> — real tests of the actual product, its success path and refusals, passing.</li>
-<li><code>analyzed_how_it_fits_other_tasks</code> — what it unblocks, what it touches, what of the other tasks and defects remains.</li>
-<li><code>fixed_the_cause_not_the_symptom</code> — the same failure does not return for the next case.</li>
-<li><code>cli_gui_docs_match</code> — the CLI, the GUI and the documentation carry the same behaviour.</li>
-<li><code>delivered</code> — committed and pushed, with what a release still needs named.</li>
-<li><code>no_blockers_task_fully_closed</code> — nothing blocks the task.</li>
-<li><code>nothing_further_is_possible_even_with_operator_work</code> — even with the operator's own work there is nothing further.</li>
-<li><code>harsh_senior_review_performed</code> — as a very strict senior engineer who hates AI, what was attacked, what was checked, and why each attack failed.</li>
+<li><code>review-push: BLOCKED: &lt;local ref&gt; -&gt; &lt;remote ref&gt;: commit &lt;sha&gt; carries no commit attestation in its message:</code> followed by one <code>    missing: "&lt;claim&gt;"</code> line per missing claim, then the instruction to carry the block <code>tama attestation standard --commit</code> prints and amend or rebase the unpublished commits; the push exits 1 and nothing reaches the remote. A pushed commit Git cannot list or read is refused with <code>review-push: the pushed commits cannot be read: &lt;cause&gt;</code>.</li>
+<li><code>BLOCKED: &lt;hook&gt;: the answer this turn ends with does not carry its turn-end attestation:</code> followed by the missing claims in the same form; a transcript that cannot be read is refused as <code>TAMA_HOOK_INFRASTRUCTURE: &lt;hook&gt;: &lt;cause&gt;</code>.</li>
+<li><code>check</code> prints <code>attestation: &lt;kind&gt; &lt;id&gt; carries every claim</code> or <code>attestation: &lt;kind&gt; &lt;id&gt; does not carry its attestation</code> and the missing claims; with <code>--json</code>, <code>{"kind", "id", "stands", "missing"}</code>. <code>&lt;rev&gt; names no commit in the repository at &lt;place&gt;: &lt;git's words&gt;</code> and <code>standards/turn.json declares no turn-end attestation for the hook &lt;hook&gt;</code> exit 1.</li>
+<li><code>record</code> prints <code>attestation: session &lt;id&gt; stands</code> and <code>attestation: recorded at &lt;path&gt;</code>, or <code>does not stand</code> with every reason, exit 1, nothing kept: <code>attestations.&lt;key&gt; is missing</code>, <code>.confirmed is not true</code>, <code>.how is missing</code>, <code>.how explains in N words …; the operator asks for at least M</code>, <code>&lt;list&gt; names N item(s)</code>. <code>show</code> or <code>remove</code> with nothing kept: <code>no attestation is recorded for session &lt;id&gt;</code>, exit 1.</li>
+<li>Flags that do not fit the verb are refused with the usage text before anything is read, exit 2: <code>standard prints one standard: --commit, --turn or --session ID</code>, <code>check reads one text: --commit REV [--repository PATH], or --turn HOOK --file PATH</code>, <code>&lt;verb&gt; needs --session ID</code>, <code>record needs --file PATH</code>, <code>&lt;verb&gt; takes no --file</code>, <code>&lt;verb&gt; takes no --commit, --repository or --turn</code>, <code>list prints every kept record, so it takes only --json</code>, <code>&lt;verb&gt; is not a verb of tama attestation</code>, <code>&lt;flag&gt; is not an option of this command</code>, <code>&lt;flag&gt; needs a value</code>, <code>&lt;flag&gt; is given twice</code>.</li>
 </ul>
-<p>Lists that stay empty: <code>next_steps</code> (a step that continues the task is the task's work, asked for or not) and <code>harsh_senior_review_findings</code> (every finding means the task is not finished).</p>
-<h3 id="commit">A commit: <code>standards/commit.json</code></h3>
-<p>The push reviewer's own standard: every pushed message and patch read line by line; no defect; no needless abstraction or duplication; no swallowed error or fallback; no guessed number; no failure hidden by pausing, waiting or retrying; no narrating comment, host, account, date or internal id; tests that exercise behaviour; no commit that only reformats or patches another; documentation that matches the code; and the harsh senior review performed, with <code>harsh_senior_review_findings</code> empty. Two claims answer the operator's own questions about every commit:</p>
-<ul>
-<li><code>no_private_information</code> — no line and no message carries private information of ours: no host, account, person, address, secret, token, session or defect id, and no detail of an incident; what it says would be the same in a repository anyone can read.</li>
-<li><code>no_one_off_solution</code> — the commit solves no problem of ours alone: it adds or repairs a general primitive a user outside Wisent could run for their own case, not a fix shaped to one of our machines, accounts, runs or incidents.</li>
-</ul>
-<h3 id="every-commit">Every commit, not the tip</h3>
-<p><code>review-push</code> lists every commit the push adds over what the remote holds and refuses at the first whose own attestation is missing or no longer stands, with <code>commit &lt;sha&gt;: &lt;reason&gt;</code>; with a model declared, the reviewer reads the push only after every commit is attested. The commit gate in <code>pre-bash</code> refuses <code>git commit</code> while the repository's <code>HEAD</code>, not yet held by the branch's upstream, carries no attestation that stands: <code>BLOCKED: the commit this one builds on, &lt;sha&gt;, carries no attestation that stands (&lt;reason&gt;). Each commit carries its own: attest it with `tama attestation record --file FILE --commit &lt;sha&gt;` …</code>. A repository with no commit yet, and a HEAD the upstream already holds, pass. A record kept before a claim was added no longer stands and names the missing claim.</p>
-<p>What is checked needs no model: presence, confirmation, length and the empty lists. Whether the words are true cannot be decided without a model; they stay on record, and a false one is the agent's defect.</p>
-<h2>Output</h2>
-<p><code>record</code> prints <code>attestation: &lt;kind&gt; &lt;id&gt; stands</code> and <code>attestation: recorded at &lt;path&gt;</code> and exits 0; otherwise <code>attestation: &lt;kind&gt; &lt;id&gt; does not stand</code> and every reason on its own line, exit 1, and nothing is kept. <code>show</code> and each <code>list</code> entry print the same lines for the kept record; <code>list</code> with nothing kept prints <code>attestation: no attestation is recorded</code>. <code>remove</code> prints <code>attestation: removed &lt;path&gt;</code>. With <code>--json</code> each verb prints <code>{"kind", "id", "stands", "refusals", "recorded"}</code>; <code>show</code> adds the document under <code>attestation</code>, <code>list</code> prints an array of them, and <code>remove</code> prints <code>{"kind", "id", "removed"}</code>.</p>
 <h2>Tama Desktop</h2>
-<p>The Install screen's <em>Attestations</em> section records a chosen file for a session or for a commit in a chosen repository, shows or removes the record the form names, shows the subject's standard (every claim its attestation must confirm, in words, and the lists that stay empty) with its <em>Standard</em> button, and lists every kept record with its verdict and a Remove button. It sends <code>tama request attestation/record</code> with <code>{"attestation": {...}, "session": "&lt;id&gt;"}</code> or <code>{"attestation": {...}, "commit": "&lt;rev&gt;", "repository": "&lt;path&gt;"}</code>, <code>attestation/show</code>, <code>attestation/standard</code> and <code>attestation/remove</code> with the same subject, and <code>attestation/list</code>. The answers are the <code>--json</code> documents above with the same sentences; a refused attestation is an answer (<code>"stands": false</code>), not a failed request. A commit always names its repository, since the Desktop has no working directory to look it up in.</p>
-<h2>Refusals</h2>
-<ul>
-<li><code>attestations.&lt;key&gt; is missing: attest "&lt;claim&gt;"</code></li>
-<li><code>attestations.&lt;key&gt;.confirmed is not true: the attestation does not stand while "&lt;claim&gt;" does not hold</code></li>
-<li><code>attestations.&lt;key&gt;.how is missing: explain in your own words how "&lt;claim&gt;" holds</code></li>
-<li><code>attestations.&lt;key&gt;.how explains in N words how "&lt;claim&gt;" holds; the operator asks for at least M</code></li>
-<li><code>&lt;list&gt; names N item(s); &lt;why&gt;: &lt;the items&gt;</code> and <code>&lt;list&gt; is missing: write it as a list, and attest only when it is empty (&lt;why&gt;)</code> — each of these makes <code>record</code> exit 1 with nothing kept.</li>
-<li>Flags that do not fit the verb, refused with the usage text before anything is read, exit 2: <code>record needs --file PATH: the attestation to judge and keep</code>, <code>name what the attestation attests: a session by its id or a commit by its revision</code>, <code>an attestation is a session's or a commit's, not both: name one of them</code>, <code>a repository names where a commit is looked up, and no commit is named</code>, <code>show reads the kept record, so it takes no --file</code> (and the same for <code>remove</code>), <code>list prints every kept record, so it takes only --json</code>, <code>&lt;verb&gt; is not a verb of tama attestation</code>, <code>&lt;flag&gt; is not an option of this command</code>, <code>&lt;flag&gt; needs a value</code>, <code>&lt;flag&gt; is given twice</code>, and no verb at all.</li>
-<li>Values that name nothing, or state that cannot be read or written, exit 1: <code>"&lt;id&gt;" is not a session id: a session id is one plain name, neither empty nor a path</code>, <code>&lt;rev&gt; names no commit in the repository at &lt;place&gt;</code>, <code>the attestation &lt;file&gt; cannot be read: &lt;cause&gt;</code>, <code>&lt;file&gt; is not JSON: &lt;cause&gt;</code>, <code>the attestation stands but &lt;path&gt; cannot be written: &lt;cause&gt;</code>, <code>the recorded attestation &lt;path&gt; cannot be read: &lt;cause&gt;</code> or <code>is not JSON: &lt;cause&gt;</code>, <code>&lt;path&gt; is not an attestation record: the directory holds only &lt;id&gt;.json files</code>.</li>
-<li><code>no attestation is recorded for &lt;kind&gt; &lt;id&gt; (looked for &lt;path&gt;): record one with `tama attestation record --file FILE --&lt;kind&gt; &lt;id&gt;`</code> — <code>show</code> or <code>remove</code> with nothing kept, exit 1.</li>
-<li>At a stop gate with no model declared, in <code>review-push</code> for each pushed commit, and in the commit gate: <code>&lt;kind&gt; &lt;id&gt; needs its own attestation, and none is recorded: write it and record it with `tama attestation record --file FILE --&lt;kind&gt; &lt;id&gt;`</code>, or <code>&lt;kind&gt; &lt;id&gt;'s recorded attestation does not stand: &lt;reasons&gt;</code>; a stop hook payload with no <code>session_id</code> is refused as an infrastructure failure, and a commit gate that cannot read Git or the record refuses with <code>BLOCKED: whether the commit this one builds on is attested cannot be read: &lt;cause&gt;</code>.</li>
-</ul>
+<p>The Install screen's <em>Carried attestations</em> section shows every claim a commit message carries, with a <em>Copy block</em> button that puts them on the clipboard one per line, and each stop hook's turn-end claims. Its form checks a commit in a chosen repository, or an answer typed for a chosen hook, and shows the verdict with each missing claim as the gate would name it. It sends <code>tama request attestation/required</code> and <code>attestation/check</code> with <code>{"commit": "&lt;rev&gt;", "repository": "&lt;path&gt;"}</code> or <code>{"turn": "&lt;hook&gt;", "answer": "&lt;text&gt;"}</code>; a commit without its repository, or a body naming neither, is refused with <code>attestation/check needs "commit" with "repository", or "turn" with "answer"</code>. The <em>Recorded attestations</em> section records a chosen file for a session, shows, removes and lists records, and shows the task standard, through <code>attestation/record</code>, <code>show</code>, <code>remove</code>, <code>standard</code> and <code>list</code> with <code>{"session": "&lt;id&gt;"}</code>.</p>
 <h2>Tests</h2>
-<p><code>tests/task-attestation/</code> runs the built binary in an isolated home: <code>record.rs</code> (a session attestation recorded, shown, listed, replaced and removed; a missing claim, an unconfirmed and short claim and non-empty lists each refused with nothing kept; every malformed command refused with its cause), <code>no_model.rs</code> (<code>set --none</code>, <code>check</code> refused, a stop gate refusing without and passing with a recorded attestation), <code>push.rs</code> (a real repository's commit refused by <code>review-push</code> without an attestation, an attestation with a finding refused and not recorded, the push passing once one stands, refused again after <code>remove</code>, and passing after the Desktop's <code>attestation/record</code> names the repository; then an attestation missing <code>no_private_information</code> and one missing <code>no_one_off_solution</code> each refused naming the claim, <code>git commit</code> refused by <code>pre-bash</code> while the commit it builds on is unattested, and a two-commit push whose attested tip does not carry the unattested commit under it) and <code>desktop.rs</code> (the Desktop's record, show, list and remove requests with the terminal's sentences).</p>
+<p><code>tests/review/attested.rs</code> pushes a real commit through Git to a bare remote with Brama's address removed and no resolver state: the push without the attestation is refused naming the commit and its missing claims, <code>tama attestation check --commit</code> and the Desktop's <code>attestation/check</code> say the same, and once the message carries the block <code>standard --commit</code> prints, both pass and the commit reaches the remote. <code>tests/task-attestation/turn.rs</code> runs each turn-end hook the declaration names against an answer without and with its claims, wrapped over lines, and checks <code>standard --turn</code> and <code>check --turn</code>. <code>desktop.rs</code> runs the Desktop's requests, <code>record.rs</code> the recorded session attestation and every malformed command, and <code>no_model.rs</code> a model-asking stop gate reading a recorded session attestation.</p>
 <p>Return to <a href="../">the complete CLI tree</a>.</p>
