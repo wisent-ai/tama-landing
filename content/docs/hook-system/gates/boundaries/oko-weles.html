@@ -1,0 +1,22 @@
+<h1>Oko and Weles: <code>block-oko-trajectory-edits</code></h1>
+<p>A gate on writes, patches and shell commands (<code>tama hook block-oko-trajectory-edits</code>) that keeps
+Weles-owned automation out of Oko's checkout. Oko may consume Slack tokens and Slack's Web API and read what Weles
+reports; Weles owns every trajectory and every login or install automation, and a browser is only ever driven
+there.</p>
+<h2>How it decides</h2>
+<p>Whether a write touches Oko is read from structure: a file write whose path is inside
+<code>~/Documents/CodingProjects/Wisent/oko/</code>, a patch that names that checkout, or a shell command that
+does. Nothing else is asked. What such a write puts there is read by a model through Oko's model call against
+the boundary (<code>block_oko_trajectory_edits/judge-prompt.md</code>): a script that drives a browser or desktop
+step by step, a Slack app install, OAuth, permission or manifest flow carried out by automation, or browser login
+automation is refused; Oko code calling the Web API with a token, and documentation or tests that only name these
+flows, pass. A file's name decides nothing. The refusal names where the work belongs
+(<code>weles/scripts/trajectories/</code>) and what the model found. When no judgement can be obtained the write
+passes and stderr says <code>block-oko-trajectory-edits: no judgement, the write passes: …</code> with the judge's
+recorded state.</p>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_oko_trajectory_edits/</code>. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test oko_boundary_judged</code> runs the built hook
+with the judge recorded as not answering and requires a write inside Oko to pass with the stderr note and a write
+in Weles never to ask; with <code>TAMA_TEST_BOUNDARY_JUDGE=1</code> and <code>-- --ignored</code> it asks the real
+judge and requires a Playwright Slack install script in Oko refused and a Web API client passed.</p>
