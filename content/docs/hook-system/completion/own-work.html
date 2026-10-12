@@ -1,10 +1,5 @@
 <h1>Endings a report cannot replace</h1>
 <p>Part of <a href="../../">enforcement control</a>, completion enforcement.</p>
-<p><code>block-stop-on-own-work</code> reads the transcript at Stop — the final
-message, what the agent said and thought since the operator last spoke, and
-every earlier refusal, and the tool calls made since the operator last spoke — and
-refuses these endings, each quoted back in the
-refusal:</p>
 <p>The report's three parts are found by their headings' form and position, not their words: a heading is a
 markdown heading line (<code>##</code>) or a line that is only bold text, and among the headings of the last
 heading's form the last heads next steps, the one before it blockers, and the one before that what was done. A
@@ -14,6 +9,11 @@ stays inside its part, and a part's heading written twice, whatever it says, is 
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test stop_gate_report_headings</code> requires
 that refusal for <code>## Blokady</code>, <code>## Przeszkody</code> and <code>**Obstacles**</code> written twice,
 and none for three distinct headings with a subheading.</p>
+<p><code>block-stop-on-own-work</code> reads the transcript at Stop — the final
+message, what the agent said and thought since the operator last spoke, and
+every earlier refusal, and the tool calls made since the operator last spoke — and
+refuses these endings, each quoted back in the
+refusal:</p>
 <ul>
 <li>a capacity, budget or clock nobody set, given as the reason the identified
 fix is not built (<code>remaining session capacity</code>, <code>brak czasu w tej
