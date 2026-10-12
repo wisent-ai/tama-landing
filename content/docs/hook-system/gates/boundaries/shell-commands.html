@@ -16,6 +16,18 @@ co-author trailer, and pull-request work against a <code>wisent-supabase-*</code
 </ul>
 <p>Hook bypass on commit and push (<code>--no-verify</code>, <code>commit -n</code>) is
 <code>block-git-hook-bypass</code>'s, which runs beside <code>pre-bash</code> on every shell call.</p>
+<h2>Which text in a command is code</h2>
+<p>Every shell gate reads a command through one shared reader that keeps shell syntax and drops literal arguments.
+A command line is code when a shell is handed it: after the shell's <code>-c</code> flag (bundled letters such as
+<code>-lc</code> included), through a wrapper such as <code>env</code> or <code>sudo</code>, or as a here-document the
+shell consumes. Which program is a shell is the system's own declaration, <code>/etc/shells</code>; a shell added
+there is read as one without a Tama change. When <code>/etc/shells</code> cannot be read every program is read as a
+shell and stderr says <code>shell reading: /etc/shells cannot be read: …</code>. What any other interpreter is handed
+(<code>python3 -c</code>, a here-document into Node) is data to these readers, because it is an inline program and
+<code>block-inline-execution</code> refuses it. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test shell_reading_system_shells</code> hides a cloud
+provider command in each shell shape and requires <code>block-cloud-instances</code> to refuse it, and to pass the
+same line handed to <code>python3</code> or written in a commit message.</p>
 <h2>What a model reads</h2>
 <p>What a command does is read by a model through Oko's model call, and only after every structural rule passed it.
 <code>block-inline-execution</code> asks only when the command's syntax can carry source at all (quoting, a
