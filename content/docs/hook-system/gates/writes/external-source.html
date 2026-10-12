@@ -1,10 +1,13 @@
 <h1>External source: <code>block-external-source-edits</code></h1>
 <p>A gate on writes, patches and shell commands (<code>tama hook block-external-source-edits</code>) that refuses a
 change to source someone else owns: installed dependency source (<code>node_modules</code>,
-<code>site-packages</code>, Cargo's registry and similar) and a checkout whose <code>upstream</code> or
-<code>origin</code> is a fork of, or a repository owned by, an account other than the one signed in to GitHub. The
-refusal says what the path resolves to and to use documented configuration, APIs or a separately owned extension
-instead.</p>
+<code>site-packages</code>, Cargo's registry and similar) and a checkout any of whose remotes, whatever it is
+called, is a fork of, or a repository owned by, an account other than the one signed in to GitHub. The remotes are
+read from the checkout's own configuration (<code>git config --get-regexp '^remote\..*\.url$'</code>), so renaming
+a remote does not change what the checkout is. A remote that is not a GitHub repository is refused as
+<code>unsupported ownership provenance &lt;remote&gt;=&lt;url&gt;</code>, and a configuration git cannot read as
+<code>reading remotes at &lt;checkout&gt; failed: &lt;git's error&gt;</code>. The refusal says what the path
+resolves to and to use documented configuration, APIs or a separately owned extension instead.</p>
 <h2>How a shell command is read</h2>
 <p>Where a command reaches is read from its structure: each operand that names a path (an existing file or
 directory, a path whose directory exists, or a word the shell expands), git's <code>-C</code>,
