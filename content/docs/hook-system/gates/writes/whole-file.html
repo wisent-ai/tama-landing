@@ -1,0 +1,60 @@
+<h1>Writes are judged by the whole file they leave</h1>
+<p>Every gate on a write, an edit, a patch or a notebook edit judges the file as the write leaves it, not the text
+the write carries. Tama rebuilds that file once, through the replay in
+<code>check_numeric_literals_payload::path_texts</code>, and hands each gate the whole result:</p>
+<ul>
+<li>a whole-file write: the content it writes;</li>
+<li>a string edit (<code>old_string</code>/<code>new_string</code>, several edits in one call): the file on disk with
+each edit applied in order;</li>
+<li>a hashline section: the file on disk with each anchored operation applied, an uncommitted change another
+session made to the file included;</li>
+<li>an <code>apply_patch</code> envelope: each file it adds, updates or moves, as its hunks leave it;</li>
+<li>a notebook cell edit: the whole notebook with the cell replaced, inserted or deleted.</li>
+</ul>
+<p>So a violation the file already holds is refused on the next write to that file, whoever wrote it, and text the
+write removes is not judged as written. A write that removes the violation passes.</p>
+<h2>What a refusal says</h2>
+<p>A refusal names the file and the line in the whole file where each violation stands, as
+<code>line N: &lt;the line&gt;</code>, numbered from one as an editor numbers lines. The number is the line's
+place in the file the write leaves, not its place in the patch or the cell. Examples:</p>
+<pre><code>BLOCKED: legacy activation bypass detected in /repo/stage.sh: …
+line 1: python -m …
+
+block-direct-lsi-api: BLOCKED: … target: /repo/fill.py
+  matched: project registry write/read endpoint (line 1: requests.post(…))
+
+block-unapproved-tests: BLOCKED: /repo/src/lib.rs (test markers at line 5: #[test]) is test code the operator has not approved. …</code></pre>
+<p>A write the replay cannot rebuild is refused, never judged by the fragment it carries:</p>
+<pre><code>… the file this write leaves cannot be rebuilt to judge it: &lt;cause&gt;</code></pre>
+<p>The cause names the file and what failed: the file does not exist, an <code>old_string</code> was not found, a
+patch hunk (<code>the hunk expecting `…`</code>) does not match the file, a notebook cell is not there. Fix the
+write so it applies to the file as it is; there is no setting that lets an unrebuildable write through.</p>
+<h2>The gates</h2>
+<table>
+<thead><tr><th>Gate</th><th>What it names</th></tr></thead>
+<tbody>
+<tr><td><code>pre-write-edit</code></td><td>every content rule, and the second-program check, on the rebuilt file</td></tr>
+<tr><td><code>block-fallbacks</code>, <code>block-silent-waits</code>, <code>block-identity-literals</code>,
+<code>block-keyword-literals</code>, <code>check-numeric-literals</code>, <code>block-internal-names</code></td><td>the
+construct and its line</td></tr>
+<tr><td><code>check-legacy-activation-bypass</code></td><td>each marker and every line holding it, per file</td></tr>
+<tr><td><code>block-direct-lsi-api</code>, <code>block-overleaf-api</code></td><td>each forbidden call and the line
+of every match, per file</td></tr>
+<tr><td><code>check-raw-api-calls</code></td><td>the raw site call and its line</td></tr>
+<tr><td><code>block-openai-api-key</code></td><td>the credential reference and the lines holding it</td></tr>
+<tr><td><code>check-reward-hacking</code></td><td>for a hook file below <code>~/.shared-hooks</code>, each dropped
+protection or narrowed trigger regex, and the lines of each guard or bypass the write introduces</td></tr>
+<tr><td><code>check-humanized-actions</code></td><td>the model reads each in-scope file whole, every line prefixed with
+its number in the file, and names the lines in its sentence</td></tr>
+<tr><td><code>block-unapproved-tests</code></td><td>the file, and the line of each test marker it holds</td></tr>
+</tbody>
+</table>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/check_numeric_literals_payload/</code> (the replay,
+<code>line_at</code> and <code>lines_holding</code>) and each gate's own module. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hooks_whole_file</code> runs the built
+<code>tama hook</code> on real files: a patch beside a bypass the file already holds is refused naming
+<code>line 1:</code>, a patch the file does not hold is refused with the hunk it expected, and an edit of a hook file
+that introduces an always-false guard is refused naming <code>line 3:</code>. The suites <code>lsi_api_edits</code>,
+<code>openai_api_key_writes</code>, <code>unapproved_tests_whole_file</code> and
+<code>numeric_literals_operations</code> (the patch and notebook replay) assert the same per gate.</p>
