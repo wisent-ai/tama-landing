@@ -3,13 +3,10 @@
 <h2>Invocation</h2>
 <pre><code>tama model-provider [show] [--json]
 printf '%s' "$KEY" | tama model-provider set --origin https://api.openai.com --model gpt-5 [--json]
-tama model-provider set --origin http://localhost:8080 --model qwen2.5-coder [--json] &lt;/dev/null
 tama model-provider set --none [--json]
 tama model-provider unset [--json]
 tama model-provider check [--json]
 </code></pre>
-<h2 id="local">A model on this machine, without a key</h2>
-<p>Tama judges on its own when a model runs on this machine: a <code>llama-server</code> or <code>mlx_lm.server</code> started here for this machine alone answers the OpenAI chat-completions contract on loopback and asks no key. Declare it with <code>set --origin http://localhost:&lt;port&gt; --model &lt;name&gt;</code> and empty standard input: only an <code>http://</code> origin, which the transport policy admits on loopback alone, is declared without a key, so no request to it leaves the machine. <code>show</code> then prints <code>local: true</code> and <code>keyFree: true</code>, every model call posts to it with no <code>Authorization</code> header, and <code>check</code> asks its model catalogue the same way. While Brama on another host does not answer, <code>review-push</code> and every stop judge keep working through that service. A non-loopback origin with empty standard input is refused: <code>only a service on this machine's loopback (http://) is declared without one</code>. Real test: <code>tests/model-provider/local.rs</code> (<code>cargo test -p tama-cli --test model_provider_local</code>), against a loopback listener the test owns.</p>
 <h2 id="none">A machine with no model</h2>
 <p>Tama does not need Brama, or any model, to hold a session to its rules. <code>set --none</code> writes <code>{"provider": "none"}</code> into the same declaration file, and <code>show</code> then prints <code>provider: none</code>, <code>model: -</code>, <code>declaredIn</code> and <code>judgedBy</code>. From then on:</p>
 <ul>
@@ -26,9 +23,9 @@ tama model-provider check [--json]
 <ul>
 <li><code>set needs --origin URL and --model MODEL (the API key is read from standard input), or --none for a machine with no model</code> — exit 2.</li>
 <li><code>--origin must be HTTPS, or HTTP on loopback, with no credentials, query or fragment, and --model must name a model: got "…" and "…"</code> — exit 2.</li>
-<li><code>the API key is read from standard input, and standard input was empty; only a service on this machine's loopback (http://) is declared without one</code> — a non-loopback origin with no key, exit 2.</li>
+<li><code>the API key is read from standard input, and standard input was empty</code> — exit 2.</li>
 <li><code>no model provider is declared in &lt;file&gt;; Tama already asks Brama</code> — <code>unset</code> with nothing declared, exit 1.</li>
-<li><code>&lt;file&gt; names no complete model provider (origin and model); declare it again with `tama model-provider set` or remove it with `tama model-provider unset`</code>, or <code>&lt;file&gt; declares &lt;origin&gt; without a key, and only a service on this machine's loopback may be asked without one; …</code> — a damaged declaration; every model call refuses with the same sentence until it is repaired.</li>
+<li><code>&lt;file&gt; names no complete model provider (origin, model and key); declare it again with `tama model-provider set` or remove it with `tama model-provider unset`</code> — a damaged declaration; every model call refuses with the same sentence until it is repaired.</li>
 <li>With nothing declared, <code>show</code> exits 1 with the route resolver's own sentence when Brama's route cannot be resolved, instead of printing an empty <code>model</code>.</li>
 <li><code>the model provider declaration &lt;file&gt; cannot be read: &lt;cause&gt;</code> or <code>&lt;file&gt; is not a model provider declaration: &lt;cause&gt;</code> — every verb, and every hook that reads the choice, refuses with the cause.</li>
 <li><code>takes show, set, unset or check; got &lt;verb&gt;</code> — exit 2.</li>
