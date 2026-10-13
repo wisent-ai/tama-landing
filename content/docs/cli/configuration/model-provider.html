@@ -72,6 +72,26 @@ The refusal preserves the original input error together with the observed
 client exit and stderr, or the concrete termination/collection error. Cleanup
 failure never replaces the primary request failure or becomes a successful
 empty answer.</p>
+<p>The endpoint and headers reach the HTTP client as a config document on its
+standard input, so the bearer never enters an argument vector; the chat body
+reaches it as a file under <code>~/.tama/judge-requests/</code> that curl reads
+by path, written by the hook process before the client starts and removed when
+its request ends. curl reads a config line only up to its own fixed length, and
+a stop hook's prompt carries the turn's transcript: as one config line it
+outgrew that length and curl answered <code>cannot read config from -</code>
+(exit 26) with nothing naming the line. A config document curl still refuses is
+now named by its lines: <code>Brama request failed (exit status: 26): curl:
+cannot read config from -; …; the config document curl read from standard
+input had the lines url (N bytes), request (N bytes), header (N bytes), header
+(N bytes), header (N bytes), data-binary (N bytes), silent (6 bytes),
+show-error (10 bytes), write-out (N bytes); the request body was
+&lt;path&gt; (N bytes)</code>; the values themselves, the bearer among them,
+are never printed. Any other client failure names the body file and its size
+beside curl's own stderr. The real journey <code>tests/judge-request/body.rs</code>
+sends a prompt longer than a config line to the real Brama endpoint
+(<code>TAMA_TEST_BRAMA_ENDPOINT</code>, <code>TAMA_TEST_BRAMA_TOKEN_FILE</code>,
+<code>TAMA_TEST_OVERSIZED_BYTES</code>) and requires it carried, the body file
+gone, and a bearer of that length refused with the lines named.</p>
 <h2>Route qualification</h2>
 <p>The registered <code>model_provider_route</code> journey under <code>tests/model-provider/route.rs</code> invokes the actual built CLI, retains candidate revision, binary digest, command, exit status and output, and checks genuine absent-executable and directory-read refusals. <code>TAMA_TEST_SOURCE_REVISION</code> must identify the clean candidate. Its explicit real-discovery case requires <code>TAMA_TEST_BRAMA_HOME</code>: an isolated, configured home with a real installed Stado, real Brama credentials and no remembered route. It refuses the operator's home, retains the Stado digest and published route, and requires the real catalogue to accept the credential. Catalogue acceptance does not qualify chat, cancellation or the Desktop surface.</p>
 <p>The same journey includes the real CLI refusal for a plaintext remote
