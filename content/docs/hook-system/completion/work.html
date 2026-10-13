@@ -188,9 +188,13 @@ is refused by name before Oko is asked. Otherwise the agent records the consent 
 conversation as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
 (or <code>{"tool": "build"}</code> for any product) with the lifetime he named —
 <code>single-use</code>, <code>expires-at</code> or <code>current-session</code> — and the gate lets
-a build through whose arguments name a granted product. For <code>cargo</code> the products are
-the <code>-p</code>/<code>--package</code> selections, so a consent to build Tama names
-<code>tama-cli</code>. For <code>stado release submit --source PATH</code> and
+a build through whose arguments name a granted product. For <code>cargo</code> the product is the
+checkout the command builds in — the one holding its <code>--manifest-path</code>, else the directory
+it runs in — named as that checkout's <code>.wisent-release.json</code> names it, else by its directory,
+so a consent to build Tama admits <code>cargo check</code> in any crate of the Tama checkout; its
+<code>-p</code> selections are package names and decide nothing, and a command outside any checkout or
+naming two manifests establishes no product. For <code>stado product cargo</code> the products are its
+<code>-p</code>/<code>--package</code> selections. For <code>stado release submit --source PATH</code> and
 <code>stado build submit --source PATH</code> the product is the <code>product</code> the checkout's
 <code>.wisent-release.json</code> declares (the name Stado builds it under, which a checkout whose
 directory name is not a product name declares), else the name of the
