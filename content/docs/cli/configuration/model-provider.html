@@ -8,7 +8,7 @@ tama model-provider unset [--json]
 tama model-provider check [--json]
 </code></pre>
 <h2 id="none">A machine with no model</h2>
-<p>Tama does not need Brama, or any model, to hold a session to its rules. <code>set --none</code> writes <code>{"provider": "none"}</code> into the same declaration file, and <code>show</code> then prints <code>provider: none</code>, <code>model: -</code>, <code>declaredIn</code> and <code>judgedBy</code>. From then on:</p>
+<p>Tama does not need Brama, or any model, to hold a session to its rules. <code>set --none</code> writes <code>{"provider": "none"}</code> into the same declaration file, and <code>show</code> then prints <code>provider: none</code>, <code>model: (not declared)</code>, <code>declaredIn</code> and <code>judgedBy</code>. From then on:</p>
 <ul>
 <li>Every deterministic hook enforces exactly as before.</li>
 <li>A stop gate that would ask a model whether the ending answer breaks its rule reads the session's recorded attestation instead: the task's own JSON statement that it is finished, recorded with <a href="../../attestation/"><code>tama attestation record --file FILE --session ID</code></a>. With no attestation recorded the gate refuses and names the command that records one; with one that falls short it refuses with each field's reason. The turn-end gates <code>check-stop-asking</code>, <code>block-false-blockers</code> and <code>block-stop-on-own-work</code> ask no model on any machine: they read the claims the ending answer carries (<a href="../../attestation/"><code>tama attestation standard --turn</code></a>).</li>
