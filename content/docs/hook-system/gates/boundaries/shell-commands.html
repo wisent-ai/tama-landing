@@ -31,7 +31,10 @@ holds is another session's or the operator's, and a command that would discard o
 your own paths (`git add &lt;your paths&gt;`, then `git commit`) and leave theirs; what you must undo in a file you
 did not write is theirs to undo.</code> Discarding only one's own files passes; unstaging passes, because the
 change stays in the tree. The changed paths are Git's own (<code>git diff --name-only HEAD</code> and the untracked
-files); a listing Git cannot give is said on stderr and leaves nothing to judge. A session whose transcript cannot be
+files); each command is judged against what it takes — a restore or a <code>reset --hard</code> against the tracked
+changes and untracked files under its paths (the whole tree for a bare reset), a <code>clean</code> against the
+untracked files alone — and the command's <code>-C &lt;dir&gt;</code> names the checkout judged. A listing Git cannot
+give is said on stderr and leaves nothing to judge. A session whose transcript cannot be
 read is not refused here: the gate cannot say whose the changes are, and the other guards still stand. The journey is
 <code>tests/shared-checkout/discard.rs</code>.</p>
 <h2>Output that never reaches the agent</h2>
