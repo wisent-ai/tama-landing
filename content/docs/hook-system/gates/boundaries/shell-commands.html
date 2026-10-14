@@ -40,8 +40,9 @@ A redirection into the null device, by the shell's own syntax (<code>&gt;/dev/nu
 <code>2&gt;&gt;/dev/null</code>, <code>&amp;&gt;/dev/null</code>, <code>&gt;&amp;/dev/null</code>), is read from
 structure and refused naming the construct: <code>BLOCKED: `2&gt;/dev/null` sends a stream of the command into the null
 device, so what the command says there (its errors included) never reaches you, and a failed or hung step reads as
-quiet success. Run the command with its full output and read all of it …</code>. A program handed
-<code>/dev/null</code> as an argument (<code>curl -o /dev/null</code>) is not a redirection and passes. A filter that
+quiet success. Run the command with its full output and read all of it …</code>. The redirection is read from the
+executable text alone: a program handed <code>/dev/null</code> as an argument (<code>curl -o /dev/null</code>) and a
+commit message or quoted sentence that mentions <code>2&gt;/dev/null</code> send nothing anywhere and pass. A filter that
 keeps only part of the producing command's output (its first or last lines or bytes, a column range of every line, a
 count instead of the lines) is the judge's shape <code>TRUNCATE</code>, answered from what the command does and not
 from the filter's name; counting matches, picking a field of a record, selecting matching lines and formatting a value
