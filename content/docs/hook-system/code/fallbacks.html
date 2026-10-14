@@ -1,7 +1,8 @@
 <h1>No fallbacks</h1>
 <p><code>block-fallbacks</code> is a write gate that refuses code which answers a missing or failed value with one
-nobody stated. A fallback hides the failure from whoever could fix it and turns into a decision nobody made; the rule is
-that a missing value is an error naming what is missing, where it was looked for and why it matters.</p>
+nobody stated, or drops the error that says why it failed. A fallback hides the failure from whoever could fix it and
+turns into a decision nobody made; the rule is that a missing value is an error naming what is missing, where it was
+looked for and why it matters, carrying the cause it was given.</p>
 <h2>Quickstart</h2>
 <p>Install Tama and choose the gate for this machine:</p>
 <pre><code>stado product install tama --surface cli
@@ -9,48 +10,86 @@ tama enforcement add block-fallbacks
 tama show block-fallbacks</code></pre>
 <p>Then ask your agent to read a port from the environment in a TypeScript service. Where it would write
 <code>const port = env.PORT ?? "8080";</code>, the write is refused before it lands:</p>
-<pre><code>block-fallbacks: BLOCKED: this write adds a fallback, which answers a missing or failed value with one nobody stated:
-  web/server.ts: TypeScript ?? or || to a literal: const port = env.PORT ?? "8080";
+<pre><code>block-fallbacks: BLOCKED: the file this write leaves holds a fallback, which answers a missing or failed value with one nobody stated or drops the error that says why:
+  web/server.ts: TypeScript ?? to a literal: line 3: const port = env.PORT ?? "8080";
+The operator's rule: "Nie używaj fallbackow. Upewnij się ze każdy możliwy Error wyświetli się z konkretna przyczyna."
 Make the missing value an error that names what is missing, where it was looked for and why it matters …</code></pre>
 <p>The agent writes the version that tells the next person what to do instead:</p>
 <pre><code>const port = env.PORT;
 if (!port) throw new Error("PORT is not set: the server listens on the port the deployment declares in PORT");</code></pre>
-<p>Other things people use it for: keeping a Rust service from turning a missing configuration field into
-<code>unwrap_or_default()</code>; keeping release scripts from shipping to <code>${TARGET:-production}</code> when
-nobody set a target; keeping a Python job from silently reading <code>settings.get("region", "eu")</code>.</p>
+<p>Before you turn the gate on for a codebase, list what it already holds, per repository:</p>
+<pre><code>tama violations find --fallbacks --tree ~/code
+tama violations find --fallbacks --repo ~/code/service --json</code></pre>
+<p>Other things people use it for: keeping a Rust service from turning an unreadable configuration file into
+<code>Err(_) =&gt; Config::default()</code>; keeping a release script from shipping to
+<code>${TARGET:-production}</code> when nobody set a target, or from carrying on after <code>rm -r "$build" || true</code>;
+keeping a Python job from reading <code>settings.get("region", "eu")</code> or hiding a failed upload behind
+<code>except OSError: pass</code>; keeping a Swift app from loading a file with <code>try?</code>.</p>
 <h2>What is refused</h2>
 <table>
 <thead><tr><th>Files</th><th>Construct</th></tr></thead>
 <tbody>
-<tr><td><code>.rs</code></td><td><code>unwrap_or</code>, <code>unwrap_or_default</code>, <code>unwrap_or_else</code></td></tr>
-<tr><td><code>.js</code>, <code>.mjs</code>, <code>.ts</code>, <code>.tsx</code></td><td><code>??</code> or <code>||</code> followed by a literal (string, number, array, object)</td></tr>
-<tr><td><code>.swift</code></td><td><code>??</code> followed by a literal; <code>try?</code></td></tr>
-<tr><td><code>.py</code></td><td><code>.get(key, default)</code>; <code>or</code> followed by a literal</td></tr>
-<tr><td><code>.sh</code></td><td><code>${VAR:-default}</code> and <code>${VAR-default}</code></td></tr>
+<tr><td><code>.rs</code></td><td><code>unwrap_or</code>, <code>unwrap_or_default</code>, <code>unwrap_or_else</code>,
+<code>map_or</code>, <code>map_or_else</code>; <code>.ok()</code> and <code>Result::ok</code>, which drop the error;
+a match arm <code>Err(_)</code>, which discards it</td></tr>
+<tr><td><code>.js</code>, <code>.mjs</code>, <code>.cjs</code>, <code>.jsx</code>, <code>.ts</code>, <code>.mts</code>,
+<code>.cts</code>, <code>.tsx</code></td><td><code>??</code> or <code>||</code> followed by a literal (string, number,
+template, array, object, boolean, <code>null</code>, <code>undefined</code>); a <code>catch</code> that binds no error;
+an empty <code>catch</code>; a <code>catch</code> returning a literal; <code>.catch(() =&gt; literal)</code></td></tr>
+<tr><td><code>.py</code></td><td>an <code>except</code> whose only statement is <code>pass</code> or
+<code>continue</code>; an <code>except</code> returning a literal; <code>.get(key, default)</code>;
+<code>getattr(object, name, default)</code>; <code>or</code> followed by a literal; <code>suppress(…)</code></td></tr>
+<tr><td><code>.swift</code></td><td><code>try?</code>; <code>??</code> followed by a literal; an empty
+<code>catch</code></td></tr>
+<tr><td><code>.sh</code>, <code>.bash</code></td><td><code>${VAR:-default}</code>, <code>${VAR-default}</code>,
+<code>${VAR:=default}</code>, <code>${VAR=default}</code>; <code>|| true</code> and <code>|| :</code></td></tr>
 </tbody>
 </table>
-<p>The constructs are declared one file extension per entry in
-<code>rust/crates/tama-hook-tools/src/ports/block_fallbacks/constructs.json</code>; adding a language is one entry.
-The refusal lists every file, the construct and the added line, so each cause is shown, not just the first.</p>
+<p>Each construct is a tree-sitter query over the file's syntax tree, declared once per language family in
+<code>rust/crates/tama-hook-tools/src/ports/block_fallbacks/constructs.json</code> together with the grammar every file
+extension is parsed by. Matching syntax rather than text means a construct named inside a string or a comment is not
+one, and one written over several lines still is; the finding names the line the construct stands on. Adding a
+construct is one query; adding a language is one extension entry and its grammar.</p>
 <h2>What is read</h2>
-<p>Only what the write adds: the <code>+</code> lines of each hashline section or patch, an edit's replacement text, a
-written file's content. Code a file already holds is not scanned, so a file is edited without first rewriting every
-fallback in it. A <code>??</code> or <code>||</code> that reads another variable passes, as does a file of a language
-with no declared construct, and a write that names no file.</p>
+<p>The whole file as the write leaves it: a hashline section or a string edit is replayed on the file, a written file's
+content is read as written. A fallback the file already held is refused on its next edit until the edit removes it,
+whoever wrote it, and the refusal lists every one, not just the first. A <code>??</code> or <code>||</code> that reads
+another variable passes, as does an error bound by name and carried on, a file of a language with no declared
+construct, and a write that names no file.</p>
+<h2>Refusals and what they mean</h2>
+<table>
+<thead><tr><th>Refusal</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>the file this write leaves holds a fallback …</code></td><td>One line per construct: the file, the
+language and construct, the line number and the line. Remove each, or turn it into an error carrying its cause.</td></tr>
+<tr><td><code>the file this write leaves cannot be rebuilt to judge it: …</code></td><td>The edit could not be replayed
+on the file (the file is missing, or the edit does not apply); the cause follows.</td></tr>
+<tr><td><code>&lt;path&gt; cannot be judged for fallbacks: …</code></td><td>The file's grammar did not load or a
+declared construct is not a valid query for it; the declaration and the query are named. Every write of that language is
+refused until the declaration is repaired, because an unjudged file is not a file without fallbacks.</td></tr>
+</tbody>
+</table>
+<h2>Listing what a codebase already holds</h2>
+<p><a href="../../../cli/inspection/violations/find-violations/"><code>tama violations find --fallbacks</code></a> runs
+the same judgement over every tracked file of each repository it is given (<code>--repo</code>, <code>--tree</code>,
+<code>--owner</code>, <code>--me</code>), one finding per construct and line, reported per repository with the
+construct as its rule. Tama Desktop offers the same pass as <em>Fallbacks and dropped errors</em> on the Violations
+screen.</p>
 <h2>Where it comes from</h2>
-<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_fallbacks/mod.rs</code>; binary:
-<code>src/programs/block/limits/block_fallbacks.rs</code>; the real-binary test that runs the built hook on harness
-payloads (a hashline edit, a string edit, a whole-file write, refusals and passes):
-<code>tests/fallbacks/refusal.rs</code> (<code>cargo test -p tama-cli --test fallbacks_refusal</code>); declaration:
-<code>hook-declarations/code-discipline/block-fallbacks.json</code>.</p>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_fallbacks/</code> (<code>mod.rs</code> the gate,
+<code>syntax.rs</code> the syntax-tree reading); binary: <code>src/programs/block/limits/block_fallbacks.rs</code>;
+repository pass: <code>rust/crates/tama-violations/src/find_violations/fallbacks/mod.rs</code>; declaration:
+<code>hook-declarations/code-discipline/block-fallbacks.json</code>. Real-binary tests:
+<code>tests/fallbacks/refusal.rs</code> (harness payload shapes: a hashline edit, a string edit, a whole-file write),
+<code>tests/fallbacks/languages.rs</code> (one test per language, refusals and passes) and
+<code>tests/violations/fallbacks.rs</code> (the repository pass over two real checkouts, and the refusal of a missing
+repository).</p>
 <h2>Retained qualification evidence</h2>
-<p>The real-binary target requires <code>TAMA_TEST_SOURCE_REVISION</code> to
-match the clean tracked checkout. Before invoking the hook, it retains the
+<p>The real-binary targets require <code>TAMA_TEST_SOURCE_REVISION</code> to
+match the clean tracked checkout. Before invoking the hook, they retain the
 candidate revision, actual executable digest and Git command outcomes.
 Each invocation uses an isolated home and working directory beneath the ignored
 test target directory, retaining its payload, command, exit status, stdout and
 stderr even when a policy assertion fails. Invoke
-<code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate&gt; cargo test -p tama-cli --test fallbacks_refusal</code>
-only during the permitted qualification run. These existing cases qualify
-lexical construct refusal; they do not establish complete Rust callable
-resolution or distinguish every diverging error closure.</p>
+<code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate&gt; cargo test -p tama-cli --test fallbacks_refusal --test fallbacks_languages --test violations_fallbacks</code>
+only during the permitted qualification run.</p>

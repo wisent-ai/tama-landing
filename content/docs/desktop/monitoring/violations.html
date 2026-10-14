@@ -25,10 +25,16 @@ absolute, not a directory, or no <code>.git</code>.</li>
 <p><code>Pass</code> chooses what the next scan asks, one entry per pass of
 <code>tama violations find</code>: <code>Every rule</code> replays the hooks;
 <code>File and folder size</code>, <code>Capabilities written again</code>,
-<code>Internal names</code> and <code>Waits and time limits</code> run
-<code>--size-only</code>, <code>--duplicates</code>, <code>--internal-names</code> and
-<code>--time-limits</code> in process, sent as the <code>mode</code> of
-<code>violations/scan</code>. Choosing another pass clears the report on screen,
+<code>Internal names</code>, <code>Waits and time limits</code> and
+<code>Fallbacks and dropped errors</code> run
+<code>--size-only</code>, <code>--duplicates</code>, <code>--internal-names</code>,
+<code>--time-limits</code> and <code>--fallbacks</code> in process, sent as the <code>mode</code> of
+<code>violations/scan</code>. Under <code>Fallbacks and dropped errors</code> each rule is
+one construct of one language (<code>Rust .ok() dropping the error</code>,
+<code>Python except that only passes</code>, …) and each finding reads
+<code>line N: &lt;the line&gt;</code>, the same list
+<a href="../../../hook-system/code/fallbacks/"><code>block-fallbacks</code></a> would refuse on the next
+edit of each file. Choosing another pass clears the report on screen,
 because its findings answer a different question.
 <code>Rule</code> ranks rules by how many files they hit — the order an operator
 repairs them in — under <code>Every rule</code>; <code>Repository</code> appears only when the
