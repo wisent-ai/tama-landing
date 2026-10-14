@@ -274,6 +274,26 @@ repair; from the answer itself, the turn-end attestation it carries word for wor
 limit, no decision handed back, no own work under blockers, and the rest). Every refusal and the
 journeys that prove them are on their own page:
 <a href="/docs/enforcement-control/completion/own-work/">endings a report cannot replace</a>.</p>
+<h3>A repeated look is not work</h3>
+<p><code>block-wait-polling</code> reads the session's own transcript and keeps every look made since
+the last change: a call with its arguments (OMP's intent label <code>i</code> left out) and the answer it
+got. A change is a call that changes files, a <code>git commit</code>, or a message a person wrote to the
+session; a harness continuation is not one. Making one of those looks again is refused with
+<code>BLOCKED: this exact call already ran at … and nothing this session did since could change its
+answer … It was answered: …</code>, quoting the earlier answer whole. No count and no window decide it:
+the first look passes, the same look after a commit, an edit or a person's message passes, and the same
+look in between is refused. <code>block-idle-answer</code> counts work after a stop refusal by the same
+ledger: a change, or a look not made since the last change. A repeated look does not buy an ending.</p>
+<p>In a session Oko records as a supervisor, executor transcripts (the harnesses' transcript roots),
+Oko's data under <code>~/.oko</code> and <code>~/Library/Application Support/Oko</code>, and the answers
+of <code>oko</code> commands are protected sources, read whole or not at all. A pipeline stage fed by
+one, any other program handed a protected path, and a read with a selector or query on one are refused,
+whatever program does the selecting, naming the full reads: <code>oko sessions messages &lt;session&gt;
+--since &lt;time&gt;</code>, <code>oko defects show &lt;id&gt;</code>, or the read tool on the whole file.
+An executor's session is not judged by this rule. The registry dispatches the gate on the shell and
+process tools; the read and search tool rules take effect once its entry is dispatched on
+<code>read</code>, <code>grep</code>, <code>find</code> and <code>glob</code> too. The real test is
+<code>tests/repeated-looks/gate.rs</code>.</p>
 <h3>A correction is a record, not words</h3>
 <p><code>block-unlinked-operator-messages</code> refuses the end of a turn while any operator
 message of the session is linked to no Oko record. It runs
