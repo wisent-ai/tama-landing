@@ -8,6 +8,7 @@
 <p>Success requires an allowed endpoint and catalogue acceptance. It proves neither chat inference nor a judged-hook verdict. No provider selection or fleet configuration is changed.</p>
 <h2>Refusals</h2>
 <p>An absent route, denied consumer, unreadable credential, malformed declaration, refused transport or failed catalogue request exits unsuccessfully and retains the actual cause. A declared <code>none</code> provider reports <code>no model is declared on this machine, so there is no service to check</code>.</p>
+<p>When Stado returns a structured <code>undeclared</code> or <code>invalid_declaration</code> route refusal, Tama submits its machine, service, consumer operation, cause and state to <code>oko reflection observe --input - --json</code>. Oko retains the observation without calling a model; repeated identical failures keep one source. The diagnostic includes that source or the exact intake failure, never a claim that a defect was admitted. Authentication refusal and unavailable transport are not relabelled as missing declarations. No judge request is sent on a declaration refusal.</p>
 <p>An unknown argument is refused with <code>doctor: unexpected argument "&lt;argument&gt;"; use tama doctor [--json]</code>. <code>--help</code> describes the diagnostic without contacting the model service.</p>
 <h2>Desktop</h2>
 <p>Install → Model service exposes the same configured provider and catalogue diagnostic. Its <code>check.error</code> retains failures that occur before a catalogue report exists.</p>
