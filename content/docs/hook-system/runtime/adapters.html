@@ -203,25 +203,32 @@ the late context and records why; this guard does not prevent compaction or prov
 <p>Before sending another request through a local Stado adapter, Tama reads
 the resolver's published <code>resolver-waiting.json</code> beside
 <code>STADO_RESOLVER_STATE_FILE</code>, or the standard resolver state in
-<code>~/.stado</code>. A matching outstanding connection refuses the new
-request with its service, consumer, phase, destination, host and start time.
-This names an observed unanswered connection; it does not prove that the
-service is down. An endpoint with no published resolver state is not declared
-healthy by this check.</p>
+<code>~/.stado</code>, and compares the outstanding connections on that adapter
+with the judge requests running Tama hooks own. A connection no running hook
+owns refuses the new request with its service, consumer, phase, destination,
+host and start time. This names an observed unanswered connection; it does not
+prove that the service is down. An endpoint with no published resolver state is
+not declared healthy by this check.</p>
 <p>A judge request belongs to the hook process that sent it. While it waits,
 Tama keeps a record of it under <code>~/.tama/judge-channels/</code>: the hook
 process, its command line, the HTTP client process, the route, the endpoint and
-when it was sent. The record goes when the client ends. The refusal above then
-names the request and its owner:</p>
-<pre><code>judge request to http://127.0.0.1:&lt;port&gt;/v1/chat/completions not started: resolver at … reports 1 unanswered connection(s) on this adapter: service brama consumer tama phase answer to … since …; it is route &lt;route&gt; to &lt;endpoint&gt; sent by hook process &lt;pid&gt; (`tama hook check-speculation`) through client process &lt;pid&gt;, waiting for &lt;n&gt; s; it ends when that process ends or Brama answers; another request is not sent while that channel is waiting</code></pre>
-<p>Ending that process ends the request. A record whose hook process has
+when it was sent. The record goes when the client ends. A request a running
+hook owns is watched against Brama's readiness (below), so it is a request
+Brama is answering, not a dead channel: when every outstanding connection on
+the adapter is owned by a running hook, the next hook's request goes out beside
+them after Brama's own readiness, and judges of concurrent sessions are not
+serialized behind one answer. When some outstanding connection is owned by no
+running hook, the refusal names the requests and their owners:</p>
+<pre><code>judge request to http://127.0.0.1:&lt;port&gt;/v1/chat/completions not started: resolver at … reports 2 unanswered connection(s) on this adapter: service brama consumer tama phase answer to … since …; …; running Tama hooks own 1 of them (route &lt;route&gt; to &lt;endpoint&gt; sent by hook process &lt;pid&gt; (`tama hook check-speculation`) through client process &lt;pid&gt;, waiting for &lt;n&gt; s); the rest no running hook watches; another request is not sent while a connection no running hook watches is waiting</code></pre>
+<p>A record whose hook process has
 already ended is nobody's channel: the next judge request ends its client
 (only while that process still runs the judge's HTTP client,
 <code>/usr/bin/curl</code>), removes the record and says
-<code>tama: ended the judge client its hook left behind: …</code> on stderr. A
-waiting connection no running Tama hook owns is refused with
-<code>no running Tama hook owns it</code>: it is another consumer's or
-Stado's, read with <code>stado resolver status</code>.</p>
+<code>tama: ended the judge client its hook left behind: …</code> on stderr. When
+no running Tama hook owns any waiting connection, the refusal says
+<code>no running Tama hook owns any of them</code>: they are another consumer's
+or Stado's, read with <code>stado resolver status</code>. Real journey:
+<code>tests/hooks/judge_channel.rs</code>.</p>
 <p>Before a judge request is sent to Brama, Tama asks Brama's own readiness
 report (<code>GET /readyz</code> on the same adapter). A Brama that declares it
 serves no traffic refuses the request with its declared reason
