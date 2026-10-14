@@ -1,43 +1,47 @@
-<h1>How the build gate reads open work</h1>
+<h1>How the build gate decides a build</h1>
 <p>Part of <a href="../../">enforcement control</a>, completion enforcement. The policy the gate
 applies — a build, compile or test waits until every open item carries a repair — is on the
-<a href="../work/">completion policy and work registers</a> page; this page says where the gate
-reads that work from and how it refuses when it cannot.</p>
-<h2>Defects live, tasks from the recorded reading</h2>
-<p><code>block-one-off-repairs</code> answers a build within the time the harness gives a hook.
-It reads Oko's defect register live, because that register answers at once and one defect with
-no recorded repair already holds the build. Tasks are read from the session's last recorded
-reading of open work, not from every session's ledger at that moment: reading every session's
-ledger inline took minutes, and the harness ended the hook by its own limit instead of the gate
-giving a verdict.</p>
-<p>Every reader of open work records that reading when Oko answers it — the stop gate
-(<code>block-stop-with-open-work</code>) at the end of each turn, the text gate and the
-open-work reminder among them. The record holds the session id, the time the reading completed
-and the line of every open task that carried no repair, and is kept under Tama's state root at
-<code>owed/&lt;sha256 of the session id&gt;.json</code>, replaced whole in one rename. Defects are
-not kept there; the gate reads them live.</p>
+<a href="../work/">completion policy and work registers</a> page; this page says who decides it
+and what the gate answers.</p>
+<h2>Oko decides, the gate asks</h2>
+<p><code>block-one-off-repairs</code> keeps no count of open work. For every compile it asks
+Oko's one admission decision, <code>oko admit build --product &lt;product&gt; --session
+&lt;id&gt; --json</code>, once for each product the command builds. Oko answers from the
+operator's rulings first; where none decides a session's build, compile or test, from his
+standing rule that it waits until every open defect is repaired or kept as a claim and every task
+the newest control pass owes carries a repair (<code>oko tasks owed</code>). An item the build
+itself unblocks — an open blocker that names it and waits (<code>oko blockers record
+--waits-on</code>) on a defect whose repair is pushed — is not waited on;
+<code>oko blockers held</code> lists those items, and the stop gate
+(<code>block-stop-with-open-work</code>) holds exactly the same ones.</p>
 <h2>What the gate answers</h2>
 <ul>
-<li>A defect with no recorded repair, unless it is held for the build: the build is refused and
-the defects are listed by identifier and product.</li>
-<li>A recorded reading that lists tasks with no repair: the build is refused and those tasks are
-listed. A task repaired after the reading still holds the build until the next reading records
-it, at the latest when the turn ends.</li>
-<li>A recorded reading with no unrepaired task and no defect waiting: the build is admitted (an
-operator's recorded build consent admits it before that, as the policy page describes).</li>
-<li>No recorded reading for the session: the build is refused with <code>no reading of open work
-is recorded for session &lt;id&gt; at &lt;path&gt;: it is recorded each time Oko's open work is read
-for this session, and the stop gate reads it when the turn ends</code>. A record that cannot be
-read or decoded, or that names another session, is refused with its path and the cause.</li>
+<li>A standing withdrawal (<code>no-build</code> or <code>no-build:&lt;product&gt;</code>): the
+build is refused quoting the ruling Oko answers with, whatever else consents.</li>
+<li>A standing consent (<code>build</code> or <code>build:&lt;product&gt;</code>): the build is
+admitted, and stderr says <code>build admitted by</code> the ruling.</li>
+<li>No ruling, and Oko holds the build on open work: the operator's answer to a build-consent ask
+or the build capability of this session admits it; otherwise the build is refused with
+<code>`&lt;build&gt;` builds, compiles or tests, and Oko does not admit it: build waits until
+every open item carries its pushed repair, and &lt;n&gt; open item(s) carry none, first
+&lt;item&gt;; …</code>, followed by the route to repair and record each item.</li>
+<li>No ruling and nothing held: the build is admitted.</li>
+<li>Oko installed but unreadable: the gate does not take silence for an admission; unless a
+consent of this conversation admits the build, it is refused with <code>Oko's admission could
+not be read (&lt;cause&gt;); an unread answer is not an admission</code>. A machine with no
+Oko CLI has no register and no rulings, so nothing holds the build there.</li>
 </ul>
 <p>Each Oko reading the gates make announces itself on stderr through the shared wait mechanism
 before it waits and when it ends, so a reading that stands still names the command it stands
 on.</p>
 <h2>Qualification</h2>
-<p><code>tests/build-gate/recorded.rs</code> runs the built <code>tama hook
-block-one-off-repairs</code> on <code>cargo build</code>, the way OMP's PreToolUse dispatch runs
-it, against the real Oko CLI with an isolated empty defect register
-(<code>OKO_DEFECT_REGISTER</code>) and a session id made for the run: with no recorded reading
-it is refused naming the missing reading, with a recorded unrepaired task it is refused naming
-that task, and with an empty reading it is admitted. The run's own record is removed at the
-end.</p>
+<p><code>tests/build-gate/consent.rs</code> and <code>tests/build-gate/standing.rs</code> run the
+built <code>tama hook block-one-off-repairs</code> the way OMP's PreToolUse dispatch runs it, on
+a signed-in host, against the installed Oko CLI with defect, blocker and ruling registers of the
+run's own (<code>OKO_DEFECT_REGISTER</code>, <code>OKO_BLOCKER_REGISTER</code>,
+<code>OKO_RULING_REGISTER</code>) holding one open defect recorded through <code>oko defects
+record</code> with no repair: without consent the build is refused naming that item; a
+whole-session build capability and a standing <code>build:&lt;product&gt;</code> ruling admit it;
+a newer <code>no-build:&lt;product&gt;</code> ruling refuses it quoting the withdrawal, even with
+the capability. Oko's own journey <code>tests/constraints/open_work.rs</code> covers the rule
+itself, the held items and a run naming no session.</p>

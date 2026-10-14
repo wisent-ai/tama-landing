@@ -172,14 +172,16 @@ submit|prepare|newest</code>. An exact release install (<code>--release-version<
 <code>--dry-run</code> compile nothing and pass, and a package manager's <code>run &lt;script&gt;</code> whose
 script only runs one repository file through <code>node</code>, loading no builtin that starts a program or
 only a test loads, is no compile.</td>
-<td>Code, commit and push the repair of every open item and record it (<code>oko tasks evidence
+<td>The gate asks Oko's one admission decision, <code>oko admit build --session &lt;id&gt;</code>, and refuses
+with its reason. Code, commit and push the repair of every open item and record it (<code>oko tasks evidence
 &lt;task&gt; --commit &lt;revision&gt;</code>, <code>oko defects repaired &lt;id&gt; --revision &lt;revision&gt;</code>);
-then build once over all of it. One item is not waited on: an item whose repair an installed Tama hook
-refuses while that hook's own repair is pushed, so the build is what unblocks it. It is held for the build
-only when the register says so in three records — an open blocker (<code>oko blockers record</code>) naming the
-item, whose error opens with the refusing hook's id (<code>block-numeric-literals: BLOCKED: …</code>), and an
-open Tama defect whose surface names that hook and which carries a pushed repair. The operator's consent,
-recorded as the Tama session capability <code>{"tool": "build"}</code>, admits a build before that.</td></tr>
+then build once over all of it. One item is not waited on: an item whose repair an installed hook or command
+refuses while the refuser's own repair is pushed, so the build is what unblocks it. Record that with an open
+blocker naming the item that waits on the refuser's defect (<code>oko blockers record --blocks '&lt;item&gt;: …'
+--waits-on &lt;defect&gt;</code>); <code>oko blockers held</code> lists the items held so. A standing ruling of
+the operator decides before the open-work rule; his consent in this conversation, recorded as the Tama session
+capability <code>{"tool": "build"}</code> or given as the answer to a build-consent ask, admits a build that
+rule holds.</td></tr>
 <tr><td><code>stado product install|update|sync</code> of any product other than Stado, run by a Stado whose
 revision (<code>stado --version</code>) does not contain a repair Oko records against Stado or against that
 product (<code>oko defects repaired &lt;id&gt; --revision stado@&lt;rev&gt;</code>) and that repair was committed no
