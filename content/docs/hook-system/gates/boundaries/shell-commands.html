@@ -34,6 +34,22 @@ change stays in the tree. The changed paths are Git's own (<code>git diff --name
 files); a listing Git cannot give is said on stderr and leaves nothing to judge. A session whose transcript cannot be
 read is not refused here: the gate cannot say whose the changes are, and the other guards still stand. The journey is
 <code>tests/shared-checkout/discard.rs</code>.</p>
+<h2>Output that never reaches the agent</h2>
+<p>A failed or hung step read as quiet success when its output was thrown away on the way. Two shapes are refused.
+A redirection into the null device, by the shell's own syntax (<code>&gt;/dev/null</code>, <code>2&gt;/dev/null</code>,
+<code>2&gt;&gt;/dev/null</code>, <code>&amp;&gt;/dev/null</code>, <code>&gt;&amp;/dev/null</code>), is read from
+structure and refused naming the construct: <code>BLOCKED: `2&gt;/dev/null` sends a stream of the command into the null
+device, so what the command says there (its errors included) never reaches you, and a failed or hung step reads as
+quiet success. Run the command with its full output and read all of it …</code>. A program handed
+<code>/dev/null</code> as an argument (<code>curl -o /dev/null</code>) is not a redirection and passes. A filter that
+keeps only part of the producing command's output (its first or last lines or bytes, a column range of every line, a
+count instead of the lines) is the judge's shape <code>TRUNCATE</code>, answered from what the command does and not
+from the filter's name; counting matches, picking a field of a record, selecting matching lines and formatting a value
+are not truncation. The refusal: <code>BLOCKED: the command keeps only part of what it says … Run the producing
+command with its full output and read all of it; a long output is retained whole by the harness, and a wait that does
+not end is read from the open-wait register.</code> A judgement nobody could obtain passes the command and says so,
+as every judged shape does. The journey is <code>tests/hidden-output/null_sink.rs</code>; its truncation case asks the
+real judge under <code>TAMA_TEST_PRE_BASH_JUDGE=1</code> and <code>-- --ignored</code>.</p>
 <h2>Which text in a command is code</h2>
 <p>Every shell gate reads a command through one shared reader that keeps shell syntax and drops literal arguments.
 A command line is code when a shell is handed it: after the shell's <code>-c</code> flag (bundled letters such as
