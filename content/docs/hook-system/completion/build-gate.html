@@ -16,18 +16,22 @@ itself unblocks — an open blocker that names it and waits (<code>oko blockers 
 (<code>block-stop-with-open-work</code>) holds exactly the same ones.</p>
 <h2>What the gate answers</h2>
 <ul>
+<li>A consent the operator gave in this conversation (his answer to a build-consent ask, or the
+build capability of this session) is read first; a build it admits only asks <code>oko admit
+build</code> without a session, so a standing withdrawal still refuses it but no open work is
+read, and stderr says <code>build admitted by</code> that consent.</li>
 <li>A standing withdrawal (<code>no-build</code> or <code>no-build:&lt;product&gt;</code>): the
 build is refused quoting the ruling Oko answers with, whatever else consents.</li>
 <li>A standing consent (<code>build</code> or <code>build:&lt;product&gt;</code>): the build is
 admitted, and stderr says <code>build admitted by</code> the ruling.</li>
-<li>No ruling, and Oko holds the build on open work: the operator's answer to a build-consent ask
-or the build capability of this session admits it; otherwise the build is refused with
+<li>No ruling, no consent of this conversation, and Oko holds the build on open work: the build is
+refused with
 <code>`&lt;build&gt;` builds, compiles or tests, and Oko does not admit it: build waits until
 every open item carries its pushed repair, and &lt;n&gt; open item(s) carry none, first
 &lt;item&gt;; …</code>, followed by the route to repair and record each item.</li>
 <li>No ruling and nothing held: the build is admitted.</li>
-<li>Oko installed but unreadable: the gate does not take silence for an admission; unless a
-consent of this conversation admits the build, it is refused with <code>Oko's admission could
+<li>Oko installed but unreadable: the gate does not take silence for an admission; the build is
+refused with <code>Oko's admission could
 not be read (&lt;cause&gt;); an unread answer is not an admission</code>. A machine with no
 Oko CLI has no register and no rulings, so nothing holds the build there.</li>
 </ul>
