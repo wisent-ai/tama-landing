@@ -291,5 +291,5 @@ instead of overwriting either version. Resolve that hook-chain conflict before
 activating again. An emergency-disabled dispatcher remains protected from
 implicit reactivation.</p>
 <h2>Refusals and failures</h2>
-<p>Filesystem and process errors are written to stderr and exit <code>1</code>. When requested Git configuration returns nonzero, Tama reports Git's stderr, or exactly <code>git config failed</code> when Git produced no message. Without <code>--set-git-config</code>, the command deliberately leaves Git configuration untouched.</p>
+<p>Filesystem and process errors are written to stderr and exit <code>1</code>. When requested Git configuration returns nonzero, Tama names the command, Git's exit status and Git's stderr: <code>git config --global core.hooksPath &lt;path&gt; ended with &lt;status&gt;: &lt;stderr&gt;</code>; a Git that cannot be started is <code>cannot run git to set core.hooksPath: &lt;cause&gt;</code>. Uninstall reports <code>git config --global --unset core.hooksPath ended with …</code> the same way. Without <code>--set-git-config</code>, the command deliberately leaves Git configuration untouched.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
