@@ -88,6 +88,8 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li>The pre-push quality check judges the pushed commits, not the shared working tree: the dispatcher runs <code>tama hook quality-check</code> on every push with Git's pre-push records, which hands them to <code>stado quality check --pre-push --if-declared</code>; without Stado the declared gates run on each pushed commit's tree written out under the checkout's ignored <code>.build/tama-quality/</code>. Another session's uncommitted file no longer refuses a finished commit or lets an unformatted one through.</li>
+<li><code>tama violations find</code> says each step as it happens — which file which hook is judging, each finding, each file not judged, each repository's totals — on stderr, or with <code>--jsonl</code> as JSON lines on stdout; every hook run is named by the wait mechanism while it runs, so a hook that does not finish is no longer a silent scan. Registered hooks' refusals are read from the decision document they print, which the replay had never counted. <code>--hook &lt;id&gt;</code> replays one registered hook; the hook-file override is now <code>--program &lt;path&gt;</code>.</li>
 <li><code>tama tests approve</code>, <code>revoke</code>, <code>list</code> and <code>audit</code>, and <code>block-unapproved-tests</code>, stop naming the test approvals record when it exists but cannot be read or parsed. Read as approving nothing, an approval rewrote the operator's record with the one new path and <code>audit --remove</code> deleted test files he had approved.</li>
 <li>The gates that place a call's paths read the working directory once and refuse when it cannot be read, instead of joining relative paths to an empty path or <code>.</code>: <code>block-unapproved-tests</code>, <code>block-external-source-edits</code> (which let such a call through unjudged), the LSI and Overleaf API guards, <code>check-merge-deletion-loss</code>, <code>pre-bash</code>, <code>check-artifact-inspection</code> and <code>block-off-task-work</code>; <code>post-trajectory-capture</code> says on stderr that the run was not registered and why.</li>
 <li><code>block-off-task-work</code> and <code>block-unapproved-tests</code> refuse a structural rewrite (<code>xd://ast_edit</code>) whose request carries no readable targets, and <code>block-off-task-work</code> refuses while the session's assignment cannot be read, instead of judging every scope against an empty instruction.</li>
@@ -155,6 +157,7 @@
 <li>Automatic service registration on application launch.</li>
 <li>Automatic session-controller installation on application launch.</li>
 <li>Supported-runtime dependence on <code>~/Documents/CodingProjects/Wisent/tama</code>.</li>
+<li><code>tama adaptive claude-config</code>: a second, one-provider spelling of <code>tama provider config --provider claude</code>, which prints the hook block for every provider from the one event table.</li>
 </ul>
 <h3>Security</h3>
 <ul>
