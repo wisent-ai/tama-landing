@@ -1,5 +1,5 @@
 <h1><code>tama adaptive</code></h1>
-<p>Opens the public adaptive-layer doctor command group for inspecting state, detecting drift, drafting repairs, and managing the legacy runner shim.</p>
+<p>Opens the public adaptive-layer doctor command group for inspecting state, detecting drift, drafting repairs and applying them.</p>
 <h2>Invocation</h2>
 <pre><code>tama adaptive &lt;command&gt; [...]
 </code></pre>
@@ -11,11 +11,9 @@
 <li><a href="queue/"><code>tama adaptive queue</code></a></li>
 <li><a href="repair/"><code>tama adaptive repair</code></a></li>
 <li><a href="apply/"><code>tama adaptive apply</code></a></li>
-<li><a href="install/"><code>tama adaptive install</code></a></li>
-<li><a href="uninstall/"><code>tama adaptive uninstall</code></a></li>
 </ul>
 <h2>Output and state</h2>
-<p>The group itself performs no action. Read-only leaves inspect state; repair stages proposal artifacts; apply and shim management can change live hook files. The hook block a provider's configuration carries is printed by <a href="../provider/config/"><code>tama provider config --provider &lt;id&gt;</code></a> for every provider, Claude Code included; there is no adaptive leaf for one provider.</p>
+<p>The group itself performs no action. Read-only leaves inspect state; repair stages proposal artifacts; apply can change live hook files. The dispatcher every provider runs is written by the release install (<a href="../hooks/"><code>tama hooks release</code></a>), not by this group. The hook block a provider's configuration carries is printed by <a href="../provider/config/"><code>tama provider config --provider &lt;id&gt;</code></a> for every provider, Claude Code included; there is no adaptive leaf for one provider.</p>
 <h2>Refusals and failures</h2>
 <p>A missing or unknown leaf prints the adaptive usage text beginning <code>adaptive doctor &lt;command&gt;</code> and exits <code>2</code>. Leaf errors are prefixed <code>doctor: </code> and exit <code>1</code> unless the leaf documents a more specific refusal.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>

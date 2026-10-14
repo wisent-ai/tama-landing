@@ -257,8 +257,7 @@ under (processes &lt;pid&gt; &lt;- &lt;parent&gt; …)</code>; <code>tama hooks 
 prints that cause as <code>owner consent refused: …</code> before its own refusal.</li>
 <li><strong>In his own shell.</strong> <code>DEVICE_HOOK_EDIT_APPROVED=1</code>,
 exported outside the session. <a href="cli/adaptive/apply.md"><code>tama adaptive
-apply</code></a> and <a href="cli/adaptive/install.md"><code>tama adaptive
-install</code></a> read only this variable.</li>
+apply</code></a> reads only this variable.</li>
 </ul>
 <p>Test code follows the same rule: <code>block-unapproved-tests</code> and
 <code>block-device-level-tests-without-consent</code> admit it under the session

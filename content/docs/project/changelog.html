@@ -160,6 +160,7 @@
 <li><code>tama adaptive claude-config</code>: a second, one-provider spelling of <code>tama provider config --provider claude</code>, which prints the hook block for every provider from the one event table.</li>
 <li><code>tama patterns extract</code>: it moved a guard's table of strings out of Rust into a JSON declaration, which keeps the same word list in a data file that <code>block-keyword-literals</code> judges like any other list. A behaviour that classifies by words is replaced by reading the structure it acts on, not by moving the words; <a href="/docs/cli/vocabulary/report/"><code>tama vocabulary report</code></a> lists the tables still standing.</li>
 <li><code>tama merges review</code>, the desktop request <code>merges/review</code> and the Desktop's Merges screen: they matched the commit subject one removed branch merger wrote and listed the damage its merges left, a reader of that one tool's history. Files over the line limit are what <a href="/docs/cli/violations/find/"><code>tama violations find</code></a> reports on any tree.</li>
+<li><code>tama adaptive install</code> and <code>tama adaptive uninstall</code>, with the hidden <code>adaptive-runner</code> entry they wired: install replaced the dispatcher a release install writes with a shell shim, which the provider configurations run under node; uninstall put a backup back. The release install (<a href="/docs/cli/hooks/"><code>tama hooks release</code></a>) writes that dispatcher on every install and is the one way it changes.</li>
 </ul>
 <h3>Security</h3>
 <ul>
