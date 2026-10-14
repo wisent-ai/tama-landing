@@ -17,9 +17,9 @@ verbatim quote declaring it. The transcript names and the checkout are asked fir
 names a session or an identifier the repository already holds does not wait on a read of every
 transcript on the machine; an untracked file beside the write counts for nothing. A path outside any
 checkout (no folder above it holds <code>.git</code>) is not searched. Inside a checkout, a
-<code>git grep</code> that cannot start, ends on a signal, or writes an error is said on stderr —
-<code>block-identity-literals: git grep in &lt;folder&gt; ended with &lt;status&gt;, so the checkout
-confirmed no value: &lt;git's error&gt;</code> — and the other sources decide. The values none of
+<code>git grep</code> that cannot start, ends on a signal, or writes an error sources nothing, and every
+refusal of the written file carries it — <code>(the written file's checkout could not be searched: git grep
+in &lt;folder&gt; ended with &lt;status&gt;: &lt;git's error&gt;)</code> — while the other sources decide. The values none of
 those sources carries are looked up in the stored sessions together, in one walk per written file
 that reads each transcript's index once and ends when every value has two sessions. A word shaped like a
 flattened address that is part of an angle-bracket placeholder — a usage line's
