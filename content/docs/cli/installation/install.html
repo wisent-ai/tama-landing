@@ -21,8 +21,8 @@ installation. Declare <code>.build/</code> in the repository's ignore policy;
 the gate refuses non-ignored scratch storage. No clone, branch checkout or
 change to the caller's index is made.</p>
 <p>Running rustfmt is running a build tool, and the operator's rulings decide
-when one may run. Before it formats anything, the gate asks Oko's one ruling
-authority, <code>oko rulings may build --product &lt;checkout directory&gt;
+when one may run. Before it formats anything, the gate asks Oko's one admission
+decision, <code>oko admit build --product &lt;checkout directory&gt;
 --json</code>. While a standing withdrawal (<code>no-build</code>,
 <code>no-build:&lt;product&gt;</code>) decides, the gate runs no formatter,
 prints <code>check-rust-format: no formatter was run: &lt;Oko's verdict quoting
