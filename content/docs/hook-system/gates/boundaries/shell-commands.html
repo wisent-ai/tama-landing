@@ -47,25 +47,9 @@ cannot list — is refused with what could not be read, because passed it threw 
 &lt;checkout&gt; cannot be told: the session transcript &lt;path&gt; cannot be read. Leave the tree as it stands and
 commit only your own paths (`git commit -m &lt;message&gt; -- &lt;your paths&gt;`).</code> The journey is
 <code>tests/shared-checkout/discard.rs</code>.</p>
-<p>A commit is read the same way before it runs, because Git commits the whole index and the index is shared too:
-<code>git add &lt;own file&gt; &amp;&amp; git commit</code> committed whatever another session had staged, under
-this session's message. What the commit would take is read from its own words, with <code>git commit -h</code>
-telling the flags that take a value from the paths: the index as it stands; with paths, only the changes under
-them; with <code>--include</code>, the index and those changes; with <code>-a</code>, every tracked change. A path
-it would take that this session never wrote is refused naming each one: <code>BLOCKED: `git add src/mine.rs
-&amp;&amp; git commit -m …` would commit changes this session did not write in &lt;checkout&gt;: src/other.rs. Another
-session or the operator staged or holds them in the one shared checkout, and they would land under this commit's
-message. Commit only your own paths: `git commit -m &lt;message&gt; -- &lt;your paths&gt;`; their work is theirs to
-commit.</code> A commit whose content cannot be read — no readable transcript, a Git that cannot list the index,
-paths read from <code>--pathspec-from-file</code> — is refused as <code>BLOCKED: what `…` would commit in
-&lt;checkout&gt; cannot be told: &lt;cause&gt;.</code> A change made by a shell command and not by a write or
-file-change tool call is not this session's by its transcript, so it is committed after a tool call writes it.
-The one exception is a deleted file that <code>block-unapproved-tests</code> classifies as test code no approval
-covers: every session must remove such a file whoever wrote it, and its deletion publishes none of the writer's work.
-<code>--dry-run</code> commits nothing and passes. The journey is <code>tests/shared-checkout/commit.rs</code>.
-Block-off-task-work no longer judges what a commit takes: its own gate read the whole index, so it refused a commit
-naming its own paths whenever another session had staged a file, and it passed every file no session-writes log
-named.</p>
+<p>Commit ownership is checked at hunk content, not path membership. <a href="/docs/cli/stage/"><code>tama stage --session</code></a> reconstructs successful before/after edit receipts and stages only their deltas. The commit guard uses that same reader to compare the complete index with the session's recorded changes. A session editing one part of a file does not authorize another session's staged changes elsewhere in it.</p>
+<p>Commit the inspected index in a separate invocation. Whole-path commits, <code>--all</code>, <code>--include</code>, pathspec-file commits and compound shell commands refuse before they can import uninspected working-tree changes. Git's own command declaration identifies option meanings. Missing transcripts, receipts, conflicting deltas or unreadable index content refuse with the actual cause. No compiler runs. <code>--dry-run</code> commits nothing.</p>
+<p>The real journey <code>tests/shared-checkout/commit.rs</code> stages recorded edits through the public CLI against actual captured session receipts, compares the exact resulting Git tree, repeats the operation, verifies overlap refusal and checks that the operator's index and working files remain unchanged. It requires a retained session-edit capture; a missing capture is not a passing result.</p>
 <h2>Output that never reaches the agent</h2>
 <p>A failed or hung step read as quiet success when its output was thrown away on the way. Two shapes are refused.
 A redirection into the null device, by the shell's own syntax (<code>&gt;/dev/null</code>, <code>2&gt;/dev/null</code>,
