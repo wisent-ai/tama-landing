@@ -28,8 +28,8 @@ ready, error-free, and in <code>kernel-gated</code> mode. This is the same judgm
 backend; <a href="session.md">Session</a> shows the live session that completes the
 picture, with <code>Refresh sessions</code> on demand.</p>
 <h2>The signed journey</h2>
-<p>First use is driven by a signed journey definition, <code>first-use</code> version
-<code>2026-08-04.2</code>, bundled as <code>tama-first-use.json</code> and fetched through the
+<p>First use is driven by a signed journey definition, <code>first-use</code>, whose version is
+the definition's own <code>journey_version</code> field, bundled as <code>tama-first-use.json</code> and fetched through the
 Stado integration transport (token from the <code>TAMA_STADO_INTEGRATION_TOKEN</code>
 environment key; the bundled copy is the fallback). Progress persists in
 user defaults under the <code>tama.onboarding.v1</code> namespace. Four screens, in
