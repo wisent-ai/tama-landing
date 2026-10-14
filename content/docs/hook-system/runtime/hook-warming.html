@@ -25,13 +25,19 @@ own when binaries arrived another way, or to see where this machine stands:</p>
 tama hooks warm --only &lt;hook-id&gt;[,&lt;hook-id&gt;…] --json</code></pre>
 <p>Each line carries the state, the measured milliseconds, the hook id and the
 path: <code>warm</code> ran and exited, <code>missing</code> is a registry
-entry with no binary at that path. The summary names the binary that cost the
+entry with no binary at that path, and <code>unrunnable</code> is a binary that
+is there and could not be started or waited for (no execute permission, a
+format the system does not run); standard error names it with the system's
+cause, as <code>&lt;id&gt; is unrunnable (cannot start: Permission denied
+…): &lt;path&gt;</code>. The summary names the binary that cost the
 most, which is the one to look at. The command exits non-zero when a binary is
-missing, because a live event would have nothing to run. <code>--json</code>
-prints one document with the same rows plus <code>warmed</code> and
-<code>unusable</code> counts and the <code>slowest</code> hook with its
-<code>slowestMs</code>. An id the registry does not name is refused by name and
-exits <code>2</code>.</p>
+missing or unrunnable, because a live event would have nothing to run.
+<code>--json</code> prints one document with the same rows, each with its
+<code>cause</code> (null for a binary that ran or is missing), plus
+<code>warmed</code> and <code>unusable</code> counts and the
+<code>slowest</code> hook with its <code>slowestMs</code>; a report that cannot
+be encoded is refused with its cause. An id the registry does not name is
+refused by name and exits <code>2</code>.</p>
 <p>The run is inert: each binary receives an empty JSON object on standard
 input, which every hook reads as "no input, decide nothing", and
 <code>HOME</code> points at a scratch directory inside the checkout's ignored
@@ -40,5 +46,6 @@ required, because nothing about the machine's policy changes.</p>
 <p>Tama Desktop carries the same step: the <strong>Hooks</strong> screen shows
 a <strong>Hook binaries</strong> panel with a <strong>Warm hook binaries</strong>
 button, the count it warmed, and a row for every binary that was slow or could
-not run. Both surfaces run the same warm pass — the window through
+not run, an unrunnable one with the system's cause beside its path. Both
+surfaces run the same warm pass — the window through
 <code>tama request hooks/warm</code> — and read the same document.</p>
