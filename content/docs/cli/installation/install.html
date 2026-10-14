@@ -103,7 +103,13 @@ review. A source of names that cannot be read (the Stado registry, the vault
 listing, the product declarations) stops the commit naming that source; it
 never lets a message through unchecked.</p>
 <p>The managed <code>commit-msg</code> dispatcher runs the preserved hook chain
-first, then <code>tama hook review-commit &lt;message-file&gt;</code>. Brama
+first, then <code>tama hook check-rust-types</code>, and only after it passes
+<code>tama hook review-commit &lt;message-file&gt;</code>. The type check exports
+Git's staged tree into the checkout's ignored <code>.build/tama-rust-types</code>
+directory and runs Cargo against that export, not the working tree. A missing
+symbol refuses the commit with the compiler's file and symbol diagnostics.
+Graphical Git clients invoke the same dispatcher and receive the same stderr.
+Brama
 reads the final message and exact staged patch under the same message and
 change-unit policy: private incident identifiers stay
 out of messages, messages explain the product change, and formatting-only or
@@ -120,6 +126,9 @@ and Desktop Reviews expose its retained envelope, answer and outcome through
 the shared review reader. Install plan and hook status include
 <code>commit-msg</code>; neither wiring nor a source commit proves a real
 commit was accepted or refused.</p>
+<p>The installed journey <code>tests/review/installed.mjs</code> exercises commit admission through actual Git: a missing definition supplied only by an uncommitted edit must leave HEAD and the staged tree unchanged on refusal.
+A complete staged implementation must commit even while the working file is broken; the resulting commit tree must equal the staged candidate. It retains <code>commit-admission.json</code> alongside command streams and runtime identity.
+The journey requires the installed candidate's commit dispatcher and real reviewer; an absent dispatcher or unavailable review is a failed qualification, not a pass. This describes the journey, not an executed result.</p>
 <p>A grounded commit refusal prints <code>review retained at &lt;directory&gt;</code>, just as a failed review operation does. Inspect that record's <code>result.json</code> to distinguish <code>source_finding</code> from <code>review_failure</code>; the quoted offending text belongs to the retained finding. The real managed-commit journey checks this outcome and unchanged Git HEAD, rather than treating an incidental stderr sentence as proof that policy ran.</p>
 <p>See <a href="/docs/testing/">Testing and qualification</a>
 for the real commit-review journey and its retained evidence contract.</p>
