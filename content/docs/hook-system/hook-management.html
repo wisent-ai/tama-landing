@@ -313,12 +313,17 @@ a change to it whatever program it runs, and needs the owner's consent: no list 
 write calls or patch appliers decides it, because every writer such a list left out went through. Any other
 execution payload (code an evaluator runs) needs consent when its code names a protected path at all. Read a hook
 with the harness's read tool, which changes nothing. A payload naming one of the operator's break-glass files
-(the emergency state file, its backup folder, a session override) is refused outright. The journey
+(the emergency state file, its backup folder, a session override) is refused outright. The refusal quotes what
+acted: <code>bash payload can create/edit hook source/config: `&lt;path&gt;` stands where it acts, in
+`&lt;the command text the shell reads as acting, quoted data blanked&gt;`</code>, or <code>it sets git's
+core.hooksPath</code>; a path the refusal quotes inside blanked-out text shows a construct the shell parser could
+not read as data. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hook_config_shell_mentions</code> requires
 <code>cp</code>, an unlisted writer and a redirection onto the registry refused, the same path inside a commit
 message passed, an <code>oko defects note</code> whose double- and single-quoted surface, text and evidence name
-the registry passed and the same command redirected onto the registry refused, and a command naming the emergency
-state file refused.</p>
+the registry passed and the same command redirected onto the registry refused with the acting text quoted, a
+register command whose double-quoted prose holds a possessive, a single-quoted refusal and a parenthesised path
+passed, and a command naming the emergency state file refused.</p>
 <p>What still refuses: the writer as the command's program or script argument,
 including a quoted path (<code>node 'shared-hooks/generate-configs.mjs'
 --apply</code>); <code>tama install</code>, <code>tama enforcement only|all</code>
