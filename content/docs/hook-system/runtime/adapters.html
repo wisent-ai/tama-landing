@@ -18,6 +18,14 @@ It preserves stdin, stdout, stderr, exit status and signals. Failure to start
 the native engine, or a registry startup failure, exits <code>1</code> with
 <code>TAMA_HOOK_INFRASTRUCTURE</code>; it does not fall back to a JavaScript
 policy engine or report a passing policy decision.</p>
+<p>The agent id is the argument after the event, else <code>TAMA_AGENT_ID</code>.
+With neither the run is refused with <code>TAMA_HOOK_INFRASTRUCTURE: tama run-hook
+needs an agent id: pass it after the event or set TAMA_AGENT_ID</code> and exit
+<code>1</code>, since a run for no agent publishes no session record.
+<code>TAMA_AGENT_ID</code>, <code>TAMA_PROVIDER</code>, <code>TAMA_ONLY_HOOK_ID</code>,
+<code>TAMA_DISABLED_HOOKS</code> and <code>TAMA_ENABLED_HOOKS</code> holding a value
+that is not text are refused the same way with <code>&lt;name&gt; cannot be read:
+&lt;error&gt;</code>, instead of read as unset.</p>
 <h3>Which tool calls a gate reads as a shell or a write</h3>
 <p>Harnesses spell the same tool differently: Claude sends <code>Bash</code>,
 OMP sends <code>bash</code>, Codex sends <code>exec_command</code>, and the
