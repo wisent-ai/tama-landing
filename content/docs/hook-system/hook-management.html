@@ -310,7 +310,10 @@ commands at <code>;</code>, <code>|</code>, <code>&amp;</code> and newline only 
 those characters are outside quotes, so a sentence that names a writer inside a
 quoted argument — an evidence message, a commit body, a report of a refusal —
 runs nothing and is allowed. A token with spaces in it is an argument, not a
-program or a path, for the same reason.</p>
+program or a path, for the same reason. A shell call is read by its command
+alone: the call's description, its working directory and the session's paths
+are not part of what the shell runs, so an apostrophe in any of them opens no
+quote and cannot turn a commit or a register command into a hook edit.</p>
 <p>A shell payload that names hook source or configuration where the name can act — outside its quoted data — is
 a change to it whatever program it runs, and needs the owner's consent: no list of writer programs, language
 write calls or patch appliers decides it, because every writer such a list left out went through. Any other
@@ -326,7 +329,9 @@ not read as data. The journey
 message passed, an <code>oko defects note</code> whose double- and single-quoted surface, text and evidence name
 the registry passed and the same command redirected onto the registry refused with the acting text quoted, a
 register command whose double-quoted prose holds a possessive, a single-quoted refusal and a parenthesised path
-passed, and a command naming the emergency state file refused.</p>
+passed, a commit by pathspec with an apostrophe in its message and in the call's description passed while the
+same call copying onto the registry was refused naming it, and a command naming the emergency state file
+refused.</p>
 <p>What still refuses: the writer as the command's program or script argument,
 including a quoted path (<code>node 'shared-hooks/generate-configs.mjs'
 --apply</code>); <code>tama install</code>, <code>tama enforcement only|all</code>
