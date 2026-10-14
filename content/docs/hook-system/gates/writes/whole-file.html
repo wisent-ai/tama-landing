@@ -12,7 +12,10 @@ session made to the file included;</li>
 <li>a notebook cell edit: the whole notebook with the cell replaced, inserted or deleted.</li>
 </ul>
 <p>So a violation the file already holds is refused on the next write to that file, whoever wrote it, and text the
-write removes is not judged as written. A write that removes the violation passes.</p>
+write removes is not judged as written. A write that removes the violation passes. One gate compares instead:
+<code>check-numeric-literals</code> reads the rebuilt file against the file as it was and refuses the literals the
+write adds, a second copy of a held one included, each on the line it stands on; a literal the file already held is
+not the write's and does not refuse an edit beside it.</p>
 <h2>What a refusal says</h2>
 <p>A refusal names the file and the line in the whole file where each violation stands, as
 <code>line N: &lt;the line&gt;</code>, numbered from one as an editor numbers lines. The number is the line's
@@ -35,8 +38,9 @@ write so it applies to the file as it is; there is no setting that lets an unreb
 <tbody>
 <tr><td><code>pre-write-edit</code></td><td>every content rule, and the second-program check, on the rebuilt file</td></tr>
 <tr><td><code>block-fallbacks</code>, <code>block-silent-waits</code>, <code>block-identity-literals</code>,
-<code>block-keyword-literals</code>, <code>check-numeric-literals</code>, <code>block-internal-names</code></td><td>the
-construct and its line</td></tr>
+<code>block-keyword-literals</code>, <code>block-internal-names</code></td><td>the construct and its line</td></tr>
+<tr><td><code>check-numeric-literals</code></td><td>each literal the write adds and the line it stands on in the
+file the write leaves</td></tr>
 <tr><td><code>check-legacy-activation-bypass</code></td><td>each marker and every line holding it, per file</td></tr>
 <tr><td><code>block-direct-lsi-api</code>, <code>block-overleaf-api</code></td><td>each forbidden call and the line
 of every match, per file</td></tr>
