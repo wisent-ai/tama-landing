@@ -22,6 +22,16 @@ rule an operator might want separately, move it out the same way: the code
 is moved, never deleted, and
 <a href="cli/enforcement/only.md"><code>tama enforcement only</code></a> decides
 what runs.</p>
+<p><code>block-crowded-folders</code> judges every file a write names, each
+on its own: the sections of a hashline script (<code>[path#tag]</code>, one
+file each), the files an <code>apply_patch</code> envelope leaves, and the one
+path of a plain write or edit. A script editing two existing files used to
+reach the gate as the call's own path, which the harness fills with the
+session folder when the script names its files itself, and was refused as a
+new file in that folder (<code>Folder '…/Wisent' already has 38 files</code>);
+it now passes, and a section that creates a file in a folder already at the
+operator's limit is refused naming that folder. The journey is
+<code>tests/crowded-folders/hashline.rs</code>.</p>
 <p>Each native hook evaluates only its own rule. The common Tama engine reads
 the registry and selects and executes the event's hooks. The former cross-hook
 policy sweeps have been removed: a repository-copy refusal is attributed to
