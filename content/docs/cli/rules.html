@@ -40,8 +40,13 @@ When Oko cannot run or refuses its read, <code>unreadable</code> names
 visible. Reading adaptive evidence may take minutes on a large Transcript Lake.</p>
 <p>A damaged <code>auto_rules.json</code> appears as
 <code>drafted-rules</code> with its path and read or JSON error, while other
-proposals stay visible. <code>list</code>, <code>remove</code> and
-<code>dismiss</code> refuse to treat it as an empty rule set. A detached
+proposals stay visible. A drafted rule that names no <code>id</code> cannot be
+grouped, removed or dismissed; it appears as <code>drafted-rules</code> with
+<code>a drafted rule names no id (id), so it cannot be grouped or removed: &lt;the rule&gt;</code>
+beside the rules that can be. A field a drafted rule does not carry (its
+<code>added</code> time, <code>message</code> or <code>user_said</code>) is
+<code>null</code> in the JSON and printed as <code>null</code>, never as a blank. <code>list</code>, <code>remove</code> and
+<code>dismiss</code> refuse to treat a damaged file as an empty rule set. A detached
 drafter's latest failed operation appears as
 <code>frustration-drafter</code> with its recorded time and error, for example
 <code>CLASSIFY_FAILED Brama rejected the request ... HTTP 401</code>.
