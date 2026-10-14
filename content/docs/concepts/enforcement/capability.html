@@ -45,7 +45,7 @@ release</a>. When the session's own runtime loads another release — an install
 installed — it binds the grant the session holds to the release and catalog it
 now runs, with its grants, lifetime, expiry and remaining uses unchanged. A
 grant ends at its expiry, after its single use, at
-<code>tama sessions revoke-capability</code> or under emergency disable, never
+<code>tama sessions capability revoke</code> or under emergency disable, never
 because a newer release was installed.</li>
 <li>A grant whose control key, catalog checksum or release id does not match the
 policy the hook runtime has loaded is not passed to any hook, and every refusal
@@ -59,7 +59,12 @@ consent while a recorded grant was dropped.</li>
 <h2>Withdrawing it</h2>
 <p>When the operator takes back a consent, the grant is withdrawn at once, not
 at its expiry:</p>
-<pre><code>tama sessions revoke-capability --session &lt;SESSION_ID&gt; [--agent omp|claude|codex] [--json]</code></pre>
+<pre><code>tama sessions capability show --session &lt;SESSION_ID&gt; --agent omp|claude|codex [--json]
+tama sessions capability revoke --session &lt;SESSION_ID&gt; --agent omp|claude|codex [--json]</code></pre>
+<p><code>show</code> prints the capability the session's override holds now, as the build gate reads it
+(<code>"capability": null</code> when none). The harness is named with <code>--agent</code>, never assumed: the
+same id under another harness names another control file, and a command without it is refused with
+<code>name the harness that runs the session with --agent</code>. <code>revoke</code> withdraws the grant:</p>
 <p>It sets <code>capability</code> to <code>null</code> in that session's
 <code>&lt;controlKey&gt;.override.json</code> and keeps every other field. The build gate
 reads that file on every call, so the next build is refused; the session's

@@ -29,7 +29,7 @@ records it by writing <code>{"grants":[{"tool":"cloud"}],"lifetime":"single-use"
 <code>expires-at</code> or <code>current-session</code>, as he named it) to
 <code>xd://tama_request_session_capability</code>. A capability an agent asks for is granted only when the operator
 confirms it, and the session's capability file in Tama's session-control directory keeps that confirmation for the
-lifetime he named. <code>tama sessions revoke-capability --session &lt;ID&gt;</code> withdraws it at once.</p>
+lifetime he named. <code>tama sessions capability revoke --session &lt;ID&gt; --agent &lt;harness&gt;</code> withdraws it at once.</p>
 <h2>Source and test</h2>
 <p>The policy: <code>rust/crates/tama-hook-tools/src/ports/block_cloud_instances/mod.rs</code>; the program:
 <code>rust/crates/tama-hook-tools/src/programs/block/consent/block_cloud_instances.rs</code>; the declaration:
