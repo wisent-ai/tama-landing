@@ -60,7 +60,12 @@ commit.</code> A commit whose content cannot be read — no readable transcript,
 paths read from <code>--pathspec-from-file</code> — is refused as <code>BLOCKED: what `…` would commit in
 &lt;checkout&gt; cannot be told: &lt;cause&gt;.</code> A change made by a shell command and not by a write or
 file-change tool call is not this session's by its transcript, so it is committed after a tool call writes it.
-<code>--dry-run</code> commits nothing and passes. The journey is <code>tests/shared-checkout/commit.rs</code>.</p>
+The one exception is a deleted file that <code>block-unapproved-tests</code> classifies as test code no approval
+covers: every session must remove such a file whoever wrote it, and its deletion publishes none of the writer's work.
+<code>--dry-run</code> commits nothing and passes. The journey is <code>tests/shared-checkout/commit.rs</code>.
+Block-off-task-work no longer judges what a commit takes: its own gate read the whole index, so it refused a commit
+naming its own paths whenever another session had staged a file, and it passed every file no session-writes log
+named.</p>
 <h2>Output that never reaches the agent</h2>
 <p>A failed or hung step read as quiet success when its output was thrown away on the way. Two shapes are refused.
 A redirection into the null device, by the shell's own syntax (<code>&gt;/dev/null</code>, <code>2&gt;/dev/null</code>,

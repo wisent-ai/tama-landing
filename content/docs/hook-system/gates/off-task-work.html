@@ -70,10 +70,12 @@ included, and the file then counts as this session's too, so it may commit it.</
 <tr><td>A broad <code>git add</code> (<code>-A</code>, <code>--all</code>, <code>.</code> or a directory) over an
 untracked file another session wrote</td>
 <td>Refused, naming the file and the writing session. Stage the files this session wrote by name.</td></tr>
-<tr><td>A <code>git commit</code> whose staged files — or, with <code>-a</code>/<code>--all</code>, whose modified
-tracked files — include one another session wrote and this session never did</td>
-<td>Refused, naming the file, the writing session and the <code>git restore --staged</code> that takes it out of this
-commit. That session commits its own work.</td></tr>
+<tr><td>A <code>git commit</code> from a repository outside the declaration</td>
+<td>Refused like any other change there. What a commit takes is judged by pre-bash's
+<a href="/docs/hook-system/gates/boundaries/shell-commands">commit guard</a>: it reads the paths the commit itself would take
+(the index, the named paths, or every tracked change with <code>-a</code>) and refuses any this session never wrote,
+so a commit naming its own paths with <code>git commit -m &lt;message&gt; -- &lt;paths&gt;</code> passes beside
+another session's staged files. A push carries commits already made and is judged when they were made.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
