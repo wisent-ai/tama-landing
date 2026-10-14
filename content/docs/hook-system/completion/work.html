@@ -186,15 +186,21 @@ defect's <code>found_in</code> names a commit of the same repository, the repair
 that commit and differ from it, so a fix committed before the defect was recorded still counts;
 otherwise the repair must be committed after the defect's <code>found_at</code> time. A revision
 this machine cannot resolve is counted as recorded. A build the operator consents to passes before
-that. His standing Oko ruling is read first, before any open work and without asking his window: the
-newest ruling on <code>build</code>, <code>build:&lt;product&gt;</code>, <code>no-build</code> or
-<code>no-build:&lt;product&gt;</code> decides for the products built, the gate prints <code>build
-admitted by the operator's ruling &lt;id&gt; on &lt;subject&gt; (session &lt;session&gt; message
-#&lt;n&gt;)</code> on stderr, and the refusal tells the agent his window is never asked for a product a
-ruling covers. It is read through Tama's one reader of standing consent, the same one
-<code>tama attestation list --kind build</code> lists the consents that stand with (store <code>oko
-rulings</code>, lifetime <code>until withdrawn</code>); consent he gives per conversation (SSH, a local
-browser, hook edits) is never read from rulings. The real journey is
+that. His standing Oko ruling is read first, before any open work and without asking his window, from
+Oko's one ruling authority: the gate runs <code>oko rulings may build --product &lt;product&gt;
+--json</code> for each product built (without <code>--product</code> when the products cannot be
+named), and Oko decides from the newest ruling on <code>build</code>, <code>build:&lt;product&gt;</code>,
+<code>no-build</code> or <code>no-build:&lt;product&gt;</code>. Tama keeps no copy of that rule. A consent
+admits the build and prints <code>build admitted by build of &lt;product&gt; is allowed by the operator's
+ruling &lt;id&gt; on &lt;subject&gt; (session &lt;session&gt; message #&lt;n&gt;): "&lt;his words&gt;"</code>
+on stderr, and the refusal tells the agent his window is never asked for a product a ruling covers. A
+standing withdrawal refuses the build outright, before an ask or a session capability is read, with
+<code>block-one-off-repairs: build of &lt;product&gt; may not run until a later ruling of the operator
+allows it: the operator's ruling &lt;id&gt; on no-build… "&lt;his words&gt;"</code>; a later consent lifts
+it. An <code>oko</code> that cannot answer is said on stderr and admits nothing. <code>tama attestation
+list --kind build</code> lists the consents that stand from <code>oko rulings constraints --json</code>
+(store <code>oko rulings</code>, lifetime <code>until withdrawn</code>); consent he gives per
+conversation (SSH, a local browser, hook edits) is never read from rulings. The real journey is
 <code>tests/build-gate/standing.rs</code>. Then his answer to a build-consent ask: <code>tama build consent ask
 --target &lt;product&gt; --command &lt;the build&gt;</code> files an Oko ask on subject
 <code>build:&lt;product&gt;</code> with two choices, <code>zgoda na tę jedną budowę</code> and
