@@ -266,6 +266,17 @@ the open defects and tasks once per session (<code>open-work-listed.&lt;session&
 refusals give their counts, the next item, and the commands that list them. A marker that cannot be
 written is said on standard error and the list is given in full. Real journey
 <code>tests/stop-gate/identical_endings.rs</code>.</p>
+<h3>Gates that leave no step</h3>
+<p>Each gate can look right on its own while the set refuses everything: the stop is refused because
+work remains, and every call made to do that work is refused before it runs. The core reads that from
+the session's transcript: the record keeps where the transcript stood at each stop
+(<code>transcriptBytes</code>), and when a stop is refused with exactly the refusal the previous stop got,
+at least one call was attempted since, and every attempted call was refused before it ran (an error
+result with no details a tool that ran reports), the stop is let through with <code>TAMA GATE CYCLE: the
+gates left this session no step …</code>, naming the stop refusal and each refused call. The record keeps
+them under <code>cycle</code>. A session that attempted nothing, or made a call that ran, keeps the
+refusal. A transcript that cannot be found or measured is said on standard error and the refusal stands.
+Real journey <code>tests/gate-cycle/release.rs</code>.</p>
 <h3>A report is not the work it describes</h3>
 <p><code>block-stop-on-own-work</code> refuses an ending that reports instead of working, with no
 model: from the transcript, an ending said again after a refusal with no source changed, a plea
