@@ -45,6 +45,7 @@
   {"route":"cli/vocabulary/report","source":"content/docs/cli/inspection/violations/vocabulary-report.html","content":"content/docs/cli/inspection/violations/vocabulary-report.html","category":"CLI reference"},
   {"route":"cli/violations/clean","source":"docs/cli/installation/clean.html","content":"content/docs/cli/installation/clean.html","category":"CLI reference"},
   {"route":"cli/model-provider","source":"content/docs/cli/configuration/model-provider.html","content":"content/docs/cli/configuration/model-provider.html","category":"CLI reference"},
+  {"route":"cli/doctor","source":"content/docs/cli/diagnostics/doctor.html","content":"content/docs/cli/diagnostics/doctor.html","category":"CLI reference"},
   {"route":"cli/justify","source":"content/docs/cli/configuration/justify.html","content":"content/docs/cli/configuration/justify.html","category":"CLI reference"},
   {"route":"cli/tests","source":"content/docs/cli/configuration/tests.html","content":"content/docs/cli/configuration/tests.html","category":"CLI reference"},
   {"route":"cli/sessions","source":"docs/cli/sessions.md","content":"content/docs/cli/runtime/sessions.html","category":"CLI reference"},
