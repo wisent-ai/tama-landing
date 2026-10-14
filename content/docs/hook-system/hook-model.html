@@ -164,10 +164,13 @@ holds a computed value or an option, which a vocabulary of words never does.
 The same holds for the argument list of a process call in any language —
 <code>Command::new("stado").args([…])</code>, a test fixture's
 <code>service.cli(&amp;[…])</code>, <code>spawnSync("stado", […])</code>, a Swift
-function that hands a command line back. A list of nothing but words bound to a
-name is still judged, a collection asked a question where it stands
-(<code>[…].contains(x)</code>) is reported whatever else it holds, and one
-comparison with one word (<code>flag == "--json"</code>, <code>state ==
+function that hands a command line back. A command line built a step at a time
+is read the same way: a list bound to a name that a later step hands an option
+(<code>var args = ["crawl", "start"]</code>, then <code>args.append("--catalog")</code>,
+or <code>args += ["--json"]</code>) is that command line. A list of nothing but words
+bound to a name and grown only with values is still judged, a collection asked a
+question where it stands (<code>[…].contains(x)</code>) is reported whatever else it
+holds, and one comparison with one word (<code>flag == "--json"</code>, <code>state ==
 "completed"</code>) is not a list. Compared words are grouped by the input on the
 other side of each operator — a name, a property path, a call on it or a
 subscript of it — so one line checking different typed fields with one word each
@@ -176,10 +179,11 @@ subscript of it — so one line checking different typed fields with one word ea
 <code>after["current"]["status"] !== "open" || receipt["state"] !== "queued"</code>)
 passes, while one input compared with several words
 (<code>reply.trim() == "okay" || reply.trim() == "sure"</code>) is refused. The
-real tests are <code>tests/keyword-literals/argument_vectors.rs</code> and
+real tests are <code>tests/keyword-literals/argument_vectors.rs</code>,
+<code>tests/keyword-literals/argv/built.rs</code> and
 <code>tests/keyword-literals/quoted_punctuation.rs</code> (<code>cargo test -p
-tama-cli --test keyword_literals_argument_vectors --test
-keyword_literals_quoted_punctuation</code>), on the built hook with
+tama-cli --test keyword_literals_argument_vectors --test keyword_literals_built_argv
+--test keyword_literals_quoted_punctuation</code>), on the built hook with
 the write payloads above, read from its decision document.
 In a release manifest, <code>argv</code> is a command vector and <code>promotion.channels</code> names release states. Neither list classifies input; other word arrays in that document are still judged.
 An edit of a JSON file sends only the changed lines, which do not parse as a document; an array written as the value of <code>argv</code>, or of <code>channels</code> in a release manifest, is exempt the same way. The rest of the fragment is judged as quoted text.
