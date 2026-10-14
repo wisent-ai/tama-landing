@@ -34,36 +34,45 @@ built-in defaults within the snapshot, never an uncommitted ancestor
 configuration. A file with no committed package or explicit target owner is
 refused by name. A package omitting its edition uses Cargo's documented edition
 default; missing inherited workspace declarations remain errors.</p>
-<p>For a checkout that carries a <code>.wisent-release.json</code>, the
-dispatcher then runs <code>tama hook quality-check</code>, which runs the
-installed <code>stado quality check --if-declared</code> there: Stado reads
-the manifest and runs its declared <code>fmt</code> gate over the committed tree.
-A manifest that declares no formatting gate, or <code>releases:false</code>, is
-Stado's own answer (<code>… declares no formatting gate for platform …; nothing
-to check</code>, exit 0); the dispatcher does not read the manifest's text
-itself, so a gate is never skipped because the file spells it another way. A
-manifest Stado cannot read or parse refuses the push with Stado's cause. A
-Stado too old to know <code>--if-declared</code> refuses every product push
-with its argument error until it is updated. <code>review-push</code> follows the
-formatting checks. A release install writes the same dispatcher. Graphical Git
-clients invoke the same hook and receive the same refusal and file
-diagnostics.</p>
+<p>On every push the dispatcher then runs <code>tama hook quality-check</code>
+with Git's pre-push records on its stdin, which it hands to the installed
+<code>stado quality check --pre-push --if-declared</code>: Stado reads the
+<code>.wisent-release.json</code> each pushed commit carries and runs that
+commit's declared <code>fmt</code> gate on the commit's own tree. The working
+tree is never read and never chooses whether the check runs: a repository has
+one checkout that several sessions edit at once, so another session's
+uncommitted file neither refuses a finished commit nor lets an unformatted one
+through. A commit that declares no manifest, no formatting gate, or
+<code>releases:false</code> is Stado's own answer (<code>… declares no
+formatting gate for platform …; nothing to check</code>, exit 0); the
+dispatcher does not read the manifest's text itself, so a gate is never skipped
+because the file spells it another way. A manifest Stado cannot read or parse
+refuses the push with Stado's cause. A Stado too old to know
+<code>--pre-push</code> refuses every push with its argument error until it is
+updated. <code>review-push</code> follows the formatting checks. A release
+install writes the same dispatcher. Graphical Git clients invoke the same hook
+and receive the same refusal and file diagnostics.</p>
 <p>A failed <code>stado quality check</code> can name an unavailable release input or another dependency, not just a formatting defect. <code>tama hook quality-check</code> passes everything Stado printed through and then refuses in Stado's own terms. A formatting gate's refusal — the one Stado marks with <code>`stado quality format` writes what it reads</code> — ends with <code>quality-check: stado quality check refused this push of &lt;checkout&gt;: a formatting gate refuses the committed tree (its report is above); run `stado quality format` there, commit the result and push again</code>. Any other refusal repeats Stado's failure line: <code>quality-check: stado quality check refused this push of &lt;checkout&gt; at &lt;failure_point&gt; [&lt;error_code&gt;]: &lt;detail&gt;; this is not a formatting finding, so `stado quality format` changes nothing for it; repair that operation and push again</code> — for a release input Skarbiec could not serve, <code>at cli.quality.check [infra_down]</code> with the item and field Stado named. A refusal Stado wrote no failure line for says so, with Stado's exit status. Resolve the reported cause before another push; only a formatting gate's own diff justifies formatting the source. The real journey <code>tests/quality-check/refusal.rs</code> runs the program through the installed Stado on an unformatted committed tree, on a committed <code>Cargo.lock</code> that does not resolve its manifest, and on a tree the check passes.</p>
 <p>On a machine without Stado installed (no <code>~/.stado/bin/stado</code>), <code>tama hook
-quality-check</code> reads the same manifest itself and runs each gate the checkout declares for
-this platform (<code>platforms.&lt;platform&gt;.quality</code>, by name and argv) in the checkout,
-its output passed through, saying <code>quality-check: Stado is not installed; running the declared
-gate &lt;name&gt; (&lt;argv&gt;)</code> before each; the first that does not pass refuses with
-<code>quality-check: the declared gate &lt;name&gt; refused this push of &lt;checkout&gt; (&lt;exit&gt;); its
-output is above; repair what it reports and push again</code>, and the gates after it do not run. A
-checkout that declares no manifest, no entry for this platform or no gate passes, saying so; a
-manifest that is there and cannot be read, or a gate without a name, without an argv or with an
-empty one, refuses by its cause, since nothing can then say what the gates are. The same absence
-lets <code>block-internal-names</code> judge by this account's own names, saying that no fleet
-registry and no vault listing are here, instead of refusing every write for a reader that is
-absent; a Stado that is installed and cannot answer stays a refusal by its cause. Real journeys
-<code>tests/review/quality/declared.rs</code> and <code>tests/internal-names/without_stado.rs</code>,
-each with a HOME and PATH holding no <code>stado</code>.</p>
+quality-check</code> reads the pushed commits from the same pre-push records, writes each one's tree
+out under the checkout's ignored <code>.build/tama-quality/</code> through a private index, reads that
+commit's manifest there and runs each gate it declares for this platform
+(<code>platforms.&lt;platform&gt;.quality</code>, by name and argv) in that tree, its output passed
+through, saying <code>quality-check: Stado is not installed; running the declared gate &lt;name&gt;
+(&lt;argv&gt;) on commit &lt;commit&gt;</code> before each; the first that does not pass refuses with
+<code>quality-check: the declared gate &lt;name&gt; refused this push: commit &lt;commit&gt; does not pass
+it (&lt;exit&gt;); its output is above; repair what it reports and push again</code>, and the gates after it
+do not run. The written-out tree is removed after each commit; a build directory Git does not ignore, or
+a tree that cannot be written or removed, refuses by its cause. A commit that declares no manifest, no
+entry for this platform or no gate passes, saying so; a manifest that is there and cannot be read, or a
+gate without a name, without an argv or with an empty one, refuses by its cause, since nothing can then
+say what the gates are. The same absence lets <code>block-internal-names</code> judge by this account's
+own names, saying that no fleet registry and no vault listing are here, instead of refusing every write
+for a reader that is absent; a Stado that is installed and cannot answer stays a refusal by its cause.
+Real journeys <code>tests/review/quality/declared.rs</code> (real pushes to an isolated bare remote,
+judged by a real <code>rustfmt --check</code> with unformatted and formatted uncommitted work beside the
+commits) and <code>tests/internal-names/without_stado.rs</code>, each with a HOME holding no
+<code>stado</code>.</p>
 <p>The real <code>external_target_modules_keep_the_declaring_package_edition</code> journey runs the formatter hook against an isolated Git tree containing a root package and an external target with a different edition. It requires the external module to retain its declared edition despite a contradictory working manifest, then requires a committed formatting defect to name that module and edition. It retains source/binary identity and command results; the separate installed push journeys qualify review and Git LFS integration.</p>
 <h2>Review before creating a commit</h2>
 <p>Before any model is asked, <code>tama hook review-commit</code> reads the
