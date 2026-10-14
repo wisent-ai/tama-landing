@@ -33,7 +33,11 @@ did not write is theirs to undo.</code> Discarding only one's own files passes; 
 change stays in the tree. The changed paths are Git's own (<code>git diff --name-only HEAD</code> and the untracked
 files); each command is judged against what it takes — a restore or a <code>reset --hard</code> against the tracked
 changes and untracked files under its paths (the whole tree for a bare reset), a <code>clean</code> against the
-untracked files alone — and the command's <code>-C &lt;dir&gt;</code> names the checkout judged. A discard whose
+untracked files alone — and the command's <code>-C &lt;dir&gt;</code> names the checkout judged; a path of
+<code>.</code> names the whole tree. <code>git stash drop</code> and <code>git stash clear</code> are refused
+while the stash holds any entry, naming the entries: Git records no session on a stash entry, so whose it is cannot
+be told (<code>BLOCKED: `git stash drop` would delete stash entries of &lt;checkout&gt;: stash@{0}: On main: … Git
+records no session on a stash entry, so whose they are cannot be told; leave them. …</code>). A discard whose
 ownership cannot be read — no session transcript in the payload, a transcript that cannot be read, a checkout Git
 cannot list — is refused with what could not be read, because passed it threw away whatever another session held:
 <code>BLOCKED: whether `git restore src/lib.rs` would discard uncommitted changes another session holds in
