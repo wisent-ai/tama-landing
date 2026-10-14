@@ -98,6 +98,7 @@ sends a prompt longer than a config line to the real Brama endpoint
 gone, and a bearer of that length refused with the lines named.</p>
 <h2>Route qualification</h2>
 <p>The registered <code>model_provider_route</code> journey under <code>tests/model-provider/route.rs</code> invokes the actual built CLI and retains candidate revision, binary digest, command, exit status and output. It checks that an obsolete URL file cannot hide an absent Stado executable. <code>TAMA_TEST_SOURCE_REVISION</code> must identify the clean candidate. Its explicit real-discovery case requires <code>TAMA_TEST_BRAMA_HOME</code>: an isolated, configured home with a real installed Stado and real Brama credentials. It refuses the operator's home, retains the Stado digest and catalogue report, requires the real catalogue to accept the credential and checks that discovery creates no URL cache. Catalogue acceptance does not qualify chat, cancellation or the Desktop surface.</p>
+<p>The shared doctor runner clears inherited environment variables, then supplies only the tool search path, the selected isolated home and a temporary directory inside the retained run area. Resolver-state, model-provider and credential-file overrides from the invoking session cannot redirect those checks to the operator's services.</p>
 <p>The same journey includes the real CLI refusal for a plaintext remote
 catalogue endpoint. It requires the transport-policy cause before the HTTP
 response wait and checks that the fixture credential never enters output.
