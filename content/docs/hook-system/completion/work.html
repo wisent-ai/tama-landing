@@ -312,9 +312,12 @@ and <code>oko work next</code>. A claimed session's call must state its purpose 
 naming the claimed items. Each admitted call is kept with its items, tool, purpose and time in
 <code>calls.&lt;session&gt;.jsonl</code> beside the session's control files. A shell line made only of
 <code>oko</code> commands — claiming, reading an item, writing a register — is never refused for want of a
-claim, so the gate does not close its own way out. A register or record that cannot be read or written
-refuses with its cause. The gate is dispatched once its registry entry names the tool events; real
-journey <code>tests/unclaimed-calls/gate.rs</code>.</p>
+claim, so the gate does not close its own way out. On a machine where Oko keeps no defect register the
+gate judges nothing: Tama runs without Oko, and there is no item to claim. A register or record that
+cannot be read or written refuses with its cause. Its declaration,
+<code>hook-declarations/assignment-discipline/block-unclaimed-calls.json</code>, names every tool event;
+the gate runs once <code>tama hooks declare --file</code> enters it in the registry. Real journey
+<code>tests/unclaimed-calls/gate.rs</code>.</p>
 <p>For a supervisor, <code>block-supervisor-stop</code> also lists the entries of Oko's review queue
 (<code>oko review</code>, <code>review.json</code> in Oko's data, or <code>OKO_REVIEW_REGISTER</code>) that
 its executors filed and nobody answered, each with the <code>oko review answer &lt;id&gt; --text … --defect …
