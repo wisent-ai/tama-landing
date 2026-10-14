@@ -76,7 +76,7 @@ RPC recordings and <code>report.json</code>. It does not prove model requests
 or recovery in the operator's existing terminals; those flows need their own
 observed results.</p>
 <h2>Refusals and failures</h2>
-<p>For listing, a missing or unreadable control directory produces an empty result and exit <code>0</code>. An invalid individual JSON file is retained as a row with <code>parseError: true</code>; an unreadable file becomes <code>readError: true</code>. These records are surfaced rather than causing a command-wide refusal.</p>
+<p>For listing, a missing control directory means no session has published itself: an empty result and exit <code>0</code>. A control directory that exists and cannot be listed is refused with <code>cannot list &lt;directory&gt;: &lt;cause&gt;</code> and exit <code>1</code>. An invalid individual JSON file is retained as a row whose <code>parseError</code> is the parser's sentence; an unreadable file becomes a row whose <code>readError</code> is the system's cause. These records are surfaced rather than causing a command-wide refusal.</p>
 <p>An unknown session command is a usage error, not a successful listing.
 For reload, a missing session, a dead process, an unsupported loaded entry
 or a rejected or invalid receipt is an unsuccessful operation. A process
