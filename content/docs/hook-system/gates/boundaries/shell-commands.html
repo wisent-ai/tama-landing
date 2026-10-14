@@ -33,7 +33,10 @@ did not write is theirs to undo.</code> Discarding only one's own files passes; 
 change stays in the tree. The changed paths are Git's own (<code>git diff --name-only HEAD</code> and the untracked
 files); each command is judged against what it takes — a restore or a <code>reset --hard</code> against the tracked
 changes and untracked files under its paths (the whole tree for a bare reset), a <code>clean</code> against the
-untracked files alone — and the command's <code>-C &lt;dir&gt;</code> names the checkout judged; a path of
+untracked files alone, with the files the ignore rules name when it carries <code>-x</code> and only those with
+<code>-X</code> (a wholly ignored folder named once, <code>build/</code>), as Git's own <code>ls-files --others
+--ignored --exclude-standard --directory</code> lists them under the clean's paths — and the command's
+<code>-C &lt;dir&gt;</code> names the checkout judged; a path of
 <code>.</code> names the whole tree. <code>git stash drop</code> and <code>git stash clear</code> are refused
 while the stash holds any entry, naming the entries: Git records no session on a stash entry, so whose it is cannot
 be told (<code>BLOCKED: `git stash drop` would delete stash entries of &lt;checkout&gt;: stash@{0}: On main: … Git
