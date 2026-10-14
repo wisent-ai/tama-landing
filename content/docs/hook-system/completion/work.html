@@ -151,11 +151,26 @@ work. An entry in
 <code>oko blockers</code>, a <code>blocked</code> verdict, a judge outage after evidence, or a
 wait on other open work does not stand an item aside: only Oko recording a task done or
 withdrawn, or a defect fixed, removes it. A task Oko relates as <code>duplicate-of</code>
-another is counted once, as the original. The refusal names each session, ordinal and request,
-and then, separately, the open items that carry no pushed repair yet: those are written,
-committed and pushed without a build, so an answer that says the rest waits on a build is
-contradicted by the refusal itself.</p>
-<p>When Oko's ruling register (<code>oko rulings</code>) holds a ruling on a listed defect or task,
+another is counted once, as the original.</p>
+<p>The refusal counts the open work instead of copying it, so its size does not grow with the
+registers: it says how many open tasks and defects Oko holds and how many carry no pushed repair,
+lists this session's own items (its open tasks, and the open defects Oko records it as owning), names
+the one item to take now (the session's own item with no repair first, else the first item with no
+repair, else the batch build once every item carries one), and names the commands that print the
+rest: <code>oko tasks owed</code>, <code>oko defects list --unrepaired</code>,
+<code>oko defects list --open --owner SESSION_ID</code>, and <code>oko tasks show ID</code> or
+<code>oko defects show ID</code> for one item. The same summary is what
+<code>check-open-items-with-model</code> refuses with. A session's own plan with open items is
+refused with their count and the first of them; the todo tool prints the rest. Copying every open
+defect and task into each refusal put tens of thousands of tokens into every refused turn, which the
+session then read again on every later call. The operator's answers to the excuses agents give are
+not repeated in the refusal: they reach the session at its start and after every compaction.
+The real test is <code>tests/completion/summary.rs</code> (<code>cargo test -p tama-cli --test
+completion_summary</code> with <code>TAMA_COMPLETION_SESSION</code> naming a live session that has no
+executor role): it checks the count against <code>oko defects list --open</code>, that every owned
+defect and own task is named and no other defect except the item to take now, and writes the
+refusal's size beside the source revision.</p>
+<p>When Oko's ruling register (<code>oko rulings</code>) holds a ruling on an item the refusal names,
 the refusal quotes it word for word with its session and message number and says to follow it and
 never ask the operator again or list it as a blocker or next step. The register is read as a file on
 this machine (<code>OKO_RULING_REGISTER</code> moves it); one that cannot be read is named in the
