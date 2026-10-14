@@ -132,8 +132,15 @@ they sit under the managed roots — anything else aborts the install.</p>
 <code>ai.wisent.tama.installed-hook-release.v1</code>: <code>releaseId</code>, <code>catalogChecksum</code>,
 <code>packageVersion</code>, <code>catalogVersion</code>, <code>catalogUpdatedAt</code>, <code>installedAt</code>,
 <code>previousReleaseId</code>, <code>sourceFiles</code> (every managed path), <code>nodeExecutable</code>,
-and <code>nodeVersion</code>. That file is what the desktop reads as the installed
+<code>nodeVersion</code> and <code>okoAnnouncer</code>. That file is what the desktop reads as the installed
 identity.</p>
+<p>The install also names Tama an announcer in Oko with <code>oko asks announcers add tama</code>: the OMP
+adapter's grant window only tells the operator through Oko where the grant is answered, so Oko records
+that ask and delivers it on its own, and the grant is applied as soon as the window answers instead of
+waiting on Oko's channels. <code>okoAnnouncer</code> is <code>{named: true, command}</code>, or
+<code>{named: false, command, cause}</code> with the cause also on stderr
+(<code>tama: the operator's grant window will wait on Oko's channels until Tama is an announcer in Oko:
+&lt;cause&gt;</code>) — a machine without Oko, or an Oko that refuses, keeps the install.</p>
 <p>The either/or is load-bearing. A full install replaces what an emergency
 bypass set aside, so it needs that bypass's manifest; without one it refuses
 with <code>Full hook installation requires an emergency manifest</code> and writes
