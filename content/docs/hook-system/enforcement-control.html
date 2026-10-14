@@ -74,11 +74,21 @@ delivery carries a passing <code>user_prompt_submit</code> hook's context ahead 
 turn the prompt starts. A message becomes a standing rule when the session that
 received it records it with <code>oko tasks kind &lt;session&gt; &lt;number&gt; rule --by
 &lt;session&gt;</code>. The operator says a rule again whenever a session forgets it, so
-the ledger holds one text under many sessions; the block gives each distinct text
-once, under the newest message that carries it, as <code>- &lt;time&gt; (&lt;session&gt;
-#&lt;number&gt;, said N times since &lt;time of the oldest&gt;): &lt;text&gt;</code>. A text said once has
-no count. No text is cut: a rule is lost by cutting it, not by saying it once.
-<code>tama assignment show</code> prints the same block.</p>
+the ledger holds one text under many sessions, and a later saying rewords it by
+inserting words into its sentences; the block gives each instruction once, as
+its fullest text, under the newest message that carries that text, as
+<code>- &lt;time&gt; (&lt;session&gt; #&lt;number&gt;, said N times since &lt;time of the
+oldest&gt;): &lt;text&gt;</code>, where N counts every saying of every variant. A text
+is a variant of a fuller one when every word of it stands in the fuller text,
+word for word and in order, with only words inserted between them; the variant
+is not written again, and every word of it stands in the text kept. A text said
+once has no count. No text is cut: a rule is lost by cutting it, not by saying it
+once. A ruling whose words are a standing rule's, or words a standing rule carries
+that way, is listed as <code>the same words as a standing rule above</code> or
+<code>words a standing rule above carries in full</code> instead of copied.
+<code>tama assignment show</code> prints the same block. The journey
+<code>tests/operator-rules/carried.rs</code> runs the hook against a ledger fixture
+of three sayings of one instruction.</p>
 <p>A rules report that is not an array is refused with
 <code>Oko tasks rules --all --json returned a non-array rules report</code>.
 A missing or wrongly typed rule field reports
