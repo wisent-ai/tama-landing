@@ -186,9 +186,16 @@ defect's <code>found_in</code> names a commit of the same repository, the repair
 that commit and differ from it, so a fix committed before the defect was recorded still counts;
 otherwise the repair must be committed after the defect's <code>found_at</code> time. A revision
 this machine cannot resolve is counted as recorded. A build the operator consents to passes before
-that. His Oko ruling is read first: the newest ruling on <code>build</code>,
-<code>build:&lt;product&gt;</code>, <code>no-build</code> or <code>no-build:&lt;product&gt;</code>
-decides for the products built. Then his answer to a build-consent ask: <code>tama build consent ask
+that. His standing Oko ruling is read first, before any open work and without asking his window: the
+newest ruling on <code>build</code>, <code>build:&lt;product&gt;</code>, <code>no-build</code> or
+<code>no-build:&lt;product&gt;</code> decides for the products built, the gate prints <code>build
+admitted by the operator's ruling &lt;id&gt; on &lt;subject&gt; (session &lt;session&gt; message
+#&lt;n&gt;)</code> on stderr, and the refusal tells the agent his window is never asked for a product a
+ruling covers. It is read through Tama's one reader of standing consent, the same one
+<code>tama attestation list --kind build</code> lists the consents that stand with (store <code>oko
+rulings</code>, lifetime <code>until withdrawn</code>); consent he gives per conversation (SSH, a local
+browser, hook edits) is never read from rulings. The real journey is
+<code>tests/build-gate/standing.rs</code>. Then his answer to a build-consent ask: <code>tama build consent ask
 --target &lt;product&gt; --command &lt;the build&gt;</code> files an Oko ask on subject
 <code>build:&lt;product&gt;</code> with two choices, <code>zgoda na tę jedną budowę</code> and
 <code>nie</code>, on the channels he chose. His consent answer admits one build of that product: the
@@ -208,7 +215,10 @@ checkout the command builds in — the one holding its <code>--manifest-path</co
 it runs in — named as that checkout's <code>.wisent-release.json</code> names it, else by its directory,
 so a consent to build Tama admits <code>cargo check</code> in any crate of the Tama checkout; its
 <code>-p</code> selections are package names and decide nothing, and a command outside any checkout or
-naming two manifests establishes no product. For <code>stado product cargo</code> the products are its
+naming two manifests establishes no product. For <code>swift build|test|run</code> and
+<code>stado product swift</code> the product is named the same way from the checkout holding its
+<code>--package-path</code>, else the directory it runs in, so a standing consent to build a product
+covers its Swift package too. For <code>stado product cargo</code> the products are its
 <code>-p</code>/<code>--package</code> selections. For <code>stado release submit --source PATH</code> and
 <code>stado build submit --source PATH</code> the product is the <code>product</code> the checkout's
 <code>.wisent-release.json</code> declares (the name Stado builds it under, which a checkout whose
