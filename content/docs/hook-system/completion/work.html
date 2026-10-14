@@ -322,6 +322,21 @@ the gate runs once <code>tama hooks declare --file</code> enters it in the regis
 (<code>oko review</code>, <code>review.json</code> in Oko's data, or <code>OKO_REVIEW_REGISTER</code>) that
 its executors filed and nobody answered, each with the <code>oko review answer &lt;id&gt; --text … --defect …
 --by &lt;session&gt;</code> that answers it.</p>
+<h3>Purgatory: no tool until a self-criticism</h3>
+<p><code>block-tools-in-purgatory</code> refuses every tool call of a session the operator holds in purgatory:
+one whose answer he gave his worst verdict (a <code>verdict:worst:&lt;session&gt;#&lt;ordinal&gt;</code> ruling in
+Oko) that no self-criticism of that session answers. It asks Oko
+<code>oko purgatory status --session &lt;session&gt; --json</code> and, while the session is held, refuses
+with <code>BLOCKED</code>, his unanswered verdicts in his words and the way out: write the self-criticism as
+the text of an answer and, in that answer, run <code>oko purgatory confess --session &lt;session&gt;</code>,
+which copies that answer from the session's own transcript. Only that command and
+<code>oko purgatory status --session &lt;session&gt;</code>, each one plain command naming this very session,
+are admitted; a confession for another session, a command riding along and output written to a file are
+refused. A standing Oko cannot read refuses every other call with Oko's cause; a session without an
+identifier and a machine without the Oko CLI are not judged. Its declaration,
+<code>hook-declarations/assignment-discipline/block-tools-in-purgatory.json</code>, names every tool event;
+the gate runs once <code>tama hooks declare --file</code> enters it in the registry. Real journey
+<code>tests/purgatory/gate.rs</code>.</p>
 <h3>A report is not the work it describes</h3>
 <p><code>block-stop-on-own-work</code> refuses an ending that reports instead of working, with no
 model: from the transcript, an ending said again after a refusal with no source changed, a plea
