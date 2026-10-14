@@ -30,7 +30,11 @@ reach the gate as the call's own path, which the harness fills with the
 session folder when the script names its files itself, and was refused as a
 new file in that folder (<code>Folder '…/Wisent' already has 38 files</code>);
 it now passes, and a section that creates a file in a folder already at the
-operator's limit is refused naming that folder. The journey is
+operator's limit is refused naming that folder. A write whose files the replay
+cannot rebuild (an envelope hunk the file does not hold) is refused with the
+replay's cause, <code>BLOCKED: which files this write creates cannot be told,
+so their folders cannot be counted: …</code>, instead of being judged by the
+call's own path. The journey is
 <code>tests/crowded-folders/hashline.rs</code>.</p>
 <p>Each native hook evaluates only its own rule. The common Tama engine reads
 the registry and selects and executes the event's hooks. The former cross-hook
