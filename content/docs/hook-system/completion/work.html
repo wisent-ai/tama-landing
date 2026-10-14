@@ -175,13 +175,19 @@ the refusal quotes it word for word with its session and message number and says
 never ask the operator again or list it as a blocker or next step. The register is read as a file on
 this machine (<code>OKO_RULING_REGISTER</code> moves it); one that cannot be read is named in the
 refusal rather than left out.</p>
-<p><code>block-one-off-repairs</code> reads the same register for every build, compile and test
-run, and refuses while any open item carries no repair: a task with no commit or report
-recorded by <code>oko tasks evidence</code>, or a defect with no revision recorded by
-<code>oko defects repaired</code>. A code repair is only proven by a build, so building waits for
-every repair to exist, not for every item to close; the one build then proves them, and each
-item is closed or reopened on what it shows. The refusal lists the items that still carry no
-repair. A recorded revision counts as a repair only when it comes after the defect: when the
+<p><code>block-one-off-repairs</code> reads the same registers for every build, compile and test
+run, and refuses while one of the asking session's own items carries no repair: its own open task
+with no commit or report recorded by <code>oko tasks evidence</code>, or a defect Oko records it as
+owning (<code>oko defects assign ID --owner SESSION_ID</code>) with no revision recorded by
+<code>oko defects repaired</code>. Other sessions' items, and defects nobody owns, do not hold its
+build: while the gate waited for every open item of the fleet, new defects were recorded every few
+minutes, so it never opened and no repair was built or tested. A code repair is only proven by a
+build, so a session builds and tests its own repairs once they exist, and each item is closed or
+reopened on what that build shows. The refusal lists the session's items that still carry no
+repair. The real journeys are <code>tests/build-gate/own_items.rs</code> (an unrepaired defect another
+session owns or nobody owns lets the build through; the session's own refuses it by name; its recorded
+repair lets it through again) and <code>tests/build-gate/recorded.rs</code> (the same for tasks), each
+with its own defect and ruling registers. A recorded revision counts as a repair only when it comes after the defect: when the
 defect's <code>found_in</code> names a commit of the same repository, the repair must descend from
 that commit and differ from it, so a fix committed before the defect was recorded still counts;
 otherwise the repair must be committed after the defect's <code>found_at</code> time. A revision
