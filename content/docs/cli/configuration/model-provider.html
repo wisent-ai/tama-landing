@@ -6,6 +6,7 @@ printf '%s' "$KEY" | tama model-provider set --origin https://api.openai.com --m
 tama model-provider set --none [--json]
 tama model-provider unset [--json]
 tama model-provider check [--json]
+tama doctor [--json]
 </code></pre>
 <h2 id="none">A machine with no model</h2>
 <p>Tama does not need Brama, or any model, to hold a session to its rules. <code>set --none</code> writes <code>{"provider": "none"}</code> into the same declaration file, and <code>show</code> then prints <code>provider: none</code>, <code>model: (not declared)</code>, <code>declaredIn</code> and <code>judgedBy</code>. From then on:</p>
@@ -32,6 +33,7 @@ tama model-provider check [--json]
 </ul>
 <h2 id="check"><code>check</code></h2>
 <p>Presents the credential of the service in force to its bearer-only <code>GET /v1/models</code> and reports what it answered. That request is not billable and calls no provider. The bearer reaches curl through a <code>--config</code> document on standard input, never through its arguments. Tama Desktop shows the same read as the <em>Model service</em> section of the Install screen.</p>
+<p><code>tama doctor [--json]</code> runs this same diagnostic without changing the provider. It names discovery and credential failures, refuses a declared <code>none</code> provider, and requires catalogue acceptance for success. It does not send a judge request: a successful catalogue check is not a model verdict. With <code>--json</code>, failures before a report exists are emitted as <code>{"error":"&lt;actual cause&gt;"}</code> with an unsuccessful exit. Unknown arguments are refused as <code>doctor: unexpected argument "&lt;argument&gt;"; use tama doctor [--json]</code>. The corresponding graphical diagnostic remains Install → Model service.</p>
 <h3>Identity and credential</h3>
 <p>For Brama, Tama's identity at the gateway is a Skarbiec consumer, <code>tama</code> by default and <code>TAMA_BRAMA_CONSUMER</code> when set. Its credential is a token minted for that consumer, read from <code>~/.stado/&lt;consumer&gt;-skarbiec-token</code> or from <code>TAMA_BRAMA_TOKEN_FILE</code>. Mint one with <code>skarbiec token-mint &lt;consumer&gt; --capabilities call:brama#&lt;route&gt;</code>; the grants inside the token decide which routes that consumer may ask for, and Brama learns the client and its routes by introspecting the token at Skarbiec. For a declared service the credential is the key <code>set</code> stored, and no Skarbiec grant is asked.</p>
 <p>Brama's address is resolved exactly as <a href="../clean/"><code>clean</code></a> and the objective reviewer resolve it: <code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTER_URL</code>, <code>STADO_MODEL_ROUTER_URL</code> or <code>BRAMA_URL</code> when one is set; otherwise the fleet route obtained with <code>stado service directory connect brama --consumer &lt;adapter&gt; --json</code>. The adapter is <code>tama</code> by default and <code>TAMA_BRAMA_ADAPTER_CONSUMER</code> when set. There is no public-hostname fallback. A declared service's address is its origin.</p>
