@@ -20,6 +20,20 @@ detected</code>; journey <code>pre_bash_remote_constants</code>).</li>
 </ul>
 <p>Hook bypass on commit and push (<code>--no-verify</code>, <code>commit -n</code>) is
 <code>block-git-hook-bypass</code>'s, which runs beside <code>pre-bash</code> on every shell call.</p>
+<h2>Another session's uncommitted work</h2>
+<p>Every repository has one checkout and several sessions edit it at once. A Git command that discards what stands
+in the working tree, <code>git restore &lt;path&gt;</code> (without <code>--staged</code> alone),
+<code>git reset --hard</code> and <code>git clean</code>, is read against this session's own transcript, which
+says which files the session wrote (every write and file-change tool call). Every other uncommitted change the tree
+holds is another session's or the operator's, and a command that would discard one is refused naming the files:
+<code>BLOCKED: `git restore src/lib.rs` would discard uncommitted changes this session did not make in
+&lt;checkout&gt;: src/lib.rs. Another session or the operator holds them in the one shared checkout. Commit only
+your own paths (`git add &lt;your paths&gt;`, then `git commit`) and leave theirs; what you must undo in a file you
+did not write is theirs to undo.</code> Discarding only one's own files passes; unstaging passes, because the
+change stays in the tree. The changed paths are Git's own (<code>git diff --name-only HEAD</code> and the untracked
+files); a listing Git cannot give is said on stderr and leaves nothing to judge. A session whose transcript cannot be
+read is not refused here: the gate cannot say whose the changes are, and the other guards still stand. The journey is
+<code>tests/shared-checkout/discard.rs</code>.</p>
 <h2>Which text in a command is code</h2>
 <p>Every shell gate reads a command through one shared reader that keeps shell syntax and drops literal arguments.
 A command line is code when a shell is handed it: after the shell's <code>-c</code> flag (bundled letters such as
