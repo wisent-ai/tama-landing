@@ -3,7 +3,7 @@
 <h2>Invocation</h2>
 <pre><code>tama violations clean (--repo &lt;path&gt; | --tree &lt;dir&gt; | --owner &lt;gh-owner&gt; | --me) [...]
            [--rule size|time-limits|all] [--model &lt;brama-route&gt;] [--max-rounds &lt;n&gt;] [--skip &lt;fragment&gt;]
-           [--note &lt;text&gt;] [--dry-run] [--json] [--hook &lt;path&gt;] [--clone-dir &lt;dir&gt;]
+           [--note &lt;text&gt;] [--dry-run] [--json] [--program &lt;path&gt;] [--clone-dir &lt;dir&gt;]
 </code></pre>
 <p>Target, hook, clone, and JSON options match <a href="../find/">violations find</a>. <code>--model</code> takes a Brama route, not a provider model name: Brama decides which provider answers it and holds the credentials. The route a run asks for when none is named is the same one every other Tama caller resolves, <code>best</code>; a copy of that default once read <code>-best</code> here, a name the gateway does not serve, and every round came back HTTP 403 while <code>tama model-provider check</code> reported the credential healthy. The default maximum is three rounds. <code>--skip</code> is repeatable, <code>--note</code> adds an operator instruction, and <code>--dry-run</code> prints the brief without asking for a patch.</p>
 <h2>Repairing only the size rules</h2>
