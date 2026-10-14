@@ -266,6 +266,16 @@ the open defects and tasks once per session (<code>open-work-listed.&lt;session&
 refusals give their counts, the next item, and the commands that list them. A marker that cannot be
 written is said on standard error and the list is given in full. Real journey
 <code>tests/stop-gate/identical_endings.rs</code>.</p>
+<h3>A claimed repair is still work</h3>
+<p>A repair recorded with <code>oko defects repaired</code> is its author's claim until something verifies
+it. Once every open item carries a pushed repair, <code>block-stop-with-open-work</code> does not offer the
+batch build: it asks Oko's work queue for the next repair claimed and not verified that this session may
+take (<code>oko work next --executor SESSION [--product P] --json</code>, once per product of a scoped
+session) and names it as the next step, <code>verify the repair of &lt;id&gt; claimed at &lt;revision&gt;:
+&lt;reason&gt;</code>, the reason naming the verification it needs: the repair plan read against the
+committed source, CLI, GUI, docs and test, remaining instances searched, and the item reopened with what is
+missing. A queue Oko cannot answer is said in the refusal's notes with its cause. Real journey
+<code>tests/claimed-work/stop.rs</code>.</p>
 <h3>Gates that leave no step</h3>
 <p>Each gate can look right on its own while the set refuses everything: the stop is refused because
 work remains, and every call made to do that work is refused before it runs. The core reads that from
