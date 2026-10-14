@@ -126,9 +126,7 @@ and Desktop Reviews expose its retained envelope, answer and outcome through
 the shared review reader. Install plan and hook status include
 <code>commit-msg</code>; neither wiring nor a source commit proves a real
 commit was accepted or refused.</p>
-<p>The installed journey <code>tests/review/installed.mjs</code> exercises commit admission through actual Git: a missing definition supplied only by an uncommitted edit must leave HEAD and the staged tree unchanged on refusal.
-A complete staged implementation must commit even while the working file is broken; the resulting commit tree must equal the staged candidate. It retains <code>commit-admission.json</code> alongside command streams and runtime identity.
-The journey requires the installed candidate's commit dispatcher and real reviewer; an absent dispatcher or unavailable review is a failed qualification, not a pass. This describes the journey, not an executed result.</p>
+<p>Session-owned staging is qualified separately through <code>tests/shared-checkout/commit.rs</code>, using retained edit receipts and actual Git trees. See <a href="/docs/cli/stage/">tama stage</a> for the capture requirements, overlap refusals and preserved-index checks. A staged tree is not a compilation verdict.</p>
 <p>A grounded commit refusal prints <code>review retained at &lt;directory&gt;</code>, just as a failed review operation does. Inspect that record's <code>result.json</code> to distinguish <code>source_finding</code> from <code>review_failure</code>; the quoted offending text belongs to the retained finding. The real managed-commit journey checks this outcome and unchanged Git HEAD, rather than treating an incidental stderr sentence as proof that policy ran.</p>
 <p>See <a href="/docs/testing/">Testing and qualification</a>
 for the real commit-review journey and its retained evidence contract.</p>
