@@ -19,8 +19,14 @@ the operator set it) is refused by OMP as
 does not run. A cold binary inside a live event costs that event. So the
 first-run cost is paid deliberately, outside the event.</p>
 <p><code>tama hooks release</code> runs every binary the registry names once,
-right after installing, and prints what each one cost. Run the same step on its
-own when binaries arrived another way, or to see where this machine stands:</p>
+right after installing, and prints what each one cost. A binary that is missing
+or unrunnable does not stop the activation, since the release it replaces is no
+better, but the command then ends with
+<code>the release is active, but the hook binaries named above are unusable; a
+live event refuses on each until `tama hooks warm` reports it warm</code> and
+exits <code>1</code>, so a release whose hooks cannot run is not read as a clean
+install. Run the same step on its own when binaries arrived another way, or to
+see where this machine stands:</p>
 <pre><code>tama hooks warm
 tama hooks warm --only &lt;hook-id&gt;[,&lt;hook-id&gt;…] --json</code></pre>
 <p>Each line carries the state, the measured milliseconds, the hook id and the
