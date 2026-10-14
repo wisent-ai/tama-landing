@@ -31,6 +31,9 @@ it on every such turn and <code>"operator"</code> on the rest. The adaptive
 bridge neither contests a block nor records frustration from an automation
 prompt, and the frustration drafter drafts no rule from one: its log reads
 <code>AUTOMATION_PROMPT</code> in <code>~/.shared-hooks/auto_rules.log</code>.
+A drafter run that was handed no prompt logs <code>NO_PROMPT_VARIABLE</code>
+with the variable and the system's error, and one handed an empty prompt logs
+<code>EMPTY_PROMPT</code>, so a run that drafted nothing always says why.
 A payload that names no author is treated as the owner's, because the
 interactive harnesses submit only what a person typed.</p>
 <p>Without the field, a stage instruction such as "do not execute commands" read
