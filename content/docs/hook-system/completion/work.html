@@ -277,6 +277,22 @@ gates left this session no step …</code>, naming the stop refusal and each ref
 them under <code>cycle</code>. A session that attempted nothing, or made a call that ran, keeps the
 refusal. A transcript that cannot be found or measured is said on standard error and the refusal stands.
 Real journey <code>tests/gate-cycle/release.rs</code>.</p>
+<h3>Every call serves a claimed item</h3>
+<p><code>block-unclaimed-calls</code> refuses a tool call while the session claims no open Oko item — an
+open defect the register records it as owning — with <code>BLOCKED: block-unclaimed-calls: this session
+claims no open Oko item …</code> naming <code>oko defects assign &lt;id&gt; --owner &lt;session&gt;</code>
+and <code>oko work next</code>. A claimed session's call must state its purpose in the harness's own field
+(OMP's intent <code>i</code>, Claude Code's <code>description</code>); one that states none is refused
+naming the claimed items. Each admitted call is kept with its items, tool, purpose and time in
+<code>calls.&lt;session&gt;.jsonl</code> beside the session's control files. A shell line made only of
+<code>oko</code> commands — claiming, reading an item, writing a register — is never refused for want of a
+claim, so the gate does not close its own way out. A register or record that cannot be read or written
+refuses with its cause. The gate is dispatched once its registry entry names the tool events; real
+journey <code>tests/unclaimed-calls/gate.rs</code>.</p>
+<p>For a supervisor, <code>block-supervisor-stop</code> also lists the entries of Oko's review queue
+(<code>oko review</code>, <code>review.json</code> in Oko's data, or <code>OKO_REVIEW_REGISTER</code>) that
+its executors filed and nobody answered, each with the <code>oko review answer &lt;id&gt; --text … --defect …
+--by &lt;session&gt;</code> that answers it.</p>
 <h3>A report is not the work it describes</h3>
 <p><code>block-stop-on-own-work</code> refuses an ending that reports instead of working, with no
 model: from the transcript, an ending said again after a refusal with no source changed, a plea
