@@ -217,9 +217,19 @@ hook owns is watched against Brama's readiness (below), so it is a request
 Brama is answering, not a dead channel: when every outstanding connection on
 the adapter is owned by a running hook, the next hook's request goes out beside
 them after Brama's own readiness, and judges of concurrent sessions are not
-serialized behind one answer. When some outstanding connection is owned by no
-running hook, the refusal names the requests and their owners:</p>
-<pre><code>judge request to http://127.0.0.1:&lt;port&gt;/v1/chat/completions not started: resolver at … reports 2 unanswered connection(s) on this adapter: service brama consumer tama phase answer to … since …; …; running Tama hooks own 1 of them (route &lt;route&gt; to &lt;endpoint&gt; sent by hook process &lt;pid&gt; (`tama hook check-speculation`) through client process &lt;pid&gt;, waiting for &lt;n&gt; s); the rest no running hook watches; another request is not sent while a connection no running hook watches is waiting</code></pre>
+serialized behind one answer. Which connection is whose is read from the
+connection itself, not from how many there are: a resolver that records the
+loopback address each held client connected from (<code>client</code>) lets Tama
+ask <code>lsof -nP -t -iTCP:&lt;port&gt;</code> which processes hold that port,
+and the connection is a running hook's request only when one of them is the
+client process that hook recorded. A running hook's own request the resolver
+does not list therefore lets no other connection through. Connections an older
+resolver lists without a client address are known only by count: each needs a
+running request no named connection matched. When <code>lsof</code> cannot
+answer, the refusal says <code>lsof could not say which process holds loopback port &lt;port&gt; …</code>.
+When some outstanding connection is no running hook's request, the refusal
+names the requests, their owners and the connections no running hook watches:</p>
+<pre><code>judge request to http://127.0.0.1:&lt;port&gt;/v1/chat/completions not started: resolver at … reports 2 unanswered connection(s) on this adapter: service brama consumer tama phase answer to … since …; …; running Tama hooks own 1 request(s) (route &lt;route&gt; to &lt;endpoint&gt; sent by hook process &lt;pid&gt; (`tama hook check-speculation`) through client process &lt;pid&gt;, waiting for &lt;n&gt; s); 1 of the connections is no running hook's request: service brama consumer tama phase answer …; another request is not sent while a connection no running hook watches is waiting</code></pre>
 <p>A record whose hook process has
 already ended is nobody's channel: the next judge request ends its client
 (only while that process still runs the judge's HTTP client,
