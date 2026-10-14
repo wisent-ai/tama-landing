@@ -287,6 +287,13 @@ gates left this session no step …</code>, naming the stop refusal and each ref
 them under <code>cycle</code>. A session that attempted nothing, or made a call that ran, keeps the
 refusal. A transcript that cannot be found or measured is said on standard error and the refusal stands.
 Real journey <code>tests/gate-cycle/release.rs</code>.</p>
+<p>A turn that ended on the provider's refusal of the request (the last assistant record has
+<code>stopReason: "error"</code> and an <code>errorMessage</code> carrying
+<code>invalid_request_error</code>) did no work, and sending it back resends the same request to the same
+refusal. The core lets such a stop through whatever any stop gate decided, naming the provider's refusal;
+the record keeps it as <code>providerRefusal</code> beside the gates' own <code>decision</code>. One rule
+for every stop gate, read once in the core (<code>tama-hooks session_record::provider_refused_request</code>);
+no gate carries its own copy. Real journey <code>tests/gate-cycle/release.rs</code>.</p>
 <h3>Every call serves a claimed item</h3>
 <p><code>block-unclaimed-calls</code> refuses a tool call while the session claims no open Oko item — an
 open defect the register records it as owning — with <code>BLOCKED: block-unclaimed-calls: this session
