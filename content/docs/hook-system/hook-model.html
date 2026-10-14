@@ -244,7 +244,9 @@ closing report hands work back to the operator. The decider there is a model,
 and Brama answers it by default.
 <code>ports::model_judgement</code> is the one route:
 <code>model_judgement::ask(prompt)</code> sends the prompt through the
-product's own one-shot call, <code>oko gateway send --prompt</code>, which
+product's own one-shot call, <code>oko gateway send --prompt</code> — run by the
+same Oko every hook asks, <code>TAMA_OKO_CLI</code> when set, else
+<code>oko</code> on <code>PATH</code> — which
 carries Oko's signed bearer to the gateway and prints its answer as JSON, or —
 on a machine without Brama — goes to the OpenAI-compatible service declared
 with <code>oko model-service set</code>, with its declared model. It returns
