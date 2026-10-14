@@ -20,6 +20,12 @@ request as <code>tama sessions reload --session ID</code>. It reports success
 only after receiving that process's loaded adapter digest. An unsupported
 already-loaded entry refuses with instructions for its in-terminal reload
 command; the action never starts a replacement session.</p>
+<p>When the selected session holds a capability, <strong>Withdraw access</strong> sends
+<code>sessions/capability/revoke</code> with the session and its harness, the operation
+<code>tama sessions capability revoke --session ID --agent HARNESS</code> runs: the grant is null at once
+and the build gate stops admitting it. The answer (<code>revoked</code>, <code>none-held</code> or
+<code>no-override</code>) or the product's refusal is shown as the mutation's outcome, and the session
+list is read again.</p>
 <h2>Faults</h2>
 <p>Each alert is a distinct failure with its own verbatim title:</p>
 <ul>

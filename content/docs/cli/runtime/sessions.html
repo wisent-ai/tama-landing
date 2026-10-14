@@ -3,7 +3,13 @@
 <h2>Invocation</h2>
 <pre><code>tama sessions [--json] [--home &lt;path&gt;]
 tama sessions reload --session &lt;ID&gt; [--json]
+tama sessions capability show --session &lt;ID&gt; --agent &lt;omp|claude|codex&gt; [--json]
+tama sessions capability revoke --session &lt;ID&gt; --agent &lt;omp|claude|codex&gt; [--json]
 </code></pre>
+<p><code>capability show</code> prints the capability the session's override holds, as the build gate
+reads it; <code>capability revoke</code> withdraws it at once (see
+<a href="/docs/concepts/enforcement/capability/">capability</a>). Both require <code>--agent</code>: a
+session id read under another harness names another control file.</p>
 <p><code>--home</code> selects the home containing both
 <code>Library/Application Support/Tama/session-control</code> and the machine
 enforcement state; otherwise Tama uses <code>HOME</code>. <code>--json</code> prints the
@@ -14,7 +20,11 @@ structured machine status and session array.</p>
 then one row per record:
 <code>&lt;agent id&gt;&#9;&lt;first 12 session-id characters&gt;&#9;&lt;process state&gt;&#9;&lt;hook state&gt;</code>,
 and a closing
-<code>session records&#9;&lt;count&gt;&#9;running=&lt;n&gt;&#9;gone=&lt;n&gt;&#9;no-usable-pid=&lt;n&gt;&#9;no-runtime-report=&lt;n&gt;</code>.</p>
+<code>session records&#9;&lt;count&gt;&#9;running=&lt;n&gt;&#9;gone=&lt;n&gt;&#9;no-usable-pid=&lt;n&gt;&#9;no-runtime-report=&lt;n&gt;</code>.
+A record that names no <code>agentId</code> or <code>sessionId</code> is not listed as <code>?</code>: stderr says
+<code>a session record names no agentId or sessionId: &lt;record&gt;</code>. A hook count the runtime did not
+report reads <code>no count</code>, and an allowlist it did not record reads
+<code>allowlist: not recorded</code>.</p>
 <p>The process state is <code>running</code> when the recorded process id still
 answers <code>kill(pid, 0)</code>, <code>gone</code> when it does not, and
 <code>no usable pid</code> when the record carries no process id a kernel could
