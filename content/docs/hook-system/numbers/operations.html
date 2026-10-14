@@ -2,10 +2,10 @@
 <p><code>block-numeric-literals</code> checks numeric choices against the
 operator's recorded instruction. Its declaration format is
 <code>numeric-provenance.json</code> with entries
-<code>{"value": n, "user_said": "…"}</code>. A write to a file that already exists is held to the
-literals it adds: the numbers the file held before are counted out one for one, so renaming a
-function in a file that holds a number passes, and the one number an edit adds is refused by
-name; a new file is read whole. A hashline edit is read as the file its section leaves behind
+<code>{"value": n, "user_said": "…"}</code>. A write is judged by every literal the file holds as the
+write leaves it, the ones it already held included: a number is not approved by having been written
+before, so an edit of a file that holds an unsourced number is refused for it, whoever wrote it, until
+the number carries a source or is removed. A hashline edit is read as the file its section leaves behind
 (replace, insert and cut replayed against the file on disk), so text added inside a string or
 comment — a shell program held in a Rust raw string, with its <code>$1</code> and
 <code>2&gt;/dev/null</code> — is read as that string, and a number added to the code around it is
