@@ -1,5 +1,5 @@
 <h1>Changelog</h1>
-<p>All user-visible changes follow the categories required by <code>docs/releases.md</code>. A published section maps to the canonical immutable signed Git tag with the same semantic version.</p>
+<p>All user-visible changes follow the categories required by <a href="/docs/releases/">releases</a>. A published section maps to the Stado release of the same version.</p>
 <h2>0.2.0 — Unreleased</h2>
 <h3>Added</h3>
 <ul>
@@ -99,6 +99,11 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li>The protected-configuration consent guard reads a shell call by its command alone. It cut every string of the payload — the call's description, its directory, the session's paths — together for shell quotes, so an apostrophe in any of them opened a quote the shell never sees, and a plain commit or register command was refused as a hook edit.</li>
+<li><code>pre-bash</code> reads <code>-p</code> as patch output where a git subcommand declares git's diff output options (<code>--unified</code>), so <code>git log -p</code>, <code>git show -p</code> and <code>git diff -p</code> pass on a git whose help names <code>-p, --patch</code>; hunk selection (<code>add</code>, <code>commit</code>, <code>reset</code>, <code>checkout</code>, <code>restore</code>, <code>stash</code>) stays refused.</li>
+<li><code>check-artifact-inspection</code> refuses a first run whose recordings folder cannot be read, saying so, instead of passing it as a run with no recordings; the refusal lists each work folder it could not read, and an unreadable project transcript folder is named.</li>
+<li>One session-transcript locator: the unprompted-topics gate and the objective reviewer use the shared one, which searches every harness's session folders and names a folder, entry or time it cannot read instead of skipping it. Failure-inspection label discovery names an unreadable state file, recordings, evidence or work folder.</li>
+<li><code>tama</code>'s JSON answers end the command naming a value that cannot be encoded or a standard output that cannot be written, instead of printing <code>null</code> or reporting success; <code>tama copies</code> names a folder or entry it cannot read for a copy's size in the copy's inspection error instead of counting it as zero bytes; a model judgement whose gateway answer cannot be read names which layer failed.</li>
 <li><code>tama hook editor-save-guard</code> judges the whole file an editor saved. It read at most <code>WISENT_EDITOR_HOOK_MAX_BYTES</code>, or 1 MiB when that was unset, so whatever stood after the cut passed unread; it read bytes that are not UTF-8 as replacement characters; and when it could not name its own program it ran the hooks through <code>node</code> and the JavaScript dispatcher instead. Now the variable is gone, a saved file that is not UTF-8 text or that cannot be read is refused naming it, and a program that cannot name itself or start <code>run-hook</code> refuses the save with that cause. Real journey <code>tests/editor-save-guard/unreadable.rs</code>.</li>
 <li>A gate that reads the session's capability says when the capability it was handed cannot be read or is not JSON (<code>tama: the session capability &lt;variable&gt; is not JSON (…), so it admits nothing</code>) instead of refusing as if no consent had been recorded; it still admits nothing.</li>
 <li><code>tama hook editor-watch</code> started with no directory refuses with <code>usage: tama hook editor-watch &lt;tree&gt;...</code> and exit <code>1</code>; it watched one workshop's checkout under the home directory, a path that means nothing on another machine.</li>
@@ -182,6 +187,8 @@
 <h3>Removed or deprecated</h3>
 <ul>
 <li>Automatic service registration on application launch.</li>
+<li>The GitHub release publisher (<code>Scripts/release/package-release.sh</code>, <code>publish-release.sh</code> and their Python helpers): Tama Desktop releases through Stado.</li>
+<li><code>block-unapproved-audits</code>' per-scope gate record: it was written on every audit and read only by a branch that could never run.</li>
 <li>Automatic session-controller installation on application launch.</li>
 <li>Supported-runtime dependence on <code>~/Documents/CodingProjects/Wisent/tama</code>.</li>
 <li><code>tama adaptive claude-config</code>: a second, one-provider spelling of <code>tama provider config --provider claude</code>, which prints the hook block for every provider from the one event table.</li>
@@ -209,7 +216,7 @@
 <h3>Compatibility requirements</h3>
 <ul>
 <li>Apple-silicon macOS 14 or newer.</li>
-<li>Python 3 and Node.js 20 or newer for installed runtime and violations workflows.</li>
+<li>Node.js 20 or newer for installed runtime and violations workflows.</li>
 </ul>
 <h3>Operator actions</h3>
 <ul>
@@ -223,5 +230,5 @@
 </ul>
 <h3>Qualification evidence</h3>
 <ul>
-<li>Packaging intentionally creates no qualification claim. Publication augments this source-level notice with a link to the completed immutable qualification sidecar for the exact candidate.</li>
+<li>The release evidence (<code>evidence/release.json</code>, <code>evidence/notary.json</code>, <code>evidence/DIGESTS</code>) Stado stages with each release; qualification records what the candidate was run against before it is promoted.</li>
 </ul>
