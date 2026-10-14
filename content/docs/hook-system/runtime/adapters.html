@@ -140,6 +140,23 @@ of one session in flight at once are one call to this reading. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test abandoned_calls_answered</code> sends a
 pre-tool dispatch whose hook never ends and then the call's result, and requires the pre-tool dispatch answered and
 named on stderr.</p>
+<p>The harness's refusal at its own limit names no hook, so the engine names it. Whenever the harness's own
+next signal proves it stopped waiting for a dispatch — the caller's <code>cancel</code> of the dispatch, the
+call's result arriving while its pre-tool check still runs, a newer turn event superseding the previous one,
+or the session's turn ending under a tool hook — the engine writes the hooks that dispatch still ran as
+<code>still running in Tama: &lt;hook&gt; (&lt;event&gt;, &lt;ms&gt; ms)</code>, one clause per hook, on stderr
+with the signal that proved it. The last abandonment of every session is kept in the engine's memory, which a
+status request reports as <code>state.runningHooks.abandoned</code> (<code>session</code>, <code>reason</code>,
+<code>abandonedAtMs</code>, <code>corePid</code>, <code>hooks</code> with <code>hook</code>, <code>event</code>,
+<code>processGroup</code> and <code>ranForMs</code>, and the sentence as <code>text</code>), and in the
+session-control directory as <code>abandoned.&lt;session&gt;.json</code>, which <code>tama hooks running</code> and
+<code>oko sessions agents</code> read after the engine is gone. No clock of the engine's own decides an
+abandonment. A session id that cannot name a file is kept only in memory, and the engine says so on stderr.
+The journey <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hooks_running_abandoned</code>
+holds an edit on a hook that reads a pipe nobody writes, cancels the dispatch in one case and delivers the
+edit's result in the other, and requires the status, the record on disk and <code>tama hooks running</code> to
+name the hook, its event, how long it ran and the signal; an unreadable record is refused by name. The journey
+<code>hooks_running_held</code> requires the status to name the hook a dispatch stands on while it runs.</p>
 <h3>Cancellation, judge progress and abandoned children</h3>
 <p>A dispatch requires a nonempty string <code>id</code>. To abandon it, send
 <code>{"id":"cancel-event","op":"cancel","dispatchId":"event"}</code>.
