@@ -28,7 +28,7 @@ says which files the session wrote (every write and file-change tool call). Ever
 holds is another session's or the operator's, and a command that would discard one is refused naming the files:
 <code>BLOCKED: `git restore src/lib.rs` would discard uncommitted changes this session did not make in
 &lt;checkout&gt;: src/lib.rs. Another session or the operator holds them in the one shared checkout. Commit only
-your own paths (`git add &lt;your paths&gt;`, then `git commit`) and leave theirs; what you must undo in a file you
+your own paths (`git commit -m &lt;message&gt; -- &lt;your paths&gt;`) and leave theirs; what you must undo in a file you
 did not write is theirs to undo.</code> Discarding only one's own files passes; unstaging passes, because the
 change stays in the tree. The changed paths are Git's own (<code>git diff --name-only HEAD</code> and the untracked
 files); each command is judged against what it takes — a restore or a <code>reset --hard</code> against the tracked
@@ -45,8 +45,22 @@ ownership cannot be read — no session transcript in the payload, a transcript 
 cannot list — is refused with what could not be read, because passed it threw away whatever another session held:
 <code>BLOCKED: whether `git restore src/lib.rs` would discard uncommitted changes another session holds in
 &lt;checkout&gt; cannot be told: the session transcript &lt;path&gt; cannot be read. Leave the tree as it stands and
-commit only your own paths (`git add &lt;your paths&gt;`, then `git commit`).</code> The journey is
+commit only your own paths (`git commit -m &lt;message&gt; -- &lt;your paths&gt;`).</code> The journey is
 <code>tests/shared-checkout/discard.rs</code>.</p>
+<p>A commit is read the same way before it runs, because Git commits the whole index and the index is shared too:
+<code>git add &lt;own file&gt; &amp;&amp; git commit</code> committed whatever another session had staged, under
+this session's message. What the commit would take is read from its own words, with <code>git commit -h</code>
+telling the flags that take a value from the paths: the index as it stands; with paths, only the changes under
+them; with <code>--include</code>, the index and those changes; with <code>-a</code>, every tracked change. A path
+it would take that this session never wrote is refused naming each one: <code>BLOCKED: `git add src/mine.rs
+&amp;&amp; git commit -m …` would commit changes this session did not write in &lt;checkout&gt;: src/other.rs. Another
+session or the operator staged or holds them in the one shared checkout, and they would land under this commit's
+message. Commit only your own paths: `git commit -m &lt;message&gt; -- &lt;your paths&gt;`; their work is theirs to
+commit.</code> A commit whose content cannot be read — no readable transcript, a Git that cannot list the index,
+paths read from <code>--pathspec-from-file</code> — is refused as <code>BLOCKED: what `…` would commit in
+&lt;checkout&gt; cannot be told: &lt;cause&gt;.</code> A change made by a shell command and not by a write or
+file-change tool call is not this session's by its transcript, so it is committed after a tool call writes it.
+<code>--dry-run</code> commits nothing and passes. The journey is <code>tests/shared-checkout/commit.rs</code>.</p>
 <h2>Output that never reaches the agent</h2>
 <p>A failed or hung step read as quiet success when its output was thrown away on the way. Two shapes are refused.
 A redirection into the null device, by the shell's own syntax (<code>&gt;/dev/null</code>, <code>2&gt;/dev/null</code>,

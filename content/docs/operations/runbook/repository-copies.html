@@ -90,7 +90,7 @@ stashed other sessions' edits, the rebase then refused because another session w
 between, the stash was never applied back, and their edits were gone from the tree while they
 were still working.</p>
 <p>Deliver without touching anyone else's work:</p>
-<pre><code class="language-bash">git add &lt;your paths&gt; &amp;&amp; git commit -m "&lt;what changed&gt;"
+<pre><code class="language-bash">git commit -m "&lt;what changed&gt;" -- &lt;your paths&gt;
 git pull --no-rebase --no-edit
 git push
 </code></pre>
