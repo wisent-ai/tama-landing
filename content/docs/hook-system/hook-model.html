@@ -142,7 +142,12 @@ as a comparison: a chain of <code>==</code> (or <code>===</code>, <code>!=</code
 against two or more quoted words on one line, and the arms of a
 <code>matches!</code> or <code>match</code> pattern joined with <code>|</code>.
 Moving the collection to JSON,
-YAML or TOML does not make it acceptable. No declaration allows a word
+YAML or TOML does not make it acceptable. A list in a parsed JSON or TOML
+document whose every word names a key the same document declares, at any
+depth, is that document's own structure and passes: a JSON Schema's
+<code>required</code>, a record's field list, a Cargo <code>[features]</code>
+entry naming the features and optional dependencies of its manifest. One word
+the document declares nowhere and the list is judged. No declaration allows a word
 classifier: <code>keyword-provenance.json</code> is retired, and writing it is
 itself refused. A refusal identifies the file, line, kind (list, alternation,
 pattern, comparison or data list) and words:
