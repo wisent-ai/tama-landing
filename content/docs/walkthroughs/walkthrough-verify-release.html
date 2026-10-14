@@ -4,7 +4,10 @@ and when it is not, name the file that changed? This walkthrough does both,
 read-only, against a real sealed release: the one installed on this machine
 under <code>~/Library/Application Support/Tama/hooks-runtime/releases/</code>. Every command
 below was executed with <code>tama hooks integrity</code>; outputs
-are pasted verbatim, with that release directory abbreviated to <code>$R</code>. The
+are shown as the command prints them, with that release directory abbreviated to <code>$R</code> and
+the identifiers of one machine's release written as placeholders: <code>&lt;release id&gt;</code>
+for the sealed digest, <code>&lt;drifted digest&gt;</code> for a digest that differs from it,
+<code>&lt;commit&gt;</code> for the source revision and <code>&lt;sealed at&gt;</code> for the seal's time. The
 identity model is <a href="concepts/seal.md">concepts/seal</a>; the command is in
 <a href="scripts.md#tama-hooks-integrity">scripts</a>.</p>
 <h2>1. Read the seal</h2>
@@ -12,14 +15,14 @@ identity model is <a href="concepts/seal.md">concepts/seal</a>; the command is i
 to:</p>
 <pre><code class="language-console">$ cat &quot;$R/release.json&quot;
 {
-  &quot;catalogUpdatedAt&quot;: &quot;2026-07-03T03:37:52.587318Z&quot;,
+  &quot;catalogUpdatedAt&quot;: &quot;&lt;catalog time&gt;&quot;,
   &quot;catalogVersion&quot;: 1,
-  &quot;packageVersion&quot;: &quot;0.1.0&quot;,
-  &quot;releaseId&quot;: &quot;f7c3422135ac4ea7006c26d25a93d3de6101b61bb05318d22ed9a0cbe761bd15&quot;,
+  &quot;packageVersion&quot;: &quot;&lt;version&gt;&quot;,
+  &quot;releaseId&quot;: &quot;&lt;release id&gt;&quot;,
   &quot;schema&quot;: &quot;ai.wisent.tama.hook-release.v1&quot;,
-  &quot;sealedAt&quot;: &quot;2026-09-27T03:31:43.813036+00:00&quot;,
+  &quot;sealedAt&quot;: &quot;&lt;sealed at&gt;&quot;,
   &quot;sourceDirty&quot;: false,
-  &quot;sourceRevision&quot;: &quot;246ca1c1fa6eb35aad614231f96d7bc153cc3d0c&quot;
+  &quot;sourceRevision&quot;: &quot;&lt;commit&gt;&quot;
 }
 </code></pre>
 <p><code>releaseId</code> is the SHA-256 tree digest over every file except <code>release.json</code>
@@ -28,10 +31,10 @@ and <code>bin/</code> — relative path, permission bits, and bytes, each length
 <h2>2. Verify the intact release</h2>
 <pre><code class="language-console">$ tama hooks integrity --release &quot;$R&quot;
 release root: $R
-recorded releaseId: f7c3422135ac4ea7006c26d25a93d3de6101b61bb05318d22ed9a0cbe761bd15
-actual tree digest: f7c3422135ac4ea7006c26d25a93d3de6101b61bb05318d22ed9a0cbe761bd15
-sealed at: 2026-09-27T03:31:43.813036+00:00
-source revision: 246ca1c1fa6eb35aad614231f96d7bc153cc3d0c
+recorded releaseId: &lt;release id&gt;
+actual tree digest: &lt;release id&gt;
+sealed at: &lt;sealed at&gt;
+source revision: &lt;commit&gt;
 source dirty: false
 result: intact
 $ echo $?
@@ -46,10 +49,10 @@ installer's own verdict.</p>
 $ printf '\n' &gt;&gt; walk1/shared-hooks/omp-shared-hooks.js
 $ tama hooks integrity --release walk1
 release root: walk1
-recorded releaseId: f7c3422135ac4ea7006c26d25a93d3de6101b61bb05318d22ed9a0cbe761bd15
-actual tree digest: 727b981bf4f4bd715650a776eb481bb13a8db37df44c8ada219a127609cd6273
-sealed at: 2026-09-27T03:31:43.813036+00:00
-source revision: 246ca1c1fa6eb35aad614231f96d7bc153cc3d0c
+recorded releaseId: &lt;release id&gt;
+actual tree digest: &lt;drifted digest&gt;
+sealed at: &lt;sealed at&gt;
+source revision: &lt;commit&gt;
 source dirty: false
 result: DRIFTED
 written after the seal:
@@ -70,10 +73,10 @@ mental model:</p>
 $ chmod 755 walk2/shared-hooks/registry.json
 $ tama hooks integrity --release walk2
 release root: walk2
-recorded releaseId: f7c3422135ac4ea7006c26d25a93d3de6101b61bb05318d22ed9a0cbe761bd15
-actual tree digest: c30fca2283d7ec3bda08e6f8f2027899f7e848add05ff17bb375123e622644bd
-sealed at: 2026-09-27T03:31:43.813036+00:00
-source revision: 246ca1c1fa6eb35aad614231f96d7bc153cc3d0c
+recorded releaseId: &lt;release id&gt;
+actual tree digest: &lt;drifted digest&gt;
+sealed at: &lt;sealed at&gt;
+source revision: &lt;commit&gt;
 source dirty: false
 result: DRIFTED
 no file is newer than the seal -- the drift is a permission change, a deletion, or a file whose timestamp was preserved on copy

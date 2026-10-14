@@ -8,7 +8,7 @@ entry. The CLI and Tama Desktop use the same registry operations.</p>
 <h2>Record an intent</h2>
 <pre><code>tama build record --kind build --target skarbiec \
   --reason "Validate the committed identity checks in the shared build" \
-  --revision 45a5c678042147f76241adf76fb7cf217e121ca6 \
+  --revision FULL_SHA \
   --completed-task "The whole requested identity change is finished in code and documentation" [--minutes 60] [--json]
 
 tama build record --kind restart --target brama-desktop-model-router \
@@ -58,7 +58,7 @@ into one build instead, or have the operator raise the limit with
 `tama build policy --builds-per-day &lt;n&gt;` and DEVICE_HOOK_EDIT_APPROVED set
 outside the agent session.
 
-this build carries 2 changed lines against 45a5c678…, the revision the last
+this build carries 2 changed lines against &lt;revision&gt;…, the revision the last
 recorded build of skarbiec carried, and the policy calls a build serious at 30
 lines. A build spends forty minutes of a builder the fleet has two of, so small
 changes travel together: keep working and record the build once the change is
@@ -164,7 +164,7 @@ all</em>. <code>--not-started</code> without a refusal, or on a restart, is refu
 The JSON result carries <code>not_started.revision</code> and <code>not_started.refusal</code>.</p>
 <h2>What waits for the next build, and what a failed build gives back</h2>
 <pre><code>tama build pending --target oko --repository ~/Documents/CodingProjects/Wisent/oko [--json]
-tama build fail --target oko --revision 6db504ea --failure "cargo test: 2 failed" [--json]</code></pre>
+tama build fail --target oko --revision FULL_SHA --failure "cargo test: 2 failed" [--json]</code></pre>
 <p>Work ends at a commit and a push; the batched build runs later over everything that
 accumulated. <code>pending</code> fetches the repository and prints the revision the last recorded
 build of the product carried, the commits on <code>origin/main</code> since, how many lines they
