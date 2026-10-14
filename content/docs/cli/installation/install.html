@@ -20,6 +20,21 @@ no check. This works without a Wisent release manifest or Stado
 installation. Declare <code>.build/</code> in the repository's ignore policy;
 the gate refuses non-ignored scratch storage. No clone, branch checkout or
 change to the caller's index is made.</p>
+<p>Running rustfmt is running a build tool, and the operator's rulings decide
+when one may run. Before it formats anything, the gate asks Oko's one ruling
+authority, <code>oko rulings may build --product &lt;checkout directory&gt;
+--json</code>. While a standing withdrawal (<code>no-build</code>,
+<code>no-build:&lt;product&gt;</code>) decides, the gate runs no formatter,
+prints <code>check-rust-format: no formatter was run: &lt;Oko's verdict quoting
+the ruling&gt;</code> and lets the push through: no push is refused for
+formatting while formatting is forbidden. A push names no purpose, so a
+consent the operator scoped to a defect's repair
+(<code>build@&lt;defect&gt;</code>) does not cover it; a later unscoped
+consent does, and the gate runs again. The managed <code>quality-check</code>
+(<code>stado quality check --pre-push</code>) asks the same and, under the
+withdrawal, prints <code>quality-check: no quality gate was run: …</code>. An
+<code>oko</code> that cannot answer is said on stderr and the gates run as
+before. The real journey is <code>tests/build-gate/pre_push.rs</code>.</p>
 <p>The formatter's file diffs and concrete failure reach Git's stderr. The
 working tree is not read: formatting that exists only uncommitted cannot
 qualify an unformatted commit, and another session's uncommitted edit in the
