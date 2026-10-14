@@ -170,6 +170,19 @@ It does not change the human's global Git configuration or silently open
 an editor. Inherited <code>GIT_EDITOR</code> and
 <code>GIT_SEQUENCE_EDITOR</code> overrides are removed from the agent
 process; explicit per-command noninteractive editors remain possible.</p>
+<p>The same contract sets <code>core.pager</code> to <code>cat</code>, the
+value for which Git launches no pager, and names it as
+<code>corePager</code>. An agent's shell is a terminal nobody reads: before,
+<code>git log</code> there started <code>less</code>, which waited for a key
+for good and held the session's call open, with the <code>git</code> and
+<code>less</code> processes still standing days later. Configuration beats
+an inherited <code>PAGER</code>; an explicit <code>GIT_PAGER</code> or
+<code>git -p</code> still decides, and <code>git -p</code> is refused by
+<code>pre-bash</code>. The real <code>interactive_git_refusal</code> journey
+<code>an_agent_process_launches_no_git_pager</code> asks actual Git which
+pager it would launch (<code>git var GIT_PAGER</code>) with
+<code>PAGER=less</code>, without and with the contract, and requires
+<code>less</code> and then <code>cat</code>.</p>
 <p>Malformed counts, missing key/value pairs, executable lookup failures
 and malformed configuration replies retain their actual cause. The adapter
 reports <code>gitEditors</code> in runtime status and refuses tool calls
