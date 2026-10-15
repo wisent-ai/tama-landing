@@ -120,6 +120,17 @@ the Oko CLI has no register to read and the gate says nothing there. Program:
 declaration: <code>hook-declarations/assignment-discipline/block-unlinked-operator-messages.json</code>;
 real journey <code>tests/operator-rules/unlinked.rs</code> against the real Oko CLI, a transcript
 and registers of the run's own.</p>
+<h3>A claimed task is a promise</h3>
+<p><code>block-stop-with-claimed-work</code> refuses the end of a turn while the session leads a task it
+claimed in Oko's ledger and has shown nothing for. It asks <code>oko tasks held --by &lt;session&gt; --json</code>,
+which answers from the shared ledger the claims with no evidence recorded and no verdict of done, and
+refuses naming each task with <code>oko tasks evidence &lt;task-id&gt; --by &lt;session&gt; --commit &lt;rev&gt;
+--report &lt;path&gt;</code>. An Oko that cannot answer refuses the stop naming the command and its answer;
+a machine without the Oko CLI keeps no ledger and the gate says nothing there. The Oko that carries
+<code>tasks held</code> is installed before the Tama that asks it. Program:
+<code>rust/crates/tama-hook-tools/src/programs/assignment/block_stop_with_claimed_work.rs</code>; journey
+<code>tests/claimed-work/held.rs</code> against the installed Oko and the signed-in ledger
+(<code>TAMA_TEST_HELD_SESSION</code>).</p>
 <h3>An operator stop order</h3>
 <p>Every guard above releases the turn only through a tool call: finish the
 tracker, read the ledger, treat a denial, record evidence. When the operator
