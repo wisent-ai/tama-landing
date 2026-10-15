@@ -90,6 +90,7 @@ commits) and <code>tests/internal-names/without_stado.rs</code>, each with a HOM
 <code>stado</code>.</p>
 <p>The real <code>external_target_modules_keep_the_declaring_package_edition</code> journey runs the formatter hook against an isolated Git tree containing a root package and an external target with a different edition. It requires the external module to retain its declared edition despite a contradictory working manifest, then requires a committed formatting defect to name that module and edition. It retains source/binary identity and command results; the separate installed push journeys qualify review and Git LFS integration.</p>
 <h2>Review before creating a commit</h2>
+<p>A commit is made only with its attestation. <code>tama hook review-commit</code> reads the message Git will record for every claim <code>tama attestation standard --commit</code> prints, word for word, exactly as <code>review-push</code> reads it later, and without a model. A message that lacks a claim refuses the commit with <code>the message carries no commit attestation</code> and one <code>missing:</code> line per claim, and no commit is made, so no unreviewed commit can pile up under later work and hold every push behind it. On a machine that declared no model (<code>tama model-provider set --none</code>) the attestation is the whole review and no reviewer is asked. The real journey <code>tests/commit-review/attested.rs</code> commits through Git with the built hook and proves the unattested commit leaves the branch where it was and the attested one moves it.</p>
 <p>Before any model is asked, <code>tama hook review-commit</code> reads the
 message Git will record (its <code>#</code> comment lines dropped) with the
 same rule <code>block-internal-names</code> applies to files: a fleet host,
@@ -103,13 +104,11 @@ review. A source of names that cannot be read (the Stado registry, the vault
 listing, the product declarations) stops the commit naming that source; it
 never lets a message through unchecked.</p>
 <p>The managed <code>commit-msg</code> dispatcher runs the preserved hook chain
-first, then <code>tama hook check-rust-types</code>, and only after it passes
-<code>tama hook review-commit &lt;message-file&gt;</code>. The type check exports
-Git's staged tree into the checkout's ignored <code>.build/tama-rust-types</code>
-directory and runs Cargo against that export, not the working tree. A missing
-symbol refuses the commit with the compiler's file and symbol diagnostics.
-Graphical Git clients invoke the same dispatcher and receive the same stderr.
-Brama
+first, then <code>tama hook review-commit &lt;message-file&gt;</code>. It
+compiles nothing: the agent that wrote the change reads it, and a commit that
+does not build is that agent's failure, not a gate's. Graphical Git clients
+invoke the same dispatcher and receive the same stderr. On a machine that
+declares a model, Brama
 reads the final message and exact staged patch under the same message and
 change-unit policy: private incident identifiers stay
 out of messages, messages explain the product change, and formatting-only or
@@ -121,7 +120,7 @@ that source refuses as a failed review operation, never as a proven source
 defect. A staged tree or message changed during review is not authorized.
 Git creates no commit on refusal; graphical Git clients receive the same
 stderr. The operation prints <code>czekam</code> while the real reviewer owns
-the request, without a guessed deadline. <code>tama reviews list/show</code>
+the request, until the reviewer answers. <code>tama reviews list/show</code>
 and Desktop Reviews expose its retained envelope, answer and outcome through
 the shared review reader. Install plan and hook status include
 <code>commit-msg</code>; neither wiring nor a source commit proves a real
