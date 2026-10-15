@@ -63,13 +63,18 @@ line), with the same reason on stderr and a nonzero exit for surfaces that read 
 The engine reads only that document as a refusal. A hook that ends nonzero without it — a panic, a
 missing binary, a gate that printed <code>TAMA_HOOK_INFRASTRUCTURE:</code> because it could not
 decide — crashed; the engine logs <code>hook &lt;id&gt; malfunctioned: …</code> and the action goes on,
-because a crash is not a policy decision. Nothing reads the wording of a crash to tell it apart.</p>
+because a crash is not a policy decision. Nothing reads the wording of a crash to tell it apart.
+A payload a hook cannot read — stdin that fails, is empty, is not JSON or is not a JSON object —
+is refused, not crashed: the hook prints the decision document with the reason
+<code>TAMA_HOOK_INFRASTRUCTURE: the hook payload …</code> naming which of those it was, because
+judged as an empty object every gate would let the call or the stop through with nothing judged.
+The real test is <code>tests/hook-payload/refused.rs</code>.</p>
 <p>The hooks of a tool-call event (<code>pre_tool_use:*</code>) and of <code>stop</code> are
 started together and their answers read in registry order: a tool call is refused by the first
 gate in that order that refuses, with that gate alone named, and the end of a turn is refused for
-every reason at once. Each gate is a process, and starting twenty of them one after another on a
-loaded workstation took longer than the harness waits for a hook, so an edit was refused as a
-timeout by no gate at all. The hooks of a session event (<code>session_start</code>,
+every reason at once. Each gate is a process; started one after another, they can together take
+longer than the harness waits for a hook, and the harness then refuses the call with no gate named.
+The hooks of a session event (<code>session_start</code>,
 <code>user_prompt_submit</code>) still run one after another, in case a later one reads what an
 earlier one wrote. The real test is <code>tests/hooks-running/together.rs</code>
 (<code>cargo test -p tama-cli --test hooks_running_together</code>): two gates that can only both
@@ -203,7 +208,7 @@ value is built only from other upper-case constants and operators
 number under a name, and so is <code>'helloworld'.length</code> standing for 10.
 Each is refused like the literal it hides.</p>
 <p>What a refusal asks for depends on what the number does. A limit, cut, cap,
-page size, retry count, wait or timeout that the operator never asked for is
+page size, retry count or wait that the operator never asked for is
 removed together with the behaviour it drives: <code>.limit(500)</code> goes and
 the query answers every row; <code>.slice(0, 160)</code> goes and the text is
 kept whole; <code>Math.min(limit, 200)</code> becomes a refusal of a malformed
@@ -239,72 +244,10 @@ screen shows it, or let it throw. Source: <code>ports/pre_write_edit/sentinels.r
 <code>ports/pre_write_edit/swift.rs</code>.</p>
 
 <h2>Asking a model, when shape cannot decide</h2>
-<p>Some rules are not about shape: whether a claim is grounded, whether a
-closing report hands work back to the operator. The decider there is a model,
-and Brama answers it by default.
-<code>ports::model_judgement</code> is the one route:
-<code>model_judgement::ask(prompt)</code> sends the prompt through the
-product's own one-shot call, <code>oko gateway send --prompt</code> — run by the
-same Oko every hook asks, <code>TAMA_OKO_CLI</code> when set, else
-<code>oko</code> on <code>PATH</code> — which
-carries Oko's signed bearer to the gateway and prints its answer as JSON, or —
-on a machine without Brama — goes to the OpenAI-compatible service declared
-with <code>oko model-service set</code>, with its declared model. It returns
-<code>Judgement::Answered(text)</code> or
-<code>Judgement::Unavailable(reason)</code>. An unavailable judgment is not
-evidence that the source violates a rule. Each gate must distinguish that
-failure from an actual model finding. Numeric review refuses an unreviewed
-write with the failed operation, not with an allegation about its source.</p>
-<p>A judge Oko has recorded as not answering is not asked. Oko writes that
-record — <code>judge-health.json</code> beside its transcript index — from
-every verification pass and from <code>oko tasks judge
---probe</code>, and the same probe lifts it. <code>ask</code> reads it first
-and returns <code>Unavailable</code> with <code>Oko last saw the judge
-refuse at …: …; not asked again from a hook</code>, because asking anyway
-costs Brama's whole retry wait inside the event, and a single refused
-<code>proxy-call</code> can take tens of seconds inside a stop gate. A record
-that exists and cannot be read or is not Oko's shape is not read as "never
-observed": <code>ask</code> writes <code>model judgement: &lt;path&gt; cannot be
-read: …; the judge is asked</code> on stderr and asks, and
-<code>block-broken-judge</code>, which reads the same record through the same
-reader, refuses <code>oko tasks verify</code> naming the record that could not
-be read and the probe that writes it again. The
-engine kills no hook for being slow, and the OMP adapter sets no wait of its
-own; OMP refuses a tool call whose handler has not answered within its
-<code>extensionHandlers.toolCallTimeoutMs</code> setting, with
-<code>Extension …/omp-shared-hooks.js timed out after …ms</code>. A hook the
-harness stopped waiting for is ended by the next event that proves it has no
-caller, as the <a href="/docs/enforcement-control/runtime/adapters/">runtime
-page</a> describes, not by a clock.</p>
-<p><code>pre-write-edit</code> never asks the numeric reviewer from the edit
-callback. When numeric candidates need review, it retains the exact prompt
-and refuses immediately with
-<code>tama hook check-unsubstantiated-constants --review &lt;request&gt;</code>.
-Run that operation outside the edit callback; shared child-output collection prints
-<code>czekam</code> for Oko's gateway operation and retains the answer or failure,
-including the executable, exit status and actual cause. Repeat the unchanged edit after a valid answer. The answer is
-bound to the complete file, path, candidates, review instructions and recorded
-justification; changed input cannot inherit the previous verdict.</p>
-<p>Requests and results live under <code>session-control/numeric-reviews</code>
-in Tama state; <code>TAMA_SESSION_CONTROL_ROOT</code> scopes isolated journeys.
-Concurrent review operations refuse an already owned request rather than
-starting another model call. A missing answer, unreadable record, malformed
-reply or actual model failure remains a refusal. No background process is
-detached from the edit and no timer retries the reviewer. The CLI and the
-attached editor's decision surface show the same request and cause; Desktop
-Session and Posture show that recorded hook decision, not a claimed model
-success. Review-operation success means an answer was retained, not that the
-source passed: the repeated write applies the numeric findings.</p>
-<p><code>tests/numeric-review/retained.rs</code>, registered as
-<code>numeric_review_retained</code>, drives the built hook with a real
-persisted request and a genuinely missing Oko executable. It retains the
-declared candidate, binary digest, command, input, exit status, output and
-elapsed time under Cargo's ignored build directory. Its pending, failed,
-changed-input and malformed-justification cases do not stand in for a
-healthy model-route qualification.</p>
-<p><code>check-substantiation-with-model</code> uses the model gateway.
-That is also the route for a judgment about prose that cannot be decided
-from the input's structure; an embedded word list is not a substitute.</p>
+<p>A rule that is not about shape — whether a claim is grounded, whether a closing report hands
+work back to the operator — is decided by a model through one route, which
+<a href="/docs/hook-model/model-judgement/">asking a model</a> describes with what a gate does when
+no model answers.</p>
 
 <h2>Shared executable identities</h2>
 <p>Existing command readers share the compiled vocabulary under

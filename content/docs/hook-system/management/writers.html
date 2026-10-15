@@ -1,0 +1,75 @@
+<h1>What counts as changing a hook</h1>
+<p>How the hook-configuration guard reads a shell payload, and how a hook source the registry recorded wrongly is repaired.</p>
+<h2>What counts as running a writer</h2>
+<p>The guard reads a shell payload the way a shell does. A payload is cut into
+commands at <code>;</code>, <code>|</code>, <code>&amp;</code> and newline only where
+those characters are outside quotes, so a sentence that names a writer inside a
+quoted argument — an evidence message, a commit body, a report of a refusal —
+runs nothing and is allowed. A token with spaces in it is an argument, not a
+program or a path, for the same reason. A shell call is read by its command
+alone: the call's description, its working directory and the session's paths
+are not part of what the shell runs, so an apostrophe in any of them opens no
+quote and cannot turn a commit or a register command into a hook edit.</p>
+<p>A shell payload that names hook source or configuration where the name can act — outside its quoted data — is
+a change to it whatever program it runs, and needs the owner's consent: no list of writer programs, language
+write calls or patch appliers decides it, because every writer such a list left out went through. Any other
+execution payload (code an evaluator runs) needs consent when its code names a protected path at all. Read a hook
+with the harness's read tool, which changes nothing. A payload naming one of the operator's break-glass files
+(the emergency state file, its backup folder, a session override) is refused outright. The refusal quotes what
+acted: <code>bash payload can create/edit hook source/config: `&lt;path&gt;` stands where it acts, in
+`&lt;the command text the shell reads as acting, quoted data blanked&gt;`</code>, or <code>it sets git's
+core.hooksPath</code>; a path the refusal quotes inside blanked-out text shows a construct the shell parser could
+not read as data. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hook_config_shell_mentions</code> requires
+<code>cp</code>, an unlisted writer and a redirection onto the registry refused, the same path inside a commit
+message passed, an <code>oko defects note</code> whose double- and single-quoted surface, text and evidence name
+the registry passed and the same command redirected onto the registry refused with the acting text quoted, a
+register command whose double-quoted prose holds a possessive, a single-quoted refusal and a parenthesised path
+passed, a commit by pathspec with an apostrophe in its message and in the call's description passed while the
+same call copying onto the registry was refused naming it, and a command naming the emergency state file
+refused.</p>
+<p>What still refuses: the writer as the command's program or script argument,
+including a quoted path (<code>node 'shared-hooks/generate-configs.mjs'
+--apply</code>); <code>tama install</code>, <code>tama enforcement only|all</code>
+and <code>oko hooks install|pull</code> read from the program the command
+starts, with <code>env</code>, <code>sudo</code>, <code>nohup</code> and any other
+wrapper that only starts it stepped over; the same command inside an executor's argument
+(<code>bash -lc "tama enforcement all"</code>); and a command substitution, which
+is code even inside double quotes (<code>echo "$(tama install)"</code>).</p>
+<p>Reporting runs stay allowed: <code>tama enforcement
+status</code>, <code>tama install plan</code> (with its options and inside a wrapper
+such as <code>cd … &amp;&amp;</code> or <code>env</code>: it shows the runtime scopes and
+target paths and creates no directory, writes no configuration and activates no
+hook; the verb is the word right after <code>install</code>, as the CLI reads it, so
+<code>tama install --home ~ plan</code> is still the installer),
+<code>generate-configs.mjs</code> without <code>--apply</code>,
+<code>seal-registry.mjs --check</code>, <code>oko hooks install
+--preview</code>. The command is cut only after its quotes are read, so a
+semicolon inside a quoted evidence message stays one argument instead of
+arriving as command words and refusing an honest report of the guard's own
+refusal.</p>
+
+<h2>Repairing a recorded hook source</h2>
+<p><code>register-hook.mjs</code> derives a hook's <code>source</code> from its command: it
+takes the executable, drops the <code>tama-</code> prefix, turns hyphens into
+underscores, and looks for that stem as a sibling script or as a flat
+<code>rust/crates/tama-hook-tools/src/bin/&lt;stem&gt;.rs</code>. A guard whose source sits
+in a nested directory matches none of those candidates, so the writer records
+the hook's own command, the installed binary path, as its <code>source</code>.</p>
+<p>The next seal is where it surfaces. <code>tama hooks seal</code> packages every
+source outside the managed hook directories and refuses the whole release with
+<code>External hook source is missing</code> for the first one it cannot open.
+Until the entry is repaired no hook release can be sealed, and sealing is the
+step that puts a fixed hook on a machine.</p>
+<p>Repair the entry, then reseal the registry:</p>
+<pre><code>tama hook reconcile-registry-sources [--check] [--out PATH] &lt;registry.json&gt;
+node shared-hooks/seal-registry.mjs &lt;registry.json&gt;</code></pre>
+<p>The reconciler recognises a <code>source</code> that names an installed hook binary,
+derives the stem the way the writer does — drop <code>tama-</code>, hyphens become
+underscores — and repairs the entry when exactly one tracked file is named
+<code>&lt;stem&gt;.rs</code>; no match or several is reported and nothing is written. A
+<code>source</code> that already resolves is left alone. <code>--check</code> writes nothing
+and exits non-zero on the first stale entry, which is what a repository gate
+runs. The reseal is required: the catalogue checksum covers the whole
+document, so a rewritten <code>source</code> leaves the registry unsealed until
+<code>shared-hooks/seal-registry.mjs</code> runs.</p>

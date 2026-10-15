@@ -1,0 +1,35 @@
+<h1>Why a gate decided what it decided</h1>
+<p>How to read what a hook read and decided, which program a provider runs, and which checkout a <code>tama hooks</code> command reads.</p>
+<p>A verdict nobody can read is a verdict nobody can repair, so the reading
+belongs to the gate. Each hook binary takes the payload it is given on stdin
+and answers about it; with <code>--explain</code> it prints what it read and
+decides nothing:</p>
+<pre><code>echo '{"session_id":"&lt;id&gt;","last_assistant_message":"&lt;text&gt;"}' \
+  | tama hook block-unprompted-topics --explain</code></pre>
+<p>For <code>block-unprompted-topics</code> that is the transcript it found, how
+many records it read, how many terms the operator's own words and this turn's
+results ground, the most ungrounded paragraph the session already accepted, and
+every block of the message with its counts and the words that have no provenance.
+A hook that answers this way is also a hook whose cost is visible: its test
+judges a long session quickly, so a regression is a failing test rather than a
+gate everybody waits for.</p>
+<p>The engine a provider dispatcher executes is the same program, as
+<code>tama run-hook</code>, installed from the same build. A separate copy in
+<code>~/.local/bin</code> that nothing installs keeps whatever build last wrote
+it, so a fix can be live on one path and absent on the other. One program
+installed from one build cannot drift that way.</p>
+<p>Which checkout a <code>tama hooks</code> command reads is decided in this
+order: an explicit <code>--root</code>, then <code>TAMA_ROOT</code>, then the
+first directory at or above the working directory that holds
+<code>shared-hooks/registry.json</code>. The path compiled into the binary comes
+last: the installed CLI is built by the Stado batch build, in a tree that no
+machine running it holds, so a compiled path tried first would make every
+<code>tama hooks</code> run refuse with <code>names no hook binary of ours</code>
+against a directory that no longer exists.</p>
+<p>Both the plan and a finished release print where the sealed runtime on
+this machine was built from, read from
+<code>native-hook-binaries.json</code>: the revision, and whether the source
+held uncommitted changes when it was sealed. A runtime staged from a shared
+checkout's working tree carries <code>"dirty": true</code>; a release built by
+Stado seals the committed tree the batch build unpacked, so it names that
+commit and is never dirty.</p>

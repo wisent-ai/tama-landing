@@ -99,7 +99,7 @@ reseals it. That order is not a preference: before it writes anything
 <code>register-hook.mjs</code> reads the catalogue and refuses a hook with no entry
 there, printing <code>catalog-metadata.json has no entry for &lt;id&gt;</code> and exiting
 <code>2</code>. The registry catalogue takes its category, purpose, rationale, and
-side effects from the metadata entry, so those are written once. The direct writer accepts <code>node shared-hooks/register-hook.mjs &lt;id&gt; &lt;event&gt; &lt;command&gt; [--remove] [--registry &lt;path&gt;]</code>. It does not accept a deadline argument: that attempt exits <code>2</code> with <code>Hook deadlines are not configurable; remove the timeout argument</code>, before changing the registry. Generated Claude and Codex hook configurations omit Tama-owned deadlines; an agent provider may still impose its own external limit.</li>
+side effects from the metadata entry, so those are written once. The direct writer accepts <code>node shared-hooks/register-hook.mjs &lt;id&gt; &lt;event&gt; &lt;command&gt; [--remove] [--registry &lt;path&gt;]</code> and no other argument; it refuses before changing the registry. Generated Claude and Codex hook configurations bound no hook's running time, because the engine waits for every hook's answer.</li>
 <li>Exercise the real runtime path that claims enforcement. Synthetic payload replay, mocks, and dry-run-only evidence do not prove live blocking.</li>
 <li>Keep commits limited to hook source, structured catalogue/configuration, and applicable product checks. Exclude runtime state, credentials, logs, profiles, and caches.</li>
 </ol>
@@ -115,11 +115,10 @@ occasion. Describe the hook once, as data in the repository under
   "command": "$HOME/.local/bin/tama hook block-one-off-repairs",
   "events": [{ "event": "pre_tool_use:bash" }]
 }</code></pre>
-<p>A binding may carry <code>"timeout"</code>, the seconds the runtime waits
-for the hook on that event, for a hook that asks a model; the registry's
-default is ten. Then the repository half, which records the catalogue entry,
-writes each registry binding it does not already have — or already has with
-another timeout, which it unbinds and binds again as declared — reconciles the
+<p>A binding names only its event, because the engine waits for every hook's
+answer; a declaration whose binding names anything else is refused naming the
+field. Then the repository half, which records the catalogue entry,
+writes each registry binding it does not already have, reconciles the
 sources and reseals. The registry keeps its own copy of the catalogue entry;
 when every event is already bound, the registry writer runs once over a bound
 event so a changed description, reason or side effects reaches that copy too,
@@ -184,45 +183,7 @@ booted out and its plist removed; the release prints <code>retired &lt;id&gt;:
 inactive definition prevents a later bootstrap from reviving a watcher the
 registry has retired. <code>--dry-run</code> announces the step.</p>
 <h2>Why a gate decided what it decided</h2>
-<p>A verdict nobody can read is a verdict nobody can repair, and the way that
-used to be answered was a throwaway program that read the same transcript a
-second way — the shape of repair these rules forbid, and one the write gate
-refuses outright. So the reading belongs to the gate. Each hook binary takes the
-payload it is given on stdin and answers about it; with <code>--explain</code> it
-prints what it read and decides nothing:</p>
-<pre><code>echo '{"session_id":"&lt;id&gt;","last_assistant_message":"&lt;text&gt;"}' \
-  | tama hook block-unprompted-topics --explain</code></pre>
-<p>For <code>block-unprompted-topics</code> that is the transcript it found, how
-many records it read, how many terms the operator's own words and this turn's
-results ground, the most ungrounded paragraph the session already accepted, and
-every block of the message with its counts and the words that have no provenance.
-A hook that answers this way is also a hook whose cost is visible: rebuilding
-the whole session's vocabulary at every assistant message is quadratic and, on
-a long session, spends minutes deciding nothing. Its test judges a long
-session in milliseconds, so a regression is a failing test rather than a gate
-everybody waits for.</p>
-
-<p>The engine a provider dispatcher executes is the same program, as
-<code>tama run-hook</code>, installed from the same build. A separate copy in
-<code>~/.local/bin</code> that nothing installs keeps whatever build last wrote
-it, which is how a fix can be live on one path and absent on the other. One
-program installed from one build cannot drift that way.</p>
-<p>Which checkout a <code>tama hooks</code> command reads is decided in this
-order: an explicit <code>--root</code>, then <code>TAMA_ROOT</code>, then the
-first directory at or above the working directory that holds
-<code>shared-hooks/registry.json</code>. The path compiled into the binary is
-the last resort, and it has to be: the installed CLI is built by the Stado
-batch build, in a tree that no machine running it holds, so a compiled path
-tried first would make every <code>tama hooks</code> run refuse with
-<code>names no hook binary of ours</code> against a directory that no longer
-exists.</p>
-<p>Both the plan and a finished release print where the sealed runtime on
-this machine was built from, read from
-<code>native-hook-binaries.json</code>: the revision, and whether the source
-held uncommitted changes when it was sealed. A runtime staged from a shared
-checkout's working tree carries <code>"dirty": true</code>; a release built by
-Stado seals the committed tree the batch build unpacked, so it names that
-commit and is never dirty.</p>
+<p>Every hook answers <code>--explain</code> with what it read and decides nothing; that, the one program a provider runs and which checkout a <code>tama hooks</code> command reads are on their own page: <a href="explain/">why a gate decided what it decided</a>.</p>
 
 <h2>Warming the hook binaries</h2>
 <p>A hook binary that has never run still owes macOS its first-run assessment; how Tama pays that before a live event, and how to read the result, is on its own page: <a href="runtime/hook-warming/">warming the hook binaries</a>.</p>
@@ -304,83 +265,7 @@ copy. An agent stopped by this gate owes the operator the exact command block
 rather than a description of it, and
 <a href="https://jeden.wisent.com/docs/cli/copy/"><code>jeden copy -</code></a>
 puts that block on their clipboard.</p>
-<h2>What counts as running a writer</h2>
-<p>The guard reads a shell payload the way a shell does. A payload is cut into
-commands at <code>;</code>, <code>|</code>, <code>&amp;</code> and newline only where
-those characters are outside quotes, so a sentence that names a writer inside a
-quoted argument — an evidence message, a commit body, a report of a refusal —
-runs nothing and is allowed. A token with spaces in it is an argument, not a
-program or a path, for the same reason. A shell call is read by its command
-alone: the call's description, its working directory and the session's paths
-are not part of what the shell runs, so an apostrophe in any of them opens no
-quote and cannot turn a commit or a register command into a hook edit.</p>
-<p>A shell payload that names hook source or configuration where the name can act — outside its quoted data — is
-a change to it whatever program it runs, and needs the owner's consent: no list of writer programs, language
-write calls or patch appliers decides it, because every writer such a list left out went through. Any other
-execution payload (code an evaluator runs) needs consent when its code names a protected path at all. Read a hook
-with the harness's read tool, which changes nothing. A payload naming one of the operator's break-glass files
-(the emergency state file, its backup folder, a session override) is refused outright. The refusal quotes what
-acted: <code>bash payload can create/edit hook source/config: `&lt;path&gt;` stands where it acts, in
-`&lt;the command text the shell reads as acting, quoted data blanked&gt;`</code>, or <code>it sets git's
-core.hooksPath</code>; a path the refusal quotes inside blanked-out text shows a construct the shell parser could
-not read as data. The journey
-<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hook_config_shell_mentions</code> requires
-<code>cp</code>, an unlisted writer and a redirection onto the registry refused, the same path inside a commit
-message passed, an <code>oko defects note</code> whose double- and single-quoted surface, text and evidence name
-the registry passed and the same command redirected onto the registry refused with the acting text quoted, a
-register command whose double-quoted prose holds a possessive, a single-quoted refusal and a parenthesised path
-passed, a commit by pathspec with an apostrophe in its message and in the call's description passed while the
-same call copying onto the registry was refused naming it, and a command naming the emergency state file
-refused.</p>
-<p>What still refuses: the writer as the command's program or script argument,
-including a quoted path (<code>node 'shared-hooks/generate-configs.mjs'
---apply</code>); <code>tama install</code>, <code>tama enforcement only|all</code>
-and <code>oko hooks install|pull</code> read from the program the command
-starts, with <code>env</code>, <code>sudo</code>, <code>nohup</code> and
-<code>timeout</code> stepped over; the same command inside an executor's argument
-(<code>bash -lc "tama enforcement all"</code>); and a command substitution, which
-is code even inside double quotes (<code>echo "$(tama install)"</code>).</p>
-<p>Reporting runs stay allowed and always did: <code>tama enforcement
-status</code>, <code>tama install plan</code> (with its options and inside a wrapper
-such as <code>cd … &amp;&amp;</code> or <code>env</code>: it shows the runtime scopes and
-target paths and creates no directory, writes no configuration and activates no
-hook; the verb is the word right after <code>install</code>, as the CLI reads it, so
-<code>tama install --home ~ plan</code> is still the installer),
-<code>generate-configs.mjs</code> without <code>--apply</code>,
-<code>seal-registry.mjs --check</code>, <code>oko hooks install
---preview</code>. The command is cut only after its quotes are read, so a
-semicolon inside a quoted evidence message stays one argument instead of
-arriving as command words and refusing an honest report of the guard's own
-refusal. A rule nobody can satisfy by doing the right thing is a rule that
-gets worked around.</p>
-
-<h2>Repairing a recorded hook source</h2>
-<p><code>register-hook.mjs</code> derives a hook's <code>source</code> from its command: it
-takes the executable, drops the <code>tama-</code> prefix, turns hyphens into
-underscores, and looks for that stem as a sibling script or as a flat
-<code>rust/crates/tama-hook-tools/src/bin/&lt;stem&gt;.rs</code>. A guard whose source sits
-in a nested directory — <code>src/bin/block/repo/block_repository_copies.rs</code>, for
-instance — matches none of those candidates, so the writer falls back to
-recording the hook's own command, the installed binary path, as its
-<code>source</code>. Registration still succeeds and says nothing about it.</p>
-<p>The next seal is where it surfaces. <code>tama hooks seal</code> packages every
-source outside the managed hook directories and refuses the whole release with
-<code>External hook source is missing</code> for the first one it cannot open
-(<a href="scripts.md#seal-hook-release-py">scripts</a>). Until the entry is
-repaired no hook release can be sealed at all, and sealing is the step that puts
-a fixed hook on a machine. <code>block-repository-copies</code> hit exactly this the
-moment it was registered.</p>
-<p>Repair the entry, then reseal the registry:</p>
-<pre><code>tama-reconcile-registry-sources [--check] [--out PATH] &lt;registry.json&gt;
-node shared-hooks/seal-registry.mjs</code></pre>
-<p>The reconciler recognises a <code>source</code> that names an installed hook binary,
-derives the stem the way the writer does — drop <code>tama-</code>, hyphens become
-underscores — and repairs the entry when exactly one tracked file is named
-<code>&lt;stem&gt;.rs</code>; no match or several is reported and nothing is written. A
-<code>source</code> that already resolves is left alone. <code>--check</code> writes nothing
-and exits non-zero on the first stale entry, which is what a repository gate
-runs. The reseal is required, not optional: the catalogue checksum covers the
-whole document, so a rewritten <code>source</code> leaves the registry unsealed until
-<code>shared-hooks/seal-registry.mjs</code> runs.</p>
+<h2>What counts as changing a hook</h2>
+<p>How the guard reads a shell payload to tell a writer from a mention, and how a hook source the registry recorded wrongly is repaired, is on its own page: <a href="writers/">what counts as changing a hook</a>.</p>
 <h2>Security rules</h2>
 <p>Never commit settings, environment files, shell profiles, logs, transcripts, credentials, private keys, session cookies, or Keychain exports. Hook archives may contain forbidden patterns by design, so any bypass for the Tama source repository must be explicit and scoped.</p>
