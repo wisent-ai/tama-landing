@@ -1,0 +1,168 @@
+<h1>Conduct gates</h1>
+<p>The gates that keep a session's own conduct tied to its work: no cycle of gates that leaves no step, every call serving a claimed item, purgatory, reports that are not the work, repeated looks, operator messages kept as records, and the operator's stop order. Completion enforcement and the work registers are on <a href="/docs/enforcement-control/completion/work/">Completion policy and work registers</a>.</p>
+<h3>Gates that leave no step</h3>
+<p>Each gate can look right on its own while the set refuses everything: the stop is refused because
+work remains, and every call made to do that work is refused before it runs. The core reads that from
+the session's transcript: the record keeps where the transcript stood at each stop
+(<code>transcriptBytes</code>), and when a stop is refused with exactly the refusal the previous stop got,
+at least one call was attempted since, and every attempted call was refused before it ran (an error
+result with no details a tool that ran reports), the stop is let through with <code>TAMA GATE CYCLE: the
+gates left this session no step …</code>, naming the stop refusal and each refused call. The record keeps
+them under <code>cycle</code>. A session that attempted nothing, or made a call that ran, keeps the
+refusal. A transcript that cannot be found or measured is said on standard error and the refusal stands.
+Real journey <code>tests/gate-cycle/release.rs</code>.</p>
+<p>A turn that ended on the provider's refusal of the request (the last assistant record has
+<code>stopReason: "error"</code> and an <code>errorMessage</code> carrying
+<code>invalid_request_error</code>) did no work, and sending it back resends the same request to the same
+refusal. The core lets such a stop through whatever any stop gate decided, naming the provider's refusal;
+the record keeps it as <code>providerRefusal</code> beside the gates' own <code>decision</code>. One rule
+for every stop gate, read once in the core (<code>tama-hooks session_record::provider_refused_request</code>);
+no gate carries its own copy. Real journey <code>tests/gate-cycle/release.rs</code>.</p>
+<p>In a supervisor session <code>block-wait-polling</code> hands a reading loop the backlog. When the supervisor's last two
+answers are the same text, or a call names an executor (its session key or its transcript) that an earlier
+call already named while Oko recorded no instruction to it since (<code>oko instructions</code>), the call
+is refused unless it changes a file or dispatches. A dispatch is an <code>oko</code> command naming
+<code>--defect</code> or <code>--owner</code>, or one handing the executor an instruction in <code>--text</code>
+(<code>oko sessions resume|send|start</code>) while Oko's register records that executor as owning an open
+defect: the session commands name no defect, so the instruction binds the work the executor owns. An
+instruction to an executor that owns none is refused naming <code>oko defects assign &lt;id&gt; --owner
+&lt;executor&gt;</code>. The refusal reads <code>BLOCKED: a supervisor dispatches; you read again … Assign the
+next items instead: oko defects assign &lt;id&gt; --owner &lt;executor&gt;, then hand the executor its
+instruction (oko sessions resume &lt;executor&gt; --text … [--model …]). Oko's unowned backlog for you: …</code>,
+carrying <code>oko work backlog --supervisor &lt;session&gt;</code> whole, or one line naming that command,
+its exit status and the first line it said when Oko cannot answer it. A supervisor transcript line that is
+no JSON record refuses naming its place. Each refusal is kept in
+<code>supervisor-loops.&lt;session&gt;.jsonl</code> beside the session's control files. Real journey
+<code>tests/repeated-looks/gate.rs</code>.</p>
+<h3>Every call serves a claimed item</h3>
+<p><code>block-unclaimed-calls</code> refuses a tool call while the session claims no open Oko item — an
+open defect the register records it as owning — with <code>BLOCKED: block-unclaimed-calls: this session
+claims no open Oko item …</code> naming <code>oko defects assign &lt;id&gt; --owner &lt;session&gt;</code>
+and <code>oko work next</code>. A claimed session's call must state its purpose in the harness's own field
+(OMP's intent <code>i</code>, Claude Code's <code>description</code>); one that states none is refused
+naming the claimed items. Each admitted call is kept with its items, tool, purpose and time in
+<code>calls.&lt;session&gt;.jsonl</code> beside the session's control files. A shell line made only of
+<code>oko</code> commands — claiming, reading an item, writing a register — is never refused for want of a
+claim, so the gate does not close its own way out. On a machine where Oko keeps no defect register the
+gate judges nothing: Tama runs without Oko, and there is no item to claim. A register or record that
+cannot be read or written refuses with its cause. Its declaration,
+<code>hook-declarations/assignment-discipline/block-unclaimed-calls.json</code>, names every tool event;
+the gate runs once <code>tama hooks declare --file</code> enters it in the registry. Real journey
+<code>tests/unclaimed-calls/gate.rs</code>.</p>
+<p>For a supervisor, <code>block-supervisor-stop</code> also lists the entries of Oko's review queue
+(<code>oko review</code>, <code>review.json</code> in Oko's data, or <code>OKO_REVIEW_REGISTER</code>) that
+its executors filed and nobody answered, each with the <code>oko review answer &lt;id&gt; --text … --defect …
+--by &lt;session&gt;</code> that answers it.</p>
+<h3>Purgatory: no tool until a self-criticism</h3>
+<p><code>block-tools-in-purgatory</code> refuses every tool call of a session the operator holds in purgatory:
+one whose answer he gave his worst verdict (a <code>verdict:worst:&lt;session&gt;#&lt;ordinal&gt;</code> ruling in
+Oko) that no self-criticism of that session answers. It asks Oko
+<code>oko purgatory status --session &lt;session&gt; --json</code> and, while the session is held, refuses
+with <code>BLOCKED</code>, his unanswered verdicts in his words and the way out: write the self-criticism as
+the text of an answer and, in that answer, run <code>oko purgatory confess --session &lt;session&gt;</code>,
+which copies that answer from the session's own transcript. Only that command and
+<code>oko purgatory status --session &lt;session&gt;</code>, each one plain command naming this very session,
+are admitted; a confession for another session, a command riding along and output written to a file are
+refused. A standing Oko cannot read refuses every other call with Oko's cause; a session without an
+identifier and a machine without the Oko CLI are not judged. Its declaration,
+<code>hook-declarations/assignment-discipline/block-tools-in-purgatory.json</code>, names every tool event;
+the gate runs once <code>tama hooks declare --file</code> enters it in the registry. Real journey
+<code>tests/purgatory/gate.rs</code>.</p>
+<h3>A report is not the work it describes</h3>
+<p><code>block-stop-on-own-work</code> refuses an ending that reports instead of working, with no
+model: from the transcript, an ending said again after a refusal with no source changed, a plea
+without one command on the clipboard or with one that cannot run, and a defect recorded with no
+repair; from the answer itself, the turn-end attestation it carries word for word (no invented
+limit, no decision handed back, no own work under blockers, and the rest). Every refusal and the
+journeys that prove them are on their own page:
+<a href="/docs/enforcement-control/completion/own-work/">endings a report cannot replace</a>.</p>
+<h3>A repeated look is not work</h3>
+<p><code>block-wait-polling</code> reads the session's own transcript and keeps every look made since
+the last change: a call with its arguments (OMP's intent label <code>i</code> left out) and the answer it
+got. A change is a call that changes files, a <code>git commit</code>, or a message a person wrote to the
+session; a harness continuation is not one. Making one of those looks again is refused with
+<code>BLOCKED: this exact call already ran at … and nothing this session did since could change its
+answer … It was answered: …</code>, quoting the earlier answer whole. No count and no window decide it:
+the first look passes, the same look after a commit, an edit or a person's message passes, and the same
+look in between is refused. <code>block-idle-answer</code> counts work after a stop refusal by the same
+ledger: a change, or a look not made since the last change. A repeated look does not buy an ending.</p>
+<p>In a session Oko records as a supervisor, executor transcripts (the harnesses' transcript roots),
+Oko's data under <code>~/.oko</code> and <code>~/Library/Application Support/Oko</code>, and the answers
+of <code>oko</code> commands are protected sources, read whole or not at all. A pipeline stage fed by
+one, any other program handed a protected path, and a read with a selector or query on one are refused,
+whatever program does the selecting, naming the full reads: <code>oko sessions messages &lt;session&gt;
+--since &lt;time&gt;</code>, <code>oko defects show &lt;id&gt;</code>, or the read tool on the whole file.
+An executor's session is not judged by this rule. The registry dispatches the gate on the shell and
+process tools; the read and search tool rules take effect once its entry is dispatched on
+<code>read</code>, <code>grep</code>, <code>find</code> and <code>glob</code> too. The real test is
+<code>tests/repeated-looks/gate.rs</code>.</p>
+<h3>Every operator message is tied to the work</h3>
+<p><code>block-unlinked-operator-messages</code> refuses the end of a turn while any operator
+message of the session is tied to no work. It runs
+<code>oko rulings unlinked --session SESSION_ID</code>, which reads the session's transcript and
+names, for each of the operator's messages, the task that carries it (once read, a message is a
+task or is kept on the task in hand), the ruling recorded from it or the defect its task is
+related to; a message tied to none of them — unread, or read before the session's first task — is
+words no register keeps. Oko's own refusal is relayed, with the commands that link the message:
+<code>oko tasks kind SESSION_ID N &lt;kind&gt; --by SESSION_ID</code>, <code>oko tasks add SESSION_ID N
+--by SESSION_ID</code>, <code>oko rulings record --session SESSION_ID --ordinal N --subject &lt;task or
+defect&gt; --by SESSION_ID</code>, or <code>oko tasks relate &lt;task&gt; … &lt;defect&gt;</code> for the
+defect that names the rule and its mechanism (<code>oko rulings enforce</code>, <code>oko rulings
+audit</code>). No model decides it, so the gate holds while no model answers. A stop payload
+without a session is refused; an Oko that cannot be run is refused by name; a machine without
+the Oko CLI has no register to read and the gate says nothing there. Program:
+<code>rust/crates/tama-hook-tools/src/programs/assignment/linked/block_unlinked_operator_messages.rs</code>;
+declaration: <code>hook-declarations/assignment-discipline/block-unlinked-operator-messages.json</code>;
+real journey <code>tests/operator-rules/unlinked.rs</code> against the real Oko CLI, a transcript
+and registers of the run's own.</p>
+<h3>An operator stop order</h3>
+<p>Every guard above releases the turn only through a tool call: finish the
+tracker, read the ledger, treat a denial, record evidence. When the operator
+has written <code>nie koduj</code> (or <code>do not code</code>, <code>nic nie rob</code>,
+<code>stop coding</code>, a bare <code>stop</code>), every tool call is forbidden, and a
+session would answer turn after turn with the same lines while the guards
+refused each one. So <code>block-stop-with-open-work</code>,
+<code>block-stale-assignment</code>, <code>block-untreated-block-stop</code>,
+<code>block-stop-with-claimed-work</code>,
+<code>block-stop-after-unresolved-hook-defect</code>,
+<code>block-stop-on-own-work</code> and
+<code>check-open-items-with-model</code> stand down while a stop order stands, and
+print <code>&lt;hook&gt;: the operator's stop order stands ("…"); ending the turn obeys it, so this guard does not refuse it.</code>
+on stderr so the release is visible in the hook evidence.</p>
+<p>The order stands from the operator's newest such message until the operator
+gives a new task — a message Oko records in the session's ledger. Questions,
+remarks and repeated stop orders in between do not lift it; a local tracker
+entry never does. Without a readable ledger only the newest operator message
+decides, so an unreadable Oko cannot revive a lifted order. Harness-injected
+user-role records (todo reminders, hook continuations, attribution
+<code>agent</code>) are not the operator speaking. The phrase list lives in
+<code>tama_hook_tools::assignment::stop_order</code>; a new form is added in a commit
+that quotes the message that needed it.</p>
+<p>The real journey is <code>tests/assignment/assignment.test.ts</code> (<code>bun run
+test:assignment</code>): an open tracker item blocks, the order lets the turn end,
+questions do not lift it, a task Oko records lifts it and the guard refuses
+again naming the item, and a missing ledger falls back to the newest message.</p>
+<p>Oko keeps diagnosis and resumption in its own ledger. Five unsuccessful rounds
+trigger diagnosis, not a demand for a person. The Tasks screen shows the same
+cause, checked operations, resumption condition and next automatic check as the CLI.
+Missing identity, transcript, ledger, or recognized task status prints
+<code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code>
+and exits <code>70</code>. Activation reports <code>taskLedger: available</code>,
+<code>completionAllowed</code> and <code>pendingTasks</code>; open work is not an unavailable dependency.</p>
+<p>The OMP adapter forwards an explicit <code>decision: block</code>. OMP must
+keep that refusal beyond its eight-round advisory continuation limit and give
+it priority over advisory <code>continue: true</code> results. Explicit user
+interruption still stops the run; queued stop handlers must not restart it.
+The hook release and OMP host are separate dependencies. Updating hooks alone
+cannot repair an older host's continuation limit.</p>
+<p><code>tests/runtime_reload/completion_journey.test.ts</code> runs actual OMP
+sessions through Oko's authenticated Brama proxy, the installed Tama release and Oko's persisted ledger.
+It verifies real file delivery before allowing completion, refusal beyond eight
+rounds, explicit interruption and a genuine missing external input checked
+through both permitted paths before a qualified pause. Reports, source identity,
+commands, provider exchanges and native transcripts remain under
+<code>rust/target/completion-journey-evidence/</code>. Set
+<code>TAMA_TEST_HOOK_RELEASE</code> and <code>TAMA_OKO_CLI</code>; an explicitly
+selected source host uses <code>TAMA_TEST_OMP_SDK_ROOT</code>.
+The worker uses <code>codex/gpt-6-astra</code>; <code>TAMA_TEST_MODEL_ROUTE</code> selects another route already authorized for Oko. The test never grants access or substitutes a fake provider.
+A source-only pass does not claim that the installed OMP host has been updated.</p>
