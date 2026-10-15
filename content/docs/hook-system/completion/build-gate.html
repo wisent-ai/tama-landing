@@ -14,6 +14,39 @@ itself unblocks — an open blocker that names it and waits (<code>oko blockers 
 --waits-on</code>) on a defect whose repair is pushed — is not waited on;
 <code>oko blockers held</code> lists those items, and the stop gate
 (<code>block-stop-with-open-work</code>) holds exactly the same ones.</p>
+<h2>The session's own build attestation comes first</h2>
+<p>Before any consent or ruling is read, every build, compile, format or test the gate knows —
+<code>cargo build</code>, <code>cargo test</code>, <code>cargo check</code>, <code>cargo
+fmt</code>, <code>rustfmt</code>, <code>stado product cargo</code> and the other toolchains'
+compile subcommands — needs the session's own build attestation. The agent writes it and records
+it with <code>tama attestation record --file FILE --session &lt;id&gt;</code> (or Tama
+Desktop's <em>Recorded attestations</em> section) from a document whose
+<code>"standard"</code> is <code>"build"</code>, attesting each claim of
+<code>standards/build.json</code> with <code>"confirmed": true</code> and a <code>"how"</code> of
+at least the operator's stated attestation minimum (<code>attestation_min_words</code>, 100
+words) in its own words:</p>
+<pre><code>{
+  "standard": "build",
+  "attestations": {
+    "building_is_not_marginal": {"confirmed": true, "how": "…"},
+    "open_work_allows_the_build": {"confirmed": true, "how": "…"}
+  }
+}
+</code></pre>
+<ul>
+<li><code>building_is_not_marginal</code>: building, compiling, formatting or testing now is not
+marginal — the work it serves cannot be finished or proven without it, and reading the code does
+not replace it.</li>
+<li><code>open_work_allows_the_build</code>: either every task and defect is finished, or every
+task and defect in the build-first category is finished.</li>
+</ul>
+<p>An attestation that falls short is not kept (<code>stands: false</code> with every reason). A
+build the gate admits spends the attestation, once per command line however many compiles it
+runs, so the next build needs its own. Without one the build is refused with
+<code>`&lt;build&gt;` builds, compiles, formats or tests, and no build attestation of this session
+admits it: session &lt;id&gt; needs its own build attestation, and none is recorded: write it and
+record it with …</code>; a recorded attestation that no longer stands is named with its reasons,
+and one that cannot be read or spent is named with its cause.</p>
 <h2>What the gate answers</h2>
 <ul>
 <li>A consent the operator gave in this conversation (his answer to a build-consent ask, or the
@@ -39,7 +72,12 @@ Oko CLI has no register and no rulings, so nothing holds the build there.</li>
 before it waits and when it ends, so a reading that stands still names the command it stands
 on.</p>
 <h2>Qualification</h2>
-<p><code>tests/build-gate/consent.rs</code> and <code>tests/build-gate/standing.rs</code> run the
+<p><code>tests/build-gate/attested.rs</code> runs the built gate with a whole-session build
+capability: a build, <code>rustfmt</code> and <code>cargo fmt</code> without an attestation are
+refused naming how to record one; an attestation with short explanations is not kept and admits
+nothing; a standing one admits one build and is spent by it, and the next build is refused.
+<code>tests/build-gate/consent.rs</code> and <code>tests/build-gate/standing.rs</code> attest each
+build they expect admitted, then run the
 built <code>tama hook block-one-off-repairs</code> the way OMP's PreToolUse dispatch runs it, on
 a signed-in host, against the installed Oko CLI with defect, blocker and ruling registers of the
 run's own (<code>OKO_DEFECT_REGISTER</code>, <code>OKO_BLOCKER_REGISTER</code>,
