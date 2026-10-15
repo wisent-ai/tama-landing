@@ -15,7 +15,10 @@ read from its added lines alone. In a data file (JSON, a
 number: a dotted release version such as <code>"0.7.56"</code> or <code>"1.2.3-beta.1"</code>,
 and a hexadecimal revision or digest holding a letter such as a git commit. So a version
 bump and a dependency pin pass, while a quantity beside them (<code>"retries": 7</code>) and a
-quoted decimal (<code>"port": "8792"</code>) are still refused by name. In a
+quoted decimal (<code>"port": "8792"</code>) are still refused by name. A quoted value that holds
+whitespace is prose, not a quantity: a documentation page's sentence (<code>"An approval_id is at
+most 64 characters"</code>) or a description passes whatever figures it quotes, while a bare
+value and a quoted single word (<code>"retries": "7"</code>) are still read. In a
 <code>Cargo.toml</code>, the quoted text of every dependency table (<code>[dependencies]</code>,
 <code>[dev-dependencies]</code>, <code>[build-dependencies]</code>, <code>[workspace.dependencies]</code>,
 <code>[target.….dependencies]</code>) is a requirement on a release the registry publishes
