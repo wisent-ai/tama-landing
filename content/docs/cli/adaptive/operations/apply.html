@@ -9,10 +9,10 @@
 <h2>Refusals and failures</h2>
 <ul>
 <li>Missing proposal directory prints adaptive usage and exits <code>2</code>.</li>
-<li>Missing owner consent: <code>refusing to modify live hooks: DEVICE_HOOK_EDIT_APPROVED is not set.</code>, then the consent-flow URL, exit <code>1</code>.</li>
-<li>Missing report: <code>no report.json in &lt;proposal-dir&gt;</code>.</li>
-<li>Invalid report JSON: <code>unreadable report.json: SyntaxError: Unexpected token in JSON</code>.</li>
-<li>Unresolvable live or candidate path: <code>missing live path or proposed file for &lt;hook-id&gt;</code>.</li>
+<li>Missing owner consent: <code>refusing to modify live hooks: DEVICE_HOOK_EDIT_APPROVED is not 1. Owner consent flow: see https://tama.wisent.com/docs/hook-management</code>.</li>
+<li>Missing or unreadable report: <code>cannot read &lt;proposal-dir&gt;/report.json: &lt;cause&gt;</code>; invalid JSON: <code>&lt;proposal-dir&gt;/report.json is not JSON: &lt;parser error&gt;</code>; no hook named: <code>&lt;proposal-dir&gt;/report.json names no hookId</code>.</li>
+<li>A hook without a live script: <code>hook &lt;hook-id&gt; has no live script to apply the proposal to</code>; a candidate that is gone: <code>the proposed file &lt;path&gt; for &lt;hook-id&gt; is not there</code>.</li>
+<li>A backup or copy that fails names both paths and the cause, for example <code>cannot copy &lt;proposed&gt; over &lt;live&gt;: &lt;cause&gt;</code>.</li>
 </ul>
-<p>Filesystem failures are prefixed <code>doctor: </code> and exit <code>1</code>.</p>
+<p>Every refusal and failure is printed as <code>doctor: &lt;reason&gt;</code> and exits <code>1</code>; nothing is written before the consent, report, hook and candidate checks pass.</p>
 <p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>

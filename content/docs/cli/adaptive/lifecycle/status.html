@@ -5,7 +5,13 @@
 </code></pre>
 <p><code>--json</code> prints the same reading as one document instead of lines.</p>
 <h2>Output and state</h2>
-<p>The first line reports automatic ceiling, lexical-frustration behavior, explicit-correction behavior, and repair autonomy. Each sorted hook line includes tier, mode, phase, recovered baseline, open-run length, source verification, and whether a contested block was observed. The final <code>telemetry=</code> JSON reports the transport's segment counts. With <code>--json</code> the document is <code>{policy: {autonomy, lexical, explicitCorrection, repair}, hooks: [{id, tier, mode, phase, baseline, openRun, source, contested}], telemetry}</code>. The command is read-only and exits <code>0</code>.</p>
+<p>The first line reports automatic ceiling, lexical-frustration behavior, explicit-correction behavior, and repair autonomy. Each sorted hook line includes tier, mode, phase, recovered baseline, open-run length, source verification, and whether a contested block was observed. The final <code>telemetry=</code> JSON reports the transport: <code>open</code>, <code>ready</code> and <code>acked</code> segment counts; <code>validReady</code>, the ready segments that read back intact; <code>invalidReady</code>, each ready segment that does not, as <code>{name, reason}</code> naming the check it failed (a torn last row, a header or footer field, a frame out of sequence, a payload digest that no longer matches); <code>reclaimable</code>, the intact segments whose lake acknowledgement proves them kept; and <code>legacy</code>, the single-file telemetry an earlier layout left with its size. With <code>--json</code> the document is <code>{policy: {autonomy, lexical, explicitCorrection, repair}, hooks: [{id, tier, mode, phase, baseline, openRun, source, contested}], telemetry}</code>. The command is read-only and exits <code>0</code>.</p>
 <h2>Refusals and failures</h2>
-<p>There are no command-specific policy refusals. Failures while loading or projecting adaptive state are written with the <code>doctor: </code> prefix and exit <code>1</code>.</p>
+<p>Every failure is written as <code>doctor: &lt;reason&gt;</code> and exits <code>1</code>. The reason names what could not be read:</p>
+<ul>
+<li>The adaptive policy (<code>adaptive/policy.json</code>) or the hook registry is missing, unreadable or not the declared shape, or a hook's tier is one the policy does not declare.</li>
+<li>A hook's adaptive state cannot be replayed from its journal.</li>
+<li>A segment folder, or a legacy telemetry file, cannot be examined.</li>
+</ul>
+<p>A ready segment that cannot be read or is not intact, and a lake acknowledgement that cannot be read or does not prove its segment, are not failures of the command: each is listed under <code>invalidReady</code> with its reason, and the segment is kept.</p>
 <p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>
