@@ -17,8 +17,21 @@ terms; the incident stays in Oko.</p>
 <li>Public pages: every file in a product's site repository (a path containing <code>-landing/</code>), and any
 repository's <code>README.md</code> and <code>CHANGELOG.md</code>.</li>
 </ul>
-<p>Private notes outside those places, such as workshop rules, are not judged. A line the committed file already
-carries is judged only when a write adds it again.</p>
+<p>Private notes outside those places, such as workshop rules, are not judged. Like every content rule of
+<code>pre-write-edit</code>, this one judges the whole file a write leaves, lines it already held included
+(<a href="/docs/whole-file/">whole-file judgement</a>).</p>
+<h2>Spelled-out addresses and fleet machines</h2>
+<p>In the same places the gate refuses an IPv4 address, a user-at-host destination, a loopback name with
+a port, and a machine name or hostname the fleet registry copy (<code>~/.stado/cache/registry-last-good.json</code>)
+declares. Read the value from where it is declared: the Stado registry, the service directory or the product's
+configuration. An example uses a host under a reserved example domain (<code>.example</code>, <code>.invalid</code>,
+<code>.test</code>, <code>example.com</code>, <code>example.net</code>, <code>example.org</code>), which the gate
+admits.</p>
+<p>What follows the at sign names a host only when its last label is not all digits, because no top-level
+domain is all digits. A font axis weight in a stylesheet request and a package pinned to a release version are
+therefore not addresses, and a page that loads its fonts that way can be edited. The journey is
+<code>an_all_digit_label_after_at_names_no_host</code> in <code>tests/content/addresses.rs</code>.</p>
+<pre><code>pre-write-edit: BLOCKED: `&lt;address&gt;` is hardcoded data: an address or a fleet machine spelled into the file. …</code></pre>
 <h2>The refusal</h2>
 <pre><code>pre-write-edit: BLOCKED: `session &lt;ID&gt;` points into the internal defect register or transcript store. …</code></pre>
 <p>Remove the reference and state what the product guarantees. Record the incident with
