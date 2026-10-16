@@ -10,15 +10,18 @@ policy is in <a href="releases.md">releases</a>.</p>
 <p><code>Scripts/build-app.sh</code> stages the release into
 <code>Tama.app/Contents/Resources/hooks-release</code> from the hook source tree
 selected by <code>TAMA_HOOK_ROOT</code>:</p>
-<p>| Member | Content |
-|---|---|
-| <code>release.json</code> | The seal manifest (below) |
-| <code>shared-hooks/</code> | The registry, hook scripts, session supervisor, universal runtime, OMP adapter, Node preflight |
-| <code>claude-hooks/</code>, <code>codex-hooks/</code> | Provider-specific hook entrypoints |
-| <code>repo-githooks/&lt;project&gt;/</code> | Approved per-repository Git hooks |
-| <code>external-hooks/</code> + <code>external-sources.json</code> | Approved hook sources that live outside the managed roots, packaged in with <code>sourcePrefix</code> → <code>releasePath</code> mappings (schema <code>ai.wisent.tama.external-hook-sources.v1</code>) |
-| <code>bin/tama</code> | The one sealed, signed Rust program: the backend, every native hook (<code>tama hook &lt;name&gt;</code>), the common hook engine (<code>tama run-hook</code>) and the MCP server (<code>tama mcp</code>) |
-| <code>package.json</code> | The hook package version |</p>
+<table>
+<thead><tr><th>Member</th><th>Content</th></tr></thead>
+<tbody>
+<tr><td><code>release.json</code></td><td>The seal manifest (below)</td></tr>
+<tr><td><code>shared-hooks/</code></td><td>The registry, the hook scripts and what the harnesses load: the OMP adapter (<code>omp/</code>), session control (<code>session-control.mjs</code>) and the Node.js preflight (<code>node-runtime-preflight.cjs</code>)</td></tr>
+<tr><td><code>claude-hooks/</code>, <code>codex-hooks/</code></td><td>Provider-specific hook entrypoints</td></tr>
+<tr><td><code>repo-githooks/&lt;project&gt;/</code></td><td>Approved per-repository Git hooks</td></tr>
+<tr><td><code>external-hooks/</code> + <code>external-sources.json</code></td><td>Approved hook sources that live outside the managed roots, packaged in with <code>sourcePrefix</code> → <code>releasePath</code> mappings (schema <code>ai.wisent.tama.external-hook-sources.v1</code>)</td></tr>
+<tr><td><code>bin/tama</code></td><td>The one sealed, signed Rust program: the backend, every native hook (<code>tama hook &lt;name&gt;</code>), the common hook engine (<code>tama run-hook</code>) and the MCP server (<code>tama mcp</code>)</td></tr>
+<tr><td><code>package.json</code></td><td>The hook package version</td></tr>
+</tbody>
+</table>
 <p>Generator files (<code>generate-configs.mjs</code>, <code>providers.json</code>,
 <code>run-one-session-hook.js</code>) and Python bytecode are pruned before sealing.
 An installed <code>tama</code> reads them, like the registry, from the checkout
@@ -134,13 +137,16 @@ they sit under the managed roots — anything else aborts the install.</p>
 <code>previousReleaseId</code>, <code>sourceFiles</code> (every managed path), <code>nodeExecutable</code>,
 <code>nodeVersion</code> and <code>okoAnnouncer</code>. That file is what the desktop reads as the installed
 identity.</p>
-<p>The install also names Tama an announcer in Oko with <code>oko asks announcers add tama</code>: the OMP
+<p>The install also names Tama an announcer in Oko with <code>oko asks announcers add tama</code>, asking
+the Oko every hook asks (<code>TAMA_OKO_CLI</code>, else <code>oko</code> on <code>PATH</code>): the OMP
 adapter's grant window only tells the operator through Oko where the grant is answered, so Oko records
 that ask and delivers it on its own, and the grant is applied as soon as the window answers instead of
 waiting on Oko's channels. <code>okoAnnouncer</code> is <code>{named: true, command}</code>, or
-<code>{named: false, command, cause}</code> with the cause also on stderr
-(<code>tama: the operator's grant window will wait on Oko's channels until Tama is an announcer in Oko:
-&lt;cause&gt;</code>) — a machine without Oko, or an Oko that refuses, keeps the install.</p>
+<code>{named: false, command, cause}</code> with the cause also on stderr. An Oko that refuses or cannot
+start says <code>tama: the operator's grant window will wait on Oko's channels until Tama is an announcer
+in Oko: &lt;cause&gt;</code>; a machine without Oko adds <code>oko: "absent"</code> and says
+<code>tama: Tama is not named an announcer in Oko: no Oko is installed here (&lt;program&gt; is not an
+executable file or on PATH) …</code>. Either way the install is kept.</p>
 <p>The either/or is load-bearing. A full install replaces what an emergency
 bypass set aside, so it needs that bypass's manifest; without one it refuses
 with <code>Full hook installation requires an emergency manifest</code> and writes
