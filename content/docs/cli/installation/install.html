@@ -109,6 +109,7 @@ refusal needs no reviewer, works while Brama is unreachable and retains no
 review. A source of names that cannot be read (the Stado registry, the vault
 listing, the product declarations) stops the commit naming that source; it
 never lets a message through unchecked.</p>
+<p>The managed <code>pre-commit</code> dispatcher allows one commit at a time per checkout, because Git keeps one message file per repository whichever index a commit is made from: <a href="/docs/cli/commit-lock/"><code>tama hook commit-lock</code></a>.</p>
 <p>The managed <code>commit-msg</code> dispatcher runs the preserved hook chain
 first, then <code>tama hook review-commit &lt;message-file&gt;</code>. It
 compiles nothing: the agent that wrote the change reads it, and a commit that
