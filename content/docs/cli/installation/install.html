@@ -23,18 +23,24 @@ change to the caller's index is made.</p>
 <p>Running rustfmt is running a build tool, and the operator's rulings decide
 when one may run. Before it formats anything, the gate asks Oko's one admission
 decision, <code>oko admit build --product &lt;checkout directory&gt;
---json</code>. While a standing withdrawal (<code>no-build</code>,
-<code>no-build:&lt;product&gt;</code>) decides, the gate runs no formatter,
-prints <code>check-rust-format: no formatter was run: &lt;Oko's verdict quoting
-the ruling&gt;</code> and lets the push through: no push is refused for
-formatting while formatting is forbidden. A push names no purpose, so a
-consent the operator scoped to a defect's repair
-(<code>build@&lt;defect&gt;</code>) does not cover it; a later unscoped
-consent does, and the gate runs again. The managed <code>quality-check</code>
-(<code>stado quality check --pre-push</code>) asks the same and, under the
-withdrawal, prints <code>quality-check: no quality gate was run: …</code>. An
-<code>oko</code> that cannot answer is said on stderr and the gates run as
-before. The real journey is <code>tests/build-gate/pre_push.rs</code>.</p>
+--json</code>, and formats only when Oko admits the build: an unscoped
+consent, or no ruling and Oko's open-work rule satisfied. Otherwise it runs no
+formatter, lets the push through and prints why: <code>check-rust-format: no
+formatter was run: &lt;Oko's verdict quoting the ruling&gt;</code> under a
+standing withdrawal (<code>no-build</code>, <code>no-build:&lt;product&gt;</code>),
+<code>… Oko does not admit a build of &lt;checkout&gt; yet: &lt;what it waits
+on&gt;</code> while Oko's open-work rule holds building, and <code>… whether a
+build of &lt;checkout&gt; is admitted could not be read, so none runs:
+&lt;cause&gt;</code> when <code>oko admit</code> cannot answer or the
+installed <code>oko</code> predates it. No push is refused for formatting
+while formatting is not admitted. A push names no purpose, so a consent the
+operator scoped to a defect's repair (<code>build@&lt;defect&gt;</code>) does
+not cover it; a later unscoped consent does, and the gate runs again. The
+managed <code>quality-check</code> (<code>stado quality check
+--pre-push</code>) asks the same before it starts Stado and prints
+<code>quality-check: no quality gate was run: …</code> with the same reasons.
+Machines with no <code>oko</code> installed run both gates. The real journey
+is <code>tests/build-gate/pre_push.rs</code>.</p>
 <p>The formatter's file diffs and concrete failure reach Git's stderr. The
 working tree is not read: formatting that exists only uncommitted cannot
 qualify an unformatted commit, and another session's uncommitted edit in the
