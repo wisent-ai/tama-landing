@@ -194,26 +194,17 @@ named), and Oko decides from the newest ruling on <code>build</code>, <code>buil
 admits the build and prints <code>build admitted by build of &lt;product&gt; is allowed by the operator's
 ruling &lt;id&gt; on &lt;subject&gt; (session &lt;session&gt; message #&lt;n&gt;): "&lt;his words&gt;"</code>
 on stderr, and the refusal tells the agent his window is never asked for a product a ruling covers. A
-standing withdrawal refuses the build outright, before an ask or a session capability is read, with
+standing withdrawal refuses the build outright, before a session capability is read, with
 <code>block-one-off-repairs: build of &lt;product&gt; may not run until a later ruling of the operator
 allows it: the operator's ruling &lt;id&gt; on no-build… "&lt;his words&gt;"</code>; a later consent lifts
 it. An <code>oko</code> that cannot answer is said on stderr and admits nothing. <code>tama attestation
 list --kind build</code> lists the consents that stand from <code>oko rulings constraints --json</code>
 (store <code>oko rulings</code>, lifetime <code>until withdrawn</code>); consent he gives per
 conversation (SSH, a local browser, hook edits) is never read from rulings. The real journey is
-<code>tests/build-gate/standing.rs</code>. Then his answer to a build-consent ask: <code>tama build consent ask
---target &lt;product&gt; --command &lt;the build&gt;</code> files an Oko ask on subject
-<code>build:&lt;product&gt;</code> with two choices, <code>zgoda na tę jedną budowę</code> and
-<code>nie</code>, on the channels he chose. His consent answer admits one build of that product: the
-gate reads <code>oko asks list</code>, takes the newest consent answer on that subject it has not spent,
-admits the build, prints <code>build admitted by the operator's answer to ask &lt;id&gt; on
-build:&lt;product&gt; at &lt;time&gt;, now spent</code> and records the ask in
-<code>~/.shared-hooks/build_consent_spent.json</code>, so the next build needs his next answer. A
-refusal, an ask still waiting, or a spent record that cannot be read admits nothing; the last says
-<code>&lt;path&gt; is not a list of ask ids</code> or <code>&lt;path&gt; cannot be read</code> on
-stderr. <code>tama build consent ask</code> without <code>--target</code> or <code>--command</code>
-is refused by name before Oko is asked. Otherwise the agent records the consent he gave in the
-conversation as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
+<code>tests/build-gate/standing.rs</code>. No build is ever asked of the operator: there is no build-consent
+ask, and the refusal tells the agent never to ask him through his window or an Oko ask
+(<code>tests/build-gate/consent_ask.rs</code>). When he gives his consent in the conversation himself, the
+agent records it as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
 (or <code>{"tool": "build"}</code> for any product) with the lifetime he named —
 <code>single-use</code>, <code>expires-at</code> or <code>current-session</code> — and the gate lets
 a build through whose arguments name a granted product. For <code>cargo</code> the product is the

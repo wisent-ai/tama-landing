@@ -189,6 +189,7 @@
 </ul>
 <h3>Removed or deprecated</h3>
 <ul>
+<li><code>tama build consent ask</code>, the compile gate's reading of the operator's answers to build-consent asks (<code>~/.shared-hooks/build_consent_spent.json</code>), and their listing in <code>tama attestation list --kind build</code>: no build is asked of him. <code>tama build consent …</code> is refused as an unknown action; his standing rulings and the build capability he gives in the conversation are the only consents.</li>
 <li>Automatic service registration on application launch.</li>
 <li>The GitHub release publisher (<code>Scripts/release/package-release.sh</code>, <code>publish-release.sh</code> and their Python helpers): Tama Desktop releases through Stado.</li>
 <li><code>block-unapproved-audits</code>' per-scope gate record: it was written on every audit and read only by a branch that could never run.</li>

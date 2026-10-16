@@ -49,10 +49,10 @@ record it with …</code>; a recorded attestation that no longer stands is named
 and one that cannot be read or spent is named with its cause.</p>
 <h2>What the gate answers</h2>
 <ul>
-<li>A consent the operator gave in this conversation (his answer to a build-consent ask, or the
-build capability of this session) is read first; a build it admits only asks <code>oko admit
+<li>A consent the operator gave in this conversation (the build capability of this session) is read
+first; a build it admits only asks <code>oko admit
 build</code> without a session, so a standing withdrawal still refuses it but no open work is
-read, and stderr says <code>build admitted by</code> that consent.</li>
+read, and stderr says <code>build admitted by</code> that consent. No build is ever asked of him.</li>
 <li>A standing withdrawal (<code>no-build</code> or <code>no-build:&lt;product&gt;</code>): the
 build is refused quoting the ruling Oko answers with, whatever else consents.</li>
 <li>A standing consent (<code>build</code> or <code>build:&lt;product&gt;</code>): the build is
