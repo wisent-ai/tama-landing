@@ -229,6 +229,16 @@ prints that cause as <code>owner consent refused: …</code> before its own refu
 exported outside the session. <a href="cli/adaptive/apply.md"><code>tama adaptive
 apply</code></a> reads only this variable.</li>
 </ul>
+<p>A relative path is judged where it lands. A write tool's path resolves under
+the session's directory; a shell command's arguments resolve under the shell
+tool's own <code>cwd</code> (itself resolved under the session's), and each
+argument after <code>cd &lt;dir&gt;</code>, <code>pushd &lt;dir&gt;</code> or
+<code>git -C &lt;dir&gt;</code> under the directory the command moved to. So
+<code>git restore src/…</code> run in a product checkout from a session that
+stands in Tama is a product change and passes, while the same command run in
+Tama's own checkout is a hook source change and is refused. When the payload
+names no directory and the hook's own cannot be read, the gate refuses and
+says that a relative path in the call cannot be resolved.</p>
 <p>Test code follows the same rule: <code>block-unapproved-tests</code> and
 <code>block-device-level-tests-without-consent</code> admit it under the session
 capability <code>{"tool": "tests"}</code> recorded after the operator agrees in the
