@@ -90,7 +90,14 @@ session; a harness continuation is not one. Making one of those looks again is r
 answer … It was answered: …</code>, quoting the earlier answer whole. No count and no window decide it:
 the first look passes, the same look after a commit, an edit or a person's message passes, and the same
 look in between is refused. <code>block-idle-answer</code> counts work after a stop refusal by the same
-ledger: a change, or a look not made since the last change. A repeated look does not buy an ending.</p>
+ledger: a change, or a look not made since the last change. A repeated look does not buy an ending.
+Both read the transcript record by record: a complete line that is no JSON record refuses the call
+with <code>BLOCKED: the session transcript &lt;path&gt; cannot be read as records, so whether this
+call repeats a look cannot be told: the line starting at byte &lt;n&gt; is not a JSON record: …</code>
+(<code>block-idle-answer</code> says the same on stderr and judges nothing), because a look a skipped
+line held would go uncounted. Only a last line still without its newline, a record the harness is
+writing, is set aside. The gate-cycle release, the stop-continuation reading and the provider-refusal
+reading of the core read the transcript the same way.</p>
 <p>In a session Oko records as a supervisor, executor transcripts (the harnesses' transcript roots),
 Oko's data under <code>~/.oko</code> and <code>~/Library/Application Support/Oko</code>, and the answers
 of <code>oko</code> commands are protected sources, read whole or not at all. A pipeline stage fed by
