@@ -14,6 +14,16 @@ session made to the file included;</li>
 <p>So a violation the file already holds is refused on the next write to that file, whoever wrote it, and text the
 write removes is not judged as written. A write that removes the violation passes. No gate counts out what the file
 held before the write, <code>check-numeric-literals</code> included.</p>
+<p>A write that leaves several files, a patch envelope or a hashline edit of several sections, has each file judged
+on its own under its own path by <code>pre-write-edit</code>, <code>block-internal-names</code> and
+<code>block-one-off-commands</code>: a refusal names the file that holds the violation and the line in that file,
+and a file in a vendored or generated tree (<code>node_modules</code>, <code>.git/</code>, <code>.next</code>, …) is
+judged as one whichever file the write names first. A write that only takes text away and adds none is not
+judged by <code>pre-write-edit</code>.</p>
+<p><code>block-oversized-files</code> counts the lines of that same rebuilt file, every file a write leaves, so a
+hashline split that cuts lines and inserts module declarations is counted after its cut, whatever fragment the
+editor also sends. A write whose file cannot be rebuilt is refused with the cause. The journey is
+<code>tests/tool-payload/targets.rs</code>.</p>
 <h2>What a refusal says</h2>
 <p>A refusal names the file and the line in the whole file where each violation stands, as
 <code>line N: &lt;the line&gt;</code>, numbered from one as an editor numbers lines. The number is the line's
