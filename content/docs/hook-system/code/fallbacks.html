@@ -49,7 +49,13 @@ an empty <code>catch</code>; a <code>catch</code> returning a literal; <code>.ca
 <code>rust/crates/tama-hook-tools/src/ports/block_fallbacks/constructs.json</code> together with the grammar every file
 extension is parsed by. Matching syntax rather than text means a construct named inside a string or a comment is not
 one, and one written over several lines still is; the finding names the line the construct stands on. Adding a
-construct is one query; adding a language is one extension entry and its grammar.</p>
+construct is one query; adding a language is one extension entry and its grammar. A construct may also declare an
+<code>except</code> query: a node it captures is the same syntax standing where the language gives it another meaning,
+and is not a finding. Rust's <code>.ok()</code> declares one: a call to <code>ok()</code> that is the condition of an
+<code>if</code> or <code>while</code>, the operand of <code>!</code>, or a side of <code>&amp;&amp;</code> or
+<code>||</code> must be a <code>bool</code>, so it is a type's own success predicate (a command output's
+<code>ok()</code>, for one) and drops no error. The same call bound by <code>let</code>, chained or matched is still
+refused.</p>
 <h2>What is read</h2>
 <p>The whole file as the write leaves it: a hashline section or a string edit is replayed on the file, a written file's
 content is read as written. A fallback the file already held is refused on its next edit until the edit removes it,
