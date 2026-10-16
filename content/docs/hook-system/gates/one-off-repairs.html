@@ -181,7 +181,9 @@ blocker naming the item that waits on the refuser's defect (<code>oko blockers r
 --waits-on &lt;defect&gt;</code>); <code>oko blockers held</code> lists the items held so. A standing ruling of
 the operator decides before the open-work rule; his consent in this conversation, recorded as the Tama session
 capability <code>{"tool": "build"}</code> or given as the answer to a build-consent ask, admits a build that
-rule holds.</td></tr>
+rule holds. The refusal tells the agent never to ask the operator for a build, neither through his window nor
+through an Oko ask: what he says in the conversation is read into his rulings, and a build no ruling admits
+waits; while the installed Oko cannot answer the admission, the build waits as well.</td></tr>
 <tr><td><code>stado product install|update|sync</code> of any product other than Stado, run by a Stado whose
 revision (<code>stado --version</code>) does not contain a repair Oko records against Stado or against that
 product (<code>oko defects repaired &lt;id&gt; --revision stado@&lt;rev&gt;</code>) and that repair was committed no
