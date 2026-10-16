@@ -79,6 +79,7 @@
   {"route":"configuration","source":"docs/configuration.md","content":"content/docs/reference/configuration.html","category":"Reference"},
   {"route":"enforcement-control","source":"content/docs/hook-system/enforcement-control.html","content":"content/docs/hook-system/enforcement-control.html","category":"Reference"},
   {"route":"enforcement-control/runtime/adapters","source":"content/docs/hook-system/runtime/adapters.html","content":"content/docs/hook-system/runtime/adapters.html","category":"Reference"},
+  {"route":"enforcement-control/runtime/dispatch-ownership","source":"content/docs/hook-system/runtime/dispatch-ownership.html","content":"content/docs/hook-system/runtime/dispatch-ownership.html","category":"Reference"},
   {"route":"enforcement-control/completion/work","source":"content/docs/hook-system/completion/work.html","content":"content/docs/hook-system/completion/work.html","category":"Reference"},
   {"route":"enforcement-control/completion/conduct","source":"content/docs/hook-system/completion/conduct.html","content":"content/docs/hook-system/completion/conduct.html","category":"Reference"},
   {"route":"enforcement-control/completion/own-work","source":"content/docs/hook-system/completion/own-work.html","content":"content/docs/hook-system/completion/own-work.html","category":"Reference"},
