@@ -52,23 +52,7 @@ before histories are loaded. Missing required metadata or a wrong field type
 names the row and decoding cause instead of supplying an empty value.
 An absent optional repair plan retains Oko's unplanned-record meaning; unknown
 fields remain compatible with later Oko additions.</p>
-<p>The <code>repair_history_shared</code> regression uses genuine repositories
-and separate reader processes. Before running repository operations, it requires
-<code>TAMA_TEST_SOURCE_REVISION</code> to match the clean tracked candidate and
-retains the test executable digest in <code>candidate.json</code>. Every Git
-operation and completed independent reader retains its command, exit status,
-stdout and stderr in <code>commands.jsonl</code>; each reader's invocation is
-also saved before it starts. Git trace events distinguish a shared cold read,
-unchanged-ref reuse and refresh after a
-real commit. This cache-level evidence does not by itself qualify the build
-gate, text gate or graphical progress relay; their actual interfaces require
-separate execution evidence.</p>
-<p>Qualification collects every successfully started reader before asserting a
-result. Executable lookup, invocation retention, spawn and wait failures retain
-their operation and cause; one reader's failure does not abandon its already
-started sibling. Completed command exchanges and named reader-error files stay
-in the run directory, including failing runs.</p>
-<p>The separate <code>repair_history_presence</code> journeys invoke the built
+<p>The <code>repair_history_presence</code> journeys invoke the built
 <code>block-text-outside-tool-calls</code> and <code>block-stop-with-open-work</code>
 hooks against the actual authenticated Oko register. They require
 <code>TAMA_TEST_OKO_EXECUTABLE</code> to name the installed Oko binary and an
