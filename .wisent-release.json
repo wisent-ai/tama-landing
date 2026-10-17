@@ -19,7 +19,8 @@
             "quality",
             "--root",
             "dist"
-          ]
+          ],
+          "kind": "format"
         }
       ],
       "build": {

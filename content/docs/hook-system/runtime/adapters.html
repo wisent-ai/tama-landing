@@ -108,10 +108,16 @@ the terminal and the Tama hook status indicator. Judge requests announce
 failure follows on the same stream. An unavailable stop reviewer refuses
 completion with <code>TAMA_HOOK_INFRASTRUCTURE</code> and its actual cause,
 not a claim that the assistant violated the review rule. These are event
-and process-state decisions, not a Tama handler timeout.</p>
-<p>OMP's <code>session_stop</code> callback does not await that dispatch.
-It immediately refuses an unfinished assessment, naming the pending stop hooks
-and their measured elapsed time. One owned assessment serves repeat requests for
+and process-state decisions, not a Tama handler time limit.</p>
+<p>OMP races a <code>session_stop</code> handler against a fixed budget and lets the turn
+end when the handler runs past it, and pauses that budget while the handler shows a
+component. In a session with a window the adapter therefore shows one, saying that Tama
+is assessing the answer with its stop hooks and which dispatches run, and the turn ends
+on the candidate's own verdict however long the hooks take; a candidate a newer one
+replaced while its hooks ran answers that it was replaced. A session without a window
+(print or RPC) does not await the dispatch: it immediately refuses an unfinished
+assessment, naming the pending stop hooks and their measured elapsed time, so nothing
+passes on a clock. One owned assessment serves repeat requests for
 the same candidate. Its identity includes the session, work generation, assistant
 message, transcript file identity, and current enforcement selection.
 A changed candidate cancels the older assessment; only a completed pass for the
