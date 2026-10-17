@@ -169,15 +169,13 @@ serialization fails. The real transcript journey exercises both the objective
 authority hook and <code>check-stop-asking</code>, which reads the transcript
 for the answer's turn-end attestation and asks no reviewer, for filesystem and
 decode refusals.</p>
-<p>Categorical reviewer replies must satisfy their declared protocol: exactly
-<code>YES</code> or <code>NO</code> for a boolean question; <code>NONE</code>
-or comma-separated candidate identifiers for a candidate selection. Empty
-answers, extra prose and unknown identifiers produce an infrastructure
-refusal, not a negative finding. A mixed valid/unknown candidate answer is
-rejected in full rather than saving its valid subset. Protocol boundary
-regressions are separate from the real Brama-backed hook journeys; neither
-unexecuted test definitions nor parser coverage qualify the installed
-reviewer.</p>
+<p>A stop reviewer decides through a schema, not a line of prose: it reads the
+user's own messages and the ending answer and returns pass or block with its
+reason, bound by the decision schema Brama's typed decisions answer. An answer
+outside that schema, or a reviewer that cannot answer, is an infrastructure
+refusal with its actual cause, never a finding that the answer broke the rule.
+A machine that declared no model asks no reviewer: the session's recorded
+attestation decides instead.</p>
 <p><code>tama hook block-objective-substitution</code> exposes these causes in
 its structured refusal before requesting a reviewer. The registered
 <code>objective_transcript</code> journey under <code>tests/completion/</code>
