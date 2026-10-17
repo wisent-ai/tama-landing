@@ -4,11 +4,15 @@
 <pre><code>tama hook commit-lock take &lt;git pid&gt;
 tama hook commit-lock release &lt;git pid&gt;</code></pre>
 <p>The managed <code>pre-commit</code> dispatcher runs <code>take "$PPID"</code> before Git writes the message, for the <code>git commit</code> process that runs the hook. It creates <code>tama-commit.lock</code> in the repository's common Git directory (<code>git rev-parse --git-common-dir</code>), holding that process id. The managed <code>reference-transaction</code> dispatcher of the same process runs <code>release "$PPID"</code> at <code>committed</code> or <code>aborted</code>. Release removes only a lock that names that process.</p>
+<p>Each take or release first acquires a nonblocking filesystem lock on <code>tama-commit.transaction</code> in the same Git directory. This file remains in place after release: removing its inode would allow competing transactions to own different locks. The transaction covers owner reads, creation and stale-owner removal, so another invocation cannot observe a partially written owner or remove a replacement owner's lock.</p>
 <h2>Refusals</h2>
 <ul>
 <li><code>commit-lock: another git commit (process &lt;pid&gt;) is running in this checkout and holds &lt;lock&gt;; …; commit again when it ends</code>, followed by <code>tama: another commit is running in &lt;checkout&gt;; no commit created</code>. Another running process holds the lock. Nothing was written and no message file was touched; commit again once that commit ends.</li>
 <li><code>commit-lock: the commit lock &lt;lock&gt; holds "&lt;text&gt;", not a process id</code>. The lock was written by something other than this program. Remove it once no commit runs in the checkout.</li>
 <li><code>commit-lock: cannot create|read|remove|release the commit lock &lt;lock&gt;: &lt;cause&gt;</code>. The Git directory cannot be written or read; the cause is the filesystem's.</li>
+<li><code>cannot open|acquire commit lock transaction &lt;path&gt;: &lt;cause&gt;</code>. The transaction file is unavailable or another transition owns it; the owner record remains unchanged.</li>
+<li><code>&lt;source&gt; must name a positive process id, got &lt;pid&gt;</code>. Process-group and all-process selectors are not valid commit owners.</li>
+<li><code>cannot inspect commit lock owner process &lt;pid&gt;: &lt;cause&gt;</code>. An unexpected process inspection failure does not authorize stale-owner removal. Only an operating-system no-such-process result establishes that the owner ended; permission denial preserves the lock.</li>
 </ul>
 <h2>A commit that ended early</h2>
 <p>A commit that ends before any ref transaction, for example one refused by a hook or one with nothing to commit, leaves a lock naming a process that no longer runs. The next commit takes it over and prints <code>commit-lock: process &lt;pid&gt;, which held &lt;lock&gt;, no longer runs; this commit takes the lock</code>. <code>git commit --no-verify</code> runs no hook and takes no lock.</p>
