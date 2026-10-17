@@ -22,36 +22,28 @@ through Oko's model call, against the operator's rule and the route of each outc
 (<code>block_one_off_repairs/judge-prompt.md</code>): which verb of which launcher, client, store or
 watcher does it is not a list anybody can finish, and the verb lists this gate used to carry were the
 keyword logic <code>block-keyword-literals</code> refuses. The refusal is the model's sentence naming what
-the command does by hand and the route that owns it. When no judgement can be obtained the command passes
-and stderr says <code>block-one-off-repairs: no judgement, the command passes: …</code> with the judge's
-recorded state; the build hold never depends on a judgement.</p>
-<h2>Shared repair histories</h2>
-<p>Checking whether any defect remains open does not read Git history.
-The text gate, stop gate and open-work listing read the register's open records
-directly. Only repair-ordering decisions for builds load commit ancestry.</p>
-<p>Tama keeps ref-keyed snapshots under <code>git-histories</code> in its
-platform state directory. Sessions share a file lock for each canonical checkout;
-after another reader finishes, they reuse its snapshot. Changed branches, tags
-or HEAD cause a fresh read. Global reader-slot locks and bounded worker threads
-limit simultaneous Git readers to the machine's reported available parallelism,
-instead of multiplying repository count by session count.</p>
-<p>Lock and Git waits print <code>czekam</code> on stderr, with their operation
-and location. The attached runtime relays these lines as progress to the editor
-and Tama Desktop Session view. Cache read, parse, publication and Git failures
-name the affected path and cause; no elapsed-time threshold decides validity.</p>
-<p>A failed history read is not an unknown commit: build ordering propagates
-the repository, cache or Git cause instead of accepting its recorded repair.
-Malformed history rows and invalid recording timestamps also refuse ordering.
-All started history readers are joined before worker failures are returned.
-An unresolvable commit within a successfully read history keeps its separate
-unjudged meaning. Oko owns the open-record selection; a non-array reply or a
+the command does by hand and the route that owns it. A question the judge leaves unanswered refuses the
+command with <code>TAMA_HOOK_INFRASTRUCTURE: block-one-off-repairs: review unavailable: …</code> and the judge's
+recorded state, as <a href="/docs/hook-model/model-judgement/#unanswered">asking a model</a> describes; the build
+hold never depends on a judgement.</p>
+<h2>Build admission and open records</h2>
+<p>Whether a build, compile or test may run is not a count Tama makes: the gate
+needs the session's own build attestation and asks Oko's one admission
+decision, <code>oko admit build --product &lt;product&gt; --session &lt;id&gt;
+--json</code>, for each product the command builds. A standing withdrawal
+refuses the build quoting the ruling; a standing consent or a recorded
+<code>build</code> session capability admits it; where neither decides, Oko
+holds it until every open item carries its repair. No build is ever asked of
+the operator. <a href="/docs/enforcement-control/completion/build-gate/">How the
+build gate decides a build</a> gives the whole decision and its refusals.</p>
+<p>Checking whether any defect remains open reads no Git history. The text
+gate, stop gate and open-work listing read Oko's open selection directly. Each
+consumed field is decoded against Oko's serialized field types; a row that
+does not decode refuses with <code>cannot decode Oko's open defect row
+&lt;index&gt;: &lt;cause&gt;</code> instead of supplying an empty value, and unknown
+fields remain compatible with later Oko additions. A non-array reply or a
 record without a nonempty text identity or product is an unavailable register,
 not an empty workload.</p>
-<p>All consumed record fields are decoded against Oko's serialized field types
-before histories are loaded. Missing required metadata or a wrong field type
-names the row and decoding cause instead of supplying an empty value.
-An absent optional repair plan retains Oko's unplanned-record meaning; unknown
-fields remain compatible with later Oko additions.</p>
 <p>The <code>repair_history_presence</code> journeys invoke the built
 <code>block-text-outside-tool-calls</code> and <code>block-stop-with-open-work</code>
 hooks against the actual authenticated Oko register. They require
@@ -62,25 +54,14 @@ requires <code>TAMA_TEST_OKO_SESSION</code>, a real non-executor session without
 local pending tracker entries, and <code>TAMA_TEST_OPEN_DEFECT</code>, the full
 identity of an actual open defect in that session's scope. Its refusal must
 name that defect. Git trace events must show no history command during either
-hook. The journeys do not create artificial register rows, change session roles
-or qualify the executor prepared-work path, build-order decisions or graphical
-progress relay.</p>
+hook. The journeys create no artificial register rows and change no session
+roles.</p>
 <p>The presence journey also copies an actual open record into an isolated
 register, corrupts its identity, and invokes the genuine Oko CLI followed by the
 built text hook. The refusal must name the malformed identity, leave the file
 unchanged and perform no history scan. Restoring the copied record must restore
 the ordinary open-work refusal. This is a persisted corruption case, not a
 replacement Oko executable or a canned CLI response.</p>
-<p>The same test target includes a build-order refusal journey requiring
-<code>TAMA_TEST_REPAIR_DEFECT</code>, the full identity of an actual open record
-with a repository-addressed repair. It copies that observed record into an
-isolated register, verifies it through the genuine Oko CLI, and invokes only
-<code>tama hook block-one-off-repairs</code> with a build proposal; it never runs
-the proposed build. An absent checkout in the isolated home must produce a
-refusal naming the exact checkout and observed filesystem cause, with the
-register unchanged. Candidate digests, command exchanges and the pre-spawn hook
-invocation are retained. This negative case does not qualify successful repair
-ordering or the graphical diagnostic surface.</p>
 <h2>What the model refuses, and the route each refusal names</h2>
 <table>
 <thead><tr><th>What the command does by hand</th><th>The route the refusal names</th></tr></thead>
