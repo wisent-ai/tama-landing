@@ -64,13 +64,32 @@ prompt and the schema together. These gates ask this way:
 <code>block-keychain-prompt-commands</code>,
 <code>block-local-model-training</code>,
 <code>block-oko-trajectory-edits</code>, <code>block-subagent-spawn</code>,
-<code>block-external-source-edits</code> and
+<code>block-external-source-edits</code>,
+<code>block-hook-scan-narrowing</code> and
 <code>check-humanized-actions</code> choose <code>PASS</code> or
 <code>BLOCK</code>; <code>block-background-execution</code> chooses
 <code>PASS</code>, <code>DETACH</code> or <code>WAIT</code>;
 <code>check-legacy-activation-bypass</code> chooses <code>READS</code> or
-<code>RUNS</code>; and <code>check-merge-deletion-loss</code> chooses
-<code>UNDID</code> or <code>KEPT</code>.</p>
+<code>RUNS</code>; <code>check-merge-deletion-loss</code> chooses
+<code>UNDID</code> or <code>KEPT</code>; and <code>pre-bash</code> chooses
+<code>PASS</code> or the one forbidden shape the command has
+(<code>REVIEW</code>, <code>SCRATCH</code>, <code>SOURCE</code>,
+<code>SEARCH</code>, <code>BROWSER</code>, <code>WELES</code>,
+<code>CLOUD</code>, <code>QUARANTINE</code>, <code>HELPER</code>,
+<code>HOOKS</code> or <code>TRUNCATE</code>) and refuses with the operator's
+sentence for that shape.</p>
+<p>A gate whose answer is more than one choice writes its own schema and asks
+<code>model_judgement::object(prompt, name, schema, check)</code>, which reads
+the answer as the type the gate names and hands it to the gate's
+<code>check</code>; an answer that does not fit, or that the check refuses, is
+neither kept nor returned but is the <code>Unavailable</code> judgement naming
+it. <code>block-unregistered-build-or-restart</code> asks for the list of
+steps the command performs, each a <code>kind</code> (<code>build</code> or
+<code>restart</code>) and the directory or service it <code>named</code>;
+<code>block-one-off-commands</code> asks for one verdict per declared command,
+each naming the command, choosing <code>PASS</code> or <code>BLOCK</code> and
+giving its reason, and an answer that leaves a command without a verdict is no
+answer.</p>
 <h2 id="unanswered">When a shell or write gate's question goes unanswered</h2>
 <p>A rule a model enforces is not off while the model is. Every gate that judges a shell command or a
 write by model — <code>pre-bash</code>, <code>block-inline-execution</code>,
