@@ -143,7 +143,7 @@ call would keep running until the turn ends. When the <code>post_tool_use</code>
 <code>session_id</code>, <code>tool_name</code> and <code>tool_input</code>) arrives while a
 <code>pre_tool_use</code> dispatch of that call is still in flight, the engine cancels that dispatch and its hook
 process groups and writes <code>tama: ended pre-tool dispatch &lt;id&gt; of &lt;tool&gt; in session &lt;id&gt;: the
-call's result already arrived, so the harness stopped waiting for this check</code> on stderr. Two identical calls
+result of the &lt;tool&gt; call already arrived, so the harness stopped waiting for this check</code> on stderr. Two identical calls
 of one session in flight at once are one call to this reading. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test abandoned_calls_answered</code> sends a
 pre-tool dispatch whose hook never ends and then the call's result, and requires the pre-tool dispatch answered and
