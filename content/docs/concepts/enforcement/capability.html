@@ -16,7 +16,7 @@ withdraw one at the operator's word (see <em>Withdrawing it</em> below).</p>
 | <code>releaseId</code>, <code>catalogChecksum</code> | The policy identity the grant was issued against |
 | <code>lifetime</code> | The declared lifetime class |
 | <code>expiresAt</code> | Expiry timestamp, when bounded by time |
-| <code>remainingUses</code> | Use budget, when bounded by count |
+| <code id="remaining-uses">remainingUses</code> | Use budget, when bounded by count: a <code>single-use</code> grant carries exactly 1, and the call a gate admits with it spends it |
 | <code>grants[]</code> | Per-tool entries: <code>tool</code> plus optional <code>actions[]</code> |</p>
 <p>A grant without <code>actions</code> means every action of that tool — the Session
 screen renders it as <code>every action</code> in the TOOL/ACTIONS table.</p>
