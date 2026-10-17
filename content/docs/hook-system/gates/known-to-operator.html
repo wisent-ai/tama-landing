@@ -12,11 +12,13 @@ what he decided.</p>
 <h2>How it decides</h2>
 <p>Shape cannot decide this — whether a sentence restates an earlier answer, or reports the operator's own decision back
 to him, is a reading of two texts against a third — so the decider is a model, asked through Brama by the product's
-one route for that, <code>ports::model_judgement</code> (<code>oko gateway send --prompt</code>). The session is the memory.
+one route for that, <code>model_judgement::choose</code> (<code>oko gateway object</code>). The session is the memory.
 The gate reads the live transcript the stop payload names, or the newest transcript of the payload's session id, and
 puts three texts in front of the model: every message the operator wrote this session, every earlier answer the agent
-gave him, and the answer about to be sent. The model answers <code>PASS</code>, or <code>BLOCK:</code> followed by each
-offending sentence quoted verbatim and one clause saying whether it was told before or is his own decision.</p>
+gave him, and the answer about to be sent. The model answers one object under a strict JSON Schema: a
+<code>choice</code> of <code>PASS</code> or <code>BLOCK</code>, and a <code>reason</code> that, for
+<code>BLOCK</code>, quotes each offending sentence verbatim with one clause saying whether it was told before or is
+his own decision. An answer that is neither option is no judgement.</p>
 <h2>What is refused</h2>
 <table>
 <thead><tr><th>Sentence of the answer</th><th>Verdict</th></tr></thead>
@@ -41,8 +43,9 @@ do or decide next, without explaining his own policy to him. A turn under <code>
 turn passes at no cost. A judgement nobody could obtain is never a denial: a judge Oko has recorded as not answering
 (<code>judge-health.json</code>, lifted by <code>oko tasks judge --probe</code>) is not asked at all,
 and an absent Oko CLI, a refused gateway, an unreadable transcript or an empty reply is written to stderr as
-<code>block-known-to-operator: no judgement: …</code> and the turn passes, the same rule every model-judged gate
-follows. The OMP adapter's whole-event wait (<a href="/docs/hook-model/">hook-model</a>) is the only limit on how
+<code>block-known-to-operator: no judgement: …</code> and the turn passes. That is this stop gate's own rule; a shell
+or write gate refuses an unanswered question instead (<a href="/docs/hook-model/model-judgement/#unanswered">asking a
+model</a>). The OMP adapter's whole-event wait (<a href="/docs/hook-model/">hook-model</a>) is the only limit on how
 long its question may take.</p>
 <h2>While work is open</h2>
 <p>The model judgement above passes everything while the judge is down, and the obstacles an agent likes to report —
@@ -83,11 +86,8 @@ that cannot be read refuses the answer by name. Source:
 <code>hook-declarations/answer-discipline/blockers/block-blocker-without-record.json</code>.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/mod.rs</code> (the judgement) and
-<code>session.rs</code> (the transcript reading); binary:
-<code>src/bin/block/completion/block_known_to_operator.rs</code>; the real-binary journey that drives the gate over
-real session transcripts with a real judgement from Brama — the incident's own answer refused, the same work reported
-without it passed, a silent session never asked, a machine without Oko refusing nothing —
-<code>rust/crates/tama-hook-tools/tests/known_to_operator_guard.rs</code>; the declaration:
+<code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/session.rs</code> (the transcript reading); program:
+<code>rust/crates/tama-hook-tools/src/programs/block/completion/block_known_to_operator.rs</code>; the declaration:
 <code>hook-declarations/answer-discipline/block-known-to-operator.json</code>. Declared with
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file &lt;declaration&gt;</code> and installed with
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>; which hooks this machine runs is decided by

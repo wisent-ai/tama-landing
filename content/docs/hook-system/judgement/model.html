@@ -4,14 +4,17 @@
 closing report hands work back to the operator. The decider there is a model,
 and Brama answers it by default.
 <code>ports::model_judgement</code> is the one route:
-<code>model_judgement::ask(prompt)</code> sends the prompt through the
-product's own one-shot call, <code>oko gateway send --prompt</code> — run by the
+<code>model_judgement::object(prompt, name, schema, check)</code> and
+<code>model_judgement::choose(prompt, name, options)</code> send the prompt
+through the product's own one-shot call, <code>oko gateway object --prompt …
+--name … --schema …</code> — run by the
 same Oko every hook asks, <code>TAMA_OKO_CLI</code> when set, else
 <code>oko</code> on <code>PATH</code> — which
-carries Oko's signed bearer to the gateway and prints its answer as JSON, or —
+carries Oko's signed bearer to the gateway and prints the one object the model
+answered under the gate's strict JSON Schema, or —
 on a machine without Brama — goes to the OpenAI-compatible service declared
-with <code>oko model-service set</code>, with its declared model. It returns
-<code>Judgement::Answered(text)</code> or
+with <code>oko model-service set</code>, with its declared model. No gate reads
+a line of prose. A question goes unanswered as
 <code>Judgement::Unavailable(reason)</code>. An unavailable judgment is not
 evidence that the source violates a rule. Each gate must distinguish that
 failure from an actual model finding. Numeric review refuses an unreviewed
@@ -19,13 +22,13 @@ write with the failed operation, not with an allegation about its source.</p>
 <p>A judge Oko has recorded as not answering is not asked. Oko writes that
 record — <code>judge-health.json</code> beside its transcript index — from
 every verification pass and from <code>oko tasks judge
---probe</code>, and the same probe lifts it. <code>ask</code> reads it first
+--probe</code>, and the same probe lifts it. A question reads it first
 and returns <code>Unavailable</code> with <code>Oko last saw the judge
 refuse at …: …; not asked again from a hook</code>, because asking anyway
 costs Brama's whole retry wait inside the event, and a single refused
 <code>proxy-call</code> can take tens of seconds inside a stop gate. A record
 that exists and cannot be read or is not Oko's shape is not read as "never
-observed": <code>ask</code> writes <code>model judgement: &lt;path&gt; cannot be
+observed": the question writes <code>model judgement: &lt;path&gt; cannot be
 read: …; the judge is asked</code> on stderr and asks, and
 <code>block-broken-judge</code>, which reads the same record through the same
 reader, refuses <code>oko tasks verify</code> naming the record that could not
@@ -38,10 +41,10 @@ caller, as the <a href="/docs/enforcement-control/runtime/adapters/">runtime
 page</a> describes, not by a clock.</p>
 <p>A question the judge already answered is not asked again. The prompt is the
 whole question, the command or text it judges included, so the judge's answer
-to that exact text is kept under Tama's state, in
-<code>model-judgements/&lt;SHA-256 of the prompt&gt;</code>
+to that exact prompt and schema is kept under Tama's state, in
+<code>model-judgements/&lt;SHA-256 of the prompt and schema&gt;</code>
 (<code>TAMA_JUDGEMENT_MEMORY_DIR</code> moves it for a test), and
-<code>ask</code> reads it back before it asks: a command many sessions run
+read back before the question is asked: a command many sessions run
 costs one model call, not one each, and while the judge is slow it stands
 inside one tool call instead of every one. Only answers are kept; an
 unanswered question is asked again. A kept answer that cannot be read is the
