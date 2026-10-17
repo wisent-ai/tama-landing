@@ -12,11 +12,4 @@ No line and no message of this commit carries private information of ours: no ho
 This commit solves no problem of ours alone: it adds or repairs a general primitive a user outside Wisent could run for their own case, not a fix shaped to one of our machines, accounts, runs or incidents.
 As a very strict, grumpy senior engineer who hates AI, I tried with everything I have to refuse this commit: what I attacked, what I checked, and why each attack failed.
 
-I read every message and every patch this push adds over the remote, line by line, as a principal engineer who assumes an AI agent wrote every line.
-No pushed line carries a defect: every path I traced does what its caller and the documentation say.
-The push adds no needless abstraction and no second copy of something that already exists.
-No commit only reformats or patches another commit of this push.
-The documentation this push touches, or should touch, says exactly what the code does.
-As a very strict, grumpy senior engineer who hates AI, I tried with everything I have to refuse this push: what I attacked, what I checked, and why each attack failed.
-
-Harsh-Review-Attacked: whether installed hook qualification needs the declared source; the install page's journeys require the tested revision to match before fixture pushes.
+Harsh-Review-Attacked: whether both journeys bind to the declared source; tests/review/installed.mjs and tests/review/format.rs read TAMA_TEST_SOURCE_REVISION and refuse another revision before pushing fixtures.
