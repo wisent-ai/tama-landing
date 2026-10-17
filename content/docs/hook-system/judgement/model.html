@@ -48,6 +48,62 @@ unanswered question is asked again. A kept answer that cannot be read is the
 question's <code>Unavailable</code> reason, naming the file; an answer that
 cannot be kept is still returned, and <code>model judgement: the answer is not
 kept for the next ask: …</code> on stderr says why.</p>
+<h2 id="choice">A choice between named options</h2>
+<p>A gate that decides between named options does not read a line of prose.
+<code>model_judgement::choose(prompt, name, options)</code> asks through
+<code>oko gateway object --prompt … --name … --schema …</code> for one
+object whose <code>choice</code> is one of the options the gate names and whose
+<code>reason</code> is the judge's sentence, bound to a strict JSON Schema. The
+gate compares <code>choice</code> with its own option and uses
+<code>reason</code> in its refusal; a model that frames its answer otherwise
+can no longer pass a call by not beginning with the blocking word. An answer
+that is not one of the options is an <code>Unavailable</code> judgement naming
+the answer, and the gate refuses it as below. The kept answer is keyed by the
+prompt and the schema together. These gates ask this way:
+<code>block-inline-execution</code>, <code>block-one-off-repairs</code>,
+<code>block-keychain-prompt-commands</code>,
+<code>block-local-model-training</code>,
+<code>block-oko-trajectory-edits</code>, <code>block-subagent-spawn</code>,
+<code>block-external-source-edits</code> and
+<code>check-humanized-actions</code> choose <code>PASS</code> or
+<code>BLOCK</code>; <code>block-background-execution</code> chooses
+<code>PASS</code>, <code>DETACH</code> or <code>WAIT</code>;
+<code>check-legacy-activation-bypass</code> chooses <code>READS</code> or
+<code>RUNS</code>; and <code>check-merge-deletion-loss</code> chooses
+<code>UNDID</code> or <code>KEPT</code>.</p>
+<h2 id="unanswered">When a shell or write gate's question goes unanswered</h2>
+<p>A rule a model enforces is not off while the model is. Every gate that judges a shell command or a
+write by model — <code>pre-bash</code>, <code>block-inline-execution</code>,
+<code>block-one-off-repairs</code>, <code>block-unregistered-build-or-restart</code>,
+<code>block-keychain-prompt-commands</code>, <code>block-background-execution</code>,
+<code>block-local-model-training</code>, <code>block-subagent-spawn</code>,
+<code>block-external-source-edits</code>, <code>block-device-level-tests-without-consent</code>,
+<code>block-oko-trajectory-edits</code>, <code>block-hook-scan-narrowing</code>,
+<code>check-humanized-actions</code>, <code>check-legacy-activation-bypass</code> and
+<code>check-merge-deletion-loss</code> — hands an <code>Unavailable</code> judgement to
+<code>model_judgement::unanswered::refusal</code>, which refuses the call:</p>
+<pre><code>TAMA_HOOK_INFRASTRUCTURE: &lt;hook&gt;: review unavailable: &lt;why nobody answered&gt;</code></pre>
+<p>The cause is the judge's recorded state (<code>Oko last saw the judge refuse at …: …</code>), the
+held question, the missing Oko program or the gateway's own failure; a write or merge gate adds
+<code>(judging &lt;file&gt;)</code>. <code>oko tasks judge --probe</code> asks the judge one question
+and lifts the record when it answers. Two calls pass instead, each saying so on stderr:</p>
+<ul>
+<li>any call on a machine whose operator declared no model with
+<code>tama model-provider set --none</code>: <code>&lt;hook&gt;: no model is asked on this machine, the
+call passes: …</code>;</li>
+<li>a shell line whose every command runs a program the judge stands on — this Tama, the Oko it asks
+(<code>TAMA_OKO_CLI</code>, else <code>oko</code>) and every product <code>stado product catalog</code>
+declares that Oko depending on, at any depth — so the judge can be repaired:
+<code>&lt;hook&gt;: no judgement (…); the command only runs what the judge stands on, and passes</code>.
+When that catalog cannot be read the call is refused with both causes:
+<code>…: review unavailable: …; and which programs the judge stands on cannot be read: …</code>.</li>
+</ul>
+<p>The stop gates that judge a closing answer keep their own rule. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test model_judgement_judge_repairs</code>
+runs the built hook with the judge recorded as not answering and the real catalog: a line of
+<code>oko</code> and <code>stado</code> passes saying why, and the same line with
+<code>python3 -c</code> is refused naming the judge's state. Each gate's own journey requires
+the refusal with the judge down.</p>
 <p><code>pre-write-edit</code> never asks the numeric reviewer from the edit
 callback. When numeric candidates need review, it retains the exact prompt
 and refuses immediately with
@@ -71,9 +127,8 @@ source passed: the repeated write applies the numeric findings.</p>
 <code>numeric_review_retained</code>, drives the built hook with a real
 persisted request and a genuinely missing Oko executable. It retains the
 declared candidate, binary digest, command, input, exit status, output and
-elapsed time under Cargo's ignored build directory. Its pending, failed,
-changed-input and malformed-justification cases do not stand in for a
-healthy model-route qualification.</p>
+elapsed time under Cargo's ignored build directory, through its pending, failed,
+changed-input and malformed-justification cases.</p>
 <p><code>check-substantiation-with-model</code> uses the model gateway.
 That is also the route for a judgment about prose that cannot be decided
 from the input's structure; an embedded word list is not a substitute.</p>
