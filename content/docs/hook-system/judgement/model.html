@@ -65,7 +65,8 @@ prompt and the schema together. These gates ask this way:
 <code>block-local-model-training</code>,
 <code>block-oko-trajectory-edits</code>, <code>block-subagent-spawn</code>,
 <code>block-external-source-edits</code>,
-<code>block-hook-scan-narrowing</code> and
+<code>block-hook-scan-narrowing</code>,
+<code>block-device-level-tests-without-consent</code> and
 <code>check-humanized-actions</code> choose <code>PASS</code> or
 <code>BLOCK</code>; <code>block-background-execution</code> chooses
 <code>PASS</code>, <code>DETACH</code> or <code>WAIT</code>;
@@ -127,11 +128,16 @@ the refusal with the judge down.</p>
 callback. When numeric candidates need review, it retains the exact prompt
 and refuses immediately with
 <code>tama hook check-unsubstantiated-constants --review &lt;request&gt;</code>.
-Run that operation outside the edit callback; shared child-output collection prints
-<code>czekam</code> for Oko's gateway operation and retains the answer or failure,
+Run that operation outside the edit callback; it asks
+<code>model_judgement::object</code> through <code>oko gateway object</code>
+for <code>{"findings": [N, …]}</code>, the numbers of the candidates that are
+unexplained tuning choices, each bound by the schema to one of the listed
+candidates, and an empty list when none is. Shared child-output collection prints
+<code>czekam</code> for Oko's gateway operation and retains that object or the failure,
 including the executable, exit status and actual cause. Repeat the unchanged edit after a valid answer. The answer is
 bound to the complete file, path, candidates, review instructions and recorded
-justification; changed input cannot inherit the previous verdict.</p>
+justification; changed input cannot inherit the previous verdict, and a
+retained answer that does not fit the findings schema refuses the edit naming it.</p>
 <p>Requests and results live under <code>session-control/numeric-reviews</code>
 in Tama state; <code>TAMA_SESSION_CONTROL_ROOT</code> scopes isolated journeys.
 Concurrent review operations refuse an already owned request rather than
