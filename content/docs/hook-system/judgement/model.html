@@ -36,6 +36,18 @@ time its own extension-handler setting allows, naming the extension. A hook the
 harness stopped waiting for is ended by the next event that proves it has no
 caller, as the <a href="/docs/enforcement-control/runtime/adapters/">runtime
 page</a> describes, not by a clock.</p>
+<p>A question the judge already answered is not asked again. The prompt is the
+whole question, the command or text it judges included, so the judge's answer
+to that exact text is kept under Tama's state, in
+<code>model-judgements/&lt;SHA-256 of the prompt&gt;</code>
+(<code>TAMA_JUDGEMENT_MEMORY_DIR</code> moves it for a test), and
+<code>ask</code> reads it back before it asks: a command many sessions run
+costs one model call, not one each, and while the judge is slow it stands
+inside one tool call instead of every one. Only answers are kept; an
+unanswered question is asked again. A kept answer that cannot be read is the
+question's <code>Unavailable</code> reason, naming the file; an answer that
+cannot be kept is still returned, and <code>model judgement: the answer is not
+kept for the next ask: …</code> on stderr says why.</p>
 <p><code>pre-write-edit</code> never asks the numeric reviewer from the edit
 callback. When numeric candidates need review, it retains the exact prompt
 and refuses immediately with
