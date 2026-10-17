@@ -64,7 +64,15 @@ not declared healthy by this check.</p>
 <p>A judge request belongs to the hook process that sent it. While it waits,
 Tama keeps a record of it under <code>~/.tama/judge-channels/</code>: the hook
 process, its command line, the HTTP client process, the route, the endpoint and
-when it was sent. The record goes when the client ends. A request a running
+when it was sent. Each process is named by its pid and by when the kernel says
+it started (<code>hook_start</code>, <code>client_start</code>), since the kernel
+gives an ended process's pid to the next one: a process now running under a
+recorded pid but started at another time is not the recorded one, so a record
+whose hook was killed is an ended hook's even after its pid is reused, and a
+process that only took the client's pid is never ended in its name. A record
+written before starts were kept is read by pid alone. A hook or client the
+kernel holds no start for refuses the request by name. The record goes when
+the client ends. A request a running
 hook owns is watched against Brama's readiness (below), so it is a request
 Brama is answering, not a dead channel: when every outstanding connection on
 the adapter is owned by a running hook, the next hook's request goes out beside
