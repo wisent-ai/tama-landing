@@ -8,7 +8,7 @@ tama sessions capability revoke --session &lt;ID&gt; --agent &lt;omp|claude|code
 </code></pre>
 <p><code>capability show</code> prints the capability the session's override holds, as the build gate
 reads it; <code>capability revoke</code> withdraws it at once (see
-<a href="/docs/concepts/enforcement/capability/">capability</a>). Both require <code>--agent</code>: a
+<a href="/docs/concepts/capability/">capability</a>). Both require <code>--agent</code>: a
 session id read under another harness names another control file.</p>
 <p><code>--home</code> selects the home containing both
 <code>Library/Application Support/Tama/session-control</code> and the machine
@@ -81,7 +81,9 @@ older release that lacks remote reload:</p>
   --legacy "$LEGACY_RELEASE" --artifacts "$PWD/.build/live-reload-run"</code></pre>
 <p>The journey verifies replacement in the same process and session, the
 persisted digest, unchanged reload, missing-session refusal, unknown-operation
-refusal and legacy-entry refusal. It retains source revision, release manifests, command exit statuses,
+refusal and legacy-entry refusal. Installing the candidate must also rewrite a
+global Git dispatcher Tama wrote for an earlier release, leave a hook that is
+not Tama's byte-identical, and connect no hook that was not connected. It retains source revision, release manifests, command exit statuses,
 RPC recordings and <code>report.json</code>. It does not prove model requests
 or recovery in the operator's existing terminals; those flows need their own
 observed results.</p>

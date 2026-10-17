@@ -22,7 +22,7 @@ one JSON result object on stdout on success; on any failure, one line on stderr 
 | <code>--release</code> (required) | The sealed release root to install; must contain <code>release.json</code> with schema <code>ai.wisent.tama.hook-release.v1</code> |
 | <code>--home</code> (required) | The target home directory; every managed write resolves against it |
 | <code>--emergency-manifest</code> | The <code>emergency-backup/manifest.json</code> written by a global disable; restores every entrypoint it names |
-| <code>--session-control-only</code> | Install hook sources and provider session controllers without Git dispatchers or entrypoint restoration |</p>
+| <code>--session-control-only</code> | Install hook sources and provider session controllers, and rewrite each global Git dispatcher already Tama's for this release, without connecting other Git dispatchers or restoring entrypoints |</p>
 <p>Without <code>--session-control-only</code>, <code>--emergency-manifest</code> is required: the
 refusal is <code>Full hook installation requires an emergency manifest</code>. The full
 gate order and write set are in <a href="hook-releases.md">hook-releases</a>; every
@@ -102,9 +102,9 @@ The digest definition is in <a href="concepts/seal.md">concepts/seal</a>.</p>
 </code></pre>
 <p>Renders the desktop's catalog snapshot by running the Rust CLI
 (<code>tama list --root &lt;tama-root&gt; --json</code>; override the binary with
-<code>TAMA_CLI</code>) and normalizing defaults (<code>category</code> → <code>Uncategorized</code>, <code>status</code>
-→ <code>unknown</code>, missing event <code>timeout</code> → <code>0</code>). Missing arguments throw
-<code>usage: export-catalog.mjs &lt;tama-root&gt; &lt;output-path&gt;</code>.</p>
+<code>TAMA_CLI</code>) and filling the fields the CLI leaves out (<code>generatedAt</code> →
+<code>Unknown</code>, <code>category</code> → <code>Uncategorized</code>, <code>status</code> → <code>unknown</code>).
+Missing arguments throw <code>usage: export-catalog.mjs &lt;tama-root&gt; &lt;output-path&gt;</code>.</p>
 <h3>tama hooks stage and tama hooks source-identity</h3>
 <pre><code>tama hooks stage --source-root &lt;tree&gt; --release-root &lt;prepared-release&gt; --cargo &lt;cargo&gt;
                  [--codesign-identity &lt;id&gt;] [--codesign-timestamp &lt;flag&gt;]
@@ -150,12 +150,15 @@ contract is in <a href="releases.md#release-process">releases</a>.</p>
 writes the <code>.icns</code>. Requires <code>curl</code>, <code>sips</code>, <code>iconutil</code> (missing tool: exit
 <code>69</code>).</p>
 <h3>wisent-restart-app</h3>
-<pre><code>wisent-restart-app [--if-running] [--timeout SECONDS] APP.app
+<pre><code>wisent-restart-app [--if-running] APP.app
 </code></pre>
 <p>Terminates the running app identified by the bundle's
-<code>CFBundleIdentifier</code> through LaunchServices, waits up to <code>--timeout</code> (default
-15 s), and relaunches the supplied bundle in the background. <code>--if-running</code>
-skips a stopped app (<code>Not running; skipped &lt;bundle&gt; (&lt;id&gt;)</code>). Exit codes:
-<code>64</code> usage, <code>66</code> missing bundle or <code>Info.plist</code>, <code>65</code> empty bundle id, <code>75</code>
-termination or launch timeout. Success prints <code>Restarted &lt;bundle&gt; (&lt;id&gt;)</code>.
+<code>CFBundleIdentifier</code> through LaunchServices, waits until its process has
+exited, and relaunches the supplied bundle in the background. The wait has no
+limit: it is registered with <code>stado waits open</code> for as long as it lasts, so
+<code>stado waits</code> names the application it stands on. <code>--if-running</code>
+skips a stopped app (<code>Not running; skipped &lt;bundle&gt; (&lt;id&gt;)</code>). A missing
+bundle, <code>Info.plist</code> or bundle id, a running app with no process id, and a
+launch LaunchServices does not list are each refused with a sentence naming it.
+Success prints <code>Restarted &lt;bundle&gt; (&lt;id&gt;)</code>.
 <code>build-app.sh</code> runs it automatically after installing a development build.</p>

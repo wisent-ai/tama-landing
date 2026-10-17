@@ -12,7 +12,9 @@ under the checkout's ignored <code>.build/tama-rust-format/</code> directory,
 and runs <code>rustfmt --check --edition &lt;edition&gt; &lt;file&gt;</code> on
 each file there. Its edition comes from the committed package declaring that
 target; modules under an explicit target's directory retain that owner before
-an enclosing package is considered. Otherwise the nearest containing package
+an enclosing package is considered, and a file a target declares through
+<code>#[path = "…"]</code>, or that such a file declares in turn, belongs to that
+target wherever it lies. Otherwise the nearest containing package
 supplies the edition. Workspace inheritance follows the committed declaration,
 and conflicting owners refuse instead of choosing an arbitrary edition.
 The snapshot is then removed. A push that changes no Rust file needs
@@ -152,10 +154,10 @@ edition above it, an unresolved revision, a failed Git export operation, an
 unignored scratch path or a cleanup failure. A cleanup failure is retained
 alongside a formatter failure. Fix that cause; the remote branch is not
 updated by a refused push.</p>
-<p>The real journeys <code>tests/review/format.rs</code> and <code>tests/review/installed.mjs</code> push through actual Git, Cargo/rustfmt, the managed dispatcher and the real review and LFS dependencies. They check that uncommitted formatting cannot repair an unformatted commit, that a formatted commit can be pushed while another session's source and invalid formatter configuration remain unchanged, and that a file left unformatted on the remote before the dispatchers were installed refuses only the push that changes it, naming that file alone, while a push that leaves it alone reaches the remote. Remote refs and transferred LFS bytes establish the final state; command logs and source identities are retained. These definitions are not an executed qualification.</p>
+<p>The real journeys <code>tests/review/format.rs</code> and <code>tests/review/installed.mjs</code> push through actual Git, Cargo/rustfmt, the managed dispatcher and the real review and LFS dependencies. They check that uncommitted formatting cannot repair an unformatted commit, that a formatted commit can be pushed while another session's source and invalid formatter configuration remain unchanged, and that a file left unformatted on the remote before the dispatchers were installed refuses only the push that changes it, naming that file alone, while a push that leaves it alone reaches the remote. Remote refs and transferred LFS bytes establish the final state; command logs and source identities are retained.</p>
 <pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test review_format -- --ignored --nocapture
 node --test tests/review/installed.mjs</code></pre>
-<p>Run only when qualification is permitted. Set <code>TAMA_TEST_SOURCE_REVISION</code> to the exact committed candidate for both journeys; each refuses a different revision or edited tracked source before fixture pushes. The Cargo journey retains the executable digest. The installed journey retains the actual sealed runtime identity and requires its revision to match that same declared candidate. Both require Git LFS; unavailable real dependencies are failures, not skipped passes. Each fixture commit carries the commit attestation, so <code>review-push</code> lets through what the formatting gate passes.</p>
+<p>Set <code>TAMA_TEST_SOURCE_REVISION</code> to the exact committed candidate for both journeys; each refuses a different revision or edited tracked source before fixture pushes. The Cargo journey retains the executable digest. The installed journey retains the actual sealed runtime identity and requires its revision to match that same declared candidate. Both require Git LFS; unavailable real dependencies are failures, not skipped passes. Each fixture commit carries the commit attestation, so <code>review-push</code> lets through what the formatting gate passes.</p>
 <p>The remote-held formatting case lives in
 <code>tests/review/format/remote.rs</code> and is registered by the same
 <code>review_format</code> target. It shares the declared-candidate and executable
@@ -167,7 +169,7 @@ An unchanged <code>mod</code> declaration cannot pull a remote-held formatting
 defect into an unrelated push. Changed module files are still checked
 individually from the exact committed changed-path list. The real remote-held
 journey includes an unformatted child module beside the formatted parent it
-changes; this case remains unqualified until that journey runs.</p>
+changes.</p>
 <p>Formatter editions come from the exported commit's Cargo declarations,
 including explicitly registered tests outside their package directory and
 workspace-inherited editions. The manifest index is read once per candidate;
@@ -179,8 +181,7 @@ causal refusals, not a guessed edition. A package omitting its edition follows
 <a href="https://doc.rust-lang.org/cargo/reference/manifest.html#the-edition-field">Cargo's documented default</a>.
 The real formatter journeys cover an external registered test and inherited
 workspace edition. Removing a declared target's real source then requires a
-causal formatter refusal and an unchanged remote ref. These definitions still
-require an authorized real run.</p>
+causal formatter refusal and an unchanged remote ref.</p>
 <p>A declaration, source-read or formatter-execution failure is not a verdict
 that the Rust text needs reformatting. The refusal names the failed operation
 and directs repair there; only actual formatting findings ask for formatting
@@ -209,10 +210,8 @@ an editor. Inherited <code>GIT_EDITOR</code> and
 process; explicit per-command noninteractive editors remain possible.</p>
 <p>The same contract sets <code>core.pager</code> to <code>cat</code>, the
 value for which Git launches no pager, and names it as
-<code>corePager</code>. An agent's shell is a terminal nobody reads: before,
-<code>git log</code> there started <code>less</code>, which waited for a key
-for good and held the session's call open, with the <code>git</code> and
-<code>less</code> processes still standing days later. Configuration beats
+<code>corePager</code>. An agent's shell has nobody to press a key, so a pager
+started there would hold the session's call open for good. Configuration beats
 an inherited <code>PAGER</code>; an explicit <code>GIT_PAGER</code> or
 <code>git -p</code> still decides, and <code>git -p</code> is refused by
 <code>pre-bash</code>. The real <code>interactive_git_refusal</code> journey
@@ -241,16 +240,14 @@ the production adapter bridge and checks that a malformed environment leaves
 the agent unchanged, inherited editor overrides are removed, and repeated
 activation preserves unrelated configuration. The real sealed-release
 <code>tests/enforcement/live-reload.mjs</code> journey separately requires
-managed editor state in the actual OMP adoption receipt and persisted session.
-Qualification must run these paths against the declared clean candidate;
-helper results alone do not establish installed adapter or graphical behavior.</p>
+managed editor state in the actual OMP adoption receipt and persisted session.</p>
 <h2>Release activation and connection status</h2>
 <p><code>tama hooks release</code> connects the managed dispatchers to global
 <code>core.hooksPath</code> after installing the sealed runtime. Publishing a
 <code>repo-githooks</code> file alone does not connect it to Git. Activation
 preserves an existing Git LFS hook as <code>pre-push.before-tama</code>; the
 dispatcher replays the original push arguments and ref input to that hook after
-formatting and review succeed. The sealed runtime's binaries lead its PATH.</p>
+formatting and review succeed. The sealed runtime's binaries lead its PATH. Because a dispatcher runs the hooks of whichever release is current, an install with <code>--session-control-only</code> rewrites every global dispatcher that is already Tama's for the release it activates, and connects no other.</p>
 <p>Each dispatch stores Git's ref input in a private, uniquely allocated
 directory under Tama state: <code>~/Library/Application Support/Tama/git-dispatch</code>
 on macOS, or <code>$XDG_STATE_HOME/tama/git-dispatch</code> on other Unix hosts

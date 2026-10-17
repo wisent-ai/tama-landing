@@ -175,7 +175,9 @@ over recorded native configuration in an isolated Cargo-build-directory home,
 checks preservation, installed coverage and repeat installation, then verifies
 that invalid configuration is refused without replacing installed state.
 Its <code>--session-control-only</code> mode still writes native provider
-configuration; it excludes Git entrypoint installation. Inputs and execution
+configuration; it connects no Git entrypoint that was not connected, and
+rewrites each global Git dispatcher that is already Tama's for the release
+it activates, since that dispatcher runs the activated release's hooks. Inputs and execution
 requirements are documented in
 <a href="/docs/cli/provider/config/">provider configuration</a>.</p>
 <h2>Verifying a release by hand</h2>
