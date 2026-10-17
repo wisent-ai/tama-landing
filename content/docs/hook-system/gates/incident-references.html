@@ -25,8 +25,10 @@ repository's <code>README.md</code> and <code>CHANGELOG.md</code>.</li>
 a port, and a machine name or hostname the fleet registry copy (<code>~/.stado/cache/registry-last-good.json</code>)
 declares. Read the value from where it is declared: the Stado registry, the service directory or the product's
 configuration. An example uses a host under a reserved example domain (<code>.example</code>, <code>.invalid</code>,
-<code>.test</code>, <code>example.com</code>, <code>example.net</code>, <code>example.org</code>), which the gate
-admits.</p>
+<code>.test</code>, <code>example.com</code>, <code>example.net</code>, <code>example.org</code>), or an IPv4 address in a
+block RFC 5737 reserves for documentation (<code>TEST-NET-1</code>, <code>TEST-NET-2</code>, <code>TEST-NET-3</code>),
+which the gate admits; the journey is <code>a_documentation_range_address_names_no_host</code> in
+<code>tests/content/addresses.rs</code>.</p>
 <p>What follows the at sign names a host only when its last label is not all digits, because no top-level
 domain is all digits. A font axis weight in a stylesheet request and a package pinned to a release version are
 therefore not addresses, and a page that loads its fonts that way can be edited. The journey is
