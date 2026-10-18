@@ -37,10 +37,10 @@ so their folders cannot be counted: …</code>, instead of being judged by the
 call's own path. The journey is
 <code>tests/crowded-folders/hashline.rs</code>.</p>
 <p>Each native hook evaluates only its own rule. The common Tama engine reads
-the registry and selects and executes the event's hooks. The former cross-hook
-policy sweeps have been removed: a repository-copy refusal is attributed to
-<code>block-repository-copies</code>, rather than appearing as a refusal from
-the background-execution or CUA hook that happened to run first.</p>
+the registry and selects and executes the event's hooks; it runs no
+cross-hook policy sweep of its own, so a repository-copy refusal is attributed
+to <code>block-repository-copies</code>, rather than appearing as a refusal
+from the background-execution or CUA hook that happened to run first.</p>
 <h2>Repository layout</h2>
 <ul>
 <li><code>shared-hooks/</code>, <code>codex-hooks/</code>, and <code>claude-hooks/</code> contain archived hook source and the shared registry.</li>
