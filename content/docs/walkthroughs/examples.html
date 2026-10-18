@@ -8,16 +8,19 @@ scripts are executed end-to-end with pasted output in the walkthroughs.</p>
 (<code>getting-started/install-cli.sh</code> links it from an installed
 <code>Tama.app</code>); the integrity scripts run from a checkout and default to the
 release inside <code>.build/Tama.app</code>.</p>
-<p>| Script | Reads or mutates | Outcome |
-|---|---|---|
-| <code>getting-started/install-cli.sh</code> | mutates (one symlink) | Link the bundled <code>tama</code> onto PATH as <code>tama</code>; refuses to replace unrelated entries |
-| <code>getting-started/status.sh</code> | reads | Catalog validation counts and every live supervised session |
-| <code>integrity/verify-release-seal.sh</code> | reads | A release tree digested against its recorded <code>releaseId</code>, with drift attribution (<a href="../docs/walkthrough-verify-release.md">walkthrough</a>) |
-| <code>integrity/runtime-status.sh</code> | reads | Live sessions plus every installed release verified against its content-addressed name (<a href="../docs/walkthrough-runtime-status.md">walkthrough</a>) |
-| <code>core/hooks-list.sh</code> | reads | The hook catalog, then one exact hook |
-| <code>core/provider-coverage.sh</code> | reads | Registry-declared provider coverage from <code>tama request coverage</code> |
-| <code>core/scan-repository.sh</code> | reads | First rule violation per file in one owned repository |
-| <code>core/clean-repository.sh</code> | mutates (working tree, external provider) | Headless-agent repair with a final independent rescan |
-| <code>operations/mcp-config.sh</code> | reads | The exact MCP server fragment for this release |
-| <code>operations/install-user-git-hooks.sh</code> | mutates (Git hooks path and config) | Reviewed install plan, then the user-global Git dispatchers |
-| <code>recovery/adaptive-status.sh</code> | reads (creates empty state dirs on first run) | Adaptive layer status, drift, and queued repairs |</p>
+<table>
+<thead><tr><th>Script</th><th>Reads or mutates</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td><code>getting-started/install-cli.sh</code></td><td>mutates (one symlink)</td><td>Link the bundled <code>tama</code> onto PATH as <code>tama</code>; refuses to replace unrelated entries</td></tr>
+<tr><td><code>getting-started/status.sh</code></td><td>reads</td><td>Catalog validation counts and every live supervised session</td></tr>
+<tr><td><code>integrity/verify-release-seal.sh</code></td><td>reads</td><td>A release tree digested against its recorded <code>releaseId</code>, with drift attribution (<a href="../docs/walkthrough-verify-release.md">walkthrough</a>)</td></tr>
+<tr><td><code>integrity/runtime-status.sh</code></td><td>reads</td><td>Live sessions plus every installed release verified against its content-addressed name (<a href="../docs/walkthrough-runtime-status.md">walkthrough</a>)</td></tr>
+<tr><td><code>core/hooks-list.sh</code></td><td>reads</td><td>The hook catalog, then one exact hook</td></tr>
+<tr><td><code>core/provider-coverage.sh</code></td><td>reads</td><td>Registry-declared provider coverage from <code>tama request coverage</code></td></tr>
+<tr><td><code>core/scan-repository.sh</code></td><td>reads</td><td>First rule violation per file in one owned repository</td></tr>
+<tr><td><code>core/clean-repository.sh</code></td><td>mutates (working tree, Brama)</td><td>A repair by the Brama route Tama resolves, with a final independent rescan</td></tr>
+<tr><td><code>operations/mcp-config.sh</code></td><td>reads</td><td>The exact MCP server fragment for this release</td></tr>
+<tr><td><code>operations/install-user-git-hooks.sh</code></td><td>mutates (Git hooks path and config)</td><td>Reviewed install plan, then the user-global Git dispatchers</td></tr>
+<tr><td><code>recovery/adaptive-status.sh</code></td><td>reads (creates empty state dirs on first run)</td><td>Adaptive layer status, drift, and queued repairs</td></tr>
+</tbody>
+</table>

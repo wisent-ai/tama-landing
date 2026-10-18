@@ -45,7 +45,11 @@ directory where a run keeps its throwaway state and evidence reports, such as
 scanned: nothing there is committed, so none of its session ids, times or counts decides what a
 product does. The hook asks git about the file's directory, not the file: an ignored file in a
 tracked directory, such as a local settings file or <code>.env</code>, is read by the product and is
-still scanned. The real test is <code>tests/numeric-literals/build_directory.rs</code>
+still scanned. A file that declares itself generated — an <code>@generated</code> marker in the
+comment lines it opens with, as Cargo writes <code>Cargo.lock</code> — is not scanned either: its
+numbers are what its generator wrote, a lockfile's format version and the versions a registry
+publishes, so no hand chose them; the same numbers in a file nothing declares generated are refused.
+The real test is <code>tests/numeric-literals/build_directory.rs</code>
 (<code>cargo test -p tama-cli --test numeric_literals_build_directory</code>), run against a real git
 checkout it creates for each case.</p>
 <h2>Standard operations are not configuration choices</h2>
@@ -71,14 +75,39 @@ an enumeration start, not a guessed quantity. Its upper bound is still judged:
 A range stored as configuration and a zero upper bound are not exempt.
 The registered <code>numeric_literals_operations</code> journey exercises these
 boundaries through the real built hook with retained candidate and executable
-identity; its source definition alone does not qualify an installed decision.</p>
+identity.</p>
+<p>A zero that initialises a variable, binding or class field the source only
+ever adds to is the start of a running sum or count, not a chosen number:
+<code>let mut total = 0;</code> with <code>total += value</code>, a class field
+<code>step = 0</code> with <code>this.step++</code>, or <code>sent = sent + n</code>.
+Every write to that name in the same source must add to it; one write that
+gives it anything else (<code>sent = other</code>, <code>step--</code>), or no write
+at all, keeps the zero judged. The same journey covers both outcomes.</p>
+<p>A one that steps a count up or down is the unit of counting, not a chosen
+number: <code>fire_count += 1</code>, <code>left -= 1</code>,
+<code>count.saturating_add(1)</code> (and the other <code>checked_</code>,
+<code>wrapping_</code> and <code>overflowing_</code> adds and subtracts) and an atomic
+<code>started.fetch_add(1, Ordering::Relaxed)</code>. Only that position passes: a
+step of any other number (<code>+= 7</code>), a one in a plain sum
+(<code>page + 1</code>), a one stored in a binding, multiplied, or passed to any
+other method (<code>chunks(1)</code>) stays judged. So a counter writes its one
+plainly instead of a stand-in such as <code>NonZeroUsize::MIN.get()</code>. Real
+journey: <code>tests/numeric-literals/operations.rs</code>.</p>
+<p>An HTTP status code compared for equality with a read of a response's
+status is the protocol's own identity, not a chosen number: <code>response.status === 200</code>,
+<code>res.statusCode !== 407</code>, <code>404 === response.status</code> and Rust's
+<code>response.status().as_u16() == 200</code>. A status code is three digits whose
+first names one of the five classes (RFC 9110, section 15), so <code>700</code> is
+not one, and the same digits stored in a constant or compared with anything other
+than a status (<code>retries === 200</code>) stay judged. Real journey:
+<code>tests/numeric-literals/operations.rs</code>.</p>
 <p>Shell standard-stream descriptors are recognized from Bash redirection
 syntax: <code>2&gt;failure.log</code> retains stderr, and
 <code>1&gt;&amp;2</code> duplicates stdout onto stderr. Only the POSIX standard
 descriptors are intrinsic; an independently chosen descriptor, count or numeric
 filename remains judged. A quoted redirection example is not executable
 redirection. The real numeric-operation journey includes accepted descriptor
-uses and refused unrelated quantities; actual execution is still required.</p>
+uses and refused unrelated quantities.</p>
 <p><code>assert.equal</code> and <code>assert.strictEqual</code> comparisons of
 process <code>status</code>, <code>code</code> or <code>exitCode</code> with zero
 check successful termination. Sign comparisons against zero and positive-integer
@@ -143,8 +172,7 @@ source, malformed UTF-8, unmatched single and multi-edit replacements,
 invalid hashline coordinates, incomplete replay, missing operations, non-text
 content, explicit empty writes and matching-source recovery through the built
 hook. It retains candidate-bound exchanges and
-checks that guard evaluation leaves the source unchanged. These are test
-definitions until the authorized qualification run executes them.</p>
+checks that guard evaluation leaves the source unchanged.</p>
 <p>Before counting out existing literals or unchanged provenance entries, the
 guard reads the existing file once. A missing file is a new-file case; a
 directory, permission failure or invalid UTF-8 is not. The refusal names
@@ -176,18 +204,16 @@ digest before evaluation, and retains each payload, command, exit status and
 output. It covers accepted operations and meaningful numeric refusals, including
 a Unicode prefix before an index. From the Rust workspace, run
 <code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate-revision&gt; cargo test -p tama-cli
---test numeric_literals_operations --test numeric_literals_hashline_context</code>
-only as part of the authorized qualification run. The hashline journey also
+--test numeric_literals_operations --test numeric_literals_hashline_context</code>.
+The hashline journey also
 uses a caller directory distinct from the hook process directory, retains an
 unchanged real declaration through a whitespace edit, and refuses removal of
-a required quote field. Committed test source is not a passing
-installed-runtime result.</p>
+a required quote field.</p>
 <p>The operations target also sends the same Rust lifetime and escaped-character
 source through a write payload and a multi-file hashline edit. Both must return
 an empty allowance, and evaluating the policy must leave the fixture files
 unchanged. This distinguishes literal classification from edit-context
-reconstruction; authoring the case alone does not establish that an installed
-release handles either input correctly.</p>
+reconstruction.</p>
 <p>A direct numeric hook refusal is a successful process carrying a structured
 <code>{"decision":"block","reason":"…"}</code> document and the same cause on
 stderr. Exit success alone is not policy acceptance; a crashed process is not
@@ -202,10 +228,9 @@ source. Every fixture requires <code>TAMA_TEST_SOURCE_REVISION</code>, checks
 the actual clean tracked candidate and retains the built binary digest before
 initialization. Candidate and setup reports and append-only hook exchange
 logs survive fixture cleanup; repeated calls do not overwrite earlier outcomes.
-Run the corresponding <code>numeric_literals_operations</code>,
+The corresponding targets are <code>numeric_literals_operations</code>,
 <code>numeric_literals_raw_strings</code>, <code>numeric_literals_identifiers</code>
-and <code>numeric_literals_existing_file</code> targets only during authorized
-qualification. Source-only changes do not establish a runtime result.</p>
+and <code>numeric_literals_existing_file</code>.</p>
 <p>The hashline target also includes
 <code>tests/numeric-literals/provenance/failures.rs</code>: a real directory
 where a transcript should be, an absent index, and a damaged SQLite file each

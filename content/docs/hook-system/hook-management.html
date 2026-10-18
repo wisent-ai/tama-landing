@@ -251,11 +251,17 @@ conventions — a test directory, a <code>.test.</code>/<code>.spec.</code> file
 <code>…Tests.swift</code>) named outside quoted data, and the targets a patch file it names declares in its own
 <code>---</code>/<code>+++</code> or <code>*** … File:</code> headers. A redirection onto a test path is refused
 outright. Whether the command changes what it reaches is read by a model through Oko's model call, asked only when
-a test is reached; staging, committing and running tests pass. With no judgement the command passes and stderr says
-<code>capture-direct-test-request: no judgement, the command passes: …</code>. The journey
+a test is reached; staging, committing and running tests pass. A question the judge leaves unanswered refuses the
+command as <a href="/docs/hook-model/model-judgement/#unanswered">asking a model</a> describes. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test device_level_tests_shell</code> covers the
-redirection, the judge-down note for a copy and for a patch naming a test, and (with
+redirection, the judge-down refusal for a copy and for a patch naming a test, and (with
 <code>TAMA_TEST_DEVICE_TESTS_JUDGE=1</code> and <code>-- --ignored</code>) the real judge's refusals.</p>
+<p>Three more gates admit what they refuse only under a variable the operator exports in his own shell, outside
+the session, with the value <code>1</code>: <code>DEVICE_SUBAGENT_SPAWN_APPROVED=1</code> lets
+<code>block-subagent-spawn</code> start a headless coding agent, <code>LOCAL_MODEL_TRAINING_APPROVED=1</code> lets
+<code>block-local-model-training</code> train or run a whole set through a model on this machine instead of the
+fleet, and <code>MERGE_DELETION_LOSS_ACK=1</code> lets <code>check-merge-deletion-loss</code> push a merge it read
+as undoing a deliberate cut. Any other value approves nothing.</p>
 <p>Audits follow it too: <code>block-unapproved-audits</code> refuses an audit workflow until
 <code>DEVICE_LEVEL_AUDITS_APPROVED=1</code> is set outside the session or the device-level audit policy
 (<code>~/.config/agent-policy/device_level_audits.json</code>, or the file <code>DEVICE_LEVEL_AUDITS_POLICY</code>

@@ -69,13 +69,15 @@ change. An anchored edit of the same file is allowed: it applies to the file as 
 included, and the file then counts as this session's too, so it may commit it.</td></tr>
 <tr><td>A broad <code>git add</code> (<code>-A</code>, <code>--all</code>, <code>.</code> or a directory) over an
 untracked file another session wrote</td>
-<td>Refused, naming the file and the writing session. Stage the files this session wrote by name.</td></tr>
+<td>Refused, naming the file and the writing session. Stage this session's own changes with <code>tama stage --session &lt;session&gt;</code>.</td></tr>
 <tr><td>A <code>git commit</code> from a repository outside the declaration</td>
 <td>Refused like any other change there. What a commit takes is judged by pre-bash's
-<a href="/docs/hook-system/gates/boundaries/shell-commands">commit guard</a>: it reads the paths the commit itself would take
-(the index, the named paths, or every tracked change with <code>-a</code>) and refuses any this session never wrote,
-so a commit naming its own paths with <code>git commit -m &lt;message&gt; -- &lt;paths&gt;</code> passes beside
-another session's staged files. A push carries commits already made and is judged when they were made.</td></tr>
+<a href="/docs/shell-commands/">commit guard</a>: a commit naming paths, or taking every tracked change
+(<code>-a</code>), <code>--include</code> or a pathspec file, is refused, because it would stage whole files rather than
+this session's recorded changes; the index a commit takes must hold exactly the changes the session's edit receipts
+record, staged with <code>tama stage --session &lt;session&gt; --repo &lt;checkout&gt;</code> and committed with
+<code>git commit -m &lt;message&gt;</code> in a separate invocation. A push carries commits already made and is judged
+when they were made.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
@@ -84,10 +86,8 @@ another session's staged files. A push carries commits already made and is judge
 which is other gates' subject: <a href="/docs/one-off-repairs">one-off repairs</a> owns those.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_off_task_work/mod.rs</code>; the declaration CLI:
-<code>rust/crates/tama-hook-tools/src/ports/block_off_task_work/scope_cli.rs</code>; binary:
-<code>src/bin/block/ownership/block_off_task_work.rs</code>; the real-binary journey that drives the gate with a real
-captured instruction, a real scope file and a real home:
-<code>tests/assignment/completion.test.ts</code>; the declaration:
+<code>rust/crates/tama-hook-tools/src/ports/block_off_task_work/scope_cli/mod.rs</code>; program:
+<code>rust/crates/tama-hook-tools/src/programs/block/ownership/block_off_task_work.rs</code>; the declaration:
 <code>hook-declarations/block-off-task-work.json</code>. Declared with
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file &lt;declaration&gt;</code> and installed with
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>; which hooks this machine runs is decided by

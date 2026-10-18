@@ -4,9 +4,7 @@
 flattens an address when nothing issued it. It reads only the lines a write adds — the
 <code>+</code> lines of a hashline section or patch, an edit's replacement, a new file's content —
 never the lines the file already holds: an identity already on the page was sourced by the write
-that put it there, and judging it again sent every edit of a long changelog or README through the
-stores once per address the page carried, past the harness's limit on a hook, so the edit was
-refused as a timeout. A value passes when the harness issued it as the name
+that put it there. A value passes when the harness issued it as the name
 of a stored transcript (a session id: OMP names each session's transcript under
 <code>~/.omp/agent/sessions</code> after it), when a file the written path's own git checkout
 already tracks carries it (a product's published identifier — a journey version id in a seed, a
@@ -17,9 +15,10 @@ verbatim quote declaring it. The transcript names and the checkout are asked fir
 names a session or an identifier the repository already holds does not wait on a read of every
 transcript on the machine; an untracked file beside the write counts for nothing. A path outside any
 checkout (no folder above it holds <code>.git</code>) is not searched. Inside a checkout, a
-<code>git grep</code> that cannot start, ends on a signal, or writes an error sources nothing, and every
-refusal of the written file carries it — <code>(the written file's checkout could not be searched: git grep
-in &lt;folder&gt; ended with &lt;status&gt;: &lt;git's error&gt;)</code> — while the other sources decide. The values none of
+<code>git grep</code> that cannot start, ends on a signal, or writes an error sources nothing while the
+other sources decide; a value none of them settles is then the gate's own failure, never a missing
+provenance: <code>&lt;path&gt;: cannot establish provenance for &lt;value&gt;: the written file's checkout
+could not be searched: git grep in &lt;folder&gt; ended with &lt;status&gt;: &lt;git's error&gt;</code>. The values none of
 those sources carries are looked up in the stored sessions together, in one walk per written file
 that reads each transcript's index once and ends when every value has two sessions. A word shaped like a
 flattened address that is part of an angle-bracket placeholder — a usage line's
@@ -31,9 +30,9 @@ contains it</code>. <code>IDENTITY_TRANSCRIPT_ROOT</code>, <code>IDENTITY_ARTIFA
 <code>IDENTITY_PROVENANCE_FILE</code> move the three stores. The real tests are
 <code>tests/identity-literals/session_ids.rs</code>, <code>tests/identity-literals/tracked_ids.rs</code>,
 <code>tests/identity-literals/placeholders.rs</code> and
-<code>tests/identity-literals/added_lines.rs</code> (<code>cargo test -p tama-cli --test
+<code>tests/identity-literals/whole_file.rs</code> (<code>cargo test -p tama-cli --test
 identity_literals_session_ids --test identity_literals_tracked_ids --test
-identity_literals_placeholders --test identity_literals_added_lines</code>), the second against a
+identity_literals_placeholders --test identity_literals_whole_file</code>), the second against a
 real git checkout it creates. The last copies the real long page named by
 <code>TAMA_TEST_PROSE_FILE</code>, then edits beside an untouched unsourced id.
 It requires <code>TAMA_TEST_SOURCE_REVISION</code> and retains the candidate,
@@ -72,4 +71,4 @@ tama-cli --test identity_literals_mentions</code> runs the actual hook in
 separate processes against isolated persisted transcripts. It retains the
 candidate and binary digest, commands and outcomes, covering a warm shared
 index, assistant exclusion, equal-size/equal-time replacement, deletion,
-malformed records and permission loss. Test source alone is not qualification.</p>
+malformed records and permission loss.</p>

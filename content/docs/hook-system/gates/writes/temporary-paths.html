@@ -1,0 +1,33 @@
+<h1>Temporary paths and scratch heaps: <code>block-temporary-path-operations</code></h1>
+<p>A gate on reads, edits, writes, notebook changes and saves (<code>tama hook block-temporary-path-operations</code>)
+that refuses a target in a temporary directory: <code>/tmp</code>, <code>/var/tmp</code>, <code>/var/folders</code>
+and their <code>/private</code> spellings,
+<code>$TMPDIR</code> and any path with a component spelled <code>tmp</code>. Each target is judged as written, made
+absolute against the directory the hook runs in, and with symlinks resolved, so either spelling of a symlinked
+temporary directory is caught. A target is found in every field a harness names it in: a path field under any of its
+spellings, a patch's file header, a list of edits, and a target list of bare paths (<code>files: ["&lt;path&gt;"]</code>).
+The refusal is <code>BLOCKED: Temporary-path Read/Edit/Write/Save operations are not allowed: &lt;targets&gt;</code>.</p>
+<h2>Scratch heaps</h2>
+<p>A write is also refused when it lands in a checkout's scratch heap: an existing top-level directory of the
+checkout that holds no tracked file (<code>git ls-files</code> lists nothing under it) and that git does not ignore
+(<code>git check-ignore</code> exits 1). Whatever a session leaves there appears as untracked files in every other
+session's status and is published by the next broad commit. A run's throwaway state belongs under the checkout's
+ignored <code>.build/</code>, so the refusal names both:
+<code>BLOCKED: a write into a checkout directory that is neither source nor its ignored build directory:
+&lt;target&gt; lands in &lt;checkout&gt;/&lt;directory&gt;, which holds no tracked file and is not ignored; put a run's
+throwaway state under &lt;checkout&gt;/.build</code>.</p>
+<p>These pass: a write into a directory that holds tracked files, into a directory that does not exist yet (new
+source), to a file at the checkout's root, into <code>.build/</code> or any other ignored directory, outside every
+checkout, and every read. A checkout or directory whose state git cannot report is refused with git's answer:
+<code>BLOCKED: whether &lt;target&gt; lands in a checkout's scratch heap cannot be read: git check-ignore … exited
+&lt;status&gt;: &lt;git's error&gt;</code>; an ancestor whose <code>.git</code> cannot be examined is refused naming
+it.</p>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_temporary_path_operations/</code>
+(<code>scratch_root.rs</code> reads the heap). The journeys
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test temporary_path_fields</code> and
+<code>--test temporary_paths_scratch_heap</code> run the built hook: the first requires a temporary target refused in
+every field that names it and a relative target whose directory is gone refused naming it; the second builds a real
+checkout under <code>.build/</code> and requires a write into its untracked, unignored <code>target/</code> refused
+naming <code>target</code> and <code>.build</code>, writes to source, a new directory, the root and
+<code>.build/</code> passed, and a read of the heap passed.</p>

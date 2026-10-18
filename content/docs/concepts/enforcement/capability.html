@@ -7,17 +7,20 @@ withdraw one at the operator's word (see <em>Withdrawing it</em> below).</p>
 <p>The optional <code>capability</code> object inside a session record
 (<code>ai.wisent.tama.session-control.v2</code>), decoded by the desktop as
 <code>SessionCapability</code>:</p>
-<p>| Field | Meaning |
-|---|---|
-| <code>schemaVersion</code> | Capability schema version |
-| <code>issuedBy</code> | The issuer identity |
-| <code>nonce</code> | Uniqueness token for this grant |
-| <code>sessionId</code>, <code>controlKey</code> | The exact session the grant is bound to |
-| <code>releaseId</code>, <code>catalogChecksum</code> | The policy identity the grant was issued against |
-| <code>lifetime</code> | The declared lifetime class |
-| <code>expiresAt</code> | Expiry timestamp, when bounded by time |
-| <code id="remaining-uses">remainingUses</code> | Use budget, when bounded by count: a <code>single-use</code> grant carries exactly 1, and the call a gate admits with it spends it |
-| <code>grants[]</code> | Per-tool entries: <code>tool</code> plus optional <code>actions[]</code> |</p>
+<table>
+<thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>schemaVersion</code></td><td>Capability schema version</td></tr>
+<tr><td><code>issuedBy</code></td><td>The issuer identity</td></tr>
+<tr><td><code>nonce</code></td><td>Uniqueness token for this grant</td></tr>
+<tr><td><code>sessionId</code>, <code>controlKey</code></td><td>The exact session the grant is bound to</td></tr>
+<tr><td><code>releaseId</code>, <code>catalogChecksum</code></td><td>The policy identity the grant was issued against</td></tr>
+<tr><td><code>lifetime</code></td><td>The declared lifetime class</td></tr>
+<tr><td><code>expiresAt</code></td><td>Expiry timestamp, when bounded by time</td></tr>
+<tr id="remaining-uses"><td><code>remainingUses</code></td><td>Use budget, when bounded by count: a <code>single-use</code> grant carries exactly 1, and the call a gate admits with it spends it</td></tr>
+<tr><td><code>grants[]</code></td><td>Per-tool entries: <code>tool</code> plus optional <code>actions[]</code></td></tr>
+</tbody>
+</table>
 <p>A grant without <code>actions</code> means every action of that tool — the Session
 screen renders it as <code>every action</code> in the TOOL/ACTIONS table.</p>
 <h2>Who requests it</h2>

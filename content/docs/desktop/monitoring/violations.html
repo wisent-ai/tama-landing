@@ -19,7 +19,6 @@ once findings exist, <code>Repair</code> / <code>Stop repair</code>.</p>
 <li><code>Choose an existing absolute Git repository directory: &lt;path&gt;</code> — not
 absolute, not a directory, or no <code>.git</code>.</li>
 <li><code>Tama refuses to mutate a repository not owned by the current user: &lt;path&gt;</code> — UID mismatch.</li>
-<li><code>Codex is unavailable. Install and authenticate Codex before confirming cleanup.</code> — repair needs the local headless agent; scan does not.</li>
 </ul>
 <h2>Facets and counters</h2>
 <p><code>Pass</code> chooses what the next scan asks, one entry per pass of
@@ -33,7 +32,7 @@ absolute, not a directory, or no <code>.git</code>.</li>
 one construct of one language (<code>Rust .ok() dropping the error</code>,
 <code>Python except that only passes</code>, …) and each finding reads
 <code>line N: &lt;the line&gt;</code>, the same list
-<a href="../../../hook-system/code/fallbacks/"><code>block-fallbacks</code></a> would refuse on the next
+<a href="../../fallbacks/"><code>block-fallbacks</code></a> would refuse on the next
 edit of each file. Choosing another pass clears the report on screen,
 because its findings answer a different question.
 <code>Rule</code> ranks rules by how many files they hit — the order an operator
@@ -63,7 +62,7 @@ stated verbatim:</p>
 <li><code>Review git status, branch refs, remote state and the final diff afterwards.</code></li>
 </ol>
 <p>Reason code <code>&lt;n&gt; violations in &lt;m&gt; repositories</code>; the listing is every file
-the findings name; footnote: <code>the agent runs with Codex; Tama refuses to start the repair when Codex is absent</code>. Actions: <code>Cancel</code>, destructive
+the findings name. The repair asks Brama for a patch, applies it to the working tree, and reports Brama or patch-application refusals rather than requiring a local Codex executable. Actions: <code>Cancel</code>, destructive
 <code>Repair with a headless agent</code>, primary <code>Read the findings first</code>.</p>
 <p>Above the dialog sits the field <code>Repair rounds the agent may take</code>. The repair is enabled only while it holds a whole number above zero, and that number is sent as <code>maxRounds</code>, the request's form of <code>tama violations clean --max-rounds</code>; neither has a default. A repair started without it reports <code>Say how many repair rounds the run may take: a whole number above zero.</code></p>
 <h2>While a repair runs</h2>

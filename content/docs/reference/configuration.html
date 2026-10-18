@@ -9,18 +9,21 @@ provisioning profiles, channels) are maintainer-only and tabled in
 <a href="operations.md">operations</a>.</p>
 <h2>State Tama owns</h2>
 <p>Everything under <code>~/Library/Application Support/Tama</code>:</p>
-<p>| Path | Content |
-|---|---|
-| <code>policy-bundles/index.json</code> | Imported inactive bundle identities: source path and digest, retained files and hashes (<code>ai.wisent.tama.policy-bundles.v1</code>) |
-| <code>policy-bundles/bundles/&lt;source-key&gt;/</code> | Editable byte-for-byte policy files adopted from one source; never an active runtime by import alone |
-| <code>hooks-runtime/releases/&lt;release-id&gt;/</code> | Content-addressed installed hook releases |
-| <code>hooks-runtime/current</code> | Symlink to the active release, replaced atomically |
-| <code>hooks-runtime/installed.json</code> | Installed identity: release id, checksum, versions, managed files, pinned Node (<code>ai.wisent.tama.installed-hook-release.v1</code>) |
-| <code>hook-emergency-state.json</code> | Durable disabled flag (<code>ai.wisent.tama.hook-emergency-state.v1</code>) |
-| <code>emergency-backup/manifest.json</code> | What emergency disable moved and emptied, recorded once |
-| <code>emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code> | Original provider configs, restored on re-enable |
-| <code>session-control/*.session.json</code> | Supervisor-owned live session records (<code>ai.wisent.tama.session-control.v2</code>) |
-| <code>session-control/*.override.json</code>, <code>*.request.json</code>, <code>*.response.json</code> | Session overrides and the private request/response exchange |</p>
+<table>
+<thead><tr><th>Path</th><th>Content</th></tr></thead>
+<tbody>
+<tr><td><code>policy-bundles/index.json</code></td><td>Imported inactive bundle identities: source path and digest, retained files and hashes (<code>ai.wisent.tama.policy-bundles.v1</code>)</td></tr>
+<tr><td><code>policy-bundles/bundles/&lt;source-key&gt;/</code></td><td>Editable byte-for-byte policy files adopted from one source; never an active runtime by import alone</td></tr>
+<tr><td><code>hooks-runtime/releases/&lt;release-id&gt;/</code></td><td>Content-addressed installed hook releases</td></tr>
+<tr><td><code>hooks-runtime/current</code></td><td>Symlink to the active release, replaced atomically</td></tr>
+<tr><td><code>hooks-runtime/installed.json</code></td><td>Installed identity: release id, checksum, versions, managed files, pinned Node (<code>ai.wisent.tama.installed-hook-release.v1</code>)</td></tr>
+<tr><td><code>hook-emergency-state.json</code></td><td>Durable disabled flag (<code>ai.wisent.tama.hook-emergency-state.v1</code>)</td></tr>
+<tr><td><code>emergency-backup/manifest.json</code></td><td>What emergency disable moved and emptied, recorded once</td></tr>
+<tr><td><code>emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code></td><td>Original provider configs, restored on re-enable</td></tr>
+<tr><td><code>session-control/*.session.json</code></td><td>Supervisor-owned live session records (<code>ai.wisent.tama.session-control.v2</code>)</td></tr>
+<tr><td><code>session-control/*.override.json</code>, <code>*.request.json</code>, <code>*.response.json</code></td><td>Session overrides and the private request/response exchange</td></tr>
+</tbody>
+</table>
 <p>Never repair <code>installed.json</code>, <code>current</code>, or the emergency
 manifest by hand as a normal procedure. Policy bundle files are intentionally
 editable, but a locally changed imported file causes the next replacement to
@@ -37,20 +40,19 @@ project <code>.githooks</code> entrypoints. Existing Git hooks are preserved as
 <h2>Script and runtime environment variables</h2>
 <p>Honored by the bundled installer (<code>tama hooks install-release</code>), the emergency
 switch (<code>emergency_disable_hooks</code>), and the generated launchers:</p>
-<p>| Variable | Read by | Purpose |
-|---|---|---|
-| <code>TAMA_HOME</code> | emergency switch | Target home directory; defaults to <code>$HOME</code> |
-| <code>TAMA_EMERGENCY_ACTION</code> | emergency switch | <code>disable</code> (default) or <code>enable</code> |
-| <code>TAMA_SKIP_SESSION_RESTART</code> | emergency switch | <code>1</code> skips the supervised-session pause/resume |
-| <code>TAMA_HOOK_RELEASE_ROOT</code> | emergency switch | Release root override; defaults to the bundled <code>hooks-release</code> |
-| <code>TAMA_HOOK_INSTALLER</code> | emergency switch | Installer path override |
-| <code>TAMA_SESSION_SUPERVISOR</code> | emergency switch | Supervisor script override |
-| <code>TAMA_OMP</code> | installer | The <code>omp</code> executable used to register the OMP adapter |
-| <code>TAMA_PYTHON</code> | <code>tama-agent</code> launcher | Python 3 used for the universal session runtime |
-| <code>TAMA_NODE_EXECUTABLE</code>, <code>TAMA_NODE_PREFLIGHT</code> | exported by the launcher | The pinned Node executable and version guard, for semantic dispatch |
-| <code>AGENT_HOOK_REGISTRY</code> | OMP adapter | Registry path override; defaults to <code>~/.shared-hooks/registry.json</code> |
-| <code>TAMA_CLEAN_DISABLED</code> | <code>tama violations clean</code> | <code>1</code> disables the cleanup command entirely |
-| <code>TAMA_HOOK_SOURCE_REVISION</code>, <code>TAMA_HOOK_SOURCE_DIRTY</code> | <code>tama hooks seal</code> | The source identity the build expects; a tree that differs is refused |</p>
+<table>
+<thead><tr><th>Variable</th><th>Read by</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>TAMA_HOME</code></td><td>emergency switch</td><td>Target home directory; <code>$HOME</code> when it is not set</td></tr>
+<tr><td><code>TAMA_EMERGENCY_ACTION</code></td><td>emergency switch</td><td><code>disable</code> (when it is not set) or <code>enable</code></td></tr>
+<tr><td><code>TAMA_HOOK_RELEASE_ROOT</code></td><td>emergency switch</td><td>Release root; the <code>hooks-release</code> beside the script, else the one in <code>.build/Tama.app</code></td></tr>
+<tr><td><code>TAMA_HOOK_INSTALLER</code></td><td>emergency switch</td><td>Installer path; the release's own <code>bin/tama</code> when it is not set</td></tr>
+<tr><td><code>TAMA_OMP</code></td><td>installer</td><td>The <code>omp</code> executable used to register the OMP adapter</td></tr>
+<tr><td><code>AGENT_HOOK_REGISTRY</code></td><td>every Tama program and the OMP adapter</td><td>Registry path; <code>~/.shared-hooks/registry.json</code> when it is not set</td></tr>
+<tr><td><code>TAMA_CLEAN_DISABLED</code></td><td><code>tama violations clean</code>, <code>tama request violations/clean</code></td><td><code>1</code> disables the cleanup command entirely</td></tr>
+<tr><td><code>TAMA_HOOK_SOURCE_REVISION</code>, <code>TAMA_HOOK_SOURCE_DIRTY</code></td><td><code>tama hooks seal</code></td><td>The source identity the build expects; a tree that differs is refused</td></tr>
+</tbody>
+</table>
 <p>Debug-only seams (<code>TAMA_HOOK_ROOT</code> for the catalog root, <code>TAMA_TEST_IDENTITY</code>
 for UI tests) are compiled out of distributed builds
 (<a href="operations.md">operations</a>).</p>

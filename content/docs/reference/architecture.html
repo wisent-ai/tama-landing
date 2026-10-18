@@ -86,18 +86,21 @@ disable is the operator-owned global switch
 (<a href="concepts/emergency-disable.md">concepts/emergency-disable</a>).</li>
 </ol>
 <h2>Trust boundaries</h2>
-<p>| Boundary | Mechanism |
-|---|---|
-| Hook tree ↔ everything downstream | Content-addressed <a href="concepts/seal.md">seal</a>, enforced before and after copy |
-| App ↔ operator | Wisent role (<code>owner</code>/<code>admin</code>/<code>member</code>) constructs the mutation-capable model; confirmation dialogs and macOS approvals gate each mutation |
-| Tama ↔ session | The 64-hex <code>controlKey</code> names the session's private request channel; the supervisor validates every envelope and applies overrides itself |
-| Session ↔ machine | The privileged daemon (<code>ai.wisent.tama.system-policy</code>) and Network Extension (<code>ai.wisent.tama.network-filter</code>) enforce kernel-gated process and socket policy; approval-pending is a distinct state, never success |
-| Desktop ↔ sealed logic | Catalog reads, install plans, scans, and cleanup each run one <code>tama request &lt;operation&gt; --root &lt;release&gt;</code> process that exits once it has answered; no port is opened — the binary the app runs is the one the build sealed |
-| Runtime ↔ Node.js | The installer canonicalizes and pins one Node ≥ 20 executable into every Node-based command with a preflight guard; the generated launcher fails closed (exit 66) when either moves |</p>
+<table>
+<thead><tr><th>Boundary</th><th>Mechanism</th></tr></thead>
+<tbody>
+<tr><td>Hook tree ↔ everything downstream</td><td>Content-addressed <a href="concepts/seal.md">seal</a>, enforced before and after copy</td></tr>
+<tr><td>App ↔ operator</td><td>Wisent role (<code>owner</code>/<code>admin</code>/<code>member</code>) constructs the mutation-capable model; confirmation dialogs and macOS approvals gate each mutation</td></tr>
+<tr><td>Tama ↔ session</td><td>The 64-hex <code>controlKey</code> names the session's private request channel; the supervisor validates every envelope and applies overrides itself</td></tr>
+<tr><td>Session ↔ machine</td><td>The privileged daemon (<code>ai.wisent.tama.system-policy</code>) and Network Extension (<code>ai.wisent.tama.network-filter</code>) enforce kernel-gated process and socket policy; approval-pending is a distinct state, never success</td></tr>
+<tr><td>Desktop ↔ sealed logic</td><td>Catalog reads, install plans, scans, and cleanup each run one <code>tama request &lt;operation&gt; --root &lt;release&gt;</code> process that exits once it has answered; no port is opened — the binary the app runs is the one the build sealed</td></tr>
+<tr><td>Runtime ↔ Node.js</td><td>The installer pins the first Node.js on <code>PATH</code> that the release's own preflight (<code>shared-hooks/node-runtime-preflight.cjs</code>) accepts into every Node-based command, each run with <code>--require</code> of that preflight, so a Node.js older than the preflight states refuses with <code>Tama requires Node.js &lt;major&gt; or newer; found &lt;version&gt;</code></td></tr>
+</tbody>
+</table>
 <h2>Failure posture</h2>
 <p>Fail closed, roll back, keep evidence. The installer is transactional with
 explicit rollback of files, symlink, and OMP registration; the emergency
 switch records its manifest before relying on it and re-reads durable state
-after acting; session mutations report rejection, timeout, and session exit
+after acting; session mutations report rejection and session exit
 as failures rather than assuming success; and every refusal is one sentence
 that exists in a source file — the <a href="runbook.md">runbook</a> indexes them.</p>

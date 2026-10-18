@@ -7,11 +7,14 @@ every element of it is readable independently.</p>
 <h2>What it is</h2>
 <p>The comparison of three identities that are equal exactly when nothing
 drifted:</p>
-<p>| Identity | Source | Meaning |
-|---|---|---|
-| Bundled | <code>tama-build.json</code> → <code>hookRelease.releaseId</code> | What the signed app carries |
-| Installed | <code>hooks-runtime/installed.json</code> → <code>releaseId</code> | What the last successful install wrote |
-| Loaded | session record → <code>runtime.loadedReleaseId</code> | What a live session actually executes |</p>
+<table>
+<thead><tr><th>Identity</th><th>Source</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Bundled</td><td><code>tama-build.json</code> → <code>hookRelease.releaseId</code></td><td>What the signed app carries</td></tr>
+<tr><td>Installed</td><td><code>hooks-runtime/installed.json</code> → <code>releaseId</code></td><td>What the last successful install wrote</td></tr>
+<tr><td>Loaded</td><td>session record → <code>runtime.loadedReleaseId</code></td><td>What a live session actually executes</td></tr>
+</tbody>
+</table>
 <p>plus the enforcement signals around them: catalog validation, managed
 dispatchers (the <a href="emergency-disable.md">emergency-disable</a> state), the
 privileged backend status, live session count, and per-session hook runtime

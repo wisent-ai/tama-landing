@@ -19,9 +19,7 @@ Brama and retains verdicts; it neither approves nor executes tests.</p>
 The prior result is cleared before a new review. A backend failure appears
 under <strong>Review failed</strong> with its actual cause, rather than keeping
 an earlier success; a completed request displays the backend's result.
-An unreadable verdict store is a failure, not an empty review. Real graphical
-qualification must verify waiting, cancellation and these persisted-state
-refusals in the installed application.</p>
+An unreadable verdict store is a failure, not an empty review.</p>
 <h2>CUA consent</h2>
 <p><strong>CUA consent</strong> opens a separate grant sheet even when the catalogue has no file justification requirements. The form takes the OMP session ID, installed application name, comma-separated actions and either an exact quote or text matching one original user message. The default matching mode retrieves the full message without retyping its whitespace.</p>
 <p><strong>Record consent</strong> sends those fields as the body of <code>tama request justifications/cua/record</code>. Tama verifies the real message and installed application, then the sheet rereads the registry. A refusal appears under <strong>Refused</strong> using the product's exact message. A successful recording does not start the driver or claim that a GUI action ran.</p>

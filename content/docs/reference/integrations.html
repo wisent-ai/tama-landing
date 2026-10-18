@@ -1,16 +1,19 @@
 <h1>Integration contracts</h1>
 <p>Integrations extend Tama's local policy-control core. They do not own product state, and an unavailable optional integration must not prevent catalog inspection or emergency recovery.</p>
 <h2>Capability summary</h2>
-<p>| Integration | Capability | Required | Owner | Compatibility |
-|---|---|---|---|---|
-| Wisent Auth | User and organization identity | Required for mutations | <code>wisent-desktop-auth</code> maintainers | Swift package requirement declared in <code>Package.swift</code>; a supported release requires a committed resolution and records the exact revision in provenance |
-| Hook release | Catalog and local agent/Git adapters | Bundled core data; installation optional | tama maintainers | Manifest <code>ai.wisent.tama.hook-release.v1</code>; catalog version recorded in release |
-| Agent supervisors | Live session status and overrides | Optional until session control | Agent adapter maintainers | Session schema <code>ai.wisent.tama.session-control.v2</code> plus capability/runtime sub-schemas |
-| macOS policy backend | Kernel/process/network enforcement | Required for supervised-agent readiness | Tama maintainers | macOS 14+, Apple silicon, signed helper identifiers fixed by release |
-| Violations CLI | Repository scan and cleanup | Optional | tama maintainers | Bundled with exact hook release; app decodes the documented JSON report |
-| Policy inspection CLI | Declared provider coverage, install plan, MCP snippet | Optional | tama maintainers | Bundled with exact hook release; read-only <code>provider coverage --json</code>, <code>install plan --json</code>, <code>mcp config</code> |
-| GitHub Releases | Immutable product artifact distribution | Required for supported installation | Tama release maintainers | Exact <code>v&lt;SemVer&gt;</code> tag and artifact digest |
-| Local cleanup agent | Mutating violation repair | Optional | Codex operator | The current desktop workflow uses Codex explicitly; no silent provider fallback |</p>
+<table>
+<thead><tr><th>Integration</th><th>Capability</th><th>Required</th><th>Owner</th><th>Compatibility</th></tr></thead>
+<tbody>
+<tr><td>Wisent Auth</td><td>User and organization identity</td><td>Required for mutations</td><td><code>wisent-desktop-auth</code> maintainers</td><td>Swift package requirement declared in <code>Package.swift</code>; a supported release requires a committed resolution and records the exact revision in provenance</td></tr>
+<tr><td>Hook release</td><td>Catalog and local agent/Git adapters</td><td>Bundled core data; installation optional</td><td>tama maintainers</td><td>Manifest <code>ai.wisent.tama.hook-release.v1</code>; catalog version recorded in release</td></tr>
+<tr><td>Agent supervisors</td><td>Live session status and overrides</td><td>Optional until session control</td><td>Agent adapter maintainers</td><td>Session schema <code>ai.wisent.tama.session-control.v2</code> plus capability/runtime sub-schemas</td></tr>
+<tr><td>macOS policy backend</td><td>Kernel/process/network enforcement</td><td>Required for supervised-agent readiness</td><td>Tama maintainers</td><td>macOS 14+, Apple silicon, signed helper identifiers fixed by release</td></tr>
+<tr><td>Violations CLI</td><td>Repository scan and cleanup</td><td>Optional</td><td>tama maintainers</td><td>Bundled with exact hook release; app decodes the documented JSON report</td></tr>
+<tr><td>Policy inspection CLI</td><td>Declared provider coverage, install plan, MCP snippet</td><td>Optional</td><td>tama maintainers</td><td>Bundled with exact hook release; read-only <code>tama request coverage</code>, <code>tama install plan --json</code>, <code>tama mcp config</code></td></tr>
+<tr><td>GitHub Releases</td><td>Immutable product artifact distribution</td><td>Required for supported installation</td><td>Tama release maintainers</td><td>Exact <code>v&lt;SemVer&gt;</code> tag and artifact digest</td></tr>
+<tr><td>Brama</td><td>The model that writes a violation repair</td><td>Optional</td><td>Brama maintainers</td><td>One patch per repository and round from the resolved Brama route; the patch is applied and the repository scanned again</td></tr>
+</tbody>
+</table>
 <h2>Wisent Auth</h2>
 <p>Outcome: authenticate an authorized user and select a Wisent organization before policy mutation.</p>
 <p>Data crossing the boundary: email, one-time code or delegated OAuth response, access/refresh tokens, user ID, organization ID/name/role, membership and invitation state. Tokens are sensitive and remain in Keychain/runtime memory. Tama consumes only <code>WisentIdentity</code>; it must not log or persist the access token.</p>
@@ -61,10 +64,10 @@
 <p>Outcome: distribute immutable signed artifacts and sidecars from an exact source tag.</p>
 <p>Release credentials have repository-content permission only where publication requires it and are unavailable to the app. Publication refuses an existing tag/release. Consumers authenticate to the private repository through their GitHub tooling, download exact filenames, and verify SHA-256 before installation.</p>
 <p>An outage prevents download but does not affect installed Tama functionality. Rollback uses previously retained immutable bytes, never a moving <code>latest</code> URL.</p>
-<h2>Local cleanup agents</h2>
+<h2>Violation repair through Brama</h2>
 <p>Outcome: edit the selected repository working tree to satisfy reported policy rules.</p>
-<p>The current desktop workflow supports the detected local Codex executable. Kimi support exists in the underlying CLI but is unavailable through Tama until the UI exposes an explicit provider choice and its contract is qualified. The agent receives repository path, bounded violation metadata, and policy guidance; it does not receive Wisent tokens. Codex runs with its workspace-write sandbox, active hooks, and an instruction not to touch Git history or remotes. Tama requests no commit or push and rejects changed HEAD, checked-out branch, or local branch refs, but the external provider boundary still requires operator inspection of Git and remote state followed by a real rescan.</p>
-<p>Timeout, cancellation, nonzero exit, policy-gaming detection, remaining violations, and unavailable executable are distinct results. Cancelling terminates the bundled command, preserves partial working-tree edits, and still triggers the final read-only rescan. Retrying is operator-controlled and bounded. Disabling cleanup leaves scan and every other core workflow available.</p>
+<p>The Violations screen sends <code>tama request violations/clean</code> with <code>{"repo": "&lt;absolute path&gt;", "maxRounds": &lt;n&gt;}</code>, which runs <a href="../cli/violations/clean/"><code>tama violations clean</code></a> over every rule: each round asks the Brama route Tama resolves (<a href="../cli/model-provider/">how it is resolved</a>) for one patch, applies it and scans the repository again, until it is clean or the rounds the request names are spent. The model receives the repository's violations and the files they are in; it receives no Wisent token. The route is resolved before the job starts, so an unusable one is refused at once with its cause instead of failing inside every round.</p>
+<p>The request is refused, with nothing changed, when cleanup is disabled (<code>TAMA_CLEAN_DISABLED=1</code>: <code>tama violations clean is disabled (TAMA_CLEAN_DISABLED=1)</code>), without <code>repo</code> or <code>maxRounds</code> (each named, and that <code>--max-rounds</code> has no default either), for a repository that does not exist (<code>repo not found: &lt;path&gt;</code>) and when the registered guard the rounds are checked with is missing. A run that ends with violations left, or a repository another run holds, exits 1 with the job's summary. Disabling cleanup leaves scan and every other core workflow available.</p>
 <h2>Integration change and removal</h2>
 <p>Changing a normalized contract follows Tama versioning. Provider-only compatible corrections may be patch changes. Removal requires disabling new calls, revoking credentials/capabilities, stopping jobs, preserving understandable core state, removing adapter files, and documenting any lost capability and migration path in release notes.</p>
 <p>Every CLI-exposed integration capability and unavailable-dependency path has a command example in <a href="../examples/"><code>../examples/</code></a>. Scripts declare mutation and provider risk inline; their presence is not executed qualification evidence.</p>

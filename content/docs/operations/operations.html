@@ -1,31 +1,37 @@
 <h1>Tama operational model</h1>
 <h2>Ownership and trust boundaries</h2>
-<p>| Resource | Authority | Writer | Retention and removal |
-|---|---|---|---|
-| Signed <code>Tama.app</code> | Published release artifact | Release operator | Replace only through an explicit upgrade; remove with the app |
-| Bundled catalog | Signed app bundle | Release build | Immutable for the life of that app version |
-| Installed hook release | <code>~/Library/Application Support/Tama/hooks-runtime/releases/&lt;release-id&gt;</code> | Tama installer | Retained while referenced by <code>current</code> or <code>installed.json</code>; remove during uninstall |
-| Current hook release | <code>hooks-runtime/current</code> symlink | Tama installer transaction | Atomically replaced; previous ID recorded in <code>installed.json</code> |
-| Emergency state | <code>hook-emergency-state.json</code> and <code>emergency-backup/</code> | Emergency controller | Removed only after successful re-enable or explicit uninstall |
-| Session records | <code>session-control/*.session.json</code> | Agent supervisor | Stale records are ignored and removed; directory mode <code>0700</code> |
-| Session overrides | <code>session-control/*.override.json</code> | Agent supervisor after a validated Tama request | Atomic files, mode <code>0600</code>; removed during reset/uninstall |
-| Session-control requests | <code>session-control/*.request.json</code> and matching response | Tama and agent supervisor | Private, single-use exchange; both sides remove completed or abandoned files |
-| Wisent session | macOS Keychain | Wisent Auth | Removed by sign-out or Keychain administration |
-| Privileged daemon and filter preferences | macOS ServiceManagement and NetworkExtension | Explicit setup action | Removed by the uninstall procedure |</p>
+<table>
+<thead><tr><th>Resource</th><th>Authority</th><th>Writer</th><th>Retention and removal</th></tr></thead>
+<tbody>
+<tr><td>Signed <code>Tama.app</code></td><td>Published release artifact</td><td>Release operator</td><td>Replace only through an explicit upgrade; remove with the app</td></tr>
+<tr><td>Bundled catalog</td><td>Signed app bundle</td><td>Release build</td><td>Immutable for the life of that app version</td></tr>
+<tr><td>Installed hook release</td><td><code>~/Library/Application Support/Tama/hooks-runtime/releases/&lt;release-id&gt;</code></td><td>Tama installer</td><td>Retained while referenced by <code>current</code> or <code>installed.json</code>; remove during uninstall</td></tr>
+<tr><td>Current hook release</td><td><code>hooks-runtime/current</code> symlink</td><td>Tama installer transaction</td><td>Atomically replaced; previous ID recorded in <code>installed.json</code></td></tr>
+<tr><td>Emergency state</td><td><code>hook-emergency-state.json</code> and <code>emergency-backup/</code></td><td>Emergency controller</td><td>Removed only after successful re-enable or explicit uninstall</td></tr>
+<tr><td>Session records</td><td><code>session-control/*.session.json</code></td><td>Agent supervisor</td><td>Stale records are ignored and removed; directory mode <code>0700</code></td></tr>
+<tr><td>Session overrides</td><td><code>session-control/*.override.json</code></td><td>Agent supervisor after a validated Tama request</td><td>Atomic files, mode <code>0600</code>; removed during reset/uninstall</td></tr>
+<tr><td>Session-control requests</td><td><code>session-control/*.request.json</code> and matching response</td><td>Tama and agent supervisor</td><td>Private, single-use exchange; both sides remove completed or abandoned files</td></tr>
+<tr><td>Wisent session</td><td>macOS Keychain</td><td>Wisent Auth</td><td>Removed by sign-out or Keychain administration</td></tr>
+<tr><td>Privileged daemon and filter preferences</td><td>macOS ServiceManagement and NetworkExtension</td><td>Explicit setup action</td><td>Removed by the uninstall procedure</td></tr>
+</tbody>
+</table>
 <p>No log, cache, or UI snapshot is authoritative policy state. Hook catalog checksum and release ID are the evidence used to compare the signed bundle, installed release, and live runtime.</p>
 <h2>Configuration</h2>
 <p>Tama has no required environment variables for a supported binary installation. Maintainer-only overrides are:</p>
-<p>| Variable | Purpose | Safety rule |
-|---|---|---|
-| <code>TAMA_HOOK_ROOT</code> | Select the hook source during a maintainer build | The path is not retained; runtime source override is compiled out of distributed builds |
-| <code>TAMA_INSTALL_APP_PATH</code> | Select developer installation destination | Must not be used by the release workflow |
-| <code>TAMA_NODE</code> | Select Node.js for maintainer catalog export or a debug runtime | Build and debug entrypoints reject versions older than Node.js 20; the runtime override is compiled out of distributed builds |
-| <code>TAMA_RELEASE_TAG</code> | Select the exact signed tag for packaging and publication | Optional when one release tag identifies <code>HEAD</code>; required to disambiguate multiple release tags on the same source commit, and rejected unless it resolves exactly to <code>HEAD</code> |
-| <code>WISENT_CODESIGN_IDENTITY</code> | Select signing identity | Release credentials stay separate from runtime identity |
-| <code>WISENT_APP_PROVISIONING_PROFILE</code> | App provisioning profile | Release operator only |
-| <code>WISENT_NETWORK_FILTER_PROVISIONING_PROFILE</code> | Network Extension profile | Release operator only |
-| <code>AC_API_KEY_ID</code>, <code>AC_API_ISSUER_ID</code>, <code>AC_API_KEY_P8</code> | App Store Connect API key (Skarbiec <code>wisent-apple-notary</code>) that <code>stado product signing notarize</code> submits the signed app with | Required for every published preview or stable release; never available at runtime |
-| <code>TAMA_TEST_IDENTITY</code> | Automated UI-test identity seam | Prohibited in distributed artifacts and ordinary use |</p>
+<table>
+<thead><tr><th>Variable</th><th>Purpose</th><th>Safety rule</th></tr></thead>
+<tbody>
+<tr><td><code>TAMA_HOOK_ROOT</code></td><td>Select the hook source during a maintainer build (<code>../tama</code> beside this checkout otherwise)</td><td>The path is not retained; runtime source override is compiled out of distributed builds</td></tr>
+<tr><td><code>TAMA_INSTALL_APP_PATH</code></td><td>Select developer installation destination</td><td>Must not be used by the release workflow</td></tr>
+<tr><td><code>TAMA_NODE</code></td><td>Select the Node.js the maintainer build exports the catalog with (the first <code>node</code> on <code>PATH</code> otherwise)</td><td>The build refuses a Node.js older than 20, and a path that is not an executable</td></tr>
+<tr><td><code>TAMA_CARGO</code></td><td>Select the <code>cargo</code> the maintainer build compiles the bundled Tama backend with (the first on <code>PATH</code> otherwise)</td><td>The build refuses a path that is not an executable</td></tr>
+<tr><td><code>WISENT_CODESIGN_IDENTITY</code></td><td>Select signing identity</td><td>Release credentials stay separate from runtime identity</td></tr>
+<tr><td><code>WISENT_APP_PROVISIONING_PROFILE</code></td><td>App provisioning profile</td><td>Release operator only</td></tr>
+<tr><td><code>WISENT_NETWORK_FILTER_PROVISIONING_PROFILE</code></td><td>Network Extension profile</td><td>Release operator only</td></tr>
+<tr><td><code>AC_API_KEY_ID</code>, <code>AC_API_ISSUER_ID</code>, <code>AC_API_KEY_P8</code></td><td>The App Store Connect API key, kept in Skarbiec, that <code>stado product signing notarize</code> submits the signed app with</td><td>Required for every published preview or stable release; never available at runtime</td></tr>
+<tr><td><code>TAMA_TEST_IDENTITY</code></td><td>Automated UI-test identity seam</td><td>Prohibited in distributed artifacts and ordinary use</td></tr>
+</tbody>
+</table>
 <p>Unknown UI configuration is rejected by construction: setup choices are explicit actions rather than free-form settings. Integration-specific configuration is documented in <code>integrations.md</code>.</p>
 <h2>Permissions</h2>
 <ul>

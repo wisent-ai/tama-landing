@@ -6,16 +6,19 @@ and what it touches. Hooks are approved and shipped as a set — one
 <h2>What it is</h2>
 <p>One <code>catalog.agentHooks[]</code> entry in the <a href="registry.md">registry</a>. Each
 carries exactly these fields (read from the sealed registry):</p>
-<p>| Field | Meaning |
-|---|---|
-| <code>id</code> | Stable identity, e.g. <code>block-inline-execution</code> |
-| <code>command</code> | The exact command the runtime executes (Node commands are pinned at install time) |
-| <code>source</code> | The hook's source file; empty for hooks compiled into the sealed Rust backend |
-| <code>occurrences[]</code> | Every event binding: <code>event</code>, <code>blocking</code>, <code>statusMessage</code> |
-| <code>category</code> | Policy area, e.g. <code>git safety</code>, <code>credential safety</code> |
-| <code>status</code> | Lifecycle state (<code>active</code>) |
-| <code>description</code>, <code>why</code>, <code>sideEffects</code> | The human record |
-| <code>aliases</code> | Alternate ids the runtime accepts |</p>
+<table>
+<thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td>Stable identity, e.g. <code>block-inline-execution</code></td></tr>
+<tr><td><code>command</code></td><td>The exact command the runtime executes (Node commands are pinned at install time)</td></tr>
+<tr><td><code>source</code></td><td>The hook's source file; empty for hooks compiled into the sealed Rust backend</td></tr>
+<tr><td><code>occurrences[]</code></td><td>Every event binding: <code>event</code>, <code>blocking</code>, <code>statusMessage</code></td></tr>
+<tr><td><code>category</code></td><td>Policy area, e.g. <code>git safety</code>, <code>credential safety</code></td></tr>
+<tr><td><code>status</code></td><td>Lifecycle state (<code>active</code>)</td></tr>
+<tr><td><code>description</code>, <code>why</code>, <code>sideEffects</code></td><td>The human record</td></tr>
+<tr><td><code>aliases</code></td><td>Alternate ids the runtime accepts</td></tr>
+</tbody>
+</table>
 <p>A binding with <code>blocking: true</code> can refuse the action;
 <code>statusMessage</code> is what the agent surface shows
 while it runs. Hooks read a JSON payload on stdin and fail closed: a

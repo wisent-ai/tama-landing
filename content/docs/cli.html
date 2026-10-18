@@ -41,15 +41,14 @@ declarations share a locked request record; they never overwrite a record while
 its judge reads it. A second judge invocation refuses a request already owned by
 another review instead of starting a competing model call. The hook decision
 appears in the attached editor's refusal surface as well as the CLI output.</p>
-<p>When qualification is permitted, <code>one_off_commands_kept_verdicts</code>
+<p>The real journey <code>one_off_commands_kept_verdicts</code>
 invokes the actual built hook and foreground CLI with the real Oko model route,
 then checks the persisted verdict and a repeated write. Its negative journey
 uses an isolated home and executable path genuinely without Oko: the CLI must
 retain its failure and the same declaration must remain refused. Both require
 <code>TAMA_TEST_SOURCE_REVISION</code>, matching clean source and retained
 executable, input and output evidence. Runs keep separate build directories and
-never delete earlier evidence. Definitions alone do not qualify the installed
-editor or Desktop decision surface.</p>
+never delete earlier evidence.</p>
 <h2>Machine enforcement</h2>
 <ul>
 <li><a href="cli/enforcement/status/"><code>tama enforcement status [--json]</code></a> — read the durable machine selection.</li>

@@ -89,8 +89,11 @@ changes are not yours to move. A stash takes all of them: <code>git pull --rebas
 stashed other sessions' edits, the rebase then refused because another session wrote a file in
 between, the stash was never applied back, and their edits were gone from the tree while they
 were still working.</p>
-<p>Deliver without touching anyone else's work:</p>
-<pre><code class="language-bash">git commit -m "&lt;what changed&gt;" -- &lt;your paths&gt;
+<p>Deliver without touching anyone else's work: stage only the changes this session wrote, then
+commit what is staged, naming no paths (the commit guard refuses a commit that would stage whole
+working-tree paths, which carry other sessions' changes too):</p>
+<pre><code class="language-bash">tama stage --session &lt;session&gt; --repo &lt;checkout&gt;
+git commit -m "&lt;what changed&gt;"
 git pull --no-rebase --no-edit
 git push
 </code></pre>

@@ -28,8 +28,8 @@ says which files the session wrote (every write and file-change tool call). Ever
 holds is another session's or the operator's, and a command that would discard one is refused naming the files:
 <code>BLOCKED: `git restore src/lib.rs` would discard uncommitted changes this session did not make in
 &lt;checkout&gt;: src/lib.rs. Another session or the operator holds them in the one shared checkout. Commit only
-your own paths (`git commit -m &lt;message&gt; -- &lt;your paths&gt;`) and leave theirs; what you must undo in a file you
-did not write is theirs to undo.</code> Discarding only one's own files passes; unstaging passes, because the
+your own changes (`tama stage --session &lt;session&gt; --repo &lt;checkout&gt;`, then `git commit -m &lt;message&gt;` with no
+paths) and leave theirs; what you must undo in a file you did not write is theirs to undo.</code> Discarding only one's own files passes; unstaging passes, because the
 change stays in the tree. The changed paths are Git's own (<code>git diff --name-only HEAD</code> and the untracked
 files); each command is judged against what it takes — a restore or a <code>reset --hard</code> against the tracked
 changes and untracked files under its paths (the whole tree for a bare reset), a <code>clean</code> against the
@@ -45,7 +45,9 @@ ownership cannot be read — no session transcript in the payload, a transcript 
 cannot list — is refused with what could not be read, because passed it threw away whatever another session held:
 <code>BLOCKED: whether `git restore src/lib.rs` would discard uncommitted changes another session holds in
 &lt;checkout&gt; cannot be told: the session transcript &lt;path&gt; cannot be read. Leave the tree as it stands and
-commit only your own paths (`git commit -m &lt;message&gt; -- &lt;your paths&gt;`).</code> The journey is
+commit only your own changes: `tama stage --session &lt;session&gt; --repo &lt;checkout&gt;`, then `git commit -m
+&lt;message&gt;` with no paths.</code> A written path that cannot be resolved for a cause other than its removal
+is refused the same way, naming the path. The journey is
 <code>tests/shared-checkout/discard.rs</code>.</p>
 <p>Commit ownership is checked at hunk content, not path membership. <a href="/docs/cli/stage/"><code>tama stage --session</code></a> reconstructs successful before/after edit receipts and stages only their deltas. The commit guard uses that same reader to compare the complete index with the session's recorded changes. A session editing one part of a file does not authorize another session's staged changes elsewhere in it.</p>
 <p>Commit the inspected index in a separate invocation. Whole-path commits, <code>--all</code>, <code>--include</code>, pathspec-file commits and compound shell commands refuse before they can import uninspected working-tree changes. Git's own command declaration identifies option meanings. Missing transcripts, receipts, conflicting deltas or unreadable index content refuse with the actual cause. No compiler runs. <code>--dry-run</code> commits nothing.</p>
@@ -64,8 +66,8 @@ count instead of the lines) is the judge's shape <code>TRUNCATE</code>, answered
 from the filter's name; counting matches, picking a field of a record, selecting matching lines and formatting a value
 are not truncation. The refusal: <code>BLOCKED: the command keeps only part of what it says … Run the producing
 command with its full output and read all of it; a long output is retained whole by the harness, and a wait that does
-not end is read from the open-wait register.</code> A judgement nobody could obtain passes the command and says so,
-as every judged shape does. The journey is <code>tests/hidden-output/null_sink.rs</code>; its truncation case asks the
+not end is read from the open-wait register.</code> A question the judge leaves unanswered refuses the command, as
+for every judged shape. The journey is <code>tests/hidden-output/null_sink.rs</code>; its truncation case asks the
 real judge under <code>TAMA_TEST_PRE_BASH_JUDGE=1</code> and <code>-- --ignored</code>.</p>
 <h2>Which text in a command is code</h2>
 <p>Every shell gate reads a command through one shared reader that keeps shell syntax and drops literal arguments.
@@ -90,9 +92,11 @@ through the shell, a keyword search over code, a browser engine started directly
 checkout, a cloud/cluster/IaC/hosting CLI, a file under <code>DO_NOT_RUN_quarantine_*</code> executed, a local
 direct-API helper, or a script run out of the hook tree (which passes under <code>HOOK_EDIT_AUTHORIZED=1</code> in
 settings). The refusal is the operator's sentence for that shape.</p>
-<p>When no judgement can be obtained the command passes and stderr says so, with the judge's recorded state:</p>
-<pre><code>block-inline-execution: no judgement, the command passes: …
-pre-bash: no judgement, the command passes: …</code></pre>
+<p>A question the judge leaves unanswered refuses the command with the judge's recorded state, as
+<a href="/docs/hook-model/model-judgement/#unanswered">asking a model</a> describes; a line whose every command runs a
+program the judge stands on (Tama, Oko and the products Oko depends on) passes so the judge can be repaired:</p>
+<pre><code>TAMA_HOOK_INFRASTRUCTURE: block-inline-execution: review unavailable: …
+TAMA_HOOK_INFRASTRUCTURE: pre-bash: review unavailable: …</code></pre>
 <p>A judge answer naming a shape it was not asked for passes with
 <code>pre-bash: the judge answered a shape it was not asked for (…); the command passes</code>.</p>
 <h2>Trajectory runs</h2>

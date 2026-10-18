@@ -96,11 +96,14 @@ removing it.</p>
 <p>The emergency switch has three observable evidence configurations under
 <code>~/Library/Application Support/Tama</code>, separate from retained
 <code>hook-enforcement.json</code>:</p>
-<p>| <code>emergency-backup/manifest.json</code> | <code>hook-emergency-state.json</code> | Meaning |
-|---|---|---|
-| absent | absent | Enforcing (or never installed) |
-| present | present, <code>disabled: true</code> | Globally disabled; Tama shows the machine as bypassed |
-| one without the other | — | Interrupted transition: treat as disabled and run re-enable, which restores from the manifest and removes both |</p>
+<table>
+<thead><tr><th><code>emergency-backup/manifest.json</code></th><th><code>hook-emergency-state.json</code></th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>absent</td><td>absent</td><td>Enforcing (or never installed)</td></tr>
+<tr><td>present</td><td>present, <code>disabled: true</code></td><td>Globally disabled; Tama shows the machine as bypassed</td></tr>
+<tr><td>one without the other</td><td>—</td><td>Interrupted transition: treat as disabled and run re-enable, which restores from the manifest and removes both</td></tr>
+</tbody>
+</table>
 <p>The script's own sentences: a repeat disable prints <code>Tama hooks are already disabled.</code>; enable without evidence refuses with <code>Tama has no emergency backup manifest to restore.</code>; success prints <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code> or <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> The desktop trusts only re-read durable state: <code>Tama could not persist the emergency hook state.</code> means the switch did not stick.
 During the bypass, the retained machine selection does not run;
 <code>tama sessions</code> prints each session's explicit allowlist
@@ -110,23 +113,25 @@ During the bypass, the retained machine selection does not run;
 <p>Without <code>--release</code> or <code>--home</code> the command prints its usage line and exits 2,
 the status of every Tama usage error, before anything is read. Each sentence from <code>tama hooks install-release</code>, surfaced verbatim behind
 <code>Tama hook release installation failed: &lt;reason&gt;</code> (exit 1):</p>
-<p>| Sentence | Meaning |
-|---|---|
-| <code>Unsupported Tama hook release manifest</code> | <code>release.json</code> schema is not <code>ai.wisent.tama.hook-release.v1</code> |
-| <code>Node.js 20 or newer is required; found &lt;versions&gt;</code> | Node exists on the search path but every candidate is too old |
-| <code>Node.js 20 or newer is required on PATH, /opt/homebrew/bin, /usr/local/bin, or ~/.local/bin</code> | No usable Node anywhere on the documented search path |
-| <code>Hook registry does not identify its canonical source root</code> / <code>…its canonical home</code> | The registry's <code>maintainedIn</code>/<code>adapters.codex.path</code> self-references are malformed; path rewriting would be unsafe (<a href="concepts/registry.md#who-declares-it">concepts/registry</a>) |
-| <code>Unsupported external hook source manifest</code> | <code>external-sources.json</code> schema mismatch |
-| <code>Approved hook source is missing: &lt;id&gt;: &lt;path&gt;</code> | A catalog hook's source resolves to nothing inside the release |
-| <code>Approved hook release is missing the Node.js runtime preflight</code> / <code>…the Tama session supervisor</code> / <code>…the universal Tama runtime</code> / <code>…the OMP Tama adapter</code> | A load-bearing runtime file is absent from the release |
-| <code>Full hook installation requires an emergency manifest</code> | Full install invoked without <code>--emergency-manifest</code>. Nothing writes a manifest for a machine that was never in the bypass, so this is not the operator's entry point: take the machine through the switch with <code>TAMA_HOOK_RELEASE_ROOT</code> pointed at the release, disable then enable (<a href="hook-system/hook-releases.md#installing-a-staged-release-on-this-machine">hook-releases</a>) |
-| <code>Approved repository hook is missing: &lt;path&gt;</code> | The manifest names a moved <code>.githooks</code> entry with no approved replacement in the release |
-| <code>Refusing to remove an obsolete path outside managed roots: &lt;path&gt;</code> | A previous install recorded a source file outside <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, or the managed launchers — the installer aborts rather than delete it |
-| <code>Tama runtime current path is not a symlink: &lt;path&gt;</code> | Something replaced <code>hooks-runtime/current</code> with a real file or directory; remove it manually, nothing else repairs this |
-| <code>&lt;N&gt; hook entrypoint(s) exist both active and disabled; resolve each one before restoring policy:</code> | Every conflicting pair is listed under it, each active file classified as <code>tama-managed dispatcher</code> — something the product wrote and the installer would rewrite anyway — or <code>not Tama-managed</code>, which is a person's file and their decision. Nothing is installed |
-| <code>Missing disabled hook entrypoint: &lt;path&gt;</code> | The manifest promises a <code>.tama-disabled</code> file that is gone |
-| <code>Could not read OMP extensions</code> / <code>Could not register OMP hook adapter</code> | The <code>omp config</code> round-trip failed; the transaction rolls back, including a half-applied extensions change |
-| <code>OMP's extensions answer is not JSON</code> / <code>OMP's extensions answer is not an object</code> / <code>OMP's extensions value is not a list: &lt;value&gt;</code> / <code>OMP's extension list holds an entry that is not a path: &lt;entry&gt;</code> | <code>omp config get extensions --json</code> answered something other than a list of extension paths. The install and <code>generate-configs</code> read OMP's list the same way and write nothing: registering the adapter over a list they could not read would replace every other extension with Tama's. Only a setting OMP reports as unset (no <code>value</code>, or <code>null</code>) lists no extensions; an empty answer is refused |</p>
+<table>
+<thead><tr><th>Sentence</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>Unsupported Tama hook release manifest</code></td><td><code>release.json</code> schema is not <code>ai.wisent.tama.hook-release.v1</code></td></tr>
+<tr><td><code>no Node.js on PATH passes the release's runtime preflight: &lt;each candidate and what it said&gt;</code> / <code>the approved hook release carries no Node.js runtime preflight at &lt;path&gt;</code></td><td>Every Node.js on <code>PATH</code> is older than the release's <code>shared-hooks/node-runtime-preflight.cjs</code> states, or the release has no preflight to ask</td></tr>
+<tr><td><code>Hook registry does not identify its canonical source root</code> / <code>…its canonical home</code></td><td>The registry's <code>maintainedIn</code>/<code>adapters.codex.path</code> self-references are malformed; path rewriting would be unsafe (<a href="../concepts/registry/#who-declares-it">concepts/registry</a>)</td></tr>
+<tr><td><code>Unsupported external hook source manifest</code></td><td><code>external-sources.json</code> schema mismatch</td></tr>
+<tr><td><code>Approved hook source is missing: &lt;id&gt;: &lt;path&gt;</code></td><td>A catalog hook's source resolves to nothing inside the release</td></tr>
+<tr><td><code>Approved hook release is missing the Node.js runtime preflight</code> / <code>…the sealed Tama CLI</code> / <code>…the OMP Tama adapter</code> / <code>…the Tama hook dispatcher</code></td><td>A load-bearing runtime file is absent from the release</td></tr>
+<tr><td><code>Full hook installation requires an emergency manifest</code></td><td>Full install invoked without <code>--emergency-manifest</code>. Nothing writes a manifest for a machine that was never in the bypass, so this is not the operator's entry point: take the machine through the switch with <code>TAMA_HOOK_RELEASE_ROOT</code> pointed at the release, disable then enable (<a href="../hook-releases/#installing-a-staged-release-on-this-machine">hook-releases</a>)</td></tr>
+<tr><td><code>Approved repository hook is missing: &lt;path&gt;</code></td><td>The manifest names a moved <code>.githooks</code> entry with no approved replacement in the release</td></tr>
+<tr><td><code>Refusing to remove an obsolete path outside managed roots: &lt;path&gt;</code></td><td>A previous install recorded a source file outside <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, or the managed launchers — the installer aborts rather than delete it</td></tr>
+<tr><td><code>Tama runtime current path is not a symlink: &lt;path&gt;</code></td><td>Something replaced <code>hooks-runtime/current</code> with a real file or directory; remove it manually, nothing else repairs this</td></tr>
+<tr><td><code>&lt;N&gt; hook entrypoint(s) exist both active and disabled; resolve each one before restoring policy:</code></td><td>Every conflicting pair is listed under it, each active file classified as <code>tama-managed dispatcher</code> — something the product wrote and the installer would rewrite anyway — or <code>not Tama-managed</code>, which is a person's file and their decision. Nothing is installed</td></tr>
+<tr><td><code>Missing disabled hook entrypoint: &lt;path&gt;</code></td><td>The manifest promises a <code>.tama-disabled</code> file that is gone</td></tr>
+<tr><td><code>Could not read OMP extensions</code> / <code>Could not register OMP hook adapter</code></td><td>The <code>omp config</code> round-trip failed; the transaction rolls back, including a half-applied extensions change</td></tr>
+<tr><td><code>OMP's extensions answer is not JSON</code> / <code>OMP's extensions answer is not an object</code> / <code>OMP's extensions value is not a list: &lt;value&gt;</code> / <code>OMP's extension list holds an entry that is not a path: &lt;entry&gt;</code></td><td><code>omp config get extensions --json</code> answered something other than a list of extension paths. The install and <code>generate-configs</code> read OMP's list the same way and write nothing: registering the adapter over a list they could not read would replace every other extension with Tama's. Only a setting OMP reports as unset (no <code>value</code>, or <code>null</code>) lists no extensions; an empty answer is refused</td></tr>
+</tbody>
+</table>
 <p>One refusal comes from the other side, before an install writes anything:
 <code>Tama hooks are disabled and &lt;path&gt;.tama-disabled is the entrypoint the
 bypass is holding. Installing &lt;name&gt; here would leave both files in place,
@@ -166,7 +171,7 @@ failed — sessions may still be paused; resume them via the supervisor).</p>
 <li><code>Choose an existing absolute Git repository directory: &lt;path&gt;</code> — not
 absolute, not a directory, or no <code>.git</code>.</li>
 <li><code>Tama refuses to mutate a repository not owned by the current user: &lt;path&gt;</code> — UID mismatch; scanning and cleanup are owner-only.</li>
-<li><code>Codex is unavailable. Install and authenticate Codex before confirming cleanup.</code> — repair needs the local headless agent; scan does not.</li>
+<li>A repair round asks Brama for a patch and applies it through Git. A Brama refusal or a patch-application failure is reported with its cause; installing Codex is not a prerequisite.</li>
 <li><code>The clean command was cancelled. Partial working-tree edits remain visible; inspect them and complete a read-only scan before retrying.</code></li>
 </ul>
 <p>Refusals from <code>tama request</code> arrive verbatim in <code>{&quot;error&quot;: &quot;…&quot;}</code>

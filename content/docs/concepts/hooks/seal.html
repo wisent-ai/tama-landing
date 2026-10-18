@@ -33,11 +33,14 @@ bytecode and generator files <em>before</em> sealing
 (<a href="../hook-releases.md#sealing">hook-releases</a>).</p>
 <h2>Who enforces it</h2>
 <p>Three gates, all inside <code>tama hooks install-release</code>:</p>
-<p>| Moment | Check | Refusal |
-|---|---|---|
-| Before any write | Bundled tree digests to its recorded <code>releaseId</code> | <code>Bundled Tama hook release failed its integrity check</code> |
-| After content-addressed copy | <code>releases/&lt;id&gt;</code> digests to <code>&lt;id&gt;</code>; a stale pre-existing copy is deleted and recopied first | <code>Installed Tama hook release failed its integrity check</code> |
-| Before the manifest is trusted | <code>release.json</code> schema equals <code>ai.wisent.tama.hook-release.v1</code> | <code>Unsupported Tama hook release manifest</code> |</p>
+<table>
+<thead><tr><th>Moment</th><th>Check</th><th>Refusal</th></tr></thead>
+<tbody>
+<tr><td>Before any write</td><td>Bundled tree digests to its recorded <code>releaseId</code></td><td><code>Bundled Tama hook release failed its integrity check</code></td></tr>
+<tr><td>After content-addressed copy</td><td><code>releases/&lt;id&gt;</code> digests to <code>&lt;id&gt;</code>; a stale pre-existing copy is deleted and recopied first</td><td><code>Installed Tama hook release failed its integrity check</code></td></tr>
+<tr><td>Before the manifest is trusted</td><td><code>release.json</code> schema equals <code>ai.wisent.tama.hook-release.v1</code></td><td><code>Unsupported Tama hook release manifest</code></td></tr>
+</tbody>
+</table>
 <p>Both integrity refusals surface verbatim wherever the installer runs: the
 desktop's runtime install, the emergency disable's session-controller
 reinstall, and the emergency re-enable
@@ -49,13 +52,16 @@ actual digest and the files written after the seal, <code>--home</code> digests 
 installed tree against its directory name
 (<a href="../scripts.md#tama-hooks-integrity">scripts</a>).</p>
 <h2>Where it lives</h2>
-<p>| Location | Role |
-|---|---|
-| <code>&lt;release&gt;/release.json</code> → <code>releaseId</code> | The sealed claim |
-| <code>Tama.app/Contents/Resources/tama-build.json</code> → <code>hookRelease</code> | The same object embedded in build provenance, so the app displays its bundled identity without reopening the release |
-| <code>hooks-runtime/releases/&lt;release-id&gt;/</code> | Content-addressed installed copy: the directory name is the claim |
-| <code>hooks-runtime/installed.json</code> → <code>releaseId</code>, <code>catalogChecksum</code> | What the last successful install recorded |
-| Session records → <code>runtime.loadedReleaseId</code>, <code>runtime.catalogChecksum</code> | What each live session actually loaded |</p>
+<table>
+<thead><tr><th>Location</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td><code>&lt;release&gt;/release.json</code> → <code>releaseId</code></td><td>The sealed claim</td></tr>
+<tr><td><code>Tama.app/Contents/Resources/tama-build.json</code> → <code>hookRelease</code></td><td>The same object embedded in build provenance, so the app displays its bundled identity without reopening the release</td></tr>
+<tr><td><code>hooks-runtime/releases/&lt;release-id&gt;/</code></td><td>Content-addressed installed copy: the directory name is the claim</td></tr>
+<tr><td><code>hooks-runtime/installed.json</code> → <code>releaseId</code>, <code>catalogChecksum</code></td><td>What the last successful install recorded</td></tr>
+<tr><td>Session records → <code>runtime.loadedReleaseId</code>, <code>runtime.catalogChecksum</code></td><td>What each live session actually loaded</td></tr>
+</tbody>
+</table>
 <p><code>catalogChecksum</code> is a second, narrower integrity value: the SHA-256 of the
 rewritten registry JSON with the checksum field removed, recomputed by the
 installer after path rewriting — it travels into every session record so the

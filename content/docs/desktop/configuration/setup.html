@@ -34,12 +34,15 @@ Stado integration transport (token from the <code>TAMA_STADO_INTEGRATION_TOKEN</
 environment key; the bundled copy is the fallback). Progress persists in
 user defaults under the <code>tama.onboarding.v1</code> namespace. Four screens, in
 order:</p>
-<p>| Screen | Kind | Completion |
-|---|---|---|
-| <code>promise</code> — <code>Know what every agent is allowed to do</code> | promise | continue |
-| <code>control_model</code> — <code>Policy first, mutations explicit</code> | explanation | continue |
-| <code>setup_handoff</code> — <code>Reach one matching supervised session</code> | setup handoff | fact <code>visible_matching_setup = true</code> |
-| <code>first_success</code> — <code>Observe one supervised session</code> | first success | fact <code>supervised_session_observed = true</code> |</p>
+<table>
+<thead><tr><th>Screen</th><th>Kind</th><th>Completion</th></tr></thead>
+<tbody>
+<tr><td><code>promise</code> — <code>Know what every agent is allowed to do</code></td><td>promise</td><td>continue</td></tr>
+<tr><td><code>control_model</code> — <code>Policy first, mutations explicit</code></td><td>explanation</td><td>continue</td></tr>
+<tr><td><code>setup_handoff</code> — <code>Reach one matching supervised session</code></td><td>setup handoff</td><td>fact <code>visible_matching_setup = true</code></td></tr>
+<tr><td><code>first_success</code> — <code>Observe one supervised session</code></td><td>first success</td><td>fact <code>supervised_session_observed = true</code></td></tr>
+</tbody>
+</table>
 <p>While the journey loads, the window shows <code>Loading Tama…</code>. While the
 journey waits at <code>first_success</code>, a quiet strip at the foot of the window —
 not an alert, because waiting for the first supervised session is not a

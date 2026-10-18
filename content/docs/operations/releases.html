@@ -23,11 +23,14 @@
 </ul>
 <p>A release is valid only when the committed tree is clean, the version equals the manifest's version source, every quality gate the manifest declares passes (<code>fmt</code>, and <code>compile</code> through <code>Release/stado-release.sh compile</code>), the immutable inputs match their digests, code signing and notarization succeed, and the app's <code>SUPublicEDKey</code> is the public half of the Sparkle key the release signs with.</p>
 <h2>Channels</h2>
-<p>| Channel | Audience | Guarantee | Promotion | Automatic updates |
-|---|---|---|---|---|
-| development | Maintainers | May be dirty or unsigned; never supported | Built locally; never published | Never |
-| candidate | Authorized Wisent operators | Signed, notarized bytes built once from one source revision | <code>stado release submit --channel candidate</code> | Through the candidate feed |
-| stable | General intended users | Backward-compatible within a major line | <code>stado release promote</code> moves the exact candidate bytes; nothing is rebuilt | Through the stable feed |</p>
+<table>
+<thead><tr><th>Channel</th><th>Audience</th><th>Guarantee</th><th>Promotion</th><th>Automatic updates</th></tr></thead>
+<tbody>
+<tr><td>development</td><td>Maintainers</td><td>May be dirty or unsigned; never supported</td><td>Built locally; never published</td><td>Never</td></tr>
+<tr><td>candidate</td><td>Authorized Wisent operators</td><td>Signed, notarized bytes built once from one source revision</td><td><code>stado release submit --channel candidate</code></td><td>Through the candidate feed</td></tr>
+<tr><td>stable</td><td>General intended users</td><td>Backward-compatible within a major line</td><td><code>stado release promote</code> moves the exact candidate bytes; nothing is rebuilt</td><td>Through the stable feed</td></tr>
+</tbody>
+</table>
 <p>No stable release exists yet. A release reaches <code>stable</code> only by promoting the bytes the candidate built: the same <code>Tama.zip</code>, signature and feed, never a rebuild. <code>stado release rollback</code> restores the previous desired release, and <code>stado release status</code> shows desired and observed rollout state.</p>
 <h2>Release artifact</h2>
 <p>The release stages, under the release's own coordinate:</p>

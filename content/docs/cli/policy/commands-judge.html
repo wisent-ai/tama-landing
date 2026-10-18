@@ -1,0 +1,28 @@
+<h1><code>tama commands judge</code></h1>
+<p>The review a write that declares a new command waits for. <code>block-one-off-commands</code> reads every command a written file declares — by the language's structure, whoever declared it — and decides the write from the verdicts already kept for that file path, command name and declaration. A command without a kept verdict is never let through: the hook publishes a review request and refuses the write at once, naming <code>tama commands judge &lt;request&gt;</code>. No judge runs inside the hook. This command is that review, run in the foreground: it asks the judge whether each command is a general primitive or a one-off workflow, keeps the verdicts and prints them, and the same write is afterwards decided by them alone.</p>
+<h2>Invocation</h2>
+<pre><code>tama commands judge &lt;request&gt;
+</code></pre>
+<ul>
+<li><code>&lt;request&gt;</code> is the hexadecimal id the hook's refusal names: the SHA-256 of the file path, name and declaration of every command the write declares. The request itself is <code>requests/&lt;request&gt;.json</code> under the verdicts directory (<code>{"file_path", "commands": [[name, declaration], …]}</code>), published atomically by the refusing hook.</li>
+<li>The verdicts directory is <code>TAMA_COMMAND_VERDICTS_DIR</code> when it is set and not empty, otherwise <code>command-verdicts</code> under the Tama state root. Verdicts are kept in <code>verdicts.json</code> there, under a lock, merged with the ones already kept.</li>
+<li>When every command of the request already has a kept verdict, those are printed and no judge is asked.</li>
+</ul>
+<h2>Output and refusals</h2>
+<ul>
+<li>One line per command: <code>&lt;name&gt;: PASS</code>, or <code>&lt;name&gt;: BLOCK: &lt;the judge's reason&gt;</code>. Exit 0 when every command passed, 1 when one is blocked.</li>
+<li>A review that cannot finish exits 1 with <code>block-one-off-commands: tama commands judge &lt;request&gt;: &lt;cause&gt;</code> on stderr, and the same line is appended to <code>judge.log</code> in the verdicts directory; a log that cannot be written is named too (<code>block-one-off-commands: cannot retain the review failure in &lt;path&gt;: &lt;cause&gt;</code>). The causes are each named: <code>request &lt;request&gt; is already owned by a running review; read that operation's result</code> when another <code>tama commands judge</code> holds the request's lock, <code>no request &lt;request&gt; in &lt;directory&gt;: &lt;cause&gt;</code>, <code>&lt;path&gt; is not a request: &lt;cause&gt;</code>, and the judge's own failure when the model service does not answer.</li>
+<li>No verb, another verb or a second argument is a usage refusal: the <code>commands</code> lines of <code>tama --help</code> on stderr, exit 2.</li>
+<li>On a machine that declared no model (<a href="../../model-provider/#none"><code>tama model-provider set --none</code></a>) the hook keeps no request and names no review; it admits the commands of a file with a recorded justification (<code>tama justify record --kind file</code>) and refuses each command of a file without one.</li>
+</ul>
+<h2>Quickstart</h2>
+<p>A write adding a <code>status</code> verb to a CLI is refused, reviewed, and written again:</p>
+<pre><code>$ # the write is refused:
+block-one-off-commands: BLOCKED: src/cli/ci/mod.rs would declare command(s) status that the judge has not read yet. Run `tama commands judge 8dc6…` …
+$ tama commands judge 8dc6…
+status: PASS
+$ # the same write now passes on the kept verdict
+</code></pre>
+<h2>Tests</h2>
+<p><code>tests/one-off-commands/kept_verdicts.rs</code> runs the built hook the way the harness does and the built <code>tama commands judge</code> the way the refusal names it, against the machine's real model route, with the verdicts in a directory of its own (<code>TAMA_COMMAND_VERDICTS_DIR</code>): a write adding a subcommand nobody judged is refused naming the request, the review answers and keeps the verdict, and the same write is then decided by that verdict alone.</p>
+<p>Return to <a href="../../">the complete CLI tree</a>.</p>

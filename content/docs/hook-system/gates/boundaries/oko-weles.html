@@ -11,12 +11,12 @@ the boundary (<code>block_oko_trajectory_edits/judge-prompt.md</code>): a script
 step by step, a Slack app install, OAuth, permission or manifest flow carried out by automation, or browser login
 automation is refused; Oko code calling the Web API with a token, and documentation or tests that only name these
 flows, pass. A file's name decides nothing. The refusal names where the work belongs
-(<code>weles/scripts/trajectories/</code>) and what the model found. When no judgement can be obtained the write
-passes and stderr says <code>block-oko-trajectory-edits: no judgement, the write passes: …</code> with the judge's
-recorded state.</p>
+(<code>weles/scripts/trajectories/</code>) and what the model found. A question the judge leaves unanswered refuses
+the write with <code>TAMA_HOOK_INFRASTRUCTURE: block-oko-trajectory-edits: review unavailable: …</code> and the
+judge's recorded state, as <a href="/docs/hook-model/model-judgement/#unanswered">asking a model</a> describes.</p>
 <h2>Where it comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_oko_trajectory_edits/</code>. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test oko_boundary_judged</code> runs the built hook
-with the judge recorded as not answering and requires a write inside Oko to pass with the stderr note and a write
+with the judge recorded as not answering and requires a write inside Oko to be refused as unjudged and a write
 in Weles never to ask; with <code>TAMA_TEST_BOUNDARY_JUDGE=1</code> and <code>-- --ignored</code> it asks the real
 judge and requires a Playwright Slack install script in Oko refused and a Web API client passed.</p>

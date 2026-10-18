@@ -19,9 +19,8 @@ on its own under its own path by <code>pre-write-edit</code>, <code>block-intern
 <code>block-one-off-commands</code>: a refusal names the file that holds the violation and the line in that file,
 and a file in a vendored or generated tree (<code>node_modules</code>, <code>.git/</code>, <code>.next</code>, …) is
 judged as one whichever file the write names first. A write that only takes text away and adds none is not
-judged by <code>pre-write-edit</code>. The journey is
-<code>each_file_a_patch_leaves_is_judged_under_its_own_path</code> in
-<code>tests/pre-write-edit/held_lines.rs</code>.</p>
+judged by <code>pre-write-edit</code>. The journey is <code>each_file_a_patch_leaves_is_judged_under_its_own_path</code>
+in <code>tests/pre-write-edit/held_lines.rs</code>.</p>
 <p><code>block-oversized-files</code> counts the lines of that same rebuilt file, every file a write leaves, so a
 hashline split that cuts lines and inserts module declarations is counted after its cut, whatever fragment the
 editor also sends. A write whose file cannot be rebuilt is refused with the cause. The journey is
@@ -29,8 +28,8 @@ editor also sends. A write whose file cannot be rebuilt is refused with the caus
 <h2>Structural rewrites are refused</h2>
 <p>A structural rewrite written to the harness's <code>xd://ast_edit</code> device carries only its patterns and
 the files they apply to; the harness's ast-grep engine stages the rewrite and a later write to
-<code>xd://resolve</code> applies it, so neither call carries the files as they will read. Every gate that rebuilds
-a write refuses it, naming the targets:</p>
+<code>xd://resolve</code> applies it, so neither call carries the files as they will read. Every gate that
+rebuilds a write refuses it, naming the targets:</p>
 <pre><code>pre-write-edit: BLOCKED: the file this write leaves cannot be rebuilt to judge it: cannot rebuild the files the xd://ast_edit rewrite of /repo/held.js leaves: …; make the change with edit or write, whose resulting file is rebuilt and judged</code></pre>
 <p>Make the change with <code>edit</code> or <code>write</code>; the journey is
 <code>tests/pre-write-edit/held_lines.rs</code>.</p>

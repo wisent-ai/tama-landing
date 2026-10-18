@@ -56,15 +56,19 @@ re-enable succeeds. During the bypass, only a session's generation-bound
 provider configs from the backups, re-bootstrapping the editor LaunchAgent —
 and only then removes the emergency state and manifest, printing <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> A failed enable preserves the recovery evidence. After successful re-enable, the retained all-hooks or selected-hooks machine policy resumes.</p>
 <h2>Where it lives</h2>
-<p>| Path | Content |
-|---|---|
-| <code>~/Library/Application Support/Tama/hook-emergency-state.json</code> | The durable disabled flag |
-| <code>~/Library/Application Support/Tama/hook-enforcement.json</code> | The independent all-hooks or selected-hooks baseline; retained while emergency state takes precedence |
-| <code>~/Library/Application Support/Tama/emergency-backup/manifest.json</code> | <code>configs</code> emptied, <code>moved</code> entrypoint pairs, <code>editorWatcherStopped</code> — written once |
-| <code>~/Library/Application Support/Tama/emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code> | Original provider configs, restored on enable |</p>
-<p>The desktop wrapper (<code>HookEmergencySwitch</code>) bounds the script: 300 s
-runtime, 64 KiB output, SIGTERM→SIGKILL escalation, with its own verbatim
-failures (<code>The local policy command exceeded its bounded runtime and was terminated. Inspect local policy state before retrying.</code>, <code>The Tama bundle does not contain the emergency hook controller.</code>, …) listed in the
+<table>
+<thead><tr><th>Path</th><th>Content</th></tr></thead>
+<tbody>
+<tr><td><code>~/Library/Application Support/Tama/hook-emergency-state.json</code></td><td>The durable disabled flag</td></tr>
+<tr><td><code>~/Library/Application Support/Tama/hook-enforcement.json</code></td><td>The independent all-hooks or selected-hooks baseline; retained while emergency state takes precedence</td></tr>
+<tr><td><code>~/Library/Application Support/Tama/emergency-backup/manifest.json</code></td><td><code>configs</code> emptied, <code>moved</code> entrypoint pairs, <code>editorWatcherStopped</code> — written once</td></tr>
+<tr><td><code>~/Library/Application Support/Tama/emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code></td><td>Original provider configs, restored on enable</td></tr>
+</tbody>
+</table>
+<p>The desktop wrapper (<code>HookEmergencySwitch</code>) waits for the script's own exit and for its
+output to close, and reports the script's exit status and what it printed; output beyond
+64 KiB is refused rather than cut. Its own failures
+(<code>The local policy command exceeded Tama's bounded output limit. Inspect local policy state before retrying.</code>, <code>The Tama bundle does not contain the emergency hook controller.</code>, …) are listed in the
 <a href="../runbook.md#the-emergency-switch-refuses">runbook</a>.</p>
 <h2>Not to be confused with</h2>
 <ul>

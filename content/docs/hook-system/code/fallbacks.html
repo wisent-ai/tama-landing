@@ -76,7 +76,7 @@ refused until the declaration is repaired, because an unjudged file is not a fil
 </tbody>
 </table>
 <h2>Listing what a codebase already holds</h2>
-<p><a href="../../../cli/inspection/violations/find-violations/"><code>tama violations find --fallbacks</code></a> runs
+<p><a href="../cli/violations/find/"><code>tama violations find --fallbacks</code></a> runs
 the same judgement over every tracked file of each repository it is given (<code>--repo</code>, <code>--tree</code>,
 <code>--owner</code>, <code>--me</code>), one finding per construct and line, reported per repository with the
 construct as its rule. Tama Desktop offers the same pass as <em>Fallbacks and dropped errors</em> on the Violations
@@ -96,6 +96,5 @@ match the clean tracked checkout. Before invoking the hook, they retain the
 candidate revision, actual executable digest and Git command outcomes.
 Each invocation uses an isolated home and working directory beneath the ignored
 test target directory, retaining its payload, command, exit status, stdout and
-stderr even when a policy assertion fails. Invoke
-<code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate&gt; cargo test -p tama-cli --test fallbacks_refusal --test fallbacks_languages --test violations_fallbacks</code>
-only during the permitted qualification run.</p>
+stderr even when a policy assertion fails. The command is
+<code>TAMA_TEST_SOURCE_REVISION=&lt;full-candidate&gt; cargo test -p tama-cli --test fallbacks_refusal --test fallbacks_languages --test violations_fallbacks</code>.</p>

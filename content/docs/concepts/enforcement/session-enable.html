@@ -3,7 +3,7 @@
 ever make policy stronger there? Through one narrow mutation: enable a hook,
 or every hook, in exactly one session, applied not by Tama but by that
 session's own supervisor. There is no per-session disable, by contract
-(<a href="../core-contracts.md#session-override">core-contracts</a>).</p>
+(<a href="../../core-contracts/#session-override">core-contracts</a>).</p>
 <h2>What it is</h2>
 <p>A private file-based request/response exchange in
 <code>~/Library/Application Support/Tama/session-control/</code> (directory mode
@@ -31,7 +31,7 @@ idempotent.</p>
 <h2>Who applies it</h2>
 <p>The session's own supervisor — never Tama. The supervisor validates the
 envelope against the exact identity tuple in its session record
-(<a href="../enforcement-control.md#session-records">enforcement-control</a>): the
+(<a href="../../enforcement-control/#session-records">enforcement-control</a>): the
 <code>controlKey</code> is a 64-hex secret, the <code>agentId</code> must start with an ASCII
 letter and be 1–32 characters, and the record must be live (<code>process</code> mode:
 the pid answers <code>kill(pid, 0)</code>; <code>heartbeat</code> mode: <code>updatedAt</code> within
@@ -43,26 +43,29 @@ resulting state.</p>
 <h2>What can refuse it</h2>
 <p>Every failure is actionable, never optimistic. The public refusal states
 include:</p>
-<p>| Failure | Sentence or reason |
-|---|---|
-| Malformed session identity | <code>Tama rejected an invalid agent session control endpoint.</code> |
-| Unparseable response | <code>The agent runtime returned an invalid session-control response.</code> |
-| Only v1 records on disk | <code>Tama found only legacy v1 session records. Reinstall the verified bundled runtime, then stop or resume the affected agent session to publish v2 state.</code> |
-| Supervisor said no | <code>The agent runtime rejected the session-control request: &lt;reason&gt;</code> |
-| Session-control directory cannot be watched | <code>Tama could not watch the session-control directory &lt;path&gt;: &lt;reason&gt;</code> |
-| Session exited mid-request | <code>The agent session ended before the session-control request completed.</code> |
-| Disabled state has no usable generation | <code>global-emergency-state-missing-generation</code> |
-| Emergency state changes during one-hook activation | <code>emergency-state-changed-during-activation</code> |
-| Enable-all requested during global disable | <code>global-emergency-disable-active</code> |</p>
+<table>
+<thead><tr><th>Failure</th><th>Sentence or reason</th></tr></thead>
+<tbody>
+<tr><td>Malformed session identity</td><td><code>Tama rejected an invalid agent session control endpoint.</code></td></tr>
+<tr><td>Unparseable response</td><td><code>The agent runtime returned an invalid session-control response.</code></td></tr>
+<tr><td>Only v1 records on disk</td><td><code>Tama found only legacy v1 session records. Reinstall the verified bundled runtime, then stop or resume the affected agent session to publish v2 state.</code></td></tr>
+<tr><td>Supervisor said no</td><td><code>The agent runtime rejected the session-control request: &lt;reason&gt;</code></td></tr>
+<tr><td>Session-control directory cannot be watched</td><td><code>Tama could not watch the session-control directory &lt;path&gt;: &lt;reason&gt;</code></td></tr>
+<tr><td>Session exited mid-request</td><td><code>The agent session ended before the session-control request completed.</code></td></tr>
+<tr><td>Disabled state has no usable generation</td><td><code>global-emergency-state-missing-generation</code></td></tr>
+<tr><td>Emergency state changes during one-hook activation</td><td><code>emergency-state-changed-during-activation</code></td></tr>
+<tr><td>Enable-all requested during global disable</td><td><code>global-emergency-disable-active</code></td></tr>
+</tbody>
+</table>
 <h2>Composition with machine enforcement</h2>
 <p>Session enablement is additive to the machine policy
-(<a href="../enforcement-control.md#the-three-machine-states">enforcement-control</a>):</p>
+(<a href="../../enforcement-control/#the-three-machine-states">enforcement-control</a>):</p>
 <ul>
 <li>in all-hooks mode, every registered hook already runs;</li>
 <li>in selected-hooks mode, a hook runs when its id is in the machine
 selection or this session's <code>enabledHookIds</code>. A session cannot remove an
 id from the machine selection;</li>
-<li>during a <a href="emergency-disable.md">global emergency disable</a>, the
+<li>during a <a href="../emergency-disable/">global emergency disable</a>, the
 machine selection is bypassed. <code>enabledHookIds</code> is the session's explicit
 allowlist, but only when the override's <code>emergencyChangedAt</code> exactly equals
 the active emergency state's nonempty <code>changedAt</code>. Those are the only hooks
@@ -106,11 +109,11 @@ supervisor spawned and its lifetime and dispatch registered). A dispatch whose
 <li>The <strong>Session</strong> screen renders the live record and can request one-hook or
 enable-all mutations. Enable-all remains a normal-state reload operation and
 reports the supervisor's refusal during a global emergency disable
-(<a href="../desktop/session.md">desktop/session</a>).</li>
+(<a href="../../desktop/session/">desktop/session</a>).</li>
 <li>The <strong>Hooks</strong> inspector calculates <em>Enabled</em> from
 <code>enabledHookIds</code> when the selected session is globally disabled, and from
 <code>disabledHookIds</code> otherwise. Its single-hook action uses the same
-generation-bound control path (<a href="../desktop/hooks.md">desktop/hooks</a>).</li>
+generation-bound control path (<a href="../../desktop/hooks/">desktop/hooks</a>).</li>
 <li>Inside an OMP session, the bundled adapter exposes the same plane as
 session tools: <code>tama_set_session_hook</code>,
 <code>tama_enable_all_session_hooks</code>, <code>tama_hook_runtime_status</code>,
@@ -152,15 +155,15 @@ honest blocked report, not a claim that the work was completed.</p>
 <code>TAMA_HOOK_INFRASTRUCTURE: check-open-items-with-model: &lt;reason&gt;</code>
 and exits <code>70</code>. Activation checks ledger availability separately
 from permission to finish and reports pending tasks. The hook's existing id
-is unchanged; see <a href="../../hook-system/enforcement-control.md">completion
+is unchanged; see <a href="../../enforcement-control/">completion
 enforcement</a> for the real-session qualification and required OMP behavior.</p>
 <h2>Not to be confused with</h2>
 <ul>
 <li><strong>Disabling.</strong> The opposite direction exists only as the machine-global,
-operator-confirmed <a href="emergency-disable.md">emergency disable</a>. Agent-facing
+operator-confirmed <a href="../emergency-disable/">emergency disable</a>. Agent-facing
 controls never weaken policy.</li>
 <li><strong>A capability.</strong> Enabling changes <em>which hooks run</em>; a
-<a href="capability.md">capability</a> grants <em>what the session may do</em> under the
+<a href="../capability/">capability</a> grants <em>what the session may do</em> under the
 hooks that run. They travel in the same session record and are otherwise
 independent.</li>
 <li><strong>Installing.</strong> Outside global emergency disable, enable-all binds its
