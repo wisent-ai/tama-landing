@@ -17,12 +17,15 @@ one JSON result object on stdout on success; on any failure, one line on stderr 
 <pre><code>tama hooks install-release --release &lt;dir&gt; --home &lt;dir&gt;
                            [--emergency-manifest &lt;file&gt;] [--session-control-only]
 </code></pre>
-<p>| Argument | Meaning |
-|---|---|
-| <code>--release</code> (required) | The sealed release root to install; must contain <code>release.json</code> with schema <code>ai.wisent.tama.hook-release.v1</code> |
-| <code>--home</code> (required) | The target home directory; every managed write resolves against it |
-| <code>--emergency-manifest</code> | The <code>emergency-backup/manifest.json</code> written by a global disable; restores every entrypoint it names |
-| <code>--session-control-only</code> | Install hook sources and provider session controllers, and rewrite each global Git dispatcher already Tama's for this release, without connecting other Git dispatchers or restoring entrypoints |</p>
+<table>
+<thead><tr><th>Argument</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--release</code> (required)</td><td>The sealed release root to install; must contain <code>release.json</code> with schema <code>ai.wisent.tama.hook-release.v1</code></td></tr>
+<tr><td><code>--home</code> (required)</td><td>The target home directory; every managed write resolves against it</td></tr>
+<tr><td><code>--emergency-manifest</code></td><td>The <code>emergency-backup/manifest.json</code> written by a global disable; restores every entrypoint it names</td></tr>
+<tr><td><code>--session-control-only</code></td><td>Install hook sources and provider session controllers, and rewrite each global Git dispatcher already Tama's for this release, without connecting other Git dispatchers or restoring entrypoints</td></tr>
+</tbody>
+</table>
 <p>Without <code>--session-control-only</code>, <code>--emergency-manifest</code> is required: the
 refusal is <code>Full hook installation requires an emergency manifest</code>. The full
 gate order and write set are in <a href="hook-releases.md">hook-releases</a>; every
@@ -35,14 +38,17 @@ overrides the <code>omp</code> executable used to register the OMP adapter.</p>
 <p>The global kill switch, bundled at
 <code>Tama.app/Contents/Resources/emergency_disable_hooks</code>. No positional
 arguments; everything is environment:</p>
-<p>| Variable | Default | Effect |
-|---|---|---|
-| <code>TAMA_EMERGENCY_ACTION</code> | <code>disable</code> | <code>disable</code> or <code>enable</code>; anything else prints <code>Unsupported Tama emergency action: &lt;value&gt;</code> and exits <code>2</code> |
-| <code>TAMA_HOME</code> | <code>$HOME</code> | Target home |
-| <code>TAMA_SKIP_SESSION_RESTART</code> | <code>0</code> | <code>1</code> skips the supervised-session pause/resume |
-| <code>TAMA_HOOK_RELEASE_ROOT</code> | bundled <code>hooks-release</code> (falls back to <code>.build/Tama.app/...</code> in a checkout) | Release root |
-| <code>TAMA_HOOK_INSTALLER</code> | the release's own <code>bin/tama</code> (run as <code>tama hooks install-release</code>) | Installer override |
-| <code>TAMA_SESSION_SUPERVISOR</code> | <code>$TAMA_HOOK_RELEASE_ROOT/shared-hooks/agent-session-supervisor.py</code> | Supervisor override; if missing (and sessions are not skipped) the script prints <code>Tama session supervisor is missing: &lt;path&gt;</code> and exits <code>66</code> |</p>
+<table>
+<thead><tr><th>Variable</th><th>Default</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td><code>TAMA_EMERGENCY_ACTION</code></td><td><code>disable</code></td><td><code>disable</code> or <code>enable</code>; anything else prints <code>Unsupported Tama emergency action: &lt;value&gt;</code> and exits <code>2</code></td></tr>
+<tr><td><code>TAMA_HOME</code></td><td><code>$HOME</code></td><td>Target home</td></tr>
+<tr><td><code>TAMA_SKIP_SESSION_RESTART</code></td><td><code>0</code></td><td><code>1</code> skips the supervised-session pause/resume</td></tr>
+<tr><td><code>TAMA_HOOK_RELEASE_ROOT</code></td><td>bundled <code>hooks-release</code> (falls back to <code>.build/Tama.app/...</code> in a checkout)</td><td>Release root</td></tr>
+<tr><td><code>TAMA_HOOK_INSTALLER</code></td><td>the release's own <code>bin/tama</code> (run as <code>tama hooks install-release</code>)</td><td>Installer override</td></tr>
+<tr><td><code>TAMA_SESSION_SUPERVISOR</code></td><td><code>$TAMA_HOOK_RELEASE_ROOT/shared-hooks/agent-session-supervisor.py</code></td><td>Supervisor override; if missing (and sessions are not skipped) the script prints <code>Tama session supervisor is missing: &lt;path&gt;</code> and exits <code>66</code></td></tr>
+</tbody>
+</table>
 <p>Disable ends with <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code>; a repeat prints <code>Tama hooks are already disabled.</code> and exits <code>0</code>. Enable ends with <code>Enabled approved hook release &lt;first-12-of-id&gt;. Supervised agent sessions will resume without an editor restart.</code>; enable without a manifest fails with <code>Tama has no emergency backup manifest to restore.</code>. The step-by-step behavior is in
 <a href="enforcement-control.md">enforcement-control</a> and
 <a href="concepts/emergency-disable.md">concepts/emergency-disable</a>.</p>
@@ -121,7 +127,7 @@ uncommitted work, and a fingerprint of every source input — or, with
 <code>--shell</code>, <code>&lt;revision&gt; &lt;dirty&gt;</code> for a build script. A fleet build
 names its commit in <code>WISENT_SOURCE_COMMIT</code> instead of a <code>.git</code> directory.
 What to do with a staged tree afterwards is
-<a href="../hook-system/hook-releases.md#installing-a-staged-release-on-this-machine">hook-releases</a>.</p>
+<a href="hook-releases.md#installing-a-staged-release-on-this-machine">hook-releases</a>.</p>
 <h3>package-release.sh</h3>
 <p>No arguments. Packages the immutable release candidate for the exact signed
 <code>v&lt;SemVer&gt;</code> tag at <code>HEAD</code> (<code>TAMA_RELEASE_TAG</code> disambiguates). It refuses,
