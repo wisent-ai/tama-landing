@@ -51,10 +51,9 @@ sends nothing when it ends, so its result never restarts an interrupted session.
 removes the previous idle-session continuation path.</p>
 <p>Harness refusal continuations appended to the same transcript do not by
 themselves change the candidate. A changed completion message, replaced transcript
-or new work generation does require a new assessment. Actual OMP completion and interruption
-journeys must qualify that lifecycle; a native hook result or source revision
-alone does not establish it. Operator interruption and notification-only events
-remain outside the adapter's cancellation-return contract.</p>
+or new work generation does require a new assessment. Operator interruption
+and notification-only events remain outside the adapter's cancellation-return
+contract.</p>
 <p>Post-compaction context belongs to the session and work generation that
 requested it. If either changes while the native hook runs, the adapter discards
 the late context and records why; this guard does not prevent compaction or prove restoration.</p>
