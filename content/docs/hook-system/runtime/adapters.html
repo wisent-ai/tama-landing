@@ -201,7 +201,13 @@ State includes <code>processId</code>, <code>generation</code>,
 <code>lastReloadAtMs</code> and <code>lastReloadError</code>.
 <code>processId</code> identifies the common engine process, not its caller's
 harness process. A registry without release metadata reports a null release
-identity, not a fabricated release.</p>
+identity, not a fabricated release. A reload replaces the catalog the engine
+dispatches, never the engine's own code, so a <code>status</code> answer also
+names <code>coreReleaseId</code>, the release of the first registry the process
+read (the code it runs: status, the in-flight hook records' inspection, the
+abandoned-dispatch register), and <code>coreReplacedByRelease</code>, true when
+a reload has since loaded another release's catalog and the engine's own code
+stays the older one until its process is replaced.</p>
 <h3>OMP integration status</h3>
 <p>The <code>omp-shared-hooks.js</code> adapter forwards ordinary hook events and
 reload operations to a persistent <code>tama run-hook --serve omp</code> process.
