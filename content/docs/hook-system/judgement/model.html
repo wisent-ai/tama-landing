@@ -58,8 +58,8 @@ kept for the next ask: …</code> on stderr says why.</p>
 object whose <code>choice</code> is one of the options the gate names and whose
 <code>reason</code> is the judge's sentence, bound to a strict JSON Schema. The
 gate compares <code>choice</code> with its own option and uses
-<code>reason</code> in its refusal; a model that frames its answer otherwise
-can no longer pass a call by not beginning with the blocking word. An answer
+<code>reason</code> in its refusal, so the words a model puts around its answer
+never decide whether a call passes. An answer
 that is not one of the options is an <code>Unavailable</code> judgement naming
 the answer, and the gate refuses it as below. The kept answer is keyed by the
 prompt and the schema together. These gates ask this way:
