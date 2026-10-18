@@ -206,8 +206,15 @@ dispatches, never the engine's own code, so a <code>status</code> answer also
 names <code>coreReleaseId</code>, the release of the first registry the process
 read (the code it runs: status, the in-flight hook records' inspection, the
 abandoned-dispatch register), and <code>coreReplacedByRelease</code>, true when
-a reload has since loaded another release's catalog and the engine's own code
-stays the older one until its process is replaced.</p>
+a reload (or a dispatch that refreshed the registry) has since loaded another
+release's catalog and the engine's own code stays the older one. The adapter
+reads that in every answer: the first request that finds such an engine owing
+no answer closes its input, waits for it to exit and starts the installed
+release's engine, so a session never keeps running engine code its release
+replaced; requests still owed an answer finish on the older engine first. The
+real journey <code>tests/core-replacement/journey.mjs</code> reloads a registry
+that names another release and requires the next status to come from a new
+engine process on that release, then from the same one.</p>
 <h3>OMP integration status</h3>
 <p>The <code>omp-shared-hooks.js</code> adapter forwards ordinary hook events and
 reload operations to a persistent <code>tama run-hook --serve omp</code> process.

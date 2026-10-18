@@ -13,7 +13,7 @@ drifted:</p>
 <tr><td>Bundled</td><td><code>tama-build.json</code> → <code>hookRelease.releaseId</code></td><td>What the signed app carries</td></tr>
 <tr><td>Installed</td><td><code>hooks-runtime/installed.json</code> → <code>releaseId</code></td><td>What the last successful install wrote</td></tr>
 <tr><td>Loaded</td><td>session record → <code>runtime.loadedReleaseId</code></td><td>The catalog a live session dispatches: which hooks run, each started afresh from its release</td></tr>
-<tr><td>Core</td><td>status answer → <code>state.coreReleaseId</code></td><td>The release whose code the session's engine itself runs (status, hook-record inspection); a reload does not replace it, and <code>state.coreReplacedByRelease</code> is true while it lags the loaded catalog</td></tr>
+<tr><td>Core</td><td>status answer → <code>state.coreReleaseId</code></td><td>The release whose code the session's engine itself runs (status, hook-record inspection); a reload does not change it, <code>state.coreReplacedByRelease</code> is true while it lags the loaded catalog, and the adapter then replaces the engine at its first request that finds it owing no answer</td></tr>
 </tbody>
 </table>
 <p>plus the enforcement signals around them: catalog validation, managed
