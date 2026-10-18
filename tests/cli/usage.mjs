@@ -20,7 +20,7 @@ import { MISUSE, SUCCEEDED, qualification, root } from "./qualification.mjs";
 
 const cli = path.join(root, "src", "cli.mjs");
 const usage = "Usage: tama-landing build\n";
-const qualified = qualification("cli-usage", fileURLToPath(import.meta.url));
+const qualified = qualification("cli-usage", fileURLToPath(import.meta.url), ["src/cli.mjs", "tests/cli"]);
 const runs = [];
 
 function landing(args) {

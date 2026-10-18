@@ -18,8 +18,12 @@ export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 export const SUCCEEDED = 0;
 export const MISUSE = 2; // https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html
 
-/** A journey's qualification: its revision, and its report when one is asked for. */
-export function qualification(journey, journeyFile) {
+/**
+ * A journey's qualification: its revision, and its report when one is asked
+ * for. `sources` are the paths whose uncommitted changes refuse a report: the
+ * product the journey runs and the journey itself.
+ */
+export function qualification(journey, journeyFile, sources) {
   const defectId = process.env.TAMA_LANDING_TEST_DEFECT?.trim();
   const criterion = process.env.TAMA_LANDING_TEST_CRITERION?.trim();
   assert.equal(Boolean(defectId), Boolean(criterion),
@@ -32,8 +36,8 @@ export function qualification(journey, journeyFile) {
     return run.stdout;
   };
   const revision = git("rev-parse", "HEAD").trim();
-  const uncommitted = git("status", "--porcelain", "--", "src/cli.mjs", "tests/cli");
-  assert.ok(!defectId || uncommitted === "", "commit the CLI and this test before qualification");
+  const uncommitted = git("status", "--porcelain", "--", ...sources);
+  assert.ok(!defectId || uncommitted === "", `commit ${sources.join(", ")} before qualification`);
   return {
     /** Writes the criterion report when one was asked for; `runs` is the observed final state. */
     report(runs) {
