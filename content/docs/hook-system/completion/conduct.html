@@ -44,7 +44,14 @@ no open defect …</code>, names <code>oko tasks claim &lt;task-id&gt; --by &lt;
 add &lt;session&gt; &lt;n&gt; --by &lt;session&gt;</code>, <code>tama task scope set</code>, <code>oko defects assign
 &lt;id&gt; --owner &lt;session&gt;</code> and <code>oko work next</code>. A holding session's call must state its
 purpose in the harness's own field (OMP's intent <code>i</code>, Claude Code's <code>description</code>); one
-that states none is refused naming the items it holds. Each admitted call is kept with its items (each owned
+that states none is refused naming the items it holds. A session must hold the item Oko's queue puts first
+for it, <code>oko work next --executor &lt;session&gt;</code>: holding another one is refused with
+<code>BLOCKED: block-unclaimed-calls: the next item in Oko's queue for this session is …</code>, naming that
+item, why the queue puts it first and the <code>oko tasks claim</code> or <code>oko defects assign</code> that
+takes it; the order changes in the register (priority, blockers), not by working on something else. While a
+moment of the operator's frustration in the session (<code>oko frustration list --session &lt;session&gt;</code>)
+has no cause named, every call is refused naming each moment and <code>oko frustration cause &lt;id&gt; --cause
+…</code>, an Oko command, which passes. Each admitted call is kept with its items (each owned
 defect, then the declared entry with the operator's words it was declared for), tool, purpose and time in
 <code>calls.&lt;session&gt;.jsonl</code> beside the session's control files. A shell line made only of commands
 of the configured Oko CLI or this Tama program — claiming, declaring the scope, reading an item, writing a
