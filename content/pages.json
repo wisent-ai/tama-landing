@@ -77,6 +77,7 @@
   {"route":"cli/task/scope","source":"content/docs/cli/assignment/task-scope.html","content":"content/docs/cli/assignment/task-scope.html","category":"CLI reference"},
   {"route":"cli/reviews","source":"content/docs/cli/reviews/reviews.html","content":"content/docs/cli/reviews/reviews.html","category":"CLI reference"},
   {"route":"cli/commit-lock","source":"content/docs/cli/reviews/commit-lock.html","content":"content/docs/cli/reviews/commit-lock.html","category":"CLI reference"},
+  {"route":"cli/reviews/harsh","source":"content/docs/cli/reviews/harsh.html","content":"content/docs/cli/reviews/harsh.html","category":"CLI reference"},
   {"route":"cli/standing","source":"content/docs/cli/reviews/standing.html","content":"content/docs/cli/reviews/standing.html","category":"CLI reference"},
   {"route":"cli/format/fold","source":"content/docs/cli/format/fold.html","content":"content/docs/cli/format/fold.html","category":"CLI reference"},
   {"route":"cli/attestation","source":"content/docs/cli/attestation.html","content":"content/docs/cli/attestation.html","category":"CLI reference"},

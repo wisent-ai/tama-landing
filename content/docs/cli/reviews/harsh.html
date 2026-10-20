@@ -1,0 +1,58 @@
+<h1>tama reviews harsh</h1>
+<p>A commit is made only on rounds of harsh review by a reviewer that is not its author. The author's own attack
+lines in the commit attestation are one pass he writes himself; they can say an attack failed while he knows the
+defect, and nothing repeats them. So <code>tama hook review-commit</code>, which Git's <code>commit-msg</code> hook
+runs for every commit of every session, reads the rounds recorded for the commit being made and refuses it until a
+round by someone other than the author, over the exact staged tree and message, found nothing.</p>
+<h2>Invocation</h2>
+<pre><code>tama reviews harsh record --findings &lt;file&gt; --message &lt;file&gt; [--repository &lt;path&gt;]
+tama reviews harsh dispose --quote &lt;text&gt; --defect &lt;oko defect id&gt; [--repository &lt;path&gt;]
+tama reviews harsh show [--message &lt;file&gt;] [--repository &lt;path&gt;] [--json]</code></pre>
+<h2>Who reviews</h2>
+<ul>
+<li><strong>A reviewer session.</strong> A session that is not the author reads <code>git diff --cached</code> and the
+message the commit will carry, attacks every changed line, and runs <code>record</code> with a JSON list of findings,
+each <code>{"quote", "problem", "require"}</code>, or <code>[]</code> when it found nothing. The reviewer is the
+session whose recorded agent process runs the command, found the way owner consent finds it; a command no recorded
+session runs is the operator's own.</li>
+<li><strong>A model.</strong> On a machine that declared a model (<code>tama model-provider set</code>), every commit
+attempt first runs one round by the declared judge over the staged patch and message, and keeps it.</li>
+</ul>
+<p>A literal, call or construct spelled another way so that a repository gate does not see it is a finding of the gate
+it dodges, and an attack line saying an attack failed where the patch shows the defect is a finding; the model
+reviewer is told so, and a reviewer session reviews the same way.</p>
+<h2>Rounds and the verdict</h2>
+<p>Every round is kept, in order, in <code>&lt;git common dir&gt;/tama-harsh-review/&lt;parent&gt;.jsonl</code>, where
+the parent is the commit the new one will follow. A round covers one candidate: the staged tree and the message as
+Git records it, without comment lines and without the rounds line. Rounds recorded by the commit's author count for
+nothing. The commit is refused</p>
+<ul>
+<li>with <code>no round of harsh review by a reviewer other than the author (…) covers staged tree &lt;tree&gt; and
+this message</code> while there is none;</li>
+<li>with <code>the newest harsh review round, by …, found:</code> and each finding while the newest such round found
+anything. Each finding is repaired in the staged change, or recorded as an Oko defect with <code>dispose</code>, which
+refuses a quote no round found and a defect <code>oko defects show</code> does not hold; then a new round runs on the
+result, until a round finds nothing;</li>
+<li>with <code>earlier harsh review findings still stand</code> while any earlier finding's quoted text is still staged
+and it was not disposed: a later round that passes it does not settle it, and neither does an attack line saying the
+attack failed.</li>
+</ul>
+<p>A commit let through has one line added to its message before Git records it, naming its rounds by kind (no session
+id is written into a message): <code>Harsh-Review-Rounds: &lt;n&gt; rounds by a reviewer session; findings per round 2,
+1, 0; 1 recorded as defects</code>. <code>record</code> refuses a finding whose quote is found neither in the staged
+patch nor in the message, so no round names a defect it did not read. <code>show</code> prints the register and, given
+the message, the verdict the rounds give the staged candidate now, exiting one while it would be refused; without a
+message it lists the rounds and gives no verdict. <code>--json</code> prints <code>{register, tree, entries, admitted,
+verdict}</code> (the last two null without a message). An unreadable register, a line in it that is no round or
+disposal, or a Git step that fails refuses naming its cause.</p>
+<h2>Native request and Desktop</h2>
+<p><code>tama request reviews/harsh</code> takes <code>{"repository": "&lt;checkout&gt;", "message"?: "&lt;text&gt;"}</code>
+and returns the same document. Desktop → Reviews → Harsh review rounds reads it for a named checkout and lists each
+round with its reviewer, staged tree and findings, and each finding recorded as a defect; an unreadable register or an
+entry of an unknown kind is shown as the failure it is.</p>
+<h2>Journeys</h2>
+<p><code>tests/harsh-review/rounds.rs</code> (<code>cargo test -p tama-cli --test harsh_review_rounds</code>) commits
+through the built hook in a clone: a round that found something refuses, a later passing round does not settle a
+finding still staged, the author's own round admits nothing, and a reviewer's passing round over the repaired change
+admits the commit; a finding quoting text that is not there is not recorded. <code>tests/commit-review/attested.rs</code>
+proves an attested commit no other reviewer reviewed is refused and that the made commit carries its rounds line.</p>

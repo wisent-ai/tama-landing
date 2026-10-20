@@ -2,7 +2,9 @@
 <p>Inspect the results retained by Tama's model review of a commit before it is created (<code>tama hook review-commit</code>) without repeating it, calling a model or changing provider credentials. A push is not reviewed by a model and retains nothing: <code>review-push</code> reads the attestation each commit carries (<a href="/docs/cli/attestation/"><code>tama attestation</code></a>). The <a href="/docs/desktop/reviews/">Reviews screen</a> reads the same records.</p>
 <h2>Invocation</h2>
 <pre><code>tama reviews list [--json]
-tama reviews show &lt;id&gt; [--json]</code></pre>
+tama reviews show &lt;id&gt; [--json]
+tama reviews harsh record|dispose|show [...]</code></pre>
+<p>The harsh review rounds every commit needs from a reviewer that is not its author are recorded and read with <a href="/docs/cli/reviews/harsh/"><code>tama reviews harsh</code></a>.</p>
 <p>Use an exact ID from <code>list</code>. It is a retained exchange identifier, not a repository path. Inspection uses Tama's existing per-user state directory; it accepts no alternate home or arbitrary record path.</p>
 <h2>Outcome and cause</h2>
 <table><thead><tr><th>Outcome</th><th>Meaning</th></tr></thead><tbody>
