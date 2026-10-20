@@ -36,8 +36,14 @@ assess an answer the same overlay says that Tama is assessing it and which dispa
 and the turn ends on the candidate's own verdict when it comes within OMP's budget. When
 the budget runs out first, OMP closes the overlay and ends the turn without the adapter's
 answer; the assessment goes on, and a refusal it then gives is sent into the session as a
-message that starts the next turn on it, so a slow assessment still holds the end. A
-candidate a newer one replaced while its hooks ran answers that it was replaced. A session
+message that starts the next turn on it, so a slow assessment still holds the end. An
+assessment that ends before its hooks answer carries what ended it. A message reaching the
+session (the operator's prompt) gives the turn to that message: the stop handler gives no
+refusal of its own, OMP runs the message, and the answer to it is assessed when it ends.
+An assessment restarted for the same answer, because the session roles its verdict depends
+on changed, is awaited in its turn. Any other end refuses naming its cause: a newer
+candidate answer replaced it, a tool returned its result, the session was compacted,
+changed or shut down, or the assessment failed. A session
 without a window (print or RPC) does not await the dispatch: it immediately refuses an
 unfinished assessment, naming the pending stop hooks and their measured elapsed time, so
 nothing passes on a clock. One owned assessment serves repeat requests for
