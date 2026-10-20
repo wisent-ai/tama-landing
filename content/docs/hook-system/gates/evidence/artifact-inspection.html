@@ -12,6 +12,15 @@ wrote there counts; no list of file extensions decides it. A frame
 (<code>.work/&lt;label&gt;/frame_&lt;digest prefix&gt;_…</code>) is tied to its recording by the digest prefix and must
 still hold the content the marker recorded. Reading a file the run never wrote, a file elsewhere, or naming an
 artifact in a shell command is not looking at it.</p>
+<h2>Which transcript it reads</h2>
+<p>The transcript named as the third argument, else <code>CLAUDE_TRANSCRIPT_PATH</code>, else the most recently
+modified <code>.jsonl</code> transcript of the repository's Claude Code project folder. A project with no transcript
+folder has no evidence. The run is held, naming the path and the cause, when a named transcript is not a file,
+<code>CLAUDE_TRANSCRIPT_PATH</code> cannot be read, the project folder or one of its entries cannot be listed, a
+transcript's modification time cannot be read, or the transcript cannot be read. It is read record by record by the
+shared JSON Lines reader: a complete line that is no record holds the run with the byte that line starts at, because
+the reads it held would otherwise be missing from the verdict; only a last line still being written is set aside. A
+frame the session read that cannot be read again to compare with its marker is said on stderr and is no evidence.</p>
 <h2>Failure snapshots</h2>
 <p><code>check-failure-inspection</code> holds a claim that a run failed until the turn has read that run's failure
 snapshot or frames. They are read by Weles' run layout and their names —
