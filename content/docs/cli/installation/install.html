@@ -140,11 +140,11 @@ commit was accepted or refused.</p>
 for the real commit-review journey and its retained evidence contract.</p>
 <h2>Example: a registered test needs formatting</h2>
 <p>If a push reports <code>tests/harnesses/payload.rs (edition 2021)</code>
-with the formatter's diff, format that file and fold the result into the
-unpublished change that touches it:</p>
-<pre><code>cargo fmt --all --manifest-path rust/Cargo.toml
-git add tests/harnesses/payload.rs
-git commit --amend --no-edit
+with the formatter's diff, fold the formatting into the unpublished commits
+that wrote it with <a href="../../format/fold/"><code>tama format fold</code></a>,
+which keeps each commit's message, author and attestation note and leaves the
+index and working tree as someone left them, then push again:</p>
+<pre><code>tama format fold
 git push</code></pre>
 <p><code>check-rust-format: push refused: commit &lt;commit&gt;: N Rust file(s)
 this push changes are not in the form rustfmt writes:</code> followed by each
