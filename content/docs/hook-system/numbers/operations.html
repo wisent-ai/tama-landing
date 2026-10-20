@@ -115,6 +115,15 @@ step of any other number (<code>+= 7</code>), a one in a plain sum
 other method (<code>chunks(1)</code>) stays judged. So a counter writes its one
 plainly instead of a stand-in such as <code>NonZeroUsize::MIN.get()</code>. Real
 journey: <code>tests/numeric-literals/operations.rs</code>.</p>
+<p>A number written without a digit is reported like a literal: a quoted number
+declared as a constant or converted back (<code>"8".parse()</code>,
+<code>Number('0')</code>), a type's bound or width (an unsigned type's
+<code>MIN</code>, a type's <code>BITS</code>, arithmetic on a type's
+<code>MAX</code>), a numeric type's default or zero, the length of a string or
+array literal, and <code>true</code> or <code>false</code> converted to a number.
+These spellings are read in code only: a comment that names one, as a document
+explaining it does, runs nothing and is not refused. The same journey writes the
+spelling once in a comment, which passes, and once in code, which is refused.</p>
 <p>An HTTP status code compared for equality with a read of a response's
 status is the protocol's own identity, not a chosen number: <code>response.status === 200</code>,
 <code>res.statusCode !== 407</code>, <code>404 === response.status</code> and Rust's
