@@ -2,14 +2,17 @@
 <p>The gates that keep a session's own conduct tied to its work: no cycle of gates that leaves no step, every call serving a claimed item, purgatory, reports that are not the work, repeated looks, operator messages kept as records, and the operator's stop order. Completion enforcement and the work registers are on <a href="/docs/enforcement-control/completion/work/">Completion policy and work registers</a>.</p>
 <h3>Gates that leave no step</h3>
 <p>Each gate can look right on its own while the set refuses everything: the stop is refused because
-work remains, and every call made to do that work is refused before it runs. The core reads that from
-the session's transcript: the record keeps where the transcript stood at each stop
-(<code>transcriptBytes</code>), and when a stop is refused with exactly the refusal the previous stop got,
-at least one call was attempted since, and every attempted call was refused before it ran (an error
-result with no details a tool that ran reports), the stop is let through with <code>TAMA GATE CYCLE: the
-gates left this session no step …</code>, naming the stop refusal and each refused call. The record keeps
-them under <code>cycle</code>. A session that attempted nothing, or made a call that ran, keeps the
-refusal. A transcript that cannot be found or measured is said on standard error and the refusal stands.
+work remains, and nothing the session does since changes anything, because every call it makes is refused
+before it runs or it can only answer again. The core reads that from the session's transcript: the record
+keeps where the transcript stood at each stop (<code>transcriptBytes</code>), and when a stop is refused by
+the gate that refused the previous stop (the same refusal, or the same first refusing gate,
+<code>blockedHookId</code>), the operator wrote nothing since, and no call attempted since ran (each was
+refused before it ran, an error result with no details a tool that ran reports, or none was attempted),
+the stop is let through with <code>TAMA GATE CYCLE: the gates left this session no step …</code>, naming the
+stop refusal and each refused call, or that the session only answered again. The record keeps them under
+<code>cycle</code>. A session that made a call that ran, or a stop after the operator wrote, keeps the
+refusal: the refusal is given in full at least once before a cycle can end the turn. A transcript that
+cannot be found or measured is said on standard error and the refusal stands.
 Real journey <code>tests/gate-cycle/release.rs</code>.</p>
 <p>A turn that ended on the provider's refusal of the request (the last assistant record has
 <code>stopReason: "error"</code> and an <code>errorMessage</code> carrying
