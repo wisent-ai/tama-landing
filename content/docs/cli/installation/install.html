@@ -102,8 +102,8 @@ commits) and <code>tests/internal-names/without_stado.rs</code>, each with a HOM
 <p>Before any model is asked, <code>tama hook review-commit</code> reads the
 message Git will record (its <code>#</code> comment lines dropped) with the
 same rule <code>block-internal-names</code> applies to files: a fleet host,
-account or vault item name anywhere, or a date or a hex id of seven or more
-digits in either case (a commit, defect, task or session id) in its prose. A
+account or vault item name anywhere, or a date or a hex id of seven or more digits whose letters share one case (a commit, defect, task or session id) in its prose;
+a run that mixes cases, or is joined into a longer name (a code path segment such as <code>crypto::…::verify</code>, the first word of a hyphenated crate name), is a name. A
 message is published with its repository, so any such detail refuses the
 commit with <code>the commit message would carry internal details</code>, one
 line per value, and the incident it came from goes to Oko instead. This
