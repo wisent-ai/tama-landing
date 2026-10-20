@@ -47,6 +47,17 @@ It reads Oko's atomic defect and blocker registers without running a process:
 and the recorded owner for coordination. A valid open blocker naming that exact
 defect, by full or short id at the beginning of its <code>blocks</code> field,
 holds only that item; a repository-wide publication wait does not hide the queue.
+A repair claim also holds the item it names: a <code>repair</code> claim in Oko's
+claims register (<code>OKO_CLAIM_REGISTER</code>, or <code>claims.json</code>
+beside the defect register) whose subject is that defect's full or short id and
+whose newest verdict of each kind at the claim's own revision is not
+<code>broken</code>. What such an item waits on is a verdict its author cannot
+give, a test on a build or an adversarial reviewer on another model, so the
+refusal names it among the waits (<code>waits on the verification of repair
+claim ID at REVISION</code>) and moves to the next item; a broken verdict
+returns the item to the queue. The retained stop assessment is renewed by a
+change of the defect or blocker register or of the task reading; recording a
+claim alone does not renew it until one of those changes.
 Malformed or unreadable registers refuse with their actual path and cause.</p>
 <p>Executor task settlement runs in the background
 <code>before_provider_request</code> dispatch, before the text gate, only when
@@ -76,6 +87,12 @@ mutations and requires actual external-failure evidence plus the real blocker
 reviewer. With actionable defects it also removes access to the Oko executable,
 requires preparation to avoid task settlement, confirms no task snapshot was
 created and requires Stop to name the same persisted defect.</p>
+<p>The claim journey (<code>a_claimed_repair_holds_the_owned_item_until_a_verdict_breaks_it</code>
+in <code>tests/supervisor-stop/executor.rs</code>, run with <code>cargo test -p tama-cli
+--test supervisor_stop_roles -- --ignored</code> and the same declarations) records a real
+repair claim on the executor's owned defect through Oko in isolated registers, requires
+Stop to name the other product defect and the claim among the waits, then records a
+broken test verdict and requires Stop to name the owned defect again.</p>
 <p>The registered <code>tests/supervisor-stop/tasks.rs</code> journey reads a
 real executor's Oko ledger without mutating its tasks or role. Declare
 <code>TAMA_TEST_SOURCE_REVISION</code>, <code>TAMA_TEST_OKO_BIN</code>,
