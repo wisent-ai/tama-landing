@@ -105,3 +105,9 @@ which is other gates' subject: <a href="/docs/one-off-repairs">one-off repairs</
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file &lt;declaration&gt;</code> and installed with
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>; which hooks this machine runs is decided by
 <code>tama enforcement only &lt;hook-id&gt;…</code>, which has to be run outside an agent session.</p>
+<p>The real journey <code>tests/task-scope/gate.rs</code> runs the built prompt hook, the gate and <code>tama task scope
+set</code> and <code>show</code> with a home and workspace of its own and a defect recorded through the installed Oko: a
+change to a workspace repository is refused while no scope is declared for the current prompt and a read is not; once
+the scope names the defect and <code>tama</code>, a change in <code>tama</code> passes and one in <code>oko</code> is
+refused naming the defect and the declared repositories; a new prompt leaves the scope serving nothing and the next
+change is refused again.</p>
