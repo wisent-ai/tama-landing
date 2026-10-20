@@ -72,6 +72,13 @@ its number in the file, and names the lines in its sentence</td></tr>
 <tr><td><code>block-unapproved-tests</code></td><td>the file, and the line of each test marker it holds</td></tr>
 </tbody>
 </table>
+<p><code>pre-write-edit</code>'s funding API rule refuses a client for LSI, PARP or NCBR (a CDP session, a session
+fetch, a collection or scalar save, a saved-values or field-list route) wherever the file holds it, and an LSI
+endpoint path only when the same file also sends a request of its own (<code>fetch(</code>, a
+<code>.request</code> client call, a request context, <code>XMLHttpRequest</code>). A file that names the path only
+to recognise the answer the page received after a UI action, as a trajectory waiting on its own save does, is
+admitted. The journey <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test content_addresses</code>
+writes both forms through the built hook.</p>
 <h2>Where it comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/check_numeric_literals_payload/</code> (the replay,
 <code>line_at</code> and <code>lines_holding</code>) and each gate's own module. The journey
