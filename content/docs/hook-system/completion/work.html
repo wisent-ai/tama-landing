@@ -89,6 +89,11 @@ mutations and requires actual external-failure evidence plus the real blocker
 reviewer. With actionable defects it also removes access to the Oko executable,
 requires preparation to avoid task settlement, confirms no task snapshot was
 created and requires Stop to name the same persisted defect.</p>
+<p>The blocker-form journey (<code>a_blocker_holds_its_item_whichever_way_it_names_the_defect</code>
+in <code>tests/supervisor-stop/executor/blocked.rs</code>, run with the same <code>--ignored</code>
+command) writes the blocker register in the shape Oko keeps it with one open wait for the owned
+defect, named by its whole id, as <code>defect-&lt;id&gt;</code> and by its short id in turn, and
+requires each Stop to name the other open defect and not the blocked one.</p>
 <p>The claim journey (<code>a_claimed_repair_holds_the_owned_item_until_a_verdict_breaks_it</code>
 in <code>tests/supervisor-stop/executor.rs</code>, run with <code>cargo test -p tama-cli
 --test supervisor_stop_roles -- --ignored</code> and the same declarations) records a real
