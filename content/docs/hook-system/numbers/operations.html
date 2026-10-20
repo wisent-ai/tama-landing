@@ -52,7 +52,10 @@ the document by address, at any depth of the document.</p>
 <pre><code>"liveRoots": [2, 4],
 "liveRootsWhy": "The depths the layout specification names at https://example.com/layout#roots"</code></pre>
 <p>An explanation that names no address, or none at all, leaves the value scanned, and a JSON file
-that does not parse is scanned whole. The real test is
+that does not parse is scanned whole. One sentence cites a single value or a flat list of single
+values; an object, or a list holding one, names members of its own, so a <code>&lt;key&gt;Why</code>
+beside it cites none of them and each member's number is scanned until its own
+<code>&lt;member&gt;Why</code> names its source. The real test is
 <code>tests/numeric-literals/declared/why_fields.rs</code>
 (<code>cargo test -p tama-cli --test numeric_literals_why_fields</code>).</p>
 <p>A file written below a directory its checkout's <code>.gitignore</code> ignores — the build
