@@ -33,6 +33,11 @@ which the gate admits; the journey is <code>a_documentation_range_address_names_
 domain is all digits. A font axis weight in a stylesheet request and a package pinned to a release version are
 therefore not addresses, and a page that loads its fonts that way can be edited. The journey is
 <code>an_all_digit_label_after_at_names_no_host</code> in <code>tests/content/addresses.rs</code>.</p>
+<p>A dotted quad that stands in a version is not an address either: right after a product name and a slash
+(<code>Chrome/&lt;major&gt;.0.0.0</code>, the product token of a user agent) or right after a regular expression's
+back-reference spliced into one (<code>'Chrome/$1</code> followed by <code>.0.0.0'</code>), it names a release. The same
+quad as a URL's host (after <code>//</code>) or standing alone is still refused. The journey is
+<code>a_quad_in_a_version_token_names_no_host_and_one_in_a_url_does</code> in <code>tests/content/addresses.rs</code>.</p>
 <pre><code>pre-write-edit: BLOCKED: `&lt;address&gt;` is hardcoded data: an address or a fleet machine spelled into the file. …</code></pre>
 <h2>The refusal</h2>
 <pre><code>pre-write-edit: BLOCKED: `session &lt;ID&gt;` points into the internal defect register or transcript store. …</code></pre>
