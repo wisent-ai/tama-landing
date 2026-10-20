@@ -28,7 +28,14 @@ manifest's <code>edition</code>, <code>rust-version</code> and <code>license</co
 (<code>edition = "2021"</code>, <code>rust-version = "1.80"</code>,
 <code>license = "BSD-3-Clause"</code>) are names Rust and the SPDX list publish, so they pass in
 <code>[package]</code> and <code>[workspace.package]</code>; the same keys in any other file are
-still read.</p>
+still read. In a <code>package.json</code>, read as JSON, the package's own <code>version</code>
+and <code>license</code> (<code>"Apache-2.0"</code>), and the package names and release ranges of
+its <code>dependencies</code>, <code>devDependencies</code>, <code>peerDependencies</code>,
+<code>optionalDependencies</code> and <code>engines</code> (<code>"node": "&gt;=20"</code>,
+<code>"fs-ext": "2.1.1"</code>, a <code>github:</code> pin to a commit) are names the registry,
+Node and SPDX publish, so they pass; every other number in it (<code>"config": { "port": 8130 }</code>)
+and the same fields in any other file are still read. A <code>package.json</code> that is not JSON
+is refused naming the cause.</p>
 <p>A number a protocol or a vendor states — Apple's notification payload limit, an HTTP
 status, a file format's magic number — has that document as its source. In a code file a
 literal passes when its own comment, or the comment block written directly above it, names
