@@ -79,6 +79,13 @@ endpoint path only when the same file also sends a request of its own (<code>fet
 to recognise the answer the page received after a UI action, as a trajectory waiting on its own save does, is
 admitted. The journey <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test content_addresses</code>
 writes both forms through the built hook.</p>
+<p>Its time-limit rule refuses the calls that end work early and the limit word wherever it is spelled, but the
+word for a due date names a stored date as often as a limit: a paper's submission date, a grant's due day, a
+sentence saying a wait has none. That word is read as a limit only on a line that also bounds a
+clock (the current instant with a span added, a monotonic clock, a span of time), so a field holding a date or prose
+about one is admitted. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test pre_write_edit_time_limits</code> writes a stored
+date, the library off switches, a finite interval and a bounded clock through the built hook.</p>
 <h2>Where it comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/check_numeric_literals_payload/</code> (the replay,
 <code>line_at</code> and <code>lines_holding</code>) and each gate's own module. The journey
