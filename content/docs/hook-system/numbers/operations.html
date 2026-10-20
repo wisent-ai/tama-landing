@@ -56,6 +56,9 @@ still scanned. A file that declares itself generated — an <code>@generated</co
 comment lines it opens with, as Cargo writes <code>Cargo.lock</code> — is not scanned either: its
 numbers are what its generator wrote, a lockfile's format version and the versions a registry
 publishes, so no hand chose them; the same numbers in a file nothing declares generated are refused.
+npm's lockfile is JSON and has no comment to carry the marker, so a <code>package-lock.json</code> or
+<code>npm-shrinkwrap.json</code> that is a JSON object carrying the <code>lockfileVersion</code> npm
+stamps into every lockfile passes the same way; an object under that name without it is scanned.
 The real test is <code>tests/numeric-literals/build_directory.rs</code>
 (<code>cargo test -p tama-cli --test numeric_literals_build_directory</code>), run against a real git
 checkout it creates for each case.</p>
