@@ -46,6 +46,8 @@ It reads Oko's atomic defect and blocker registers without running a process:
 <code>blockers.json</code>. The refusal names <code>oko defects show ID</code>
 and the recorded owner for coordination. A valid open blocker naming that exact
 defect, by full or short id at the beginning of its <code>blocks</code> field,
+bare or in Oko's reference form <code>defect-&lt;id&gt;</code> (as
+<code>oko blockers record --blocks defect-&lt;id&gt;</code> keeps it),
 holds only that item; a repository-wide publication wait does not hide the queue.
 A repair claim also holds the item it names: a <code>repair</code> claim in Oko's
 claims register (<code>OKO_CLAIM_REGISTER</code>, or <code>claims.json</code>
