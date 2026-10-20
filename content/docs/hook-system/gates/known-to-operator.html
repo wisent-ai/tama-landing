@@ -42,11 +42,14 @@ do or decide next, without explaining his own policy to him. A turn under <code>
 <p>A session with no operator words and no earlier answer has nothing to be known yet: the model is not asked and the
 turn passes at no cost. A judgement nobody could obtain is never a denial: a judge Oko has recorded as not answering
 (<code>judge-health.json</code>, lifted by <code>oko tasks judge --probe</code>) is not asked at all,
-and an absent Oko CLI, a refused gateway, an unreadable transcript or an empty reply is written to stderr as
+and an absent Oko CLI, a refused gateway or an empty reply is written to stderr as
 <code>block-known-to-operator: no judgement: …</code> and the turn passes. That is this stop gate's own rule; a shell
 or write gate refuses an unanswered question instead (<a href="/docs/hook-model/model-judgement/#unanswered">asking a
 model</a>). The OMP adapter's whole-event wait (<a href="/docs/hook-model/">hook-model</a>) is the only limit on how
-long its question may take.</p>
+long its question may take. A transcript the gate cannot read, or one holding a complete line that is no record, is
+not a missing judgement: it refuses with <code>block-known-to-operator: TAMA_HOOK_INFRASTRUCTURE: the session transcript
+&lt;path&gt; cannot be read: …</code>, the cause naming the byte the damaged line starts at, since what that line said
+would otherwise be judged as never said. A last line the harness is still writing is set aside.</p>
 <h2>While work is open</h2>
 <p>The model judgement above passes everything while the judge is down, and the obstacles an agent likes to report —
 the judge itself, a Stado release, a build the operator has not allowed yet — are exactly the ones he already ruled on.
@@ -92,3 +95,8 @@ that cannot be read refuses the answer by name. Source:
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file &lt;declaration&gt;</code> and installed with
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>; which hooks this machine runs is decided by
 <code>tama enforcement only &lt;hook-id&gt;…</code>, which has to be run outside an agent session.</p>
+<p>The real journey <code>tests/known-to-operator/gate.rs</code> runs the built gate with the stop payload a harness
+hands it and a transcript of its own: a transcript with a damaged line refuses naming the transcript, and a session that
+has said nothing is not asked about. Its two judged cases ask the real judge through this machine's Brama route and run
+with <code>--ignored</code>: an answer repeating what an earlier answer told is refused quoting it, and an answer
+reporting new results passes; each fails when the judge did not answer.</p>
