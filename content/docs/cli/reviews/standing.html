@@ -1,0 +1,39 @@
+<h1><code>tama standing</code></h1>
+<p>Every agent session's commit standing. The commit review makes every commit a session asks for, whatever the form of its Rust files, and scores the session for it: a commit whose staged Rust files are all in the form <code>rustfmt</code> writes earns one point, and a commit that stages a Rust file out of that form costs one point and names the files. A session's standing is the points it earned less the points it lost; below zero it has committed more unformatted work than formatted, and <code>block-negative-commit-standing</code> refuses every tool call it makes until the operator takes a charge back.</p>
+<h2>Invocation</h2>
+<pre><code>tama standing list [--json]
+tama standing show --session &lt;ID&gt; [--json]
+tama standing score --repository &lt;PATH&gt; --range &lt;RANGE&gt; [--json]
+tama standing withdraw &lt;charge id&gt; --reason &lt;TEXT&gt; [--json]
+tama standing location
+</code></pre>
+<h2>Verbs</h2>
+<table>
+<thead><tr><th>Verb</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>list</code></td><td>Every scored session, blocked ones first, with its points and each charge: the charge id, when it was recorded, the repository and the files out of rustfmt's form</td></tr>
+<tr><td><code>show --session &lt;ID&gt;</code></td><td>One session's points and charges. A session never scored stands at zero and is free</td></tr>
+<tr><td><code>score --repository &lt;PATH&gt; --range &lt;RANGE&gt;</code></td><td>Charges the commits of a Git revision range made before each commit was scored, or in a checkout whose Git hooks did not run Tama's (see below)</td></tr>
+<tr><td><code>withdraw &lt;charge id&gt; --reason &lt;TEXT&gt;</code></td><td>Takes one charge back with the reason it was recorded in error. The id may be a prefix that names exactly one charge. The charge stays in the register under <code>withdrawn</code> with its reason and counts toward nothing</td></tr>
+<tr><td><code>location</code></td><td>The register's file: <code>~/Library/Application Support/Tama/commit-standing.json</code>, or the file <code>TAMA_COMMIT_STANDING_PATH</code> names</td></tr>
+</tbody>
+</table>
+<h2>Scoring commits made before they were scored</h2>
+<p><code>score</code> reads each commit of the range, merges aside, and puts it to the session that made it, read from the session transcripts written since the range's oldest commit: the session one of whose <code>bash</code> calls names <code>commit</code> and the repository's folder, and was running when Git recorded the commit, from the moment the call was made to the moment its result came back. No author name and no guess decides it. Only OMP records its calls in the shape read here (<code>~/.omp/agent/sessions</code>, or <code>TAMA_OMP_SESSION_ROOT</code>), so a commit only a Claude or Codex session made is listed as uncovered. The commit's added and changed Rust files are checked in its own tree as the commit review checks a staged one, and the session earns or loses its point. A commit whose tree the register already holds for that session is not scored twice, so a range may be scored again.</p>
+<pre><code>$ tama standing score --repository ~/src/sums --range origin/main~20..origin/main
+4c1e… Add two numbers
+  sinner-session lost a point: src/lib.rs
+9a07… Write the sum as rustfmt does
+  keeper-session earned a point
+e3b2… Say what the package is
+  not scored: several sessions' commit calls were running when Git recorded it: keeper-session, second-session
+</code></pre>
+<p>With <code>--json</code> each commit is <code>{"commit","subject","session","unformatted","recorded","cause"}</code>; <code>session</code> and <code>cause</code> are <code>null</code> when they do not apply.</p>
+<h2>Output document</h2>
+<pre><code>{"session":String,"earned":Number,"lost":Number,"standing":Number,"blocked":Boolean,"charges":[{"id":String,"session":String,"agent":String,"repository":String,"tree":String,"unformatted":[String],"recordedAt":String}],"rule":String}
+</code></pre>
+<h2>Refusal boundary</h2>
+<p>A missing verb, an unknown argument, <code>show</code> without <code>--session</code>, <code>score</code> without <code>--repository</code> or <code>--range</code>, and <code>withdraw</code> without a charge id or <code>--reason</code> are refused with the sentence that names what is missing and the usage. <code>withdraw</code> refuses an empty reason and an id that names no charge or several. A register that cannot be read or written, a repository Git does not know, a range Git cannot read, and a transcript or a line of one that cannot be read refuse the run naming the file and the cause, since a commit it holds would otherwise go unscored without a word. While the register cannot be read, <code>block-negative-commit-standing</code> refuses every tool call naming the cause rather than freeing held sessions.</p>
+<h2>Tama Desktop</h2>
+<p>The Commit standing screen lists every session with its points and charges, takes a charge back with its reason, and scores a revision range of a repository, through <code>tama request standing/list</code>, <code>standing/show</code> (<code>{"session"}</code>), <code>standing/score</code> (<code>{"repository", "range"}</code>) and <code>standing/withdraw</code> (<code>{"id", "reason"}</code>). They run the same functions as the verbs and answer the same documents; <code>withdraw</code> answers <code>{"withdrawn", "standing"}</code>. A request missing a field is a bad request naming it.</p>
+<p>Return to <a href="../reviews/">tama reviews</a> or the <a href="../">complete CLI tree</a>.</p>

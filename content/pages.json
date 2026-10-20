@@ -25,6 +25,7 @@
   {"route":"desktop/copies","source":"content/docs/desktop/repair/copies.html","content":"content/docs/desktop/repair/copies.html","category":"Desktop app"},
   {"route":"desktop/reviews","source":"content/docs/desktop/repair/reviews.html","content":"content/docs/desktop/repair/reviews.html","category":"Desktop app"},
   {"route":"desktop/learning","source":"content/docs/desktop/hooks/learning.html","content":"content/docs/desktop/hooks/learning.html","category":"Desktop app"},
+  {"route":"desktop/standing","source":"content/docs/desktop/monitoring/standing.html","content":"content/docs/desktop/monitoring/standing.html","category":"Desktop app"},
 
   {"route":"architecture","source":"docs/architecture.md","content":"content/docs/reference/architecture.html","category":"Reference"},
   {"route":"core-contracts","source":"docs/core-contracts.md","content":"content/docs/reference/core-contracts.html","category":"Reference"},
@@ -76,6 +77,8 @@
   {"route":"cli/task/scope","source":"content/docs/cli/assignment/task-scope.html","content":"content/docs/cli/assignment/task-scope.html","category":"CLI reference"},
   {"route":"cli/reviews","source":"content/docs/cli/reviews/reviews.html","content":"content/docs/cli/reviews/reviews.html","category":"CLI reference"},
   {"route":"cli/commit-lock","source":"content/docs/cli/reviews/commit-lock.html","content":"content/docs/cli/reviews/commit-lock.html","category":"CLI reference"},
+  {"route":"cli/standing","source":"content/docs/cli/reviews/standing.html","content":"content/docs/cli/reviews/standing.html","category":"CLI reference"},
+  {"route":"cli/format/fold","source":"content/docs/cli/format/fold.html","content":"content/docs/cli/format/fold.html","category":"CLI reference"},
   {"route":"cli/attestation","source":"content/docs/cli/attestation.html","content":"content/docs/cli/attestation.html","category":"CLI reference"},
   {"route":"cli/commands/judge","source":"content/docs/cli/policy/commands-judge.html","content":"content/docs/cli/policy/commands-judge.html","category":"CLI reference"},
   {"route":"configuration","source":"docs/configuration.md","content":"content/docs/reference/configuration.html","category":"Reference"},

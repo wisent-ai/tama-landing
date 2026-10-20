@@ -23,6 +23,8 @@ intentionally not part of the public surface.</p>
 <li><a href="cli/policy/"><code>tama policy import|list|remove</code></a> — validate and keep inactive policy bundles, list them, and remove one, without installing or enabling anything.</li>
 <li><a href="cli/hooks/"><code>tama hooks declare|undeclare|release|warm|stage|seal|source-identity|install-release|integrity|digest</code></a> — add, withdraw, build, warm, package, install and verify hook releases.</li>
 <li><a href="cli/reviews/"><code>tama reviews list|show &lt;id&gt; [--json]</code></a> — inspect retained commit-review outcomes and exact causes without repeating a review.</li>
+<li><a href="cli/standing/"><code>tama standing list|show|score|withdraw|location [--json]</code></a> — each agent session's commit standing: a point per formatted commit, one lost per unformatted one, every tool call refused below zero; charge commits made before scoring and take a charge back.</li>
+<li><a href="cli/format/fold/"><code>tama format fold [--repository &lt;path&gt;] [--json]</code></a> — fold rustfmt's form into the unpublished commits that wrote each Rust file.</li>
 </ul>
 <h2>Command declaration review</h2>
 <p>When <code>block-one-off-commands</code> finds a declaration without a kept

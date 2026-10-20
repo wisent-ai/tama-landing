@@ -1,0 +1,10 @@
+<h1>Commit standing</h1>
+<p><strong>Policy → Commit standing</strong> shows what each agent session's commits have cost it. A session earns a point for every commit whose staged Rust files are all in the form <code>rustfmt</code> writes and loses one for every commit with a Rust file out of that form; the commit is made either way. A session whose standing falls below zero is shown as <em>blocked</em>: <code>block-negative-commit-standing</code> refuses every tool call it makes until a charge is taken back.</p>
+<h2>What the screen shows</h2>
+<ul>
+<li><strong>Every scored session</strong>, blocked ones first, with its points and the rule it stands by.</li>
+<li><strong>Each charge</strong> under its session: the charge id, the repository, when it was recorded and the files that were out of rustfmt's form.</li>
+<li><strong>Take back</strong> beside each charge, with the reason it was recorded in error. The product refuses an empty reason; the charge stays in the register under <code>withdrawn</code> and counts toward nothing.</li>
+<li><strong>Score commits made before they were scored</strong>: a repository path and a revision range as Git reads it. Each commit goes to the session whose commit call was running when Git recorded it, read from the OMP session transcripts; a commit no call or several calls cover is listed with that cause and not scored, and a commit already in the register is not scored twice.</li>
+</ul>
+<p>Every action runs <a href="../../cli/standing/">tama standing</a> through <code>tama request standing/list</code>, <code>standing/score</code> and <code>standing/withdraw</code>, and a refusal is shown in the command's own words. The screen needs control access, as the Session screen does.</p>
