@@ -46,6 +46,15 @@ const APNS_ALERT_PAYLOAD_BYTES: usize = 4096;</code></pre>
 <p>A blank line ends the comment block, and an address a program writes in a string cites
 nothing. The real test for the rule is <code>tests/numeric-literals/scanning/identifiers.rs</code>
 (<code>cargo test -p tama-cli --test numeric_literals_identifiers</code>).</p>
+<p>A JSON document holds no comments, so there the key written beside a value to explain it
+carries the source: a value passes when its object holds a <code>&lt;key&gt;Why</code> string naming
+the document by address, at any depth of the document.</p>
+<pre><code>"liveRoots": [2, 4],
+"liveRootsWhy": "The depths the layout specification names at https://example.com/layout#roots"</code></pre>
+<p>An explanation that names no address, or none at all, leaves the value scanned, and a JSON file
+that does not parse is scanned whole. The real test is
+<code>tests/numeric-literals/declared/why_fields.rs</code>
+(<code>cargo test -p tama-cli --test numeric_literals_why_fields</code>).</p>
 <p>A file written below a directory its checkout's <code>.gitignore</code> ignores — the build
 directory where a run keeps its throwaway state and evidence reports, such as
 <code>&lt;repo&gt;/.build/&lt;area&gt;/report.json</code> or <code>&lt;repo&gt;/target/&lt;area&gt;</code> — is not
