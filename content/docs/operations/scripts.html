@@ -155,16 +155,9 @@ contract is in <a href="releases.md#release-process">releases</a>.</p>
 <code>WISENT_GROUND_TRUTH_API</code> (unset: <code>WISENT_GROUND_TRUTH_API must point to the canonical asset resolver.</code>, exit <code>64</code>), renders the iconset with <code>sips</code>, and
 writes the <code>.icns</code>. Requires <code>curl</code>, <code>sips</code>, <code>iconutil</code> (missing tool: exit
 <code>69</code>).</p>
-<h3>wisent-restart-app</h3>
-<pre><code>wisent-restart-app [--if-running] APP.app
-</code></pre>
-<p>Terminates the running app identified by the bundle's
-<code>CFBundleIdentifier</code> through LaunchServices, waits until its process has
-exited, and relaunches the supplied bundle in the background. The wait has no
-limit: it is registered with <code>stado waits open</code> for as long as it lasts, so
-<code>stado waits</code> names the application it stands on. <code>--if-running</code>
-skips a stopped app (<code>Not running; skipped &lt;bundle&gt; (&lt;id&gt;)</code>). A missing
-bundle, <code>Info.plist</code> or bundle id, a running app with no process id, and a
-launch LaunchServices does not list are each refused with a sentence naming it.
-Success prints <code>Restarted &lt;bundle&gt; (&lt;id&gt;)</code>.
-<code>build-app.sh</code> runs it automatically after installing a development build.</p>
+<h3>Restarting the app after a build</h3>
+<p>Tama Desktop carries no restart script of its own. <code>stado product install tama --surface desktop</code>
+restarts the bundle it places when the app runs and leaves a stopped app stopped;
+<code>stado product restart --if-running Tama.app</code> restarts a bundle placed any other way,
+refusing with a sentence that names the bundle, its <code>Info.plist</code> or the LaunchServices answer it
+could not use. <code>build-app.sh</code> restarts nothing itself.</p>
