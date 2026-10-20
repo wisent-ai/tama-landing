@@ -91,6 +91,21 @@ repair; from the answer itself, the turn-end attestation it carries word for wor
 limit, no decision handed back, no own work under blockers, and the rest). Every refusal and the
 journeys that prove them are on their own page:
 <a href="/docs/enforcement-control/completion/own-work/">endings a report cannot replace</a>.</p>
+<h3>A command handed over is one already run</h3>
+<p><code>block-unchecked-operator-commands</code> reads the final answer and the session's transcript,
+with no model. A shell fence in the answer (no info string, or one naming a shell the system
+declares) hands its lines to the reader to run, so each command in it must be one the session already
+ran through a shell call: compared word by word from where the command proper starts, after
+<code>NAME=value</code> prefixes and wrappers such as <code>env</code>, with a <code>&lt;placeholder&gt;</code>
+word standing for any one word. A command never run is refused with
+<code>BLOCKED: block-unchecked-operator-commands: this answer hands over commands this session never ran
+itself:</code> and each line, so its first refusal (a revision not on main, an install whose format gate
+refuses the revision) is met by the agent, and only a refusal that needs the reader is handed over,
+quoted with the command. A fence for another language (<code>```rust</code>) is code to read and passes;
+an unreadable answer or transcript refuses naming its cause. The declaration is
+<code>hook-declarations/answer-discipline/commands/block-unchecked-operator-commands.json</code>; the gate runs
+once <code>tama hooks declare --file</code> enters it in the registry. Real journey
+<code>tests/unchecked-operator-commands/gate.rs</code>.</p>
 <h3>A repeated look is not work</h3>
 <p><code>block-wait-polling</code> reads the session's own transcript and keeps every look made since
 the last change: a call with its arguments (OMP's intent label <code>i</code> left out) and the answer it
