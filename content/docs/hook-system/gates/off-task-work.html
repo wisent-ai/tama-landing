@@ -31,7 +31,11 @@ as the instruction, saying on stderr <code>session &lt;SESSION&gt; had no captur
 message in the transcript is recorded as the instruction</code>, and binds the scope to it. A transcript that cannot be
 read, or holds no such message, refuses with <code>no operator instruction is recorded for session &lt;SESSION&gt;, and
 its transcript cannot give one: &lt;cause&gt;</code> or <code>… holds no message from the operator's side</code>; the gate's
-refusal never names a remedy that itself cannot run.</p>
+refusal never names a remedy that itself cannot run. The real journey <code>tests/task-scope/transcript.rs</code> runs the
+built <code>tama task scope set</code> and <code>show</code> with a home of its own and a defect recorded through the
+installed Oko: a transcript whose newest operator message follows an earlier one and precedes a harness continuation
+binds the scope to that message, a transcript of harness messages only is refused and declares nothing, and a session
+with no transcript is refused naming the session.</p>
 <p>The open-work Stop refusal includes each open Oko task's identifier and the scope command. After
 recording evidence for a later defect, the agent reads the ledger, selects an earlier open task and continues it
 in the same session. Oko's pending independent verdict remains pending; selection is not a completion claim.</p>
