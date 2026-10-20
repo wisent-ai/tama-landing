@@ -91,6 +91,12 @@ this session's recorded changes; the index a commit takes must hold exactly the 
 record, staged with <code>tama stage --session &lt;session&gt; --repo &lt;checkout&gt;</code> and committed with
 <code>git commit -m &lt;message&gt;</code> in a separate invocation. A push carries commits already made and is judged
 when they were made.</td></tr>
+<tr><td>Any change or commit in a repository by a session whose Oko role is <code>supervisor</code></td>
+<td>Refused whatever its scope, naming the executors recorded under it (<code>oko sessions role</code>) to hand
+the change to, or that none is recorded yet, with the commands that hand it over: <code>oko defects record</code>,
+<code>oko defects assign &lt;id&gt; --owner &lt;executor&gt;</code> and <code>oko sessions send &lt;executor&gt;
+--defect &lt;id&gt;</code>. Reads, Oko's registers and sends pass: a supervisor reads, records, assigns and sends. A
+role register that cannot be read refuses with its cause.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
