@@ -132,8 +132,10 @@ actual lexical positions. A permitted field or array access does not admit a
 separate policy value between those accesses; the real native-operation
 journey covers both forms.</p>
 <p>The native interface remains <code>tama hook check-numeric-literals</code>,
-with a harness write or edit payload on stdin. Refusals name each new literal,
-its file and line; the existing hook-result surfaces display that same result.
+with a harness write or edit payload on stdin. Refusals name every unsourced literal the
+file will hold, the ones it already held included, with its file and line, so the
+refusal of an edit that adds no number lists what the file must cite or remove before
+any change to it is written; the existing hook-result surfaces display that same result.
 Framed hashline edits preserve the surrounding dependency table, so adding a
 Cargo dependency feature does not turn its unchanged release requirement into a
 new runtime value.</p>
