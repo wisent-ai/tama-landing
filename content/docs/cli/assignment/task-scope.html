@@ -28,14 +28,14 @@ current  yes — this scope was declared for the instruction being served
 <pre><code>{"session":String,"turn_digest":String,"task":String,"repositories":[String],"defect":String,"task_id":String,"serves_current_instruction":Boolean}
 </code></pre>
 <h2>Refusal boundary</h2>
-<p>A wrong invocation exits two with the usage line: a verb other than <code>show</code>, <code>set</code> or <code>clear</code>, an unknown option, a missing <code>--session</code>, or a <code>--repository</code> outside the workspace:</p>
+<p>A wrong invocation exits two with the usage line or the sentence that names what is missing: a verb other than <code>show</code>, <code>set</code> or <code>clear</code>, an unknown option, a missing <code>--session</code>, a <code>--repository</code> outside the workspace, or a <code>set</code> that names no entry or no repository:</p>
 <pre><code>task scope requires --session ID: a scope belongs to one session's instruction, and no other session's instruction stands in for it
 --repository &lt;value&gt; is not inside the workspace, so no change could ever match it; name the repository, for example `--repository oko`
+task scope set requires --defect &lt;ID&gt; or --task &lt;ID&gt;: every change belongs to a defect in Oko's register or a task in its task register, and a change that belongs to neither is the drift this gate exists to stop
+task scope set requires at least one --repository, or a --task whose Oko contract lists its scope (`oko tasks state &lt;task&gt; --scope &lt;repo&gt;`): work that touches nothing changes nothing
 </code></pre>
 <p>A well-formed <code>set</code> that names nothing the registers hold open exits one:</p>
-<pre><code>task scope set requires --defect &lt;ID&gt; or --task &lt;ID&gt;: every change belongs to a defect in Oko's register or a task in its task register, and a change that belongs to neither is the drift this gate exists to stop
-task scope set requires at least one --repository, or a --task whose Oko contract lists its scope (`oko tasks state &lt;task&gt; --scope &lt;repo&gt;`): work that touches nothing changes nothing
-Oko's register holds no defect &lt;ID&gt;: &lt;Oko's answer&gt;
+<pre><code>Oko's register holds no defect &lt;ID&gt;: &lt;Oko's answer&gt;
 defect &lt;ID&gt; is already closed, so no work belongs to it; record what is wrong now with `oko defects record`
 Oko's task register holds no task &lt;ID&gt;: &lt;Oko's answer&gt;
 task &lt;ID&gt; is not open, so there is no work to resume
@@ -43,4 +43,6 @@ no operator instruction is recorded for session &lt;ID&gt;, so there is nothing 
 </code></pre>
 <p>Another session declaring the same defect is not a refusal. The command prints who else declared it and directs the sessions to read the shared notes and work together using anchored edits; it still records the scope.</p>
 <p>A session that recorded a defect with no fix and no repair plan is told that this is its first work, and how to plan it and take it up. <code>show</code> on a session with no scope exits one and names the <code>set</code> to run. A scope file that cannot be created, written or removed is reported with the path and the cause.</p>
+<h2>Tama Desktop</h2>
+<p>The Session screen shows, declares and clears the selected session's scope beside its last turn ending, through <code>tama request task-scope/show</code>, <code>task-scope/set</code> and <code>task-scope/clear</code>. Each takes <code>{"session": "&lt;ID&gt;"}</code>; <code>set</code> also takes <code>"repositories"</code> (a list of names), <code>"defect"</code> and <code>"task"</code>. They run the same declaration as the verbs: <code>show</code> answers <code>{"session", "scope"}</code> with the output document above or <code>null</code> when none is declared, <code>set</code> answers <code>{"session", "scope", "notice"}</code> with another session's declaration of the same defect as the notice, and <code>clear</code> answers <code>{"session", "cleared"}</code>. A request that exits two on the terminal is a bad request carrying the same sentence, and one that exits one is a failure carrying it. The real test is <code>tests/task-scope/request.rs</code> (<code>cargo test -p tama-cli --test task_scope_request</code>).</p>
 <p>Return to <a href="../../assignment/show/">assignment show</a> or the <a href="../../">complete CLI tree</a>.</p>

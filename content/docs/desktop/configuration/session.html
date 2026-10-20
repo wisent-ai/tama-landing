@@ -75,6 +75,16 @@ run. These are the same facts <code>tama sessions</code> and
 run; warns when it differs from registered), <code>Overrides</code> (allowlisted in
 this session during a global disable, suppressed otherwise; warns when
 nonzero), <code>Decisions</code> (semantic events recorded).</p>
+<h2>Task scope</h2>
+<p>Below the session's last turn ending, the Task scope panel shows the work the session
+declared it serves — <code>Working</code> (the defect, the task, or both), <code>Touches</code> (the
+repositories its changes are held to), the operator's words, and whether it serves the
+instruction being served — or <code>This session has declared no task scope.</code> Its
+fields declare a defect, a task and repositories for the selected session, and
+<code>Clear</code> removes the declaration; both run the same declaration and refusals as
+<a href="../../cli/assignment/task-scope/">tama task scope</a> through
+<code>tama request task-scope/…</code>, and a refusal is shown in the command's own words.
+Another session that declared the same defect is shown as <code>Also declared</code>.</p>
 <h2>Session capability</h2>
 <p>The signed authorisation the session holds for privileged tool use
 (<a href="../concepts/capability.md">concepts/capability</a>): Lifetime, Expires at
