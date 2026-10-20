@@ -88,7 +88,7 @@ repository pass: <code>rust/crates/tama-violations/src/find_violations/fallbacks
 <code>hook-declarations/code-discipline/block-fallbacks.json</code>. Real-binary tests:
 <code>tests/fallbacks/refusal.rs</code> (harness payload shapes: a hashline edit, a string edit, a whole-file write),
 <code>tests/fallbacks/languages.rs</code> (one test per language, refusals and passes) and
-<code>tests/violations/fallbacks.rs</code> (the repository pass over two real checkouts, and the refusal of a missing
+<code>tests/violations/find/fallbacks.rs</code> (the repository pass over two real checkouts, and the refusal of a missing
 repository).</p>
 <h2>Retained qualification evidence</h2>
 <p>The real-binary targets require <code>TAMA_TEST_SOURCE_REVISION</code> to
