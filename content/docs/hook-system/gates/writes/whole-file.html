@@ -63,6 +63,8 @@ file the write leaves</td></tr>
 of every match, per file</td></tr>
 <tr><td><code>check-raw-api-calls</code></td><td>the raw site call and its line</td></tr>
 <tr><td><code>block-openai-api-key</code></td><td>the credential reference and the lines holding it</td></tr>
+<tr><td><code>block-credential-copies</code></td><td>each copy of a credential store, the store and the statement,
+per file (<a href="/docs/credential-copies/">credential stores are never copied</a>)</td></tr>
 <tr><td><code>check-reward-hacking</code></td><td>for a hook file below <code>~/.shared-hooks</code>, each dropped
 protection or narrowed trigger regex, and the lines of each guard or bypass the write introduces</td></tr>
 <tr><td><code>check-humanized-actions</code></td><td>the model reads each in-scope file whole, every line prefixed with

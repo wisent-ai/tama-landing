@@ -106,6 +106,7 @@
   {"route":"external-source","source":"content/docs/hook-system/gates/writes/external-source.html","content":"content/docs/hook-system/gates/writes/external-source.html","category":"Reference"},
   {"route":"whole-file","source":"content/docs/hook-system/gates/writes/whole-file.html","content":"content/docs/hook-system/gates/writes/whole-file.html","category":"Reference"},
   {"route":"temporary-paths","source":"content/docs/hook-system/gates/writes/temporary-paths.html","content":"content/docs/hook-system/gates/writes/temporary-paths.html","category":"Reference"},
+  {"route":"credential-copies","source":"content/docs/hook-system/gates/writes/credential-copies.html","content":"content/docs/hook-system/gates/writes/credential-copies.html","category":"Reference"},
   {"route":"artifact-inspection","source":"content/docs/hook-system/gates/evidence/artifact-inspection.html","content":"content/docs/hook-system/gates/evidence/artifact-inspection.html","category":"Reference"},
   {"route":"known-to-operator","source":"content/docs/hook-system/gates/known-to-operator.html","content":"content/docs/hook-system/gates/known-to-operator.html","category":"Reference"},
   {"route":"cloud-instances","source":"content/docs/hook-system/consent/cloud-instances.html","content":"content/docs/hook-system/consent/cloud-instances.html","category":"Reference"},
