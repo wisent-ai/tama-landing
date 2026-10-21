@@ -137,7 +137,7 @@ refuses before writing and prints the command for the owner's own shell.</p>
 <code>tama hooks declared</code> lists every declaration under <code>hook-declarations/</code> against the
 installed registry (<code>~/.shared-hooks/registry.json</code>, or <code>--registry PATH</code>) as
 <code>registered   &lt;id&gt;</code>, <code>unregistered &lt;id&gt;: &lt;events&gt; not bound; under the owner's consent: tama hooks declare --file &lt;path&gt;</code>,
-<code>stale        &lt;id&gt;: the catalogue's &lt;fields&gt; not what &lt;path&gt; says; under the owner's consent: tama hooks declare --file &lt;path&gt;</code> for a registered hook whose <code>category</code>, <code>description</code>, <code>why</code> or <code>sideEffects</code> in the checkout's <code>shared-hooks/catalog-metadata.json</code> (what <code>tama show</code> and the published catalogue read) differ from its declaration,
+<code>stale        &lt;id&gt;: the catalogue's &lt;fields&gt; does not say what &lt;path&gt; says; under the owner's consent: tama hooks declare --file &lt;path&gt;</code> for a registered hook whose <code>category</code>, <code>description</code>, <code>why</code> or <code>sideEffects</code> in the checkout's <code>shared-hooks/catalog-metadata.json</code> (what <code>tama show</code> and the published catalogue read) differ from its declaration,
 or <code>unreadable   &lt;path&gt;: &lt;cause&gt;</code> for a file that is no declaration, and exits with failure while any is unregistered, stale or unreadable;
 <code>--json</code> prints <code>{registry, declarations: [{file, id, events: [{event, bound}], registered, stale}]}</code>, <code>stale</code> listing the differing catalogue fields.
 Real journey <code>tests/hook-declarations/declared.rs</code>.</p>
