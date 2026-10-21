@@ -29,7 +29,8 @@ words) in its own words:</p>
   "standard": "build",
   "attestations": {
     "building_is_not_marginal": {"confirmed": true, "how": "…"},
-    "open_work_allows_the_build": {"confirmed": true, "how": "…"}
+    "open_work_allows_the_build": {"confirmed": true, "how": "…"},
+    "open_work_is_closed": {"confirmed": true, "how": "…"}
   }
 }
 </code></pre>
@@ -40,9 +41,10 @@ not replace it.</li>
 <li><code>open_work_allows_the_build</code>: either every task and defect is finished, every
 task and defect in the build-first category is finished, or this build builds or proves the
 repair of an open build-first item that <code>oko admit</code> with <code>--purpose</code> that
-item admits. A build of an open build-first item's own repair is the build the operator's
-build-first ruling allows before the rest: it is how that repair is built and tested, so the
-item is not required to be closed first.</li>
+item admits.</li>
+<li><code>open_work_is_closed</code>: the agent confirms that every task and every defect is
+closed now, or that every task and every defect in the build-first category is closed now. An
+open build-first item is no reason to build: the build comes after the items are closed.</li>
 </ul>
 <p>An attestation that falls short is not kept (<code>stands: false</code> with every reason). A
 build the gate admits spends the attestation, once per command line however many compiles it
