@@ -16,8 +16,14 @@ the call because the abandoned dispatch returned no blocking-hook record.</p>
 <p>The before-provider text gate likewise requires an explicit pass; a cancelled
 assessment is not permission to send prose. A failed background refresh records
 its actual cause for the same session and work generation instead of retaining
-an earlier pass. Unsupported provider tool shapes remain subject to the documented
-enforcement limitation; this result handling does not add a provider cancellation API.</p>
+an earlier pass. A request whose tools cannot be required (an Anthropic Messages
+request) is sent unchanged, so its model can still write prose. In a session with a
+window the adapter watches the streamed answer: the first non-blank text it streams
+while the gate's newest answer for the work generation is not a pass, or while the gate
+has not answered for it, aborts the run, and a hidden message carrying the gate's reason
+starts the next turn, so the operator sees at most those first words. Subagents' text is
+not watched, and a session without a window (print or RPC) keeps the stop refusal alone,
+so a run nobody watches is not continued without end.</p>
 <p>The OMP adapter forwards an event's AbortSignal, cancels outstanding work
 on a new input, session activation or shutdown, and streams hook stderr to
 the terminal and the Tama hook status indicator. Judge requests announce
