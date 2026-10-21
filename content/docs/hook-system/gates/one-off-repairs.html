@@ -133,8 +133,8 @@ build|test|assemble</code>, <code>gh run|rerun</code>, <code>xcrun swift|xcodebu
 <code>rustc</code>, <code>gcc</code>, <code>g++</code>, <code>clang</code>, <code>clang++</code> and
 <code>tsc</code>; and the fleet's own compiles, <code>stado host build</code>, <code>stado product
 cargo|swift|install|update|sync</code>, <code>stado build submit|newest</code>, <code>stado release
-submit|prepare|newest</code>. An exact release install (<code>--release-version</code>) and a
-<code>--dry-run</code> compile nothing and pass, and a package manager's <code>run &lt;script&gt;</code> whose
+submit|prepare|newest</code>. An exact release install (<code>--release-version</code>), a
+<code>--dry-run</code> and a <code>--plan</code> compile nothing and pass, and a package manager's <code>run &lt;script&gt;</code> whose
 script only runs one repository file through <code>node</code>, loading no builtin that starts a program or
 only a test loads, is no compile.</td>
 <td>The gate asks Oko's one admission decision, <code>oko admit build --session &lt;id&gt;</code>, and refuses
