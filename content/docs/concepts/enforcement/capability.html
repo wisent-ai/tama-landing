@@ -32,6 +32,18 @@ expiration, or the current OMP session&quot;. The request is part of the hook
 runtime's control plane, not of Tama: the supervisor and its policy decide
 whether a grant is issued, and the resulting capability appears in the next
 session record Tama polls.</p>
+<h2>Issued by the operator's ruling</h2>
+<p>The operator can issue a capability to one session he names by a ruling, with no window and no
+ask: <code>oko rulings record --session S --subject capability:&lt;tool&gt;[:&lt;action&gt;]@session:&lt;ID&gt;
+--by …</code> (for example <code>capability:tama:hook-edit@session:&lt;ID&gt;</code>). Tama's core reads
+Oko's ruling register (<code>OKO_RULING_REGISTER</code>, else
+<code>~/Library/Application Support/Oko/rulings.json</code>) for every dispatch and passes each grant a
+standing ruling issues to the dispatch's session to its hooks, beside the grant the session recorded,
+each carrying the ruling's id as its record; a command run outside the runner (<code>tama hooks
+release</code>) finds the same grant for the session it runs in. The capability ends when the ruling
+stops standing (<code>oko rulings supersede</code>, <code>oko rulings unbind</code>): the register is read
+again for every dispatch. A register that cannot be read issues nothing and every refusal of that
+dispatch says so with its cause.</p>
 <h2>Who observes it</h2>
 <ul>
 <li>The <strong>Session</strong> screen shows the capability of the selected session —
