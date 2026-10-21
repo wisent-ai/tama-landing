@@ -82,6 +82,7 @@
   {"route":"cli/format/fold","source":"content/docs/cli/format/fold.html","content":"content/docs/cli/format/fold.html","category":"CLI reference"},
   {"route":"cli/attestation","source":"content/docs/cli/attestation.html","content":"content/docs/cli/attestation.html","category":"CLI reference"},
   {"route":"cli/commands/judge","source":"content/docs/cli/policy/commands-judge.html","content":"content/docs/cli/policy/commands-judge.html","category":"CLI reference"},
+  {"route":"cli/judgement/ask","source":"content/docs/cli/policy/judgement-ask.html","content":"content/docs/cli/policy/judgement-ask.html","category":"CLI reference"},
   {"route":"configuration","source":"docs/configuration.md","content":"content/docs/reference/configuration.html","category":"Reference"},
   {"route":"enforcement-control","source":"content/docs/hook-system/enforcement-control.html","content":"content/docs/hook-system/enforcement-control.html","category":"Reference"},
   {"route":"enforcement-control/runtime/adapters","source":"content/docs/hook-system/runtime/adapters.html","content":"content/docs/hook-system/runtime/adapters.html","category":"Reference"},

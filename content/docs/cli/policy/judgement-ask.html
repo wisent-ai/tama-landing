@@ -1,0 +1,25 @@
+<h1><code>tama judgement ask</code></h1>
+<p>The model call a gate on a shell command does not make inside its hook. <code>block-one-off-repairs</code> and <code>block-background-execution</code> judge each command by asking a model through Oko (<code>oko gateway object</code>), and a model call takes longer than a harness waits for a hook: a gate that waited was abandoned and decided nothing. So the gate decides a command from the answer already kept for that exact question, and a command not yet judged is refused, never let through, with the request that asks it named.</p>
+<h2>Invocation</h2>
+<pre><code>tama judgement ask &lt;request&gt;
+</code></pre>
+<ul>
+<li><code>&lt;request&gt;</code> is the path the gate's refusal names: <code>&lt;sha256 of the question&gt;.request.json</code> in the judgement memory (<code>TAMA_JUDGEMENT_MEMORY_DIR</code>, else <code>model-judgements</code> under the Tama state root), holding <code>{"key", "verb", "arguments"}</code>: the whole question and the <code>oko gateway</code> call that asks it.</li>
+<li>It runs that call here, outside every hook, keeps the answer beside the request under the question's hash and prints it. The gate reads the kept answer when the same command is run again; an answer the gate's reading does not accept is taken back so the next ask goes to the model again.</li>
+<li>The command runs only Tama, so a gate whose question is unanswered lets it through (the programs the judge stands on).</li>
+</ul>
+<h2>Output and refusals</h2>
+<ul>
+<li>The answer the model gave, as one JSON object, exit 0.</li>
+<li><code>judgement: the judgement request &lt;path&gt; cannot be read: &lt;cause&gt;</code> or <code>… is not one: &lt;cause&gt;</code>, exit 1.</li>
+<li><code>judgement: &lt;cause&gt;</code> when the question went unanswered — no model declared, Oko absent, the gateway refusing, a judge Oko recorded as not answering — exit 1.</li>
+<li>No verb, another verb or a second argument is a usage refusal: the <code>judgement</code> lines of <code>tama --help</code> on stderr, exit 2.</li>
+</ul>
+<h2>Quickstart</h2>
+<pre><code>$ # a shell command is refused:
+block-one-off-repairs: TAMA_HOOK_INFRASTRUCTURE: … this call has not been judged yet, and the gate does not wait for the model inside its hook: `tama judgement ask …/model-judgements/3f1c….request.json` asks it now and keeps the answer, and the same call is then judged at once
+$ tama judgement ask …/model-judgements/3f1c….request.json
+{"choice":"PASS","reason":"…"}
+$ # the same command now runs, decided by the kept answer
+</code></pre>
+<p>Return to <a href="../../">the complete CLI tree</a>.</p>
