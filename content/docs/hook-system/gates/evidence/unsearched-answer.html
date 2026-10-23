@@ -1,0 +1,52 @@
+<h1>Answers looked up where the facts are</h1>
+<p><code>block-unsearched-answer</code> is a Stop gate that refuses a final answer telling the operator a fact about a
+product, a service, a host or the fleet which the turn never looked up in the source that holds it.</p>
+<h2>Why it exists</h2>
+<p>Asked where a service runs and why it was not moved, an agent can answer from local files alone, offer a guess as an
+inference and "no recorded reason" as a finding, while the operator's order to move it, the defect carrying that order
+and the blockers that stalled it sit one register query away. <code>block-unsearched-blocker-claim</code> refuses only
+an answer that calls a value unknown, so an answer that sounds certain goes through it. Live state is asked of the
+owning product and history is in Oko; an answer that asked neither is a guess, however it is worded.</p>
+<h2>Which source holds which fact</h2>
+<table>
+<thead><tr><th>Fact the answer states</th><th>Source the turn must have asked</th></tr></thead>
+<tbody>
+<tr><td>Live state: where something runs or is placed now, whether it is up, what it holds, how it is configured
+now</td>
+<td>The product that owns it: <code>stado</code>, <code>skarbiec</code>, <code>brama</code> or its API. Local files,
+memory or a guess do not count.</td></tr>
+<tr><td>History: why something happened or did not, what was ordered, decided, attempted, delivered or blocked</td>
+<td>Oko's registers (<code>oko defects</code>, <code>oko blockers</code>, <code>oko tasks</code>,
+<code>oko index</code>) or a search over the stored session transcripts.</td></tr>
+</tbody>
+</table>
+<p>Saying such a fact is unknown, unrecorded or was not found states it too, and so does offering it as an
+inference.</p>
+<h2>How it decides</h2>
+<p>No word list decides. Every ending answer carries the gate's turn-end attestation word for word
+(<code>tama attestation standard --turn</code> prints it):</p>
+<blockquote><p>Every fact this answer tells about a product, service, host or the fleet comes from what this turn asked
+of the source that holds it: where something runs and what it holds now from the owning product (stado, skarbiec,
+brama), why something happened or did not from Oko's registers or the stored transcripts; I state none, and call none
+unknown, from local files, memory or a guess.</p></blockquote>
+<p>An answer without it is refused with <code>block-unsearched-answer: BLOCKED: the answer this turn ends with does not
+carry its turn-end attestation: missing: "…"</code>, followed by what to ask. Where a model is declared
+(<code>tama model-provider</code>), the model also reads the answer against the operator's messages and what the turn's
+tools returned (the turn is everything after the operator's last message) and refuses a fact whose source the turn
+never asked: <code>block-unsearched-answer: BLOCKED: LIVE STATE …</code> or <code>… HISTORY …</code>, naming the source.
+On a machine with no model declared the attestation alone decides, and so it does when the declared model, or Brama,
+cannot be reached: every product works without the others, so the ending is not refused for a reviewer that gave no
+verdict, and stderr says <code>block-unsearched-answer: the answer's attestation decided alone, because the reviewer
+gave no verdict: &lt;cause&gt;</code>. Source:
+<code>rust/crates/tama-hook-tools/src/programs/block/answer/sources/block_unsearched_answer.rs</code>; the claim lives in
+<code>rust/crates/tama-hook-tools/src/ports/task_attestation/standards/turn.json</code>.</p>
+<h2>How to satisfy it</h2>
+<p>Ask the source in the same turn, then answer from what it returned: <code>stado credentials vault show</code>,
+<code>stado service status</code>, <code>skarbiec status</code> for live state; <code>oko defects show</code>,
+<code>oko blockers roots</code>, <code>oko tasks</code>, a search over <code>~/.omp/agent/sessions</code> for history.
+"Nothing is recorded" stands only after they were asked. The way out is always in the session's reach, so unlike gates
+that stand down once a stop hook already fired, this one judges every ending.</p>
+<h2>What passes</h2>
+<p>An answer whose every such fact rests on the turn's own output from the owning source; an acknowledgement, a
+question, or a report of the agent's own edits and test runs once it carries the attestation; a tool call; an empty
+ending.</p>
