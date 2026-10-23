@@ -1,3 +1,14 @@
+The stage page describes the staged-write case of its journeys
+
+Both journeys still asserted that a session's write without a recorded
+transition refuses staging, which tama stage no longer does: it reads the
+write's bytes from its own content argument. The capture now names the
+session that created a file with the harness's write and the tree staging
+it gives; the staging journey requires that tree, and the commit hook
+journey requires that session's commit not to be refused for ownership.
+
+Not built or run: the operator withholds builds and tests until the build-first items are finished.
+
 I read this commit's message and every line of its patch, as a principal engineer who assumes an AI agent wrote every line.
 The claims about the lines this commit adds hold for them as the push leaves them: a defect that a later commit of the push repairs, naming this commit by its subject on a Repairs: line, is a repaired defect, never one left in place.
 No line this commit adds carries a defect: every path I traced does what its caller and the documentation say.
@@ -13,5 +24,4 @@ No line and no message of this commit carries private information of ours: no ho
 This commit solves no problem of ours alone: it adds or repairs a general primitive a user outside Wisent could run for their own case, not a fix shaped to one of our machines, accounts, runs or incidents.
 As a very strict, grumpy senior engineer who hates AI, I tried with everything I have to refuse this commit: what I attacked, what I checked, and why each attack failed.
 
-Harsh-Review-Attacked: a page describing a capture the journeys do not read; tests/shared-checkout/commit.rs and hook.rs read writeSession and writtenTree and no longer read unprovenSession, as the page now says
-Harsh-Review-Attacked: a line it replaces left unnamed; the replaced paragraphs were written by a commit already on the remote, so no unpushed commit's lines are replaced and no Repairs line is owed
+Harsh-Review-Attacked: a journey that still passes the old refusal; the write case now requires staging to succeed and to give the capture's written tree, so a reader that refuses or drops the write fails it.
