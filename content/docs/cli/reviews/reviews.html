@@ -4,7 +4,7 @@
 <pre><code>tama reviews list [--json]
 tama reviews show &lt;id&gt; [--json]
 tama reviews harsh record|dispose|show [...]</code></pre>
-<p>The harsh review rounds every commit needs from a reviewer that is not its author are recorded and read with <a href="/docs/cli/reviews/harsh/"><code>tama reviews harsh</code></a>.</p>
+<p>The harsh review rounds every commit needs from a reviewer that is not its author are recorded and read with <a href="/docs/cli/reviews/harsh/"><code>tama reviews harsh</code></a>. The <code>Harsh-Review-Rounds:</code> line a let-through commit is given joins its message's last paragraph when every line there is a Git trailer, as the <code>Harsh-Review-Attacked:</code> lines are, and starts that paragraph otherwise: Git reads trailers from the last paragraph alone, so a line set apart would leave the attack trailers unread and <code>review-push</code> would refuse the commit for lacking them.</p>
 <p>Use an exact ID from <code>list</code>. It is a retained exchange identifier, not a repository path. Inspection uses Tama's existing per-user state directory; it accepts no alternate home or arbitrary record path.</p>
 <h2>Outcome and cause</h2>
 <table><thead><tr><th>Outcome</th><th>Meaning</th></tr></thead><tbody>
