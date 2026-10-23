@@ -178,5 +178,17 @@ and exits <code>70</code>. Activation reports <code>taskLedger: available</code>
 keep that refusal beyond its eight-round advisory continuation limit and give
 it priority over advisory <code>continue: true</code> results. Explicit user
 interruption still stops the run; queued stop handlers must not restart it.
+The main agent's answer in words that <code>block-text-outside-tool-calls</code> refuses
+while work is open is cut off at its first streamed words: the adapter aborts
+the run and, once the abort has settled, sends the gate's reason to the idle
+session as the next turn. OMP runs that abort as an operator interrupt and
+moves its run counter on, so a continuation sent while the run is still being
+torn down would join the same run with no new start, and OMP would skip the
+stop hook for every later ending of it; sent after the abort settles, it starts
+a new run whose endings reach the stop gates again. A continuation that does not
+start a turn is said in the hook progress line
+(<code>Tama: the cut answer's continuation did not start a turn: &lt;cause&gt;</code>).
+A run without a window keeps the stop refusal alone, so a run nobody watches is
+not continued without end.
 The hook release and OMP host are separate dependencies. Updating hooks alone
 cannot repair an older host's continuation limit.</p>
