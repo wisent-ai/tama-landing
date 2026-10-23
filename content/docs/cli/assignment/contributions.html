@@ -1,0 +1,48 @@
+<h1><code>tama contributions</code></h1>
+<p>Reports to Wisent's contribution ledger, in compute.wisent.com, the commits that reached a repository's remote with a standing attestation, so the people who write accepted code are credited for it.</p>
+<h2>Invocation</h2>
+<pre><code>tama contributions pending --repository &lt;PATH&gt; --ref &lt;REF&gt; [--since &lt;REV&gt;] [--ledger &lt;URL&gt;] [--json]
+tama contributions report  --repository &lt;PATH&gt; --ref &lt;REF&gt; [--since &lt;REV&gt;] [--ledger &lt;URL&gt;] [--json]
+</code></pre>
+<ul>
+<li><code>--repository</code> — the checkout to read.</li>
+<li><code>--ref</code> — the remote branch the commits reached, as this checkout last fetched it, such as <code>origin/main</code>.</li>
+<li><code>--since</code> — leave out every commit that revision already holds.</li>
+<li><code>--ledger</code> — the ledger's origin; without it, <code>TAMA_CONTRIBUTION_LEDGER_URL</code>.</li>
+</ul>
+<h2>What counts</h2>
+<p>A commit is accepted code when it is reachable from <code>--ref</code> and its message or attestation note carries every claim of the commit standard and a harsh review with no finding, exactly as <a href="../../attestation/"><code>tama attestation check</code></a> reads it. Each is one <code>code.accepted</code> contribution of its git author, whose email is the identity the ledger credits. Tama links no one: an author links that address to their Wisent account with <strong>Link my email for Tama</strong> on the Rewards page of compute.wisent.com, which takes the account's own verified address, so nobody can claim an address that is not theirs. Until then the ledger holds the author's events and credits nobody. The commit id is the event id, so reporting the same range again records nothing twice.</p>
+<h2>Output</h2>
+<p>Both verbs ask the ledger once which of the events it already holds, so a report sends only the commits it lacks however long the range. <code>pending</code> prints one line per accepted commit — the commit, its author and its commit time, and with a ledger named whether the ledger holds it — or with <code>--json</code> the events themselves, each with <code>held</code> when a ledger is named. <code>report</code> prints, per commit it sent, whether the ledger recorded it or the ledger's refusal, and the ids it already held; with <code>--json</code>, <code>{"ledger", "events": [{"commit", "answer"} | {"commit", "refused"}], "held"}</code>. It exits 1 when the ledger refused any commit.</p>
+<h2>In Tama Desktop</h2>
+<p>The <strong>Contributions</strong> screen runs the same two operations as desktop requests <code>contributions/pending</code> and <code>contributions/report</code>, whose bodies carry the same fields as the flags (<code>repository</code>, <code>ref</code>, <code>since</code>, <code>ledger</code>) and whose answers are the documents <code>--json</code> prints. A report the ledger refused in part is answered as a refusal that names the refused commits and carries the whole report. Every refusal is shown in Tama's words.</p>
+<h2>What it reads</h2>
+<p>The bearer it presents as the reporter <code>tama</code> is the <code>token</code> field of the item playing <code>tama-contribution-ledger</code>, read with <code>stado credentials get</code>; the ledger's operator declares that bearer's SHA-256. The bearer and the event go to the HTTP client on its standard input, never on its command line.</p>
+<h2>Refusals</h2>
+<p>Usage errors exit 2, before anything is read or sent:</p>
+<ul>
+<li><code>contributions: name a verb: tama contributions pending|report …</code> — no verb.</li>
+<li><code>contributions: &lt;word&gt; is not a verb of tama contributions …</code> — a verb other than <code>pending</code> or <code>report</code>, <code>link</code> among them.</li>
+<li><code>contributions: &lt;word&gt; is not an argument of tama contributions …</code> — an argument the verb does not take.</li>
+<li><code>contributions: --ref names no value</code> — and likewise for <code>--repository</code>, <code>--since</code> and <code>--ledger</code>: a flag at the end with nothing after it.</li>
+<li><code>contributions: --repository names the checkout: …</code> and <code>contributions: --ref names the remote branch the commits reached: …</code> — the flag is missing.</li>
+</ul>
+<p>Every other refusal exits 1. Naming the ledger:</p>
+<ul>
+<li><code>contributions: no contribution ledger is named; pass --ledger URL or set TAMA_CONTRIBUTION_LEDGER_URL</code> — from <code>report</code>. A <code>--ledger</code> or <code>TAMA_CONTRIBUTION_LEDGER_URL</code> that is empty once the spaces around it and then the slashes at its end are taken off names no ledger; <code>pending</code> then lists the commits without asking one.</li>
+<li><code>contributions: TAMA_CONTRIBUTION_LEDGER_URL is not valid Unicode</code></li>
+</ul>
+<p>Reading the checkout:</p>
+<ul>
+<li><code>contributions: git rev-list --reverse &lt;REF&gt; [^&lt;REV&gt;] in &lt;CHECKOUT&gt; failed: …</code> — the reference or revision is not in the checkout, in git's words; <code>… in &lt;CHECKOUT&gt;: …</code> when git cannot be run.</li>
+<li><code>contributions: this Tama cannot name its own program: …</code>, <code>contributions: tama attestation check of &lt;COMMIT&gt;: …</code> and <code>contributions: tama attestation check of &lt;COMMIT&gt; answered no JSON (…): …</code> — a commit's attestation could not be read.</li>
+<li><code>contributions: git names no author email or commit time for &lt;COMMIT&gt;: …</code></li>
+</ul>
+<p>Reaching the ledger:</p>
+<ul>
+<li><code>contributions: stado credentials get --role tama-contribution-ledger --field token: …</code> when Stado cannot be run, and <code>… gave no bearer (&lt;STATUS&gt;): …</code> when it reads no token.</li>
+<li><code>contributions: asking the ledger what it holds failed: …</code>, followed by the ledger's own sentence, or by what the request met: <code>POST &lt;URL&gt; refused: &lt;ANSWER&gt;</code>, <code>POST &lt;URL&gt; answered no JSON (…): &lt;BODY&gt;</code>, <code>POST &lt;URL&gt; failed (&lt;STATUS&gt;): …</code>, <code>cannot start /usr/bin/curl for POST &lt;URL&gt;: …</code> or <code>cannot hand /usr/bin/curl the request for POST &lt;URL&gt;: …</code>.</li>
+<li><code>contributions: the ledger's answer names no held list: &lt;ANSWER&gt;</code> — the ledger answered without the events it holds.</li>
+<li><code>contributions: the ledger refused some commits; each is named above</code> — after a line <code>&lt;COMMIT&gt; refused: …</code> for each, with the ledger's own sentence or one of the request sentences above.</li>
+</ul>
+<p>The real test is <code>tests/contributions/report.rs</code>.</p>

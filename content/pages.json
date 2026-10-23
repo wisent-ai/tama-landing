@@ -71,6 +71,7 @@
   {"route":"cli/copies","source":"content/docs/cli/copies.html","content":"content/docs/cli/copies.html","category":"CLI reference"},
   {"route":"cli/copies/list","source":"content/docs/cli/copies/list.html","content":"content/docs/cli/copies/list.html","category":"CLI reference"},
   {"route":"cli/copies/remove","source":"content/docs/cli/copies/remove.html","content":"content/docs/cli/copies/remove.html","category":"CLI reference"},
+  {"route":"cli/contributions","source":"content/docs/cli/assignment/contributions.html","content":"content/docs/cli/assignment/contributions.html","category":"CLI reference"},
   {"route":"cli/rules","source":"content/docs/cli/rules.html","content":"content/docs/cli/rules.html","category":"CLI reference"},
   {"route":"cli/policy","source":"content/docs/cli/policy/policy.html","content":"content/docs/cli/policy/policy.html","category":"CLI reference"},
   {"route":"cli/hooks","source":"content/docs/cli/policy/hooks.html","content":"content/docs/cli/policy/hooks.html","category":"CLI reference"},
