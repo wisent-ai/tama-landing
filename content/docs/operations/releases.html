@@ -43,6 +43,14 @@
 <p>Installed copies of Tama read their updates from the appcast Stado serves at <code>/api/release/appcast?product=tama-desktop</code> on the same origin. Installation, upgrade and rollback by hand select an exact version and check the archive against <code>evidence/DIGESTS</code>.</p>
 <h2>Release process</h2>
 <p>Owner: the <code>wisent-ai/tama-desktop</code> maintainers. Signing, notarization, Sparkle and provisioning secrets are read from Skarbiec through the manifest's <code>secret_env</code> at build time; nobody handles them by hand.</p>
+<p>Before submitting a release, acquire the app and network-filter provisioning profiles through <a href="https://stado.wisent.com/docs/capabilities/credentials-host"><code>stado credentials signing-profile ensure</code></a>. Set <code>PROFILE_ITEM</code> to the common item part of the manifest's <code>TAMA_APP_PROFILE_B64</code> and <code>TAMA_NETWORK_FILTER_PROFILE_B64</code> bindings, <code>VAULT_HOST</code> to its owner-vault host, and <code>API_KEY_ITEM</code> to the authorized team API key item. Do not create a differently named signing item that the manifest never reads.</p>
+<pre><code class="language-sh">stado credentials signing-profile ensure --provider apple \
+  --host "$VAULT_HOST" "$PROFILE_ITEM" --credentials "$API_KEY_ITEM" \
+  --profile app_provisioning_profile_base64=ai.wisent.tama.desktop \
+  --profile network_filter_provisioning_profile_base64=ai.wisent.tama.network-filter \
+  --json</code></pre>
+<p>The key item must expose <code>key_id</code>, <code>issuer_id</code> and <code>private_key_p8_base64</code> to Stado. A missing-field refusal ends acquisition before a profile is issued; it is not evidence of an Apple sign-in failure or a ready signing configuration. Unregistered bundle identifiers are refused by name. Stado reuses an active profile of the requested name or creates one through App Store Connect, then stores the profile fields in the selected owner vault.</p>
+<p>Inspect nonsecret stored-field metadata with <code>stado credentials item show --host "$VAULT_HOST" "$PROFILE_ITEM" --json</code>. In Stado Desktop, select the owner host, then <strong>Credentials → Available operations… → Store code-signing provisioning profiles in a signing item</strong>, using the same manifest item, profile pairs and API key item. The form uses the same acquisition command; neither its presence nor a stored profile proves that a release was built or signed. Qualification requires the actual acquisition result, persisted field metadata, and the release's signing and notarization evidence.</p>
 <ol>
 <li>Update README first for any changed promise, audience, workflow, interface, environment, or safety boundary.</li>
 <li>Review downstream onboarding, core, integration, canonical-example, and test contracts.</li>
