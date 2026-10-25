@@ -81,8 +81,14 @@ step at a time, under a scope nobody granted for the new prompt.</td></tr>
 change. An anchored edit of the same file is allowed: it applies to the file as it is, that session's change
 included, and the file then counts as this session's too, so it may commit it.</td></tr>
 <tr><td>A broad <code>git add</code> (<code>-A</code>, <code>--all</code>, <code>.</code> or a directory) over an
-untracked file another session wrote</td>
-<td>Refused, naming the file and the writing session. Stage this session's own changes with <code>tama stage --session &lt;session&gt;</code>.</td></tr>
+untracked file another session wrote, unless that session is known to have stopped</td>
+<td>Refused, naming the file and the writing session: a session's unfinished work stays its own until it ends.
+Stage this session's own changes with <code>tama stage --session &lt;session&gt;</code>. A file whose writer is a
+recorded session whose process no longer runs may be staged: that session's unfinished work is taken over. The
+commit gates admit it only when the staged bytes are what that session's recorded edits made of the file and its
+transcript is found; a file changed after its writer stopped is refused at the commit. A writer that still runs, or
+that no session record names, keeps the refusal; when the
+stopped sessions cannot be read, the add is refused as unreadable.</td></tr>
 <tr><td>A <code>git commit</code> from a repository outside the declaration</td>
 <td>Refused like any other change there. What a commit takes is judged by pre-bash's
 <a href="/docs/shell-commands/">commit guard</a>: a commit naming paths, or taking every tracked change
