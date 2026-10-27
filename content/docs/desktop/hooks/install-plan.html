@@ -52,8 +52,16 @@ sentence. <em>Unpushed commits</em> reads, for a chosen checkout (<em>Choose che
 every commit its branch carries over its upstream through <code>attestation/pending</code>: whether every commit stands,
 then each commit with <em>Stands in its &lt;place&gt;</em> or <em>Does not stand</em> and its <code>missing:</code>,
 <code>finding:</code> and <code>patches: &lt;sha&gt; &lt;subject&gt;</code> lines, as <code>tama attestation pending</code> prints them.
+<em>Unjudged commits</em> reads, for a chosen checkout (<em>Choose checkout…</em>, <em>Read unjudged commits</em>), the
+commits HEAD carries that no remote holds through <code>attestation/unjudged</code>: <em>&lt;m&gt; of &lt;n&gt; unpushed
+commits unjudged; the operator admits &lt;limit&gt;</em>, or, over the limit, the same with <em>edits of files the
+checkout does not ignore, and commits, are refused</em>, then each unjudged commit with its <code>missing:</code> and
+<code>finding:</code> lines, as <code>tama attestation unjudged</code> prints them.
 <em>Recorded attestations</em> records, shows, removes and lists a session's attestation and shows the task
-standard. The terminal's commands and every refusal are on <a href="/docs/cli/attestation/"><code>tama attestation</code></a>.</p>
+standard. A shown record ends with its harsh review: <em>Harsh review: passed by a reviewer other than its
+author</em>, or <em>Harsh review:</em> and the reason it does not stand yet (no reviewer other than the session that
+recorded it has passed it, or a round's findings), read from the <code>review</code> field
+<code>attestation/show</code> answers. The terminal's commands and every refusal are on <a href="/docs/cli/attestation/"><code>tama attestation</code></a>.</p>
 <h2>States</h2>
 <p>Before any read: <code>No plan has been read yet</code> — <code>The plan is derived from the bundled release and your home directory. Nothing is written to read it.</code> — with a <code>Read the plan</code> action. A failed read shows <code>Install plan could not be read</code> with the error verbatim and Retry; a plan document
 without an <code>archiveRoot</code> string and <code>levels</code> object is refused as

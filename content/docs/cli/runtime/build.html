@@ -204,7 +204,7 @@ path. That result proves source handling only, not a compiled or published deskt
 Retained qualification evidence must name the exact revision and consumer it exercised.</p>
 <h2>Publish the desktop's locked Swift dependencies</h2>
 <p>From the Tama Desktop checkout, publish the committed package resolution through Stado:</p>
-<pre><code>stado release catalog pin-input . --name swiftpm-cache --source . --revision HEAD --swiftpm --json</code></pre>
+<pre><code>stado release catalog input pin . --name swiftpm-cache --source . --revision HEAD --swiftpm --json</code></pre>
 <p>This resolves dependencies and publishes a checksummed archive; it does not compile or install
 the app. Commit the updated <code>.wisent-release.json</code> with the release source.
 The release recipe reads the expected digest from that manifest rather than a second checksum

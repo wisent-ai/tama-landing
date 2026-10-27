@@ -9,7 +9,12 @@ tama sessions capability revoke --session &lt;ID&gt; --agent &lt;omp|claude|code
 <p><code>capability show</code> prints the capability the session's override holds, as the build gate
 reads it; <code>capability revoke</code> withdraws it at once (see
 <a href="/docs/concepts/capability/">capability</a>). Both require <code>--agent</code>: a
-session id read under another harness names another control file.</p>
+session id read under another harness names another control file. An override or emergency
+switch that exists and cannot be read or is not JSON makes <code>capability show</code> refuse,
+exit <code>1</code>, with <code>the session's override cannot be read: cannot read &lt;path&gt;: &lt;cause&gt;</code>
+or <code>&lt;path&gt; is not JSON: &lt;cause&gt;</code>; it is never shown as no capability, and the file
+is left as it is. Hooks reading the same file say the failure on stderr and run as if no override
+were set.</p>
 <p><code>--home</code> selects the home containing both
 <code>Library/Application Support/Tama/session-control</code> and the machine
 enforcement state; otherwise Tama uses <code>HOME</code>. <code>--json</code> prints the
@@ -20,11 +25,19 @@ structured machine status and session array.</p>
 then one row per record:
 <code>&lt;agent id&gt;&#9;&lt;first 12 session-id characters&gt;&#9;&lt;process state&gt;&#9;&lt;hook state&gt;</code>,
 and a closing
-<code>session records&#9;&lt;count&gt;&#9;running=&lt;n&gt;&#9;gone=&lt;n&gt;&#9;no-usable-pid=&lt;n&gt;&#9;no-runtime-report=&lt;n&gt;</code>.
+<code>session records&#9;&lt;count&gt;&#9;running=&lt;n&gt;&#9;gone=&lt;n&gt;&#9;no-usable-pid=&lt;n&gt;&#9;no-runtime-report=&lt;n&gt;&#9;ungated-omp=&lt;n&gt;</code>.
 A record that names no <code>agentId</code> or <code>sessionId</code> is not listed as <code>?</code>: stderr says
 <code>a session record names no agentId or sessionId: &lt;record&gt;</code>. A hook count the runtime did not
 report reads <code>no count</code>, and an allowlist it did not record reads
 <code>allowlist: not recorded</code>.</p>
+<p>Before the closing line, one row per OMP process on this machine that no session-control record names by its
+pid: <code>omp&#9;&lt;session or "no session"&gt;&#9;pid &lt;pid&gt;&#9;UNGATED: &lt;route&gt;</code>. Tama's adapter
+writes that record when OMP loads it, and OMP loads an extension only when it starts, so a process started
+before the adapter was declared or released, or without it, runs every call of its session ungated and
+<code>reload</code> has nothing to reach in it. The session is read from the transcript the process holds open
+(<code>lsof</code>); the route names <code>oko sessions resume &lt;session&gt;</code>, which continues it in a process
+that loads the adapter. OMP's own worker processes run no session and are not listed. A process table or open-file
+list that cannot be read refuses the listing with its cause, exit <code>1</code>.</p>
 <p>The process state is <code>running</code> when the recorded process id still
 answers <code>kill(pid, 0)</code>, <code>gone</code> when it does not, and
 <code>no usable pid</code> when the record carries no process id a kernel could
@@ -38,7 +51,7 @@ globally disabled and the session enabled some by name, and
 state. A session that has not reported is not a session with broken hooks, and
 the row says which one it is.</p>
 <p>JSON is
-<code>{&quot;machineEnforcement&quot;: &lt;status&gt;, &quot;sessions&quot;: [...]}</code>;
+<code>{&quot;machineEnforcement&quot;: &lt;status&gt;, &quot;sessions&quot;: [...], &quot;ungated&quot;: [{&quot;pid&quot;, &quot;session&quot;, &quot;route&quot;}]}</code>;
 the machine object has the same fields as
 <a href="../enforcement/status/">enforcement status</a>, and each session includes
 status, working directory, process id, liveness mode,

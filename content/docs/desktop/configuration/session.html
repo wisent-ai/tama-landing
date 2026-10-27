@@ -103,6 +103,14 @@ first — WHEN, EVENT, HOOK, DECISION (blocking decisions get the danger chip;
 the trailing count is blocks) — with the most recent blocking
 <code>reason</code> printed verbatim below the table. The same reason headlines
 <a href="posture.md#the-last-blocking-decision">Posture</a>.</p>
+<p><em>Last turn ending</em> shows the core's stored <code>reading</code>, which
+already includes a refusal's complete cause. If that field is absent or blank,
+the panel states that observed absence and shows any retained core
+<code>error</code> and decision <code>reason</code> without truncation. Missing
+data alone does not establish which core version wrote the record. The normal
+reading is not followed by a second copy of its cause.
+<code>tama hooks running</code> derives a reading from the retained decision;
+<code>--json</code> also preserves the underlying record.</p>
 <h2>Mutations</h2>
 <p><code>Enable all hooks</code> reports <code>Enabling every registered hook in session &lt;id&gt;…</code> then <code>&lt;n&gt; hooks enabled in &lt;agent&gt; session &lt;id&gt;.</code>; the single-hook
 enable lives on <a href="hooks.md">Hooks</a> and reports <code>&lt;hook-id&gt; is enabled in &lt;agent&gt; session &lt;id&gt;.</code> Both travel as private request files the session's

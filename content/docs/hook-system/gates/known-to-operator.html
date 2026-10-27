@@ -19,6 +19,20 @@ gave him, and the answer about to be sent. The model answers one object under a 
 <code>choice</code> of <code>PASS</code> or <code>BLOCK</code>, and a <code>reason</code> that, for
 <code>BLOCK</code>, quotes each offending sentence verbatim with one clause saying whether it was told before or is
 his own decision. An answer that is neither option is no judgement.</p>
+<h2>His rulings first</h2>
+<p>Before the session's own memory is judged, Oko compares the answer with every standing ruling of the operator's,
+from every session, and every rule of the task ledger: the gate runs <code>oko rulings check --from &lt;session&gt;
+--text &lt;answer&gt; --json</code>, the same gate every channel to him runs, and its exit status decides. An answer
+that asks him again what he already decided is refused with his words, where and when he said them. An answer no model
+compared (Brama gives no comparison) is refused with the file Oko wrote his rulings to: the session reads it, runs
+<code>oko rulings check --from &lt;session&gt; --text '&lt;the answer&gt;' --differs '&lt;how it differs from each ruling
+that bears on it, by its id&gt;'</code> itself, and ends the turn with the same answer, or takes out what he already
+decided. The refusal is <code>block-known-to-operator: Oko refused this answer: &lt;Oko's sentence&gt; Read the file it
+names, then run …</code>. An Oko that cannot be run compared nothing, and no comparison is never a pass:
+<code>block-known-to-operator: the operator's rulings were not compared with this answer, because &lt;program&gt; rulings
+check … cannot run: &lt;cause&gt;; no comparison is never a pass, so nothing reaches him</code>. Which Oko runs is
+<code>TAMA_OKO_CLI</code>, else <code>oko</code> on <code>PATH</code>. Source:
+<code>rust/crates/tama-hook-tools/src/ports/block_known_to_operator/rulings.rs</code>.</p>
 <h2>What is refused</h2>
 <table>
 <thead><tr><th>Sentence of the answer</th><th>Verdict</th></tr></thead>
@@ -39,11 +53,11 @@ what this session already told him is not news. Delete those sentences and answe
 <p>The results of the work he asked for. A direct answer to a question he asked. A defect identifier named in one
 clause. A failure outside his own decisions that no earlier answer mentioned. A sentence that only names what he must
 do or decide next, without explaining his own policy to him. A turn under <code>stop_hook_active</code>.</p>
-<p>A session with no operator words and no earlier answer has nothing to be known yet: the model is not asked and the
-turn passes at no cost. A judgement nobody could obtain is never a denial: a judge Oko has recorded as not answering
-(<code>judge-health.json</code>, lifted by <code>oko tasks judge --probe</code>) is not asked at all,
-and an absent Oko CLI, a refused gateway or an empty reply is written to stderr as
-<code>block-known-to-operator: no judgement: …</code> and the turn passes. That is this stop gate's own rule; a shell
+<p>A session with no operator words and no earlier answer has nothing to be known yet: neither Oko nor the model is
+asked and the turn passes at no cost. Once Oko's comparison let the answer go, a session-memory judgement nobody could
+obtain does not deny it: a judge Oko has recorded as not answering (<code>judge-health.json</code>, lifted by
+<code>oko tasks judge --probe</code>) is not asked at all, and a refused gateway or an empty reply is written to stderr
+as <code>block-known-to-operator: no judgement: …</code> and Oko's comparison stands. That is this stop gate's own rule; a shell
 or write gate refuses an unanswered question instead (<a href="/docs/hook-model/model-judgement/#unanswered">asking a
 model</a>). The OMP adapter's whole-event wait (<a href="/docs/hook-model/">hook-model</a>) is the only limit on how
 long its question may take. A transcript the gate cannot read, or one holding a complete line that is no record, is
@@ -96,7 +110,8 @@ that cannot be read refuses the answer by name. Source:
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks release</code>; which hooks this machine runs is decided by
 <code>tama enforcement only &lt;hook-id&gt;…</code>, which has to be run outside an agent session.</p>
 <p>The real journey <code>tests/known-to-operator/gate.rs</code> runs the built gate with the stop payload a harness
-hands it and a transcript of its own: a transcript with a damaged line refuses naming the transcript, and a session that
-has said nothing is not asked about. Its two judged cases ask the real judge through this machine's Brama route and run
-with <code>--ignored</code>: an answer repeating what an earlier answer told is refused quoting it, and an answer
-reporting new results passes; each fails when the judge did not answer.</p>
+hands it and a transcript of its own: a transcript with a damaged line refuses naming the transcript, a session that
+has said nothing is not asked about, and an answer whose Oko program is not there is refused naming the program and
+that no comparison is never a pass. Its two judged cases ask the real Oko and the real judge through this machine's
+Brama route and run with <code>--ignored</code>: an answer repeating what an earlier answer told is refused quoting it,
+and an answer reporting new results passes; each fails when the judge did not answer.</p>

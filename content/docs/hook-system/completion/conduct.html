@@ -37,6 +37,28 @@ its exit status and the first line it said when Oko cannot answer it. A supervis
 no JSON record refuses naming its place. Each refusal is kept in
 <code>supervisor-loops.&lt;session&gt;.jsonl</code> beside the session's control files. Real journey
 <code>tests/repeated-looks/gate.rs</code>.</p>
+<p>A supervisor never waits while tasks or defects are open. OMP's <code>wait</code> tool, which blocks until a
+background job or a message arrives, reaches Tama through the eval event, so <code>block-wait-polling</code>
+reads it, and <code>pre-wait-tools</code> reads it the same way for a harness that sends it as a wait tool.
+In a session Oko records as a supervisor (<code>~/.oko/session-roles.json</code>), the call is refused
+while Oko holds open work: first the open-defect snapshot Oko writes beside its defect register
+(<code>&lt;register&gt;.open.json</code>) is read, in milliseconds; when it holds no open defect, the open
+tasks of every session's ledger are read, the same reading the stop gate makes. The refusal reads
+<code>BLOCKED: a supervisor never waits while tasks or defects are open, and Oko holds N open defect(s)</code>
+(or <code>N open task(s)</code>) <code>. Take the next item instead: `oko work next --executor &lt;session&gt;`
+names it. What you waited for reports its own result when it arrives.</code> The gate names that command
+instead of running it, since it reads the broker and other products. An executor's wait is not refused by
+this rule, nor a supervisor's while nothing is open. A role, snapshot or task ledger that cannot be read
+refuses the wait with its cause (<code>… since Oko's open defects cannot be read: …</code>, naming
+<code>oko defects snapshot</code> when the snapshot does not exist; <code>… since Oko's open tasks cannot be
+read: …</code>), never lets it through as if nothing were open. Real journey
+<code>tests/supervisor-wait/refused.rs</code>.</p>
+<p>An eval cell passes time as a shell <code>sleep</code> does when its code waits a guessed time. <code>block-wait-polling</code>
+reads the cell's code, in its kernel's language (<code>language</code> py or js), with the same guessed-wait shapes
+the write gate reads a file in that language with, so a sleep is named once for both. Such a cell is refused
+with the shell sleep refusal followed by <code>Line &lt;n&gt; of this eval cell: &lt;the write gate's refusal&gt;</code>.
+A cell whose code cannot be read in its language refuses with <code>BLOCKED: whether this eval cell only passes
+time cannot be read: &lt;cause&gt;</code>.</p>
 <h3>Every call serves a task</h3>
 <p><code>block-unclaimed-calls</code> refuses a tool call while the session holds no work: no open defect
 Oko's register records it as owning, and no task or defect it declared it serves with

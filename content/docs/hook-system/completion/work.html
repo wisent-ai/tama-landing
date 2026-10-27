@@ -60,7 +60,16 @@ claim ID at REVISION</code>) and moves to the next item; a broken verdict
 returns the item to the queue. The retained stop assessment is renewed by a
 change of the defect or blocker register or of the task reading; recording a
 claim alone does not renew it until one of those changes.
-Malformed or unreadable registers refuse with their actual path and cause.</p>
+Malformed or unreadable registers refuse with their actual path and cause.
+An item another working executor owns is not put to the session either: by
+Oko's rule for writing to a defect, its owner is recorded in Oko's role register
+(<code>session-roles.json</code> in <code>OKO_SESSION_ROLES_DIR</code>, or
+<code>~/.oko</code>) as an executor that is neither this session nor one it
+succeeds, and this session does not supervise it. The refusal names it among
+the waits as <code>ID held by OWNER</code> and puts the next item this session
+may write. Oko also frees an owner its broker observes stopped; until Oko
+clears that owner's role, the stop gate still reads the item as held. Real
+journey: <code>tests/supervisor-stop/executor/held.rs</code>.</p>
 <p>Executor task settlement runs in the background
 <code>before_provider_request</code> dispatch, before the text gate, only when
 the local defect selection cannot already name actionable work. A known actionable
@@ -151,7 +160,7 @@ permission to stop.
 The OMP adapter uses a completed gate answer from the current session and work
 generation and refreshes it in the background; a late answer from an older
 generation cannot authorize prose. The ledger read does not consume the
-harness's provider-handler budget.
+harness's provider-handler budget. One answer passes whatever is open: while the operator's newest message reads as a question in Oko's current open-work snapshot (<code>newestMessage.kind</code>), the gate lets the answer through; an unread message, another kind, or a snapshot that is missing or not current leaves it refusing as before.
 For supported OpenAI function-tool payloads, an open-work refusal sets
 <code>tool_choice: "required"</code>; this shape is also forced before the first answer.
 Anthropic requests and unsupported or absent tool shapes are not forced: they are
@@ -172,26 +181,27 @@ work. An entry in
 wait on other open work does not stand an item aside: only Oko recording a task done or
 withdrawn, or a defect fixed, removes it. A task Oko relates as <code>duplicate-of</code>
 another is counted once, as the original.</p>
-<p>The refusal counts the open work instead of copying it, so its size does not grow with the
-registers: it says how many open tasks and defects Oko holds and how many carry no pushed repair,
-lists this session's own items (its open tasks, and the open defects Oko records it as owning), names
-the one item to take now (the session's own item with no repair first, else the first item with no
-repair, else the batch build once every item carries one), and names the commands that print the
+<p>The refusal counts the open work instead of copying its identities: it says how many open
+tasks and defects Oko holds, how many carry no pushed repair and how many this session owns.
+Only the selected <em>Take now</em> action names an item, even when the session owns the whole
+queue. Selection and completion enforcement still read the full ledger; omitted identities
+remain open work. The refusal names the commands that print the
 rest: <code>oko tasks owed</code>, <code>oko defects list --unrepaired</code>,
 <code>oko defects list --open --owner SESSION_ID</code>, and <code>oko tasks show ID</code> or
-<code>oko defects show ID</code> for one item. The same summary is what
-<code>check-open-items-with-model</code> refuses with. A session's own plan with open items is
+<code>oko defects show ID</code> for one item. <code>check-open-items-with-model</code> uses the same
+count-only presentation for its own pending task ledger, not the Stop guard's owned task-and-defect queue. A session's own plan with open items is
 refused with their count and the first of them; the todo tool prints the rest. Copying every open
 defect and task into each refusal put tens of thousands of tokens into every refused turn, which the
 session then read again on every later call. The operator's answers to the excuses agents give are
 not repeated in the refusal: they reach the session at its start and after every compaction.
-The real test is <code>tests/completion/summary.rs</code> (<code>cargo test -p tama-cli --test
-completion_summary</code> with <code>TAMA_COMPLETION_SESSION</code> naming a live session that has no
-executor role): it checks the count against <code>oko defects list --open</code>, that every owned
-defect and own task is named and no other defect except the item to take now, and writes the
-refusal's size beside the source revision.</p>
-<p>When Oko's ruling register (<code>oko rulings</code>) holds a ruling on an item the refusal names,
-the refusal quotes it word for word with its session and message number and says to follow it and
+The real journey is <code>tests/completion/summary.rs</code> (<code>cargo test -p tama-cli --test completion_summary</code>).
+Declare <code>TAMA_TEST_SOURCE_REVISION</code>, <code>TAMA_COMPLETION_SESSION</code> for a live non-executor session and <code>TAMA_COMPLETION_TRANSCRIPT</code> for its retained transcript without open local-plan items.
+<code>TAMA_COMPLETION_SUBJECT</code> names the selected owned task; <code>TAMA_COMPLETION_REFERENCED_SUBJECT</code> names another owned subject mentioned by its text. Both must have real standing rulings, and both Stop guards must select that task.
+The journey checks full counts and omission of unselected identities, independently reads the real ruling's operator words, and requires only the selected subject's words outside the selected instruction. It does not reconstruct the human ruling header or metadata. Overlapping ruling bodies and other missing live prerequisites refuse qualification.
+It retains real hook inputs, commands, exit statuses, stdout, stderr, source and binary identities and refusal size in the Cargo test build directory.
+Neither transcript nor Oko data is modified. A defined journey is not an executed qualification result.</p>
+<p>When Oko's ruling register (<code>oko rulings</code>) holds a ruling on the selected action,
+its identity travels directly from selection to ruling lookup, separately from its instruction text. A reference to another subject in that text never selects that subject's ruling. The refusal quotes the selected ruling word for word with its session and message number and says to follow it and
 never ask the operator again or list it as a blocker or next step. The register is read as a file on
 this machine (<code>OKO_RULING_REGISTER</code> moves it); one that cannot be read is named in the
 refusal rather than left out.</p>

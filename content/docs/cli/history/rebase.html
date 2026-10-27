@@ -1,0 +1,24 @@
+<h1><code>tama history rebase</code></h1>
+<p>Writes the unpublished commits of a checkout's branch again on the current tip of its upstream. When other people push to the same remote, the branch's unpublished commits stand on an older tip and the push is refused until they carry the new commits; this rewrites them onto the tip without touching the checkout's index or working tree, so it runs in a checkout where people are still working.</p>
+<h2>Invocation</h2>
+<pre><code>tama history rebase [--repository &lt;PATH&gt;] [--prefer upstream] [--json]
+</code></pre>
+<p>Without <code>--repository</code> it rebases the checkout the command runs in. Fetch the upstream first (<code>git fetch origin</code>): the rebase writes onto the tip the upstream's remote-tracking ref names now.</p>
+<h2>What it does</h2>
+<p>It reads the branch the checkout has checked out, its head, and the commits between the branch's upstream and that head, oldest first, as <a href="../../format/fold/">tama format fold</a> does, refusing a detached head, a branch without an upstream, and a merge that brings more than published history. When the upstream's tip is already in the branch's history nothing is written and it says so.</p>
+<p>Each commit's own change, its tree against its first parent, is merged by Git (<code>git merge-tree --write-tree</code>, renames not followed) onto the commit written before it, the first onto the upstream's tip, in a private index under the repository's Git directory. The new commit keeps the old one's message, author, committer and dates; its attestation note under <code>refs/notes/attestation</code> is copied to it; and the rewrite record under <code>refs/notes/rewritten</code> on the new commit names the commit it replaced, the same record the fold writes, so a register that names the old commit follows it. A commit whose change is no longer anything over the upstream is dropped, and the record names it on the commit before it.</p>
+<p>The branch moves from the head that was read to the new head, refused when it moved meanwhile. Every path the rebase changed that nobody changed in the index or the working tree follows the new head; a working change someone made stays as it is.</p>
+<h2>Where Git cannot merge</h2>
+<p>A commit and the upstream may change the same lines, or one may delete a file the other changes. Without <code>--prefer</code> the rebase is refused at the first such commit, naming the commit and the paths, and nothing is written or moved.</p>
+<p>With <code>--prefer upstream</code> the upstream's side is kept at each such place: its lines where both changed the same lines (Git's <code>ours</code> strategy option, the upstream being the side the commit is laid on), its file where the commit deleted it, and its deletion where the commit changed a file it deleted. The commit's other changes are merged as usual, and each path where the commit's side was given up is listed beside the commit, so that change can be made again in a new commit over the upstream's work.</p>
+<h2>Output</h2>
+<p>One line per commit: <code>&lt;old&gt; -&gt; &lt;new&gt;</code>, followed by <code>; kept the upstream's side in &lt;paths&gt;</code> when there were any, or <code>&lt;old&gt; dropped: nothing of its change is left over the upstream's</code>; then <code>&lt;n&gt; commit(s) rebased onto &lt;upstream&gt;</code>. With <code>--json</code>: <code>{"repository", "upstream", "rebased": [{"old", "new", "upstreamKept"}]}</code>, <code>new</code> null for a dropped commit.</p>
+<h2>Refusals</h2>
+<ul>
+<li><code>commit &lt;sha&gt; and the upstream change &lt;paths&gt; in ways Git cannot merge, so nothing was rewritten; name --prefer upstream to keep the upstream's side there</code>.</li>
+<li><code>--prefer takes upstream, the side kept where Git cannot merge; got &lt;word&gt;</code>, and <code>--prefer needs upstream</code>.</li>
+<li><code>git merge-tree of &lt;commit&gt; onto &lt;parent&gt; wrote no tree (&lt;status&gt;): &lt;Git's words&gt;</code> when Git could not run the merge at all.</li>
+<li>The fold's refusals of the branch: no branch checked out, no upstream, a merge carrying a change of its own, and a branch that moved while the rebase ran.</li>
+</ul>
+<h2>Journey</h2>
+<p><code>tests/rebase/upstream.rs</code> (<code>cargo test --test history_rebase</code>) runs the built <code>tama</code> against a real bare remote, our checkout and a second clone that pushes meanwhile: the merge onto the new tip with message, author, note and rewrite record kept and a working change left alone; a line both changed refused naming the commit and path, then kept as the upstream wrote it under <code>--prefer upstream</code> with the commit's other change merged; a file the upstream deleted staying deleted; and an unknown preference refused.</p>

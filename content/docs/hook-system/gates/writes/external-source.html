@@ -16,13 +16,14 @@ command runs in. A command line handed to a shell is read the same way. A shell 
 <code>&gt;&gt;</code>, <code>1&gt;</code>, <code>2&gt;</code>) into external source writes it, so it is refused by the
 shell's grammar alone. A command that reaches no external source passes without asking anyone.</p>
 <p>When a command reaches external source, a model reads through Oko's model call whether it changes it
-(<code>block_external_source_edits/judge-prompt.md</code>): writing, creating, deleting, moving, copying onto,
-truncating, re-permissioning or editing in place a path there, mutating a repository there, or running code out of
-an external checkout. Reading, listing, searching, copying from and diffing pass. No list of program names or git
-subcommands decides it. The refusal is the ownership reason followed by
+(<code>ports/shell_changes/judge-prompt.md</code>, the shell reading this gate shares with
+<a href="/docs/off-task-work/">block-off-task-work</a>'s reading of a repository the operator told a session not to
+change): writing, creating, deleting, moving, copying onto, truncating, re-permissioning or editing in place a path
+there, mutating a repository there, or running code out of it. Reading, listing, searching, copying from and diffing
+pass. No list of program names or git subcommands decides it. The refusal is the ownership reason followed by
 <code>the command changes it: &lt;the model's sentence&gt;</code>. A word that still holds <code>$</code>,
-<code>*</code>, <code>?</code> or a backtick after expansion is reported as <code>not a concrete path; source
-ownership cannot be established</code> and the model judges whether the command changes it. A question the judge
+<code>*</code>, <code>?</code> or a backtick after expansion is reported as <code>not a concrete path; whether it is
+a protected place cannot be established</code> and the model judges whether the command changes it. A question the judge
 leaves unanswered refuses the command with
 <code>TAMA_HOOK_INFRASTRUCTURE: block-external-source-edits: review unavailable: …</code>, as
 <a href="/docs/hook-model/model-judgement/#unanswered">asking a model</a> describes.</p>

@@ -27,7 +27,7 @@ in the working tree, <code>git restore &lt;path&gt;</code> (without <code>--stag
 says which files the session wrote (every write and file-change tool call). Every other uncommitted change the tree
 holds is another session's or the operator's, and a command that would discard one is refused naming the files:
 <code>BLOCKED: `git restore src/lib.rs` would discard uncommitted changes this session did not make in
-&lt;checkout&gt;: src/lib.rs. Another session or the operator holds them in the one shared checkout. Commit only
+&lt;checkout&gt;: tracked files changed since HEAD: src/lib.rs. Another session or the operator holds them in the one shared checkout. Commit only
 your own changes (`tama stage --session &lt;session&gt; --repo &lt;checkout&gt;`, then `git commit -m &lt;message&gt;` with no
 paths) and leave theirs; what you must undo in a file you did not write is theirs to undo.</code> Discarding only one's own files passes; unstaging passes, because the
 change stays in the tree. The changed paths are Git's own (<code>git diff --name-only HEAD</code> and the untracked
@@ -73,7 +73,24 @@ real judge under <code>TAMA_TEST_PRE_BASH_JUDGE=1</code> and <code>-- --ignored<
 <p>Every shell gate reads a command through one shared reader that keeps shell syntax and drops literal arguments.
 A command line is code when a shell is handed it: after the shell's <code>-c</code> flag (bundled letters such as
 <code>-lc</code> included), through a wrapper such as <code>env</code> or <code>sudo</code>, or as a here-document the
-shell consumes. Which program is a shell is the system's own declaration, <code>/etc/shells</code>; a shell added
+shell consumes. A wrapper (<code>env</code>, <code>sudo</code>, <code>doas</code>, <code>nice</code>, <code>ionice</code>,
+<code>stdbuf</code>, <code>time</code>, <code>xargs</code>, <code>script</code>, <code>caffeinate</code>, <code>nohup</code>,
+<code>setsid</code>, <code>command</code> and the killing wrapper) is stepped over with its flags and, for each flag
+its manual says takes its value in the next word, that value too, so <code>env -u HOME git push</code> and
+<code>sudo -u root rm -rf x</code> run <code>git</code> and <code>rm</code>. A flag whose value is a command line the
+wrapper hands a shell (<code>script -c</code>) hands that line on as code, as a shell's <code>-c</code> does. A wrapper
+Oko's published program grammars declare (<code>env</code>) is read by that one declaration, through the reading the
+command-path admission uses, never by a second list here: its options by the role the grammar gives each, bundles
+of short options letter by letter, and its split string (<code>env -S</code>/<code>--split-string</code>) split by
+env's own rules in the environment the call builds (the shell's assignments before the command and env's
+<code>NAME=value</code> operands, <code>-u</code> and <code>-i</code>). The argv env runs is never shell code:
+<code>env -S 'git push'</code> runs <code>git push</code>, <code>env -S 'printf %s x;git push'</code> runs
+<code>printf</code> with the literal <code>x;git</code>, no second command, and <code>FOO=git env -u FOO env -S
+'${FOO} push'</code> runs <code>push</code>. A split string env refuses runs nothing. A grammar that cannot be read,
+or a split string expanding what only the running shell knows, is said on stderr (<code>shell reading: …</code>)
+and the command-path admission refuses that call naming the cause. Each other wrapper's value-taking and
+shell-line flags are declared once beside it in the shell vocabulary with the manual they come from. Which
+program is a shell is the system's own declaration, <code>/etc/shells</code>; a shell added
 there is read as one without a Tama change. When <code>/etc/shells</code> cannot be read every program is read as a
 shell and stderr says <code>shell reading: /etc/shells cannot be read: …</code>. What any other interpreter is handed
 (<code>python3 -c</code>, a here-document into Node) is data to these readers, because it is an inline program and

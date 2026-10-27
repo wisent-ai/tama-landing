@@ -6,11 +6,12 @@ operator's recorded instruction. Its declaration format is
 write leaves it, the ones it already held included: a number is not approved by having been written
 before, so an edit of a file that holds an unsourced number is refused for it, whoever wrote it, until
 the number carries a source or is removed. A hashline edit is read as the file its section leaves behind
-(replace, insert and cut replayed against the file on disk), so text added inside a string or
+(supported ranges, gaps and cuts replayed against the file on disk), so text added inside a string or
 comment — a shell program held in a Rust raw string, with its <code>$1</code> and
 <code>2&gt;/dev/null</code> — is read as that string, and a number added to the code around it is
-still refused; a section with an operation that is not replayed (a block, a register paste) is
-read from its added lines alone. In a data file (JSON, a
+still refused. <code>REM</code> leaves no written content; <code>MV</code> keeps edited content
+under the destination path. An unsupported block or register operation refuses with its cause,
+never judging added lines as a whole file. In a data file (JSON, a
 <code>Package.resolved</code>, a manifest) a quoted value shaped as an identifier is not a
 number: a dotted release version such as <code>"0.7.56"</code> or <code>"1.2.3-beta.1"</code>,
 and a hexadecimal revision or digest holding a letter such as a git commit. So a version
@@ -64,18 +65,17 @@ directory where a run keeps its throwaway state and evidence reports, such as
 scanned: nothing there is committed, so none of its session ids, times or counts decides what a
 product does. The hook asks git about the file's directory, not the file: an ignored file in a
 tracked directory, such as a local settings file or <code>.env</code>, is read by the product and is
-still scanned. A file that declares itself generated — an <code>@generated</code> marker in the
-comment lines it opens with, as Cargo writes <code>Cargo.lock</code> — is not scanned either: its
-numbers are what its generator wrote, a lockfile's format version and the versions a registry
-publishes, so no hand chose them; the same numbers in a file nothing declares generated are refused.
-npm's lockfile is JSON and carries no comment declaring it generated, so a
-<code>package-lock.json</code> or <code>npm-shrinkwrap.json</code> is judged like any file and its
-unsourced numbers are refused: no file is exempted by its name or by a field its generator stamps.
+still scanned. A file written through a tool call is judged whatever it says of itself: an
+<code>@generated</code> marker in its opening comments is text any session can type, so a
+<code>Cargo.lock</code>, <code>package-lock.json</code> or <code>npm-shrinkwrap.json</code> written that
+way is judged like any file and its unsourced numbers are refused. A generator that writes its
+lockfile itself (<code>cargo update</code>, <code>npm install</code>) makes no tool call and meets no
+gate: no file is exempted by its name or by a field or comment its generator stamps.
 The real test is <code>tests/numeric-literals/declared/build_directory.rs</code>
 (<code>cargo test -p tama-cli --test numeric_literals_build_directory</code>), run against a real git
 checkout it creates for each case.</p>
 <h2>Standard operations are not configuration choices</h2>
-<p>The Rust and JavaScript syntax trees distinguish documented operation
+<p>The Rust, JavaScript, TypeScript and TSX syntax trees distinguish documented operation
 arguments from invented defaults. A sole zero argument to Rust
 <code>CommandExt::process_group</code> or <code>PermissionsExt::set_mode</code>
 is an OS operation, not a retry count. JavaScript first-element indexing,
@@ -105,6 +105,12 @@ ever adds to is the start of a running sum or count, not a chosen number:
 Every write to that name in the same source must add to it; one write that
 gives it anything else (<code>sent = other</code>, <code>step--</code>), or no write
 at all, keeps the zero judged. The same journey covers both outcomes.</p>
+<p>Typed bindings and class fields use the TypeScript grammar; TSX uses its
+JSX-aware grammar. For example, <code>private step: number = 0</code> with
+<code>this.step += amount</code> starts a running count. A later plain assignment
+such as <code>this.step = amount</code> is a reset, not an increment, in typed and
+untyped source alike. An arbitrary typed default and malformed typed syntax
+remain subject to numeric provenance.</p>
 <p>A one that steps a count up or down is the unit of counting, not a chosen
 number: <code>fire_count += 1</code>, <code>left -= 1</code>,
 <code>count.saturating_add(1)</code> (and the other <code>checked_</code>,
@@ -174,14 +180,15 @@ replacement whose <code>old_string</code> is absent refuses with the target
 path instead of judging unchanged source or replacement text alone. A
 multi-edit refusal retains the failed operation; no partial edit is applied
 by a guard. Numeric, keyword, browser and Supabase write consumers propagate
-the same shared reconstruction error. Unsupported hashline block, register,
-move and remove operations refuse with the operation and target instead of
-substituting added lines. Single-path unified patches likewise report that
-complete reconstruction is unavailable. These diagnostics do not implement
-those operations: use a supported range, gap, string edit or explicit whole-file
-write when the harness contract permits it. No fragment establishes Rust import
-or return-type context. An explicit empty text write remains a complete empty
-document; missing operations and non-text content are diagnosed, not emptied.</p>
+the same shared reconstruction error. Supported <code>REM</code> and
+<code>MV</code> operations preserve removal and destination semantics; see
+<a href="/docs/whole-file/">whole-file judging</a>. Unsupported block and register
+operations refuse with the operation and target instead of substituting added lines.
+Single-path unified patches likewise report that complete reconstruction is unavailable.
+Use a supported range, gap, string edit or explicit whole-file write when the harness
+contract permits it. No fragment establishes Rust import or return-type context.
+An explicit empty text write remains a complete empty document; missing operations and
+non-text content are diagnosed, not emptied.</p>
 <p>String edits require explicit text <code>old_string</code> and
 <code>new_string</code> fields. Null, boolean or missing replacements do not
 become empty deletions or appended fragments. The refusal names the target and

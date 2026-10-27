@@ -84,10 +84,20 @@ and <strong>Posture</strong>. A source pass cannot stand in for that journey.
 Use the normal authorization controls; a guard refusal is a blocked run, not
 permission to alter its selection or approval records.</p>
 <h3>Desktop contract qualification</h3>
-<p>The desktop package currently declares the <code>Tama</code> executable and no Swift test
-product. Do not invoke an undeclared test product or treat successful compilation as a contract
-test. Qualification must exercise the actual CLI request boundary and the corresponding desktop
-screen, retaining the exact source revision, commands, observed state and supported recordings.</p>
+<p>The desktop package declares the <code>Tama</code> executable and the
+<code>TamaDesktopReviewDiagnosticsTests</code> target. Its native diagnostics
+journey uses the application dependency graph; a test filter does not isolate
+that graph. The separate package at <code>tests/provisioning/Package.swift</code>
+declares <code>TamaDesktopProvisioningTests</code> using only XCTest and system
+frameworks. From the desktop checkout, run <code>swift test --package-path tests/provisioning --scratch-path .build/provisioning-package --filter TamaDesktopProvisioningTests</code>
+with the real isolated inputs described in <a href="/docs/releases/#provisioning-qualification">provisioning qualification</a>.
+Retain the consumed manifest and source identities, actual executed test names,
+assertions, exit status, persisted-state evidence and cleanup outcome. An empty
+selection or a missing target is not qualification. Neither package replaces
+the real signing and verification consumers or graphical qualification.
+Desktop qualification must exercise the actual CLI request boundary and the
+corresponding screen, retaining the exact source revision, commands, observed
+state and supported recordings.</p>
 <p>For coverage inspection, use the real installed-configuration journey described in
 <a href="/docs/cli/provider/config/">provider configuration</a>, then inspect the same counts and
 failure causes on <a href="/docs/desktop/coverage/">Coverage</a>. A null count must remain unknown

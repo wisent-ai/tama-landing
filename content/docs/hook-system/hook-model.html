@@ -132,7 +132,9 @@ check does not run high-entropy or live runtime drift checks.</p>
 <p>A hook of type <code>requires_justification</code> names one or more local
 justification registries instead of blocking outright. Each requirement
 declares <code>kind</code>, <code>title</code>, <code>registryPath</code> (a <code>~</code>-relative JSON file),
-<code>field</code> (the justification text field), <code>minimumWords</code>, and optionally
+<code>field</code> (the justification text field), optionally <code>minimumWords</code>
+(a positive count, stated only where the hook measures the words; a requirement
+whose hook asks only that a reason is recorded states none), and optionally
 <code>directUserQuoteField</code>. The desktop's <strong>Justifications</strong> screen reads those
 registries and shows every entry with its word count, its <code>expires_at</code>
 expiry, and whether the target it justifies still exists — expired or
@@ -188,7 +190,7 @@ subscript of it — so one line checking different typed fields with one word ea
 <code>after["current"]["status"] !== "open" || receipt["state"] !== "queued"</code>)
 passes, while one input compared with several words
 (<code>reply.trim() == "okay" || reply.trim() == "sure"</code>) is refused. The
-real tests are <code>tests/keyword-literals/argument_vectors.rs</code>,
+real tests are <code>tests/keyword-literals/argv/argument_vectors.rs</code>,
 <code>tests/keyword-literals/argv/built.rs</code> and
 <code>tests/keyword-literals/quoted_punctuation.rs</code> (<code>cargo test -p
 tama-cli --test keyword_literals_argument_vectors --test keyword_literals_built_argv
@@ -203,6 +205,16 @@ A collection retained in a variable, iterated, or used to answer a membership qu
 A list a function returns is its caller's data, as a list handed to a call is: when the collection stands in a container a <code>return</code> statement opens, the guard reads it as the value the function produces — a table's column headers in a returned view (<code>return { table: { columns: ['Study', 'Status', 'Question'], rows } }</code>) — not a vocabulary the program keeps. The same returned list asked a question where it stands (<code>return ['nope', 'never'].includes(answer)</code>) still classifies by words and is refused, and so is a list bound to a name. <code>tests/keyword-literals/returned_views.rs</code> drives <code>tama hook block-keyword-literals</code> with all three.
 One iterated list is read from the loop around it: when a <code>for (const field of […])</code> (JavaScript, TypeScript) or <code>for field in […]</code> (Rust) loop binds one name to the written words and every use of that name in the loop's braced body is a subscript key (<code>message[field]</code>), the words are the names of the fields the loop reads, not a vocabulary input is compared with, and the list passes: <code>for (const field of ["steering", "synthetic"]) { assert.equal(typeof message[field], "boolean") }</code>. The same loop that compares the name (<code>if (reply === word)</code>), hands it to a call or returns it is still refused, and so is a loop whose body never uses the name. <code>tests/keyword-literals/quoted_punctuation.rs</code> drives both outcomes through the built hook.</p>
 <p>The keyword guard judges every list the file holds after the write, not only the lists the write adds: a list somebody left on a line the edit does not touch is refused by name and cleaned up, not counted out as already present. A write whose target is missing, a directory or unreadable is still judged from the text it writes. <code>tests/keyword-literals/held_lists.rs</code> (<code>keyword_literals_held_lists</code>) drives <code>tama hook block-keyword-literals</code> with an edit beside a held list, a list written to an unreadable or missing target, and a file with no list, which passes.</p>
+<p>A supervisor's shell line is read as well. In a session Oko records as a supervisor (<code>oko sessions role set
+&lt;id&gt; supervisor</code>, read from <code>session-roles.json</code> where Oko writes it), a quoted alternation of words
+in the command — <code>oko defects list --open | grep -E 'refused|blocked'</code>, a wait for one of several words —
+groups or waits on the registers by word match instead of by their fields or a judgement, and is refused as
+<code>the shell line:1: a alternation of 2 words decides something by keyword ("refused", "blocked")</code>. Another
+session's line is not judged, nor a supervisor's line with no such run (<code>oko defects list --open --json</code>);
+the role is read only for a line that holds one, and a role register that cannot be read refuses naming its cause.
+<code>tests/keyword-regex-literals/supervisor_lines.rs</code> (<code>keyword_supervisor_lines</code>) records a
+supervisor through the installed Oko in a home of its own and drives <code>tama hook block-keyword-literals</code> with
+all three lines.</p>
 <h3>A number spelled another way is still a number</h3>
 <p>The numeric guard also reads a number written so that it does not look like
 one, and judges it as the number it is: <code>Number('401')</code>,

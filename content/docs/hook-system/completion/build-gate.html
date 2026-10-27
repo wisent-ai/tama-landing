@@ -47,7 +47,12 @@ runs, so the next build needs its own. Without one the build is refused with
 <code>`&lt;build&gt;` builds, compiles, formats or tests, and no build attestation of this session
 admits it: session &lt;id&gt; needs its own build attestation, and none is recorded: write it and
 record it with …</code>; a recorded attestation that no longer stands is named with its reasons,
-and one that cannot be read or spent is named with its cause.</p>
+and one that cannot be read or spent is named with its cause. A recorded build attestation admits
+no build until a reviewer other than the session that wrote it has passed it in a round of harsh
+review (<code>tama reviews harsh record --findings &lt;file&gt; --attestation build:&lt;id&gt;</code>);
+until then the refusal says <code>no reviewer other than its author (session &lt;id&gt;) has attacked
+this certification against the work it certifies</code>, and a round with findings refuses it naming
+each.</p>
 <h2>What the gate answers</h2>
 <ul>
 <li>A consent the operator gave in this conversation (the build capability of this session) is read

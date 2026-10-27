@@ -2,7 +2,7 @@
 <p>Diagnoses access to the configured model service from this machine without changing its provider, credentials or fleet declaration.</p>
 <h2>Invocation</h2>
 <pre><code>tama doctor [--json]</code></pre>
-<p>Use this when a model-dependent operation cannot discover Brama or authenticate to its catalogue. The command uses the same diagnostic as <a href="/docs/cli/model-provider/#check"><code>tama model-provider check</code></a>, including declared alternative providers.</p>
+<p>Use this when a model-dependent operation cannot discover Brama or authenticate to its catalogue. The command uses the same diagnostic as <a href="/docs/cli/model/#check"><code>tama model check</code></a>, including declared alternative providers.</p>
 <h2>Output and state</h2>
 <p>The report identifies the provider, endpoint, transport policy, catalogue request, returned status, credential source and verdict. JSON output preserves the report fields. A failure before a report exists produces <code>{"error":"&lt;actual cause&gt;"}</code> and the same cause on stderr.</p>
 <p>Success requires an allowed endpoint and catalogue acceptance. It proves neither chat inference nor a judged-hook verdict. No provider selection or fleet configuration is changed.</p>

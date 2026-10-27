@@ -1,0 +1,32 @@
+<h1><code>tama session</code></h1>
+<p>Who holds the uncommitted edits of each file in a checkout several agent sessions share, and how one session's edits pass to another. The commit review admits a commit only when every staged file is what the committing session's own recorded edits make of it, so a file holding two sessions' uncommitted edits can enter nobody's commit. The edit lease keeps that from happening, and a handover is the way out when it already has.</p>
+<h2>The edit lease</h2>
+<p>The first session to edit a file that is what <code>HEAD</code> holds takes a lease on it in <code>pre-write-edit</code>, before its write lands. While the lease holds, <code>pre-write-edit</code> refuses every other session's edit of the file, after the write has passed every other rule, and names the holder:</p>
+<pre><code>edit-lease: BLOCKED: src/main.rs is leased to session first-session, which runs now and has held it since 2026-10-22T01:40:00Z; its uncommitted edits and this session's would enter nobody's commit. Ask that session to commit them, or to hand its edits over to this session: tama session handover --path src/main.rs --from first-session --to second-session
+</code></pre>
+<p>When the holder has ended the refusal says so and that a supervisor hands its edits over. The file's state, the blob <code>HEAD</code> holds at its path and the lease are read under the register's lock. A file that still reads as <code>HEAD</code> does not by that alone end a lease, since the holder's write lands after its pre-write: the lease ends once the file is what <code>HEAD</code> holds after the holder's edits were seen in it, after a commit changed what <code>HEAD</code> holds at the path, after the holder ended, or once the call the holder made on the file has its result while the file is unchanged (another gate refused the call, or the tool failed), and the next session to edit the file takes it. That call is named when the lease is taken: the call on the file in the newest assistant record of the transcript the holder writes now, the one <code>tama stage</code> reads, so a session OMP moved to a new transcript is read there; a path the call gives relative to the session's working directory is resolved against it. Only the end of the transcript, back to the call, is read. A holder whose call still runs keeps a lease on an unchanged file; a holder whose call cannot be named holds it only once its edit is seen. A file that already differs from <code>HEAD</code> with no lease naming it carries edits nobody recorded, so an edit of it is admitted and nobody becomes its holder. A write no recorded session makes, such as one the operator makes in his own shell, takes no lease and is not refused by one. A write whose path is relative and names no working directory, a holder transcript that cannot be read, or a checkout whose lease register cannot be read, is refused with the cause, since whose edits the file holds would otherwise be unknown.</p>
+<h2>Invocation</h2>
+<pre><code>tama session handover --path P --from A --to B [--json]
+tama session leases [--repository PATH] [--json]
+</code></pre>
+<h2>Verbs</h2>
+<table>
+<thead><tr><th>Verb</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>handover --path P --from A --to B</code></td><td>Passes session A's lease on file P to session B and records the SHA-256 of the bytes P holds now. B's first edit after it builds on those bytes, so the commit review reads B's change of P as including A's edits: B's commit carries them, and the handover names A as the co-author of that change. While A runs, only A hands its own edits over; the edits of a session that has ended are handed over by whoever supervises the work</td></tr>
+<tr><td><code>leases</code></td><td>Every file of the checkout under a lease, with its holder and since when, and every handover with who made it and when</td></tr>
+</tbody>
+</table>
+<h2>Example</h2>
+<pre><code>$ tama session handover --path src/main.rs --from first-session --to second-session
+session first-session's edits of src/main.rs pass to session second-session (content 4f1c…); its commit carries them with first-session as co-author
+$ tama session leases
+src/main.rs  held by second-session since 2026-10-22T01:52:10Z
+src/main.rs  handed from first-session to second-session by first-session at 2026-10-22T01:52:10Z
+</code></pre>
+<p>With <code>--json</code>, <code>handover</code> answers <code>{"path","from","to","content_sha256","by","at"}</code> and <code>leases</code> answers <code>{"leases":{PATH:{"session","since","head_blob","written","call"}},"handovers":[…]}</code>: <code>head_blob</code> is the blob <code>HEAD</code> held at the path when the lease was taken (null when it held no file there), <code>written</code> whether the holder's edits have been seen in the file since, and <code>call</code> the id of the holder's call that is writing it (null when none was named, as after a handover).</p>
+<h2>Where it is kept</h2>
+<p>The register is <code>tama-edit-leases.json</code> in the repository's common Git directory, shared by every index and worktree of the checkout. It is changed under an exclusive lock on <code>tama-edit-leases.lock</code> beside it and replaced whole through a renamed file, so two hooks never interleave their writes.</p>
+<h2>Refusal boundary</h2>
+<p><code>handover</code> refuses a missing <code>--path</code>, <code>--from</code> or <code>--to</code>, the same session on both sides, a path in no Git checkout, a file that is what <code>HEAD</code> holds (nothing to hand over), a file whose lease names another session than <code>--from</code> or no session, and a handover from a running session made by anyone but that session. <code>leases</code> refuses a directory in no Git checkout. A register that cannot be read or written refuses with its path and cause.</p>
+<p>Return to <a href="../reviews/">tama reviews</a> or the <a href="../">complete CLI tree</a>.</p>

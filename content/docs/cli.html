@@ -12,7 +12,7 @@ intentionally not part of the public surface.</p>
 <li><a href="cli/validate/"><code>tama validate [--json]</code></a> — validate catalog and source integrity.</li>
 <li><a href="cli/install/plan/"><code>tama install plan [--json]</code></a> — show enforcement targets and what each user-global Git hook holds, without writing them.</li>
 <li><a href="cli/mcp/config/"><code>tama mcp config</code></a> — print the MCP server fragment.</li>
-<li><a href="cli/model-provider/"><code>tama model-provider [show | set --origin URL --model MODEL | set --none | unset | check] [--json]</code></a> — choose the model service Tama asks, Brama, an OpenAI-compatible service whose key is read from standard input, or none, and check whether it accepts this machine.</li>
+<li><a href="cli/model/"><code>tama model [show | set --origin URL --model MODEL | set --none | unset | check] [--json]</code></a> — choose the model service Tama asks, Brama, an OpenAI-compatible service whose key is read from standard input, or none, and check whether it accepts this machine.</li>
 <li><a href="cli/sessions/"><code>tama sessions [--json] [--home &lt;path&gt;]</code></a> — inspect live session records.</li>
 <li><a href="cli/sessions/"><code>tama sessions reload --session &lt;ID&gt; [--json]</code></a> — reload the installed adapter in the same OMP process and require its loaded-digest receipt.</li>
 <li><a href="cli/assignment/show/"><code>tama assignment show --session SESSION_ID [--json]</code></a> — read one session's newest operator instruction and fresh Oko task ledger, and record that both were read.</li>
@@ -21,10 +21,11 @@ intentionally not part of the public surface.</p>
 <li><a href="cli/justify/"><code>tama justify &lt;record|show|remove|list&gt; [--file &lt;path&gt;] [--justification &lt;text&gt;] [--kind file|cua] [--quote &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]</code></a> — record, read or remove a justification the authorization gates require.</li>
 <li><a href="cli/tests/"><code>tama tests &lt;approve|revoke|list|audit&gt; [&lt;path&gt;…] [--remove] [--json]</code></a> — the operator's approvals of test code, and the audit of every test nobody approved; <code>block-unapproved-tests</code> refuses test code anywhere else.</li>
 <li><a href="cli/policy/"><code>tama policy import|list|remove</code></a> — validate and keep inactive policy bundles, list them, and remove one, without installing or enabling anything.</li>
-<li><a href="cli/hooks/"><code>tama hooks declare|undeclare|release|warm|stage|seal|source-identity|install-release|integrity|digest</code></a> — add, withdraw, build, warm, package, install and verify hook releases.</li>
+<li><a href="cli/hooks/"><code>tama hooks declare|undeclare|release|warm|stage|seal|identity|install-release|integrity|digest</code></a> — add, withdraw, build, warm, package, install and verify hook releases.</li>
 <li><a href="cli/reviews/"><code>tama reviews list|show &lt;id&gt; [--json]</code></a> — inspect retained commit-review outcomes and exact causes without repeating a review.</li>
 <li><a href="cli/standing/"><code>tama standing list|show|score|withdraw|location [--json]</code></a> — each agent session's commit standing: a point per formatted commit, one lost per unformatted one, every tool call refused below zero; charge commits made before scoring and take a charge back.</li>
 <li><a href="cli/format/fold/"><code>tama format fold [--repository &lt;path&gt;] [--json]</code></a> — fold rustfmt's form into the unpublished commits that wrote each Rust file.</li>
+<li><a href="cli/history/rebase/"><code>tama history rebase [--repository &lt;path&gt;] [--prefer upstream] [--json]</code></a> — write the unpublished commits again on the upstream's current tip, each merged by Git, notes and rewrite records kept; a place Git cannot merge refuses, or keeps the upstream's side.</li>
 </ul>
 <h2>Command declaration review</h2>
 <p>When <code>block-one-off-commands</code> finds a declaration without a kept
@@ -65,7 +66,7 @@ never delete earlier evidence.</p>
 <li><a href="cli/uninstall/"><code>tama uninstall [--unset-git-config]</code></a> — remove the managed Git dispatchers and put back what they displaced.</li>
 <li><a href="cli/onboarding/"><code>tama onboarding [--reset] [--policy-bundle &lt;dir&gt;] [--replace] [--home &lt;path&gt;]</code></a> — the first-use walkthrough, optionally adopting an inactive policy bundle on the way in.</li>
 <li><a href="cli/violations/find/"><code>tama violations find</code></a> — scan repositories without modifying them.</li>
-<li><a href="cli/violations/declare-root/"><code>tama violations declare-root</code></a> — declare a repository root whose files are fixed there by other tooling.</li>
+<li><a href="cli/violations/root/"><code>tama violations root</code></a> — declare a repository root whose files are fixed there by other tooling.</li>
 <li><a href="cli/vocabulary/report/"><code>tama vocabulary report --repo &lt;path&gt;… [--json]</code></a> — every keyword list still in a repository, grouped by its words.</li>
 <li><a href="cli/violations/clean/"><code>tama violations clean</code></a> — ask Brama for one patch per repository per round, apply it, and re-scan.</li>
 <li><a href="cli/justify/"><code>tama justify &lt;record|show|remove|list&gt;</code></a> — record, read and retire the justifications the write guards require.</li>

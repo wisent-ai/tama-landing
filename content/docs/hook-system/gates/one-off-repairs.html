@@ -1,8 +1,8 @@
 <h1>One-off repairs: <code>block-one-off-repairs</code></h1>
 <p>A gate on <code>pre_tool_use:bash</code> (<code>tama hook block-one-off-repairs</code>) that refuses repairs
 made by hand against live machine state, and builds while the build hold stands, and names, in each refusal,
-the product command that owns the outcome. Every refusal starts <code>BLOCKED: one-off repair by hand.</code>,
-appears as a <code>{"decision":"block","reason":"…"}</code> document on stdout,
+the product command that owns the outcome. A policy finding starts <code>BLOCKED: one-off repair by hand.</code>.
+Each refusal appears as a <code>{"decision":"block","reason":"…"}</code> document on stdout,
 and repeats its reason on stderr. The dispatcher ends normally after that decision;
 a nonzero exit without a decision is a hook failure, not a policy refusal.
 The harness prevents the proposed command from running. An ordinary allowed command
@@ -22,10 +22,27 @@ through Oko's model call, against the operator's rule and the route of each outc
 (<code>block_one_off_repairs/judge-prompt.md</code>): which verb of which launcher, client, store or
 watcher does it is not a list anybody can finish, and the verb lists this gate used to carry were the
 keyword logic <code>block-keyword-literals</code> refuses. The refusal is the model's sentence naming what
-the command does by hand and the route that owns it. A question the judge leaves unanswered refuses the
-command with <code>TAMA_HOOK_INFRASTRUCTURE: block-one-off-repairs: review unavailable: …</code> and the judge's
-recorded state, as <a href="/docs/hook-model/model-judgement/#unanswered">asking a model</a> describes; the build
-hold never depends on a judgement.</p>
+the command does by hand and the route that owns it. Tama does not need Brama or any model to hold a session
+to this rule: on a machine that declared <code>tama model set --none</code> the structural refusals
+above and the build hold decide alone, and nothing waits on or is refused for a judge. With a model declared,
+a question the judge leaves unanswered refuses the command with
+<code>TAMA_HOOK_INFRASTRUCTURE: block-one-off-repairs: review unavailable: …</code> and its actual cause, unless
+every command on the line runs a program the judge itself stands on, so the judge's repair is never held behind
+it. That is an unavailable decision, not a finding that the command is a one-off repair.
+<a href="/docs/hook-model/model-judgement/#unanswered">Asking a model</a> describes the kept request and how to
+obtain its answer; the build hold itself never depends on a judgement.</p>
+<p>The operation that answers a retained question must remain reachable without asking a question about
+itself: a single literal <code>tama judgement ask &lt;request&gt;</code> invocation of the same executable
+may run. The runtime bundle and installed CLI may be distinct, byte-identical copies: identity is established
+by device/inode or by a streamed comparison of the complete files. A changed copy does not qualify.
+This is not an exemption for other Tama commands or dependency products. The Bash
+syntax tree must contain just that invocation: substitutions, command chains, redirects, environment
+assignments and unquoted tilde, pathname or brace expansions are not accepted as a review operation.
+Quoting the literal filename or escaping expansion syntax preserves its exact identity.
+A program merely named <code>tama</code> is not trusted;
+an unresolved executable or relative search-path entry cannot establish identity. The question consumer
+still validates the actual retained request and refuses a missing or malformed one. This route supplies
+no answer of its own and does not execute the command being judged.</p>
 <h2>Build admission and open records</h2>
 <p>Whether a build, compile or test may run is not a count Tama makes: the gate
 needs the session's own build attestation and asks Oko's one admission
@@ -69,13 +86,13 @@ replacement Oko executable or a canned CLI response.</p>
 <tr><td>Cycles a running service or process: restarts, stops, unloads, bootstraps or kills it through any
 launcher (<code>launchctl kickstart</code>, <code>systemctl restart</code>, <code>brew services restart</code>,
 <code>kill &lt;pid&gt;</code>, <code>pkill</code>)</td>
-<td><code>stado service restart &lt;NAME&gt;</code>, <code>stado service refresh-image &lt;LABEL&gt; --if-needed</code>;
+<td><code>stado service restart &lt;NAME&gt;</code>, <code>stado service image refresh &lt;LABEL&gt; --if-needed</code>;
 a unit that must change is redeclared with <code>stado service deploy|update</code>.</td></tr>
 <tr><td>Writes a grant or mints a bearer straight into a vault past Stado (<code>skarbiec grant ensure</code>,
-<code>skarbiec token-mint</code>)</td>
+<code>skarbiec grant issue</code>)</td>
 <td><code>stado credentials token mint</code> and <code>stado credentials token sync</code> for a bearer;
 <code>stado service grant sync</code>, <code>stado credentials grant add</code> or
-<code>stado release catalog declare-publisher</code> for a grant.</td></tr>
+<code>stado release catalog publisher declare</code> for a grant.</td></tr>
 <tr><td>Changes rows or a table's shape through a database client, or the keys of a key-value store</td>
 <td>The command that owns those rows (<code>oko transcripts reindex</code>, <code>oko tasks …</code>, a
 service's own CLI); a change of shape belongs in a migration that ships with the product.</td></tr>
@@ -85,7 +102,7 @@ service's own CLI); a change of shape belongs in a migration that ships with the
 the product's own command, a browser policy through Weles.</td></tr>
 <tr><td>Copies or links a built executable over an installed one, or signs one with the ad-hoc identity</td>
 <td><code>oko install</code>, <code>stado product update &lt;PRODUCT&gt; --surface cli</code>,
-<code>stado release install-local</code>, <code>stado host reconcile --apply</code>; signing happens in
+<code>stado release local install</code>, <code>stado host reconcile --apply</code>; signing happens in
 <code>stado release prepare</code> and <code>stado release submit</code>.</td></tr>
 <tr><td>Renames, removes, overwrites or changes the mode of a hook's own file</td>
 <td><code>tama enforcement only &lt;hook-id&gt;…</code>, <code>tama adaptive repair &lt;hook-id&gt; --patch-file
@@ -115,7 +132,7 @@ rollback</code>, <code>stado product rollback</code>)</td>
 &lt;SURFACE&gt;</code>, commit and push the forward repair, install the new revision.</td></tr>
 </tbody>
 </table>
-<p>Reads pass: listing, printing, status and logs (<code>launchctl print</code>, <code>kill -0</code>, a
+<p>With an affirmative judgement, reads pass: listing, printing, status and logs (<code>launchctl print</code>, <code>kill -0</code>, a
 <code>select</code>, <code>defaults read</code>), a filter over a pipe, reading one named file, the product
 routes above, writing inside the repository, version control on it, and any <code>--help</code>. A command
 that only mentions a restart in quoted text restarts nothing.</p>
@@ -160,20 +177,56 @@ cannot be compared with the installed Stado refuses too.</td>
 <code>python3 -m &lt;module&gt;</code>, <code>python3 tools/x.py</code>. Python is not used in this workshop.</td>
 <td>Use the product command that does the job. When none exists, that missing command is the product work to
 build, in the product's own language.</td></tr>
+<tr><td>A session recovered by hand through one of the products' own recovery command paths, declared in
+<code>refusals/recovery.json</code> as their CLIs spell them: a session resumed, interrupted or moved to another
+model (<code>oko sessions resume|interrupt|model</code>, options anywhere among the words), or a harness import
+refreshed (<code>jeden import … --refresh</code>; an import without <code>--refresh</code> is no recovery). The
+refusal reads <code>`&lt;command&gt;` runs `&lt;path&gt;`, which recovers a session by hand</code>. Every such
+recovery is refused, including the first one and on a machine that declared no model. Naming a defect in
+<code>TAMA_HAND_REPAIR</code> or recording a claimed repair does not authorize it, and checking a command writes
+no hand-recovery allowance.</td>
+<td>Oko's supervision pass owns the recovery: repair the reusable product capability and use
+<code>oko sessions supervision run</code>, rather than recovering the next session by hand.</td></tr>
 </tbody>
 </table>
+<p>Ending or signalling a process by hand is not decided from a program's name. What <code>kill</code>,
+<code>pkill</code>, <code>killall</code> or any other program does to an agent's session or a service is read by
+the model with every other one-off repair (the rows above and <code>judge-prompt.md</code>): with a model
+declared, a command not yet judged is held naming <code>tama judgement ask &lt;request&gt;</code>, and a reading
+such as <code>kill -0 &lt;pid&gt;</code> or <code>kill -l</code> passes once judged. On a machine that declared no
+model (<code>tama model set --none</code>) only the structural refusals of this page apply. The recovery
+journeys clear the declaration and hook environments; a real inherited provider-override sentinel must remain
+unchanged while the isolated declaration is written.</p>
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_one_off_repairs/</code> (<code>mod.rs</code> for the
-order, <code>vocabulary.rs</code> for the toolchains' compile structure, <code>judged.rs</code> and
+order, <code>vocabulary.rs</code> for the toolchains' compile structure,
+<code>refusals/recovery.rs</code> with <code>refusals/recovery.json</code> for the declared recovery paths, and <code>judged.rs</code> with
 <code>judge-prompt.md</code> for the model's reading); binary:
 <code>src/programs/block/ownership/block_one_off_repairs.rs</code>. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test one_off_repairs_judged</code> runs the built
-hook with the judge recorded as not answering and requires a service cycle to pass with the stderr note and
-<code>cargo build</code> to be refused by the build hold; with <code>TAMA_TEST_ONE_OFF_JUDGE=1</code> and
-<code>-- --ignored</code> it asks the real judge and requires the service cycle refused with
-<code>stado service restart</code> in the reason and a <code>launchctl print</code> passed. The detector that
-counts the same shapes after the fact, across every stored transcript, is Oko's <code>transcripts one-offs</code>;
-a refusal here is recorded there as <code>refused by hook</code>. Registration is
+hook in an isolated home and requires its actual deferred-review refusal for a service cycle,
+distinguishing the infrastructure cause from a policy finding, and <code>cargo build</code> refused by the build hold.
+The explicit real-model case requires <code>TAMA_TEST_ONE_OFF_JUDGE=1</code>,
+<code>TAMA_TEST_TAMA_EXECUTABLE</code> naming the signed candidate CLI and
+<code>TAMA_TEST_SOURCE_REVISION</code> naming its source revision, with <code>-- --ignored</code>.
+It invokes the real question consumer, requires the retained answer and evaluates the same command again:
+a service cycle must be refused with its route and a status read must pass. Candidate revision, binary
+SHA-256 and actual question-consumer commands, statuses and output are retained under
+<code>.build/one-off-repairs</code>. Missing inputs, unavailable inference or an answer that cannot be
+retained fail that qualification; they are never counted as a successful semantic finding. The same target's
+<code>recovery</code> module runs the built hook with no model declared: manual recoveries
+are refused on their first attempt, with and without a defect reference, without writing an allowance.
+The recovery refusal requires no Oko defect lookup and no model. The same target's <code>required</code> module sets
+<code>model set --none</code> through the real CLI in an isolated home, then invokes the built hook:
+a supervision run and a Cargo metadata read pass with no judge asked, while a manual session resume is still
+refused by structure, naming <code>oko sessions supervision run</code>; decisions are retained under the checkout's
+<code>.build/required-one-off-review</code>. An executable whose literal filename contains a wildcard,
+or an executable on <code>PATH</code> literally named <code>~</code>, is recognized when quoted or escaped.
+Unquoted pathname and tilde expansions are refused even when a file with that literal spelling holds
+the released executable: the shell would not necessarily select the inspected program. No service or
+installed file is changed, and no untrusted expansion is executed by this journey.
+The detector that counts the same shapes after the fact, across every stored transcript, is Oko's
+<code>transcripts one-offs</code>; a refusal here is recorded there as <code>refused by hook</code>. Registration is
 <a href="/docs/hook-management/">two commands</a>:
 <code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/block-one-off-repairs.json</code>
 for the catalogue entry, the registry entry and the reseal, and

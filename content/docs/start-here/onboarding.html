@@ -147,7 +147,7 @@ capability records fail closed and do not trigger setup automatically.</p>
 <tr><td>No active agent sessions</td><td>No compatible supervisor record is live, or only a legacy v1 record exists</td><td>Install the verified bundled runtime, start or resume a supported session so it publishes v2 state, then refresh</td></tr>
 <tr><td>Reload required</td><td>Session still has an older runtime loaded</td><td>If a reload is scheduled, let the active turn settle and refresh; otherwise stop and resume the session after confirming installed release identity</td></tr>
 <tr><td>Repository path rejected</td><td>Path is absent, unsafe, or inaccessible</td><td>Select an existing repository owned by the current user</td></tr>
-<tr><td>Repair route unavailable</td><td>The Brama route a cleanup asks could not be resolved, or the bundled CLI is missing</td><td>Read the named cause (<code>tama model-provider check</code> says which); scan and every other core workflow continue</td></tr>
+<tr><td>Repair route unavailable</td><td>The Brama route a cleanup asks could not be resolved, or the bundled CLI is missing</td><td>Read the named cause (<code>tama model check</code> says which); scan and every other core workflow continue</td></tr>
 </tbody>
 </table>
 <p>Errors should say whether retry is safe and name the next action. Preserve only bounded diagnostics and never attach tokens, Keychain records, repository contents, or production logs to an ordinary issue.</p>

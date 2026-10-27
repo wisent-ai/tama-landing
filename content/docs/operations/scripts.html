@@ -82,11 +82,12 @@ source tree's <code>rust/</code> workspace), the catalog snapshot
 variables (<code>TAMA_HOOK_ROOT</code>, <code>TAMA_RELEASE_VERSION</code>, <code>TAMA_BUILD_CHANNEL</code>,
 <code>WISENT_CODESIGN_IDENTITY</code>, provisioning profiles, <code>TAMA_NODE</code>,
 <code>TAMA_CARGO</code>, <code>TAMA_INSTALL_APP_PATH</code>, <code>TAMA_INSTALL_AFTER_BUILD</code>,
-<code>WISENT_RESTART_AFTER_BUILD</code>, …) are tabled in
+…) are tabled in
 <a href="operations.md#configuration">operations</a>. It requires Node.js 20+, a
 resolvable codesigning identity, and a Git checkout for both the desktop and
 hook source trees. Output ends with <code>Built &lt;path&gt;</code> and, unless
-<code>TAMA_INSTALL_AFTER_BUILD=no</code>, <code>Installed &lt;path&gt;</code>.</p>
+<code>TAMA_INSTALL_AFTER_BUILD=no</code>, <code>Installed &lt;path&gt;</code>; an installed
+copy that was running is restarted by <code>stado product restart --if-running</code>.</p>
 <h3>tama hooks seal</h3>
 <pre><code>tama hooks seal [--source-root &lt;checkout&gt;] &lt;release-root&gt;
 tama hooks digest &lt;artifact-or-release&gt;
@@ -111,10 +112,10 @@ The digest definition is in <a href="concepts/seal.md">concepts/seal</a>.</p>
 <code>TAMA_CLI</code>) and filling the fields the CLI leaves out (<code>generatedAt</code> →
 <code>Unknown</code>, <code>category</code> → <code>Uncategorized</code>, <code>status</code> → <code>unknown</code>).
 Missing arguments throw <code>usage: export-catalog.mjs &lt;tama-root&gt; &lt;output-path&gt;</code>.</p>
-<h3>tama hooks stage and tama hooks source-identity</h3>
+<h3>tama hooks stage and tama hooks identity</h3>
 <pre><code>tama hooks stage --source-root &lt;tree&gt; --release-root &lt;prepared-release&gt; --cargo &lt;cargo&gt;
                  [--codesign-identity &lt;id&gt;] [--codesign-timestamp &lt;flag&gt;]
-tama hooks source-identity --source-root &lt;tree&gt; [--shell]
+tama hooks identity --source-root &lt;tree&gt; [--shell]
 </code></pre>
 <p><code>stage</code> builds, from the source tree, every native program the prepared
 release's registry runs plus the one <code>tama</code> program, places them in
@@ -122,7 +123,7 @@ release's registry runs plus the one <code>tama</code> program, places them in
 <code>native-hook-binaries.json</code> with the source identity they were built from; a
 staged hook file that differs from its source is refused with
 <code>Staged hook source differs from &lt;path&gt;; restage the release</code>.
-<code>source-identity</code> prints that identity — commit, whether the tree held
+<code>identity</code> prints that identity — commit, whether the tree held
 uncommitted work, and a fingerprint of every source input — or, with
 <code>--shell</code>, <code>&lt;revision&gt; &lt;dirty&gt;</code> for a build script. A fleet build
 names its commit in <code>WISENT_SOURCE_COMMIT</code> instead of a <code>.git</code> directory.

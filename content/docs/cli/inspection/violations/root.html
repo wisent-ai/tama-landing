@@ -1,7 +1,7 @@
-<h1><code>tama violations declare-root</code></h1>
+<h1><code>tama violations root</code></h1>
 <p>Declares a repository root to the audit when every file it holds is fixed there by somebody else's tooling, and refuses while anything movable is still in it.</p>
 <h2>Invocation</h2>
-<pre><code>tama violations declare-root (--repo &lt;path&gt; | --tree &lt;dir&gt;) [...] [--apply] [--tidy] [--commit] [--push] [--withdraw] [--json]
+<pre><code>tama violations root (--repo &lt;path&gt; | --tree &lt;dir&gt;) [...] [--apply] [--tidy] [--commit] [--push] [--withdraw] [--json]
 </code></pre>
 <p><code>--repo</code> names one checkout and <code>--tree</code> walks every Git checkout under a directory, so a workshop of two hundred repositories is one command. Without <code>--apply</code> the run is a report. <code>--commit</code> records what it wrote in the repository that received it, <code>--push</code> publishes that commit, and both also finish a declaration an earlier run left uncommitted in a working tree.</p>
 <h2>Why a root is different</h2>

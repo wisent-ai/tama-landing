@@ -31,7 +31,7 @@ brama), why something happened or did not from Oko's registers or the stored tra
 unknown, from local files, memory or a guess.</p></blockquote>
 <p>An answer without it is refused with <code>block-unsearched-answer: BLOCKED: the answer this turn ends with does not
 carry its turn-end attestation: missing: "…"</code>, followed by what to ask. Where a model is declared
-(<code>tama model-provider</code>), the model also reads the answer against the operator's messages and what the turn's
+(<code>tama model</code>), the model also reads the answer against the operator's messages and what the turn's
 tools returned (the turn is everything after the operator's last message) and refuses a fact whose source the turn
 never asked: <code>block-unsearched-answer: BLOCKED: LIVE STATE …</code> or <code>… HISTORY …</code>, naming the source.
 On a machine with no model declared the attestation alone decides, and so it does when the declared model, or Brama,

@@ -35,7 +35,7 @@ tracked files, CLI review and <code>tests/review</code> refuse with
 <code>no reviewer answered for tests in &lt;directory&gt;</code> and preserve
 the verdict store. The Test approvals screen receives the same refusal.
 The isolated <code>tests/smoke-tests/unreviewed.rs</code> journey configures
-<code>model-provider set --none</code> through the real CLI and checks both
+<code>model set --none</code> through the real CLI and checks both
 review interfaces, unchanged persisted verdicts and the retained failure log.</p>
 <p>An absent verdict file is an initial empty store. An existing file that
 cannot be read or decoded is not: both the foreground review and the write

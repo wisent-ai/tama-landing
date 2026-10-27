@@ -9,7 +9,7 @@
 <h2>Refusals and failures</h2>
 <p>Every failure is written as <code>doctor: &lt;reason&gt;</code> and exits <code>1</code>. The reason names what could not be read:</p>
 <ul>
-<li>The adaptive policy (<code>adaptive/policy.json</code>) or the hook registry is missing, unreadable or not the declared shape, or a hook's tier is one the policy does not declare.</li>
+<li>The hook registry is missing, unreadable or not the declared shape, or the adaptive policy (<code>adaptive/policy.json</code>, compiled into the release, so an installed Tama never reads it from the tree it was built in) is not the declared shape or gives a hook a tier it does not declare.</li>
 <li>A hook's adaptive state cannot be replayed from its journal.</li>
 <li>A segment folder, or a legacy telemetry file, cannot be examined.</li>
 </ul>

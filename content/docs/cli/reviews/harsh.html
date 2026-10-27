@@ -3,29 +3,79 @@
 lines in the commit attestation are one pass he writes himself; they can say an attack failed while he knows the
 defect, and nothing repeats them. So <code>tama hook review-commit</code>, which Git's <code>commit-msg</code> hook
 runs for every commit of every session, reads the rounds recorded for the commit being made and refuses it until a
-round by someone other than the author, over the exact staged tree and message, found nothing.</p>
+round by someone other than the author, over the exact staged tree and message, found nothing and names nothing the
+change suggests. Every round states the two parts of the operator's standard for finished work: what it finds to
+improve in the change, and what new the change suggests would further improve the codebase (the same shape
+elsewhere, the root cause, its visibility, the real case left untested).</p>
 <h2>Invocation</h2>
-<pre><code>tama reviews harsh record --findings &lt;file&gt; --message &lt;file&gt; [--repository &lt;path&gt;]
+<pre><code>tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; (--message &lt;file&gt; | --queue &lt;id&gt;) [--repository &lt;path&gt;]
+tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; --attestation (session|build):&lt;session id&gt;
 tama reviews harsh dispose --quote &lt;text&gt; --defect &lt;oko defect id&gt; [--repository &lt;path&gt;]
-tama reviews harsh show [--message &lt;file&gt;] [--repository &lt;path&gt;] [--json]</code></pre>
+tama reviews harsh settle --quote &lt;text&gt; --reason &lt;where it was repaired&gt; [--repository &lt;path&gt;]
+tama reviews harsh show [--message &lt;file&gt; | --queue &lt;id&gt;] [--repository &lt;path&gt;] [--json]</code></pre>
+<h2>A model that does not answer stops no commit</h2>
+<p>On a machine that declared a model, each commit attempt asks it for a round. When it does not answer (Brama down,
+the route refusing, any failure), the commit is not held for it: the hook keeps the round as owed in the register
+(<code>{"entry": "owed", "tree", "parent", "message", "text", "cause", "atMs"}</code>), says on stderr
+<code>review-commit: the round by the declared judge is owed: &lt;cause&gt;; this commit stands on its other rounds, and the
+owed round runs by itself on the next commit attempt that reaches the model</code>, and decides the commit on the rounds
+it has, a reviewer session's included. A commit admitted that way carries the owed round in its
+<code>Harsh-Review-Rounds:</code> line (<code>…; the round by the declared judge is owed, the model did not answer</code>).
+The next commit attempt in the repository whose model round is answered also runs every round the repository's registers
+still owe, over each owed candidate's patch read from objects against its parent, and keeps it beside the owed entry;
+its findings are printed with their tree, to be repaired in a later commit or recorded with <code>dispose</code>. A
+round the model still does not answer stays owed. <code>show</code> lists each owed round as
+<code>model round owed over tree &lt;tree&gt;: &lt;cause&gt;; …</code>, and <code>show --json</code> as
+<code>owed: [{"tree", "cause", "atMs"}]</code>, every register of the repository read. The journey
+<code>tests/harsh-review/owed.rs</code> (target <code>harsh_review_owed</code>) commits through the built hook with a
+model declared at an address nobody answers on and a reviewer session's round recorded: the commit is made, the hook says
+the round is owed, the message names it, and <code>show</code> lists it.</p>
+<h2>The queue: a reviewer for every executor's commit</h2>
+<p>An executor cannot start a reviewer of its own, and on a machine where no model answers (no model declared, or
+Brama answering nothing) no model round runs. So a candidate no reviewer other than its author has read is not left
+to its author: the hook puts it in Oko's harsh-review queue (<code>oko review harsh enqueue</code>) with the
+repository, the parent it follows, the staged tree and the message, and its refusal names the entry:
+<code>it waits in Oko's harsh-review queue as entry &lt;id&gt;, which Oko's supervision pass hands to a reviewer session
+of its own; commit again once `tama reviews harsh show` lists it reviewed</code>. When Oko cannot take it, the refusal
+says so and why: <code>it could not be put in Oko's harsh-review queue, so no reviewer session is handed it:
+&lt;cause&gt;</code>. The same candidate refused again finds its own entry; a changed tree or message is a new entry,
+since a round covers one candidate only.</p>
+<p>Every supervision pass (<code>oko sessions supervision run</code>, or <code>oko review harsh assign</code> for this
+step alone) starts, for each entry with no running reviewer, a session of its own in the candidate's checkout, recorded
+as an executor under the author's supervisor, with a brief to review that entry and nothing else. The reviewer reads the
+candidate with <code>show --queue &lt;id&gt;</code>: the entry's message and the patch its tree makes over its parent,
+read from the repository's objects, so a candidate staged in an index of its own is read as it was staged. It records its
+round with <code>record --queue &lt;id&gt; --findings &lt;file&gt; --improvements &lt;file&gt;</code>, which keeps the round in the parent's register
+and marks the entry reviewed in Oko. The author is refused as the reviewer of its own entry (<code>entry &lt;id&gt; was
+staged by session &lt;id&gt;, who cannot review it</code>). The author's next commit attempt then finds the round.</p>
 <h2>Who reviews</h2>
 <ul>
 <li><strong>A reviewer session.</strong> A session that is not the author reads <code>git diff --cached</code> and the
-message the commit will carry, attacks every changed line, and runs <code>record</code> with a JSON list of findings,
-each <code>{"quote", "problem", "require"}</code>, or <code>[]</code> when it found nothing. The reviewer is the
+message the commit will carry, attacks every changed line, and runs <code>record</code> with two JSON lists, each item
+<code>{"quote", "problem", "require"}</code> quoting the patch or the message: <code>--findings</code>, what it found
+in the change, and <code>--improvements</code>, what the change suggests further, each <code>[]</code> when there is
+none; both are required, so no round leaves the second part unsaid. The reviewer is the
 session whose recorded agent process runs the command, found the way owner consent finds it; a command no recorded
 session runs is the operator's own.</li>
-<li><strong>A model.</strong> On a machine that declared a model (<code>tama model-provider set</code>), every commit
-attempt first runs one round by the declared judge over the staged patch and message, and keeps it.</li>
+<li><strong>A model.</strong> On a machine that declared a model (<code>tama model set</code>), every commit
+attempt first runs one round by the declared judge over the staged patch and message, and keeps it. The judge is
+asked both parts and names each improvement the change suggests as a finding, so its round states both in its
+findings.</li>
 </ul>
 <p>A literal, call or construct spelled another way so that a repository gate does not see it is a finding of the gate
 it dodges, and an attack line saying an attack failed where the patch shows the defect is a finding; the model
 reviewer is told so, and a reviewer session reviews the same way.</p>
 <h2>Rounds and the verdict</h2>
 <p>Every round is kept, in order, in <code>&lt;git common dir&gt;/tama-harsh-review/&lt;parent&gt;.jsonl</code>, where
-the parent is the commit the new one will follow. A round covers one candidate: the staged tree and the message as
-Git records it, without comment lines and without the rounds line. Rounds recorded by the commit's author count for
-nothing. The commit is refused</p>
+the parent is the commit the new one will follow, and records that parent beside the tree it read. A round covers one
+candidate: the staged tree and the message as Git records it, without comment lines and without the rounds line. A
+round over the same change on an earlier parent covers it too: when the candidate was rebased onto a new parent and its
+diff against that parent equals the reviewed tree's diff against its own (the <code>index</code> lines naming blobs
+aside) under the same message, the round carries, and the commit says <code>the round over tree &lt;tree&gt; on parent
+&lt;parent&gt; reviewed this same change and carries to tree &lt;tree&gt; on parent &lt;parent&gt;</code>. A differing
+diff still needs a round of its own; a round whose old patch can no longer be read says so and does not carry; a round
+recorded before parents were kept never carries. Rounds recorded by the commit's author count for nothing. The commit
+is refused</p>
 <ul>
 <li>with <code>no round of harsh review by a reviewer other than the author (…) covers staged tree &lt;tree&gt; and
 this message</code> while there is none;</li>
@@ -33,26 +83,68 @@ this message</code> while there is none;</li>
 anything. Each finding is repaired in the staged change, or recorded as an Oko defect with <code>dispose</code>, which
 refuses a quote no round found and a defect <code>oko defects show</code> does not hold; then a new round runs on the
 result, until a round finds nothing;</li>
-<li>with <code>earlier harsh review findings still stand</code> while any earlier finding's quoted text is still staged
-and it was not disposed: a later round that passes it does not settle it, and neither does an attack line saying the
-attack failed.</li>
+<li>with <code>the newest harsh review round, by …, states only what it found in the change, not what the change
+suggests</code> while the newest such round was recorded without its improvements (a round kept before the second
+part was asked);</li>
+<li>with <code>the newest harsh review round, by …, names what this change suggests would further improve the
+codebase:</code> and each item while its improvements are not empty: each is done in the staged change or recorded as
+an Oko defect with <code>dispose</code>, then a new round runs, until one finds nothing and suggests nothing;</li>
+<li>with <code>earlier harsh review findings still stand: their quoted text is still staged and none was recorded as a
+defect or settled as repaired</code> while any earlier finding's or improvement's quoted text is still staged and it was neither disposed
+nor settled: a later round that passes it does not settle it, and neither does an attack line saying the attack
+failed. A finding repaired on other lines while the line it quoted stays staged (a declaration whose wrong case is
+refused a few lines later) is settled with <code>settle --quote &lt;quote&gt; --reason &lt;where it was repaired&gt;</code>
+by a reviewer other than the author; <code>settle</code> refuses a quote no round found and an empty reason, and a
+settlement by the commit's author settles nothing.</li>
 </ul>
 <p>A commit let through has one line added to its message before Git records it, naming its rounds by kind (no session
 id is written into a message): <code>Harsh-Review-Rounds: &lt;n&gt; rounds by a reviewer session; findings per round 2,
-1, 0; 1 recorded as defects</code>. <code>record</code> refuses a finding whose quote is found neither in the staged
+1, 0; 1 recorded as defects; 1 settled as repaired</code>. <code>record</code> refuses an item whose quote is found neither in the staged
 patch nor in the message, so no round names a defect it did not read. <code>show</code> prints the register and, given
 the message, the verdict the rounds give the staged candidate now, exiting one while it would be refused; without a
-message it lists the rounds and gives no verdict. <code>--json</code> prints <code>{register, tree, entries, admitted,
-verdict}</code> (the last two null without a message). An unreadable register, a line in it that is no round or
-disposal, or a Git step that fails refuses naming its cause.</p>
+message it lists the rounds and gives no verdict. Under them it lists Oko's harsh-review queue, one line per entry:
+<code>queue &lt;id&gt; &lt;waiting|assigned|reviewed&gt;: tree &lt;tree&gt; in &lt;checkout&gt; by &lt;author&gt;; reviewer
+&lt;session&gt;</code>. <code>--json</code> prints <code>{register, tree, entries, admitted, verdict, queue}</code> (the
+verdict fields null without a message; <code>queue</code> as <code>oko review harsh list</code> prints it). An
+unreadable register, a line in it that is no round, disposal or settlement, a Git step that fails, or an Oko that cannot list the
+queue refuses naming its cause.</p>
+<h2>Recorded attestations</h2>
+<p>A session's recorded task attestation (<code>tama attestation record --session</code>, read by the stop gates on a
+machine that declares no model) and its build attestation (spent by the build gate) are certifications in the
+session's own words. Their form is read without a model, so a session can fill it while the work is not what it says;
+each therefore has the same rounds before it stands. Until a reviewer other than the session that recorded it has
+recorded a round that found nothing on the document as it is kept, every gate that reads it refuses with <code>session
+&lt;id&gt;'s recorded &lt;kind&gt; attestation does not stand: no reviewer other than its author (session &lt;id&gt;)
+has attacked this certification against the work it certifies</code>, naming the record's file and the command:
+<code>record --findings &lt;file&gt; --improvements &lt;file&gt; --attestation &lt;kind&gt;:&lt;session id&gt;</code>, kind <code>session</code> or
+<code>build</code>. A round whose findings or improvements are not empty refuses it with <code>its harsh review refuses it:</code> and
+each finding, and an earlier finding whose quoted text the document still holds keeps refusing it; the repair is the
+work and a corrected document recorded again, which is a new candidate needing its own round. <code>record</code>
+refuses a finding quoting text the attestation does not hold, a round by the session that wrote it (<code>session
+&lt;id&gt; wrote this attestation, so its own round is no review</code>), an <code>--attestation</code> that is not
+<code>session:&lt;id&gt;</code> or <code>build:&lt;id&gt;</code>, and an attestation that is not recorded. The rounds are
+kept in <code>&lt;Tama state&gt;/attestations/reviews/&lt;kind&gt;/&lt;session id&gt;.jsonl</code>, outside the record
+directories. <code>tests/task-attestation/no_model.rs</code> drives the stop gate through an unreviewed attestation, a
+refused unquoted finding, a passing round and a newer round with a finding; <code>tests/build-gate/attested.rs</code>
+proves a standing build attestation admits no build until a reviewer's round passes it.</p>
 <h2>Native request and Desktop</h2>
 <p><code>tama request reviews/harsh</code> takes <code>{"repository": "&lt;checkout&gt;", "message"?: "&lt;text&gt;"}</code>
 and returns the same document. Desktop → Reviews → Harsh review rounds reads it for a named checkout and lists each
-round with its reviewer, staged tree and findings, and each finding recorded as a defect; an unreadable register or an
-entry of an unknown kind is shown as the failure it is.</p>
+round with its reviewer, staged tree, findings and the improvements the change suggests (or that the round states
+none, which lets no commit through), each finding recorded as a defect, each finding settled as repaired
+with who settled it and where it was repaired, and the queue's entries with
+their state, author, reviewer session and the reviewer's findings; an unreadable register or an entry of an unknown
+kind is shown as the failure it is. Oko Desktop shows the same queue beside the supervisor review, with a button that
+runs the supervision step handing waiting entries to reviewers.</p>
 <h2>Journeys</h2>
 <p><code>tests/harsh-review/rounds.rs</code> (<code>cargo test -p tama-cli --test harsh_review_rounds</code>) commits
 through the built hook in a clone: a round that found something refuses, a later passing round does not settle a
 finding still staged, the author's own round admits nothing, and a reviewer's passing round over the repaired change
 admits the commit; a finding quoting text that is not there is not recorded. <code>tests/commit-review/attested.rs</code>
-proves an attested commit no other reviewer reviewed is refused and that the made commit carries its rounds line.</p>
+proves an attested commit no other reviewer reviewed is refused and that the made commit carries its rounds line.
+<code>tests/harsh-review/queue.rs</code> (<code>--test harsh_review_queue</code>) commits as an executor session on a
+machine declaring no model, with the installed Oko keeping the queue in the case's own register: the refusal names the
+queue entry, the author's round over its own entry is refused, another session reads the entry's patch with
+<code>show --queue</code> and records its round with <code>record --queue</code>, <code>show --json</code> lists the
+entry reviewed, and the author's next attempt makes the commit. Every case's queue is its own
+(<code>OKO_HARSH_REVIEW_QUEUE</code>), so no journey writes the operator's.</p>

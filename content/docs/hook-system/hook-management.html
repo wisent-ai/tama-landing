@@ -3,8 +3,8 @@
 <h2>Source of truth</h2>
 <ol>
 <li><code>shared-hooks/registry.json</code> declares hook ids, events, commands, blocking status, runtime placement, and provider adapters.</li>
-<li><code>shared-hooks/catalog-metadata.json</code> carries durable category, lifecycle, purpose, rationale, and side-effect metadata.</li>
-<li><code>tama-core</code> reads those structured sources for the Rust CLI, MCP server, desktop catalogue snapshot, and product checks.</li>
+<li><code>shared-hooks/catalog-metadata.json</code> carries durable category, lifecycle, purpose, rationale, and side-effect metadata. A hook it has no entry for takes them from its <code>catalog.agentHooks</code> entry in <code>registry.json</code>, which <code>tama hooks declare</code> writes from the declaration's required <code>category</code>, <code>description</code>, <code>why</code> and <code>sideEffects</code>; a field stated in the hook's registry entry wins, then <code>catalog-metadata.json</code>, then <code>catalog.agentHooks</code>.</li>
+<li><code>tama-core</code> reads those structured sources for the Rust CLI, MCP server, desktop catalogue snapshot, and product checks. The catalogue is refused, naming the cause, when a hook entry declares no type or no command, an event does not say whether it blocks, or <code>catalog.agentHooks</code> is not a list; a registry that declares no version is printed with none. <code>tama validate</code> refuses a hook whose category, status, description, why or side effects none of the three sources states: <code>&lt;id&gt;: declares no &lt;fields&gt; in its registry entry, catalog-metadata.json or catalog.agentHooks entry</code>, so no hook reaches a reader with that metadata null. The journey <code>tests/hook-declarations/declared.rs</code> lists this checkout's catalogue with the built <code>tama list --json</code> and names every hook <code>registry.json</code> names that the catalogue does not list, and every one listed with a declaration field null.</li>
 </ol>
 <p>Do not duplicate a hook description in a command or prose file. Update the structured catalogue, then inspect it through <code>tama list --json</code>, <code>tama show &lt;hook-id&gt; --json</code>, or the matching MCP tools.</p>
 <h2>One rule, one hook</h2>
@@ -48,7 +48,7 @@ from the background-execution or CUA hook that happened to run first.</p>
 <li><code>rust/crates/tama-core/</code> is the catalogue and validation library.</li>
 <li><code>rust/crates/tama-cli/</code> builds the one program, <code>tama</code>; every hook (<code>tama hook &lt;name&gt;</code>), the hook engine (<code>tama run-hook</code>) and the MCP server exposing catalogue operations (<code>tama mcp</code>) are its subcommands.</li>
 <li><code>rust/crates/tama-adaptive/</code> owns the runner, symbolic policy, immutable telemetry, feedback bridge, and repair doctor.</li>
-<li><code>adaptive/policy.json</code> is the frozen symbolic tier and autonomy policy.</li>
+<li><code>adaptive/policy.json</code> is the frozen symbolic tier and autonomy policy, compiled into each release: an installed Tama records refusals for the adaptive layer even after the tree it was built in is deleted. The programs that read the Tama checkout itself (the adaptive doctor, <code>tama violations clean</code>, <code>tama mcp</code>, the one-session hook launcher and the CLI without <code>--root</code>) take the one <code>TAMA_ROOT</code> names, else the one <code>tama hooks release</code> recorded, else the tree the program was built in while it exists, and with none of them refuse naming each place.</li>
 </ul>
 <p>Retained operation reports are private runtime observations, not hook source. The legacy <code>reports/</code> directory is ignored; removing an existing report from Git's index preserves its local bytes rather than rewriting the recorded outcome. New release evidence and adaptive proposals belong under the existing ignored <code>.wisent-output/</code> root and the product's retained artifact flow. Do not commit a copied report to document an incident.</p>
 <h2>Catalogue commands</h2>
@@ -142,6 +142,8 @@ or <code>unreadable   &lt;path&gt;: &lt;cause&gt;</code> for a file that is no d
 <code>--json</code> prints <code>{registry, declarations: [{file, id, events: [{event, bound}], registered, stale}]}</code>, <code>stale</code> listing the differing catalogue fields.
 Real journey <code>tests/hook-declarations/declared.rs</code>.</p>
 <pre><code>tama hooks declared</code></pre>
+<p>Gates that are each right can together refuse every step a session has, and a session caught so loops between them instead of being told which step is left. Each declaration therefore says what its gate closes: <code>"closes": {"&lt;step&gt;": {"&lt;role&gt;": "open" | "held" | "idle" | "any"}}</code>, a step being <code>stop</code>, <code>answer</code>, <code>read</code>, <code>change</code>, <code>shell</code> or <code>claim</code>, a role <code>supervisor</code>, <code>executor</code> or <code>unrecorded</code> (as Oko's role register holds it), and the state while the session holds open work (<code>open</code>, held or not), while every open item it holds waits on another session or the operator (<code>held</code>), while it holds none (<code>idle</code>) or always (<code>any</code>). An empty <code>"closes": {}</code> declares that the gate closes no step outright: it refuses by what a call or an answer says, and the same step in other words passes it. <code>tama hooks reach [--catalogue PATH] [--json]</code> reads which gates the installed catalogue (<code>~/.shared-hooks/catalog-metadata.json</code>, or <code>--catalogue</code>) holds active and the registry beside it (<code>registry.json</code>) binds to an event — a gate bound nowhere runs for nobody and is not read — and what each one's declaration under <code>hook-declarations/</code> says it closes, and prints, for each role with open work, with only held work and with none, <code>reach: a &lt;role&gt; session &lt;state&gt; may still: &lt;steps&gt;</code> or <code>reach: a &lt;role&gt; session &lt;state&gt; has no step left: &lt;step&gt; by &lt;gates&gt;; …</code>. While every item waits on someone else a read, a change or a shell command moves none of them, so there only a stop, an answer or a claim of other work counts as a step left. An active gate with no declaration, or one that says nothing it closes, is named (<code>reach: unknown while &lt;n&gt; active gate(s) declare nothing they close (write `closes` in each gate's declaration under hook-declarations/): &lt;ids&gt;</code>): its steps are not guessed. A registry or catalogue that cannot be read refuses with its path and cause. The command fails while any state is left no step or any active gate is undeclared; <code>--json</code> prints <code>{catalogue, active, undeclared, states: [{role, work, admitted, closedBy}], stuck}</code>. Real journey <code>tests/hooks-reach/reach.rs</code> (<code>hooks_reach</code>).</p>
+<pre><code>tama hooks reach</code></pre>
 <p>And the machine half, which comes entirely from Tama's Stado release. The
 batch build compiles <code>tama</code>, assembles the hook release from the same
 commit — <code>package.json</code>, <code>shared-hooks</code>,
@@ -160,9 +162,8 @@ release carries, and reports what the machine runs. Run on its own it takes
 <code>--enforce &lt;hook-id&gt;[,&lt;hook-id&gt;…]</code>, which adds those ids
 to this machine's selection and keeps the ones already chosen, and
 <code>--dry-run</code>, which prints the plan, needs no consent and changes
-nothing. It refuses on a machine where Stado installed no hook release, and
-without <code>DEVICE_HOOK_EDIT_APPROVED=1</code>, printing the Stado install to
-run.</p>
+nothing. It refuses on a machine where Stado installed no hook release, and without <code>DEVICE_HOOK_EDIT_APPROVED=1</code>, naming the command that completes from where the machine stands: the release is already installed, so <code>tama hooks release</code> again with the same arguments, never a Stado install, which the build rulings in force may refuse and would spend the owner's consent on a command that cannot run.</p>
+<p>A standing ruling of the operator is his consent too: before asking for his hand consent, <code>tama hooks release</code> asks Oko <code>oko admit release --product tama --session &lt;the session it runs in&gt;</code>. A ruling that consents to <code>release</code>, <code>release:tama</code>, or <code>release@&lt;defect&gt;</code> for an open build-first defect that session owns admits the release and is said on stderr as <code>owner consent: &lt;the ruling Oko quotes&gt;</code>. A ruling that withdraws it (<code>no-release</code>) refuses with <code>BLOCKED: the operator's standing ruling withdraws releasing Tama's hooks: &lt;its words&gt;</code>, whatever other consent is given. When no ruling decides, or Oko cannot answer (said as <code>no standing ruling admits this release: &lt;cause&gt;</code>), the release asks for his consent as above.</p>
 <h2>One program</h2>
 <p>Tama is one program, <code>tama</code>. Every native hook is one of its
 subcommands, <code>tama hook &lt;name&gt;</code>; the hook engine is
@@ -177,8 +178,7 @@ installed — every recorded <code>tama-&lt;hook&gt;</code>,
 machine running nothing: a registry entry whose command still names a separate
 <code>tama-&lt;name&gt;</code> program, listed as <code>&lt;id&gt;:
 &lt;command&gt;</code>, and an adapter in <code>shared-hooks/</code> that still
-launches <code>tama-run-hook</code>, listed as <code>&lt;file&gt;:&lt;line&gt;:
-&lt;text&gt;</code>. The registry is device-protected, so its owner rewrites it
+launches <code>tama-run-hook</code>, listed as <code>&lt;file&gt;: &lt;text&gt;</code>. It also refuses a gate set that leaves some session no step, as <code>tama hooks reach</code> reads it, listing each such state. The registry is device-protected, so its owner rewrites it
 outside any agent session and reseals it:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hook migrate-registry-to-rust --registry shared-hooks/registry.json --apply
 node shared-hooks/seal-registry.mjs</code></pre>

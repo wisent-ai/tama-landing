@@ -202,7 +202,7 @@ names another. Brama's address is <code>TAMA_OBJECTIVE_AUTHORITY_MODEL_ROUTER_UR
 the adapter this machine's resolver publishes for Tama's consumer, otherwise the
 route <code>stado service directory connect brama --consumer tama</code> answers; no
 address is kept between requests and no public hostname is put in its place
-(<a href="../cli/model-provider/">how the address is resolved</a>). It does not inherit
+(<a href="../cli/model/">how the address is resolved</a>). It does not inherit
 the operator's credential-store identity.</p>
 <p>An activation failure records the process outcome before its captured
 diagnostic: <code>could not start command</code>, <code>terminated by &lt;signal&gt;</code> or
@@ -210,8 +210,8 @@ diagnostic: <code>could not start command</code>, <code>terminated by &lt;signal
 a caller that abandoned the activation reads
 <code>activation-preflight-cancelled:caller-abandoned</code>. A missing, empty or malformed token
 file is refused with the consumer, the file path and the
-<code>skarbiec token-mint</code> command that issues one; no token is included.
-<code>tama model-provider check</code> also asks this machine's Skarbiec whether the token
+<code>skarbiec grant issue</code> command that issues one; no token is included.
+<code>tama model check</code> also asks this machine's Skarbiec whether the token
 holds <code>call:brama#&lt;route&gt;</code>, which separates a missing local grant
 from a gateway that answers to another authority.</p>
 <h2>Global emergency disable</h2>

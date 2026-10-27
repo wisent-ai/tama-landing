@@ -98,15 +98,23 @@ them after Brama's own readiness, and judges of concurrent sessions are not
 serialized behind one answer. Which connection is whose is read from the
 connection itself, not from how many there are: a resolver that records the
 loopback address each held client connected from (<code>client</code>) lets Tama
-ask <code>lsof -nP -FpR -iTCP:&lt;port&gt;</code> which processes hold that port and
-which process started each, and the connection is a running hook's when one of
+ask one <code>lsof -nP -FpRn -iTCP:&lt;port&gt;,&lt;port&gt;,…</code> over every
+waiting connection's port which processes hold a socket on each port and which
+process started each, and a connection is a running hook's when one of
 them is the client process that hook recorded or a process that hook started —
 the readiness question its watch holds open (below). A running hook's own
 request the resolver does not list therefore lets no other connection through.
 Connections an older resolver lists without a client address are known only by
 count: each needs a running request no named connection matched. When
 <code>lsof</code> cannot answer, the refusal says
-<code>lsof could not say which process holds loopback port &lt;port&gt; …</code>.
+<code>lsof could not say which process holds loopback port(s) &lt;ports&gt; …</code>.
+The endpoint is matched to the adapter by its authority, whatever its scheme:
+a declared service's origin is bound by no waiting connection, so it passes by
+that, and an endpoint that names no scheme and authority is refused with
+<code>judge endpoint "&lt;endpoint&gt;" names no scheme and authority to read its channel by</code>.
+<code>tests/hooks/judge_channel_lsof.rs</code> holds two real judge clients
+waiting, both a running hook's own, and requires the request beside them to go
+out after one <code>lsof</code> call.
 When some outstanding connection is no running hook's request, the refusal
 names the requests, their owners and the connections no running hook watches:</p>
 <pre><code>judge request to http://&lt;resolver adapter&gt;/v1/chat/completions not started: resolver at … reports 2 unanswered connection(s) on this adapter: service brama consumer tama phase answer to … since …; …; running Tama hooks own 1 request(s) (route &lt;route&gt; to &lt;endpoint&gt; sent by hook process &lt;pid&gt; (`tama hook check-speculation`) through client process &lt;pid&gt;, waiting for &lt;n&gt; s); 1 of the connections is no running hook's request: service brama consumer tama phase answer …; another request is not sent while a connection no running hook watches is waiting</code></pre>
@@ -144,10 +152,10 @@ request Brama keeps declaring it serves waits until Brama answers or its hook
 process ends; a resolver that forwards the readiness question too and holds it
 unanswered leaves the watch waiting with the client, which Stado's own refusal
 of a forwarded connection its remote never answers frees. A provider declared
-with <code>tama model-provider set</code> declares no readiness and is neither
+with <code>tama model set</code> declares no readiness and is neither
 asked nor watched. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test hooks_judge_channel</code>
-runs the built <code>tama model-provider check</code> against a loopback listener
+runs the built <code>tama model check</code> against a loopback listener
 that never answers: a waiting request of a running process is refused naming
 the process and its command, and one whose hook ended has its waiting client
 ended and its record removed. The journey

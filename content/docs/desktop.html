@@ -79,6 +79,163 @@ envelope, surfaced verbatim. Cancelling a scan or cleanup, or quitting the app,
 ends that process and everything it started. The full contract is
 <a href="/docs/cli/request/">tama request</a>; the full command surface is
 <a href="cli.md">cli</a>.</p>
+<p>A process-launch refusal identifies the requested native operation and the
+selected executable path, alongside the launch failure. The same contextual
+failure reaches the screen and the existing failure-reporting path.</p>
+<p>A bounded refusal keeps the backend's own sentence and also names the native
+operation, response status and document, process exit status, process standard
+error and both streamed channels. The screen and failure reporter receive the
+same labelled exchange; an error envelope does not discard earlier output.</p>
+<p>A response received where a streamed job was requested, or a job result
+received where a bounded answer was requested, is a protocol mismatch. Its error
+retains the native operation and the completed exchange instead of discarding
+the unexpected document and process output.</p>
+<p>When a violations scan or cleanup ends with a rejected job status, its
+consumer reports that failure before returning the same error to the screen.
+The report and screen retain the operation, terminal document, process exit
+and all observed output together. A scan that reports findings with its
+documented finding status remains a valid report, not a failed operation.</p>
+<p>A cleanup request failure is submitted before its final rescan starts.
+If that scan also fails, its failure is reported independently and the screen
+keeps both causes. The failed rescan cannot prevent the cleanup report, and
+the screen does not resubmit errors already reported by the native transport.
+User cancellation remains separate from failure reporting.</p>
+<p>The native-client refusal journey first persists an isolated no-model
+declaration, then submits an unknown operation through both bounded-answer
+and job consumers. It retains each backend refusal with its operation,
+response document and process exit, and checks that the saved declaration
+has not changed. It uses the real backend executable, not generated replies.</p>
+<p>The violations screen and its client share the native command selection for
+scan, cleanup and the final rescan. Production keeps the bundled sealed release.
+An isolated qualification journey can supply an explicit real backend command
+through the same construction path, without changing the application's release
+root or substituting a backend. Authorization and failure reporting are unchanged.
+Reporting does not await delivery during normal screen operations. Diagnostic
+callers can await the reports already issued: each attempt is registered before
+reporting returns and settles when the intake answers or transport ends.
+Settlement is not acceptance; a refused or unreachable intake also settles.
+An intake-delivery journey must wait for the application's actual reports to
+settle, then inspect the real intake's persisted failure journal. It checks
+that each failed operation has exactly one accepted envelope and that its
+detail equals the value produced by WisentErrors' canonical detail builder
+from the complete screen diagnostic, including every observed output channel.
+The envelope's documented detail builder removes only surrounding whitespace;
+all interior diagnostic content must survive. Qualification uses the resolved
+SDK's builder, not a second normalization rule, and retains the raw screen
+diagnostic and persisted journal separately. A screen error or a separately
+posted closing marker does not establish either delivery or exact cardinality.
+Qualification records the reporter dependency actually resolved by the candidate,
+not only its current source checkout.</p>
+<p>In Reviews → Review failure and alternatives, eligibility and the recorded
+failure's cause are separate facts. Unknown eligibility authorizes no local
+decision; an explicitly ineligible failure requires its original authority.
+An eligible question with no declared decision options cannot receive a local
+attestation. If no readable latest failure is available, the screen says that
+eligibility has not been established rather than claiming the operation needs
+original authority. Latest-failure, history and local-statement read errors
+remain separately visible. These explanations do not change which actions are
+enabled, and a local statement is not an independent model review.</p>
+<p>The maintained streamed-job journeys require a completed real scan to exit
+normally with its reported status. A separate signal journey starts the actual
+request process and sends SIGKILL at its observed launch, without task
+cancellation or a replacement executable. It retains the signal delivery,
+Foundation termination reason, status, complete exchange and process-absence
+probe after settlement. This checks termination-reason propagation, not a
+terminal-result/signal-number collision or graphical interaction. These test
+definitions are not execution evidence: qualification requires a retained,
+source-bound run.</p>
+<p>Before writing request input, the client enables Darwin's per-pipe SIGPIPE
+protection and reads the flag back. If protection cannot be verified, it
+reports both <code>fcntl</code> results and their observed errno values instead
+of writing to an unprotected pipe. A protection, write or close failure ends
+that request's process tree, while the native operation and underlying cause
+remain labelled alongside the process's other output. Completion waits for
+input delivery to settle, process exit and both output streams to close;
+an input failure cannot be hidden by an otherwise successful terminal event.</p>
+<p>The client reads each output pipe through Foundation's throwing read API,
+with chunks sized from the host's memory page size. A read failure retains
+the native operation, stream and actual Foundation cause, stops the failed
+request and settles that stream; the other stream's output is still retained.
+Output-read failures refuse the exchange even if it contains a successful
+terminal event.</p>
+<p>Output-read and event-protocol refusals carry a transport failure distinct
+from a screen's document-decoding failure. The transport reports the former
+once at <code>tama.backend.output</code> or <code>tama.backend.protocol</code>;
+screen models retain the same diagnostic without submitting it again.
+Consumer schema and formatting failures still reach the failure reporter
+where they surface. Process-exit disagreements likewise keep their
+<code>tama.backend.exit</code> origin rather than being reported a second time
+as a review-screen failure.</p>
+<p>Cancellation waits for the owned request process to exit and for input
+delivery to settle. Cancellation cleanup cannot close the output readers until
+both handlers have been installed. An exit observed during reader setup remains
+pending until registration finishes, so setup never installs a handler on a
+handle already closed by cancellation. After exit and registration are observed,
+it closes the local output readers and records their settlement without waiting
+for inherited writers to reach EOF. Only then does it resume the caller as cancellation, not a backend launch
+failure. Output-reader cleanup runs outside the log callback, so cancellation
+from that callback cannot reenter its output-delivery lock. Input and output
+failures still retain their causes and drain the remaining streams;
+they are not reclassified as user cancellation.</p>
+<p>Native job consumers receive a local lifecycle notification with stream
+<code>process</code>, chunk <code>launched</code> and the actual process identity
+after launch and before output readers are registered. This notification
+describes process launch, not backend output or readiness. A consumer may cancel
+from that notification; cleanup waits for reader registration and process exit.
+Consumers can also observe validated <code>stdout</code> and <code>stderr</code>
+log events before the job finishes. Log callbacks carry the observed process
+identity, stream and chunk and run in output order outside the request-state
+lock, so a consumer can cancel after receiving actual output without a timer.
+Neither a launch notification nor output is a success verdict: the terminal
+result, process exit and pipe failures still decide the final outcome.
+The CLI's underlying NDJSON event contract is unchanged.</p>
+<p>A successful bounded answer is accepted only after its request process exits
+normally and successfully. A streamed job must also exit normally, with the
+status in its terminal result; a scan reporting findings with the matching
+failure exit remains a valid scan report. Termination by signal is refused even
+if the signal number equals the terminal status. The result is refused before
+the screen decodes or applies its document. The error names the operation,
+expected and observed statuses and actual Foundation termination reason, and
+retains the terminal document and every observed output channel. No-answer
+diagnostics retain that termination reason too. It is reported at
+<code>tama.backend.exit</code>, not as a JSON decoding failure.</p>
+<p>If the request body cannot be encoded as JSON, the operation is refused
+before a backend process starts. Values JSON cannot represent, such as NaN or
+infinity, are refused by a validity check before Foundation's encoder is
+called; this avoids an Objective-C exception that Swift cannot catch. If
+encoding a valid object fails, the original Foundation cause is retained.
+Both refusals name the native operation on the screen and in the existing
+failure-reporting path. Neither replaces persisted backend state.</p>
+<p>If a native response cannot be decoded into the screen's expected document,
+the error identifies the native operation and retains the decoder's context,
+including the missing field or mismatched type and its coding path, alongside
+the response document, process exit and observed output channels. Formatting
+failures retain that exchange too. Neither replaces the underlying cause
+with the operating system's generic localized sentence.
+Job failures retain the native operation, terminal result document, process exit
+status, process standard error and both streamed output channels, separately
+labelled. The presentation adds no character cutoff and does not discard one
+channel because another is nonempty. If the request process exits before
+answering, its own standard error is also retained in full.
+Those bytes are decoded together after the stream closes, so a UTF-8 character
+split between pipe reads is not replaced or lost. At stdout EOF, a final JSON
+event without a newline is handled before the stream closes; an invalid final
+fragment retains its decoder cause. If no answer arrives, the error identifies
+the native operation and process exit status and keeps unreadable stdout
+events, process standard error and streamed job output from both channels
+separately labelled. Unknown event types and log events with missing or unknown
+stream names are retained as protocol errors, not silently discarded or
+mislabelled as standard output. An answer requires an integer status and an
+explicit <code>json</code> document; a Boolean or fractional status is not an
+exit code, and an absent document is not an empty answer. The first terminal
+event remains the recorded answer: any later event is retained as a protocol
+error rather than replacing that answer or extending a finished job.
+Unreadable events refuse the native exchange even when another event carries
+a successful response or job result. The screen and failure reporter retain
+the operation, terminal document, exit status and all observed channels
+together. A malformed event or missing terminal event does not hide an earlier
+cause. These are diagnostics of the actual response, not evidence that the
+operation succeeded.</p>
 <h2>Privileged backend</h2>
 <p><strong>Register privileged backend</strong> (in <a href="desktop/settings.md">Settings</a>)
 registers the <code>ai.wisent.tama.system-policy</code> daemon through

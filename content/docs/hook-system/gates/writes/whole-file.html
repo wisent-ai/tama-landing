@@ -25,6 +25,45 @@ in <code>tests/pre-write-edit/held_lines.rs</code>.</p>
 hashline split that cuts lines and inserts module declarations is counted after its cut, whatever fragment the
 editor also sends. A write whose file cannot be rebuilt is refused with the cause. The journey is
 <code>tests/tool-payload/targets.rs</code>.</p>
+<h2>Hashline moves keep source and destination distinct</h2>
+<p>A supported <code>MV &lt;destination&gt;</code> reads the original section's file,
+applies its range, gap and cut operations, and judges the complete result under the destination.
+The destination resolves against the harness payload's <code>cwd</code>, not the hook process
+directory. Its extension selects the content grammar; its parent selects the new-file and
+folder protections. Quoted paths may contain spaces; the literal word decoder never performs
+shell expansion. A missing or empty destination, an unclosed quote or escape, or an unquoted
+spaced operand refuses with the offending operation rather than judging the old path.</p>
+<p>The shared write-payload reader uses that same destination for path-only guards.
+The decoder also supplies the original path and every intermediate and final move target to
+task-scope, external-ownership, temporary-path, hook-protection, audit-policy and device-test
+consent admission. Moving briefly through a prohibited target and ending at a permitted name
+does not hide that operation. Malformed path operands retain their cause at those native
+interfaces instead of becoming an empty set of targets.
+The original path remains protected as a removal: moving out of a scratch or protected hook
+tree does not release its protection, and edit leases and unjudged-commit checks inspect both
+ends. Moving a file away from a Python name does not write Python at the old name; moving
+one into a Python name remains refused. A path refusal names its actual target.</p>
+<p><code>REM</code> leaves no written content. Block coordinates and named or anonymous
+register pastes that the replay cannot reconstruct still refuse with their cause.
+They never become approval of added lines alone. This does not extend the editor protocol or
+add a setting that bypasses reconstruction.</p>
+<p>The existing native interfaces remain <code>tama hook pre-write-edit</code>,
+<code>tama hook check-numeric-literals</code> and <code>tama hook block-crowded-folders</code>,
+each taking its harness payload on stdin. Existing harness hook-result surfaces display
+the same destination and cause; no separate graphical override is introduced.</p>
+<p><code>tests/tool-payload/rename.rs</code>, registered by <code>write_payload_targets</code>,
+invokes those actual built guards in its own Git fixture. It covers destination language,
+retained versus cut content, quoted paths, Python entry and exit, protected sources, malformed
+operands across the native path guards, prohibited destinations and intermediate moves,
+and destination-folder refusal and recovery. The folder limit comes from the product's
+numeric-provenance declaration. Candidate revision, executable digest, setup, payloads,
+commands, exit statuses, outputs and observed unchanged source/absent destinations are retained.
+Declare <code>TAMA_TEST_SOURCE_REVISION</code> in the qualification environment file, then run:</p>
+<pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test write_payload_targets --test python_source_deletion</code></pre>
+<p>These are guard-decision journeys, not execution of an editor or fixture program.
+Actual installed-editor qualification must also perform isolated moves and removals, verify
+the final paths and contents, and preserve unrelated siblings. A hook allowance alone does not
+prove that editor or any live graphical session.</p>
 <h2>Structural rewrites are refused</h2>
 <p>A structural rewrite written to the harness's <code>xd://ast_edit</code> device carries only its patterns and
 the files they apply to; the harness's ast-grep engine stages the rewrite and a later write to

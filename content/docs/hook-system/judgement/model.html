@@ -13,7 +13,7 @@ same Oko every hook asks, <code>TAMA_OKO_CLI</code> when set, else
 carries Oko's signed bearer to the gateway and prints the one object the model
 answered under the gate's strict JSON Schema, or —
 on a machine without Brama — goes to the OpenAI-compatible service declared
-with <code>oko model-service set</code>, with its declared model. No gate reads
+with <code>oko model set</code>, with its declared model. No gate reads
 a line of prose. A question goes unanswered as
 <code>Judgement::Unavailable(reason)</code>. An unavailable judgment is not
 evidence that the source violates a rule. Each gate must distinguish that
@@ -41,8 +41,8 @@ caller, as the <a href="/docs/enforcement-control/runtime/adapters/">runtime
 page</a> describes, not by a clock.</p>
 <p>A question the judge already answered is not asked again. The prompt is the
 whole question, the command or text it judges included, so the judge's answer
-to that exact prompt and schema is kept under Tama's state, in
-<code>model-judgements/&lt;SHA-256 of the prompt and schema&gt;</code>
+to that exact prompt, name and schema is kept under Tama's state, in
+<code>model-judgements/&lt;SHA-256 of the prompt, name and schema&gt;</code>
 (<code>TAMA_JUDGEMENT_MEMORY_DIR</code> moves it for a test), and
 read back before the question is asked: a command many sessions run
 costs one model call, not one each, and while the judge is slow it stands
@@ -51,6 +51,37 @@ unanswered question is asked again. A kept answer that cannot be read is the
 question's <code>Unavailable</code> reason, naming the file; an answer that
 cannot be kept is still returned, and <code>model judgement: the answer is not
 kept for the next ask: …</code> on stderr says why.</p>
+<p>Every agent session runs as the operator's own user and can write any file
+under Tama's state, so a kept answer is read only with its seal: HMAC-SHA-256,
+over the question and the answer, under a key Tama creates in the login
+keychain (<code>ai.wisent.tama.judgement</code>, account
+<code>kept-answers</code>, always that one: no variable of the asking session
+names another). Tama creates the item through Security.framework,
+so it trusts only the signed <code>tama</code>; another program reading it
+raises a keychain prompt. A kept answer whose seal does not verify, as one
+written by hand does not, decides nothing: the gate refuses the call with
+<code>the kept answer &lt;path&gt; decides nothing: its seal is not one Tama
+made with … (or: it is not an answer with a seal …), as an answer Tama kept
+from the model always is; it is removed, and the next call is asked
+again</code>. On a platform without a keychain only Tama can read, nothing is
+kept. An answer is kept only when the process that gave it is the Oko CLI
+(<code>ai.wisent.oko.oko-cli</code>) signed under an Apple-issued certificate
+of the team that signed this <code>tama</code> (read with
+<code>/usr/bin/codesign</code>), checked by the kernel's record of the running
+code while it is still Tama's unreaped child. So a program the asking session
+puts in Oko's place through <code>TAMA_OKO_CLI</code> or <code>PATH</code>
+answers only the call it was asked, and a <code>tama</code> signed by no team
+keeps nothing; why is said on stderr as soon as the code is read, before the
+answer is waited for. The signed Oko is started with none of the asking
+session's environment: only <code>HOME</code>, read from the user database
+for this user, so no variable (the model router's address among them)
+points it elsewhere. What this does not stop: a process of the same user can
+delete the keychain item and plant one whose key it knows, trusting the
+signed <code>tama</code> as Tama's own item does (the two cannot be told
+apart), replace the programs and settings under that home that the signed
+Oko reads (its Stado, <code>oko model set</code>), and so point the
+signed Oko's model route at a service it runs; none of these is closed by a
+key any process of the user can reach.</p>
 <h2 id="choice">A choice between named options</h2>
 <p>A gate that decides between named options does not read a line of prose.
 <code>model_judgement::choose(prompt, name, options)</code> asks through
@@ -81,7 +112,11 @@ prompt and the schema together. These gates ask this way:
 <code>SEARCH</code>, <code>BROWSER</code>, <code>WELES</code>,
 <code>CLOUD</code>, <code>QUARANTINE</code>, <code>HELPER</code>,
 <code>HOOKS</code> or <code>TRUNCATE</code>) and refuses with the operator's
-sentence for that shape.</p>
+sentence for that shape. <code>SEARCH</code> is a search of code or files for
+keywords or patterns, and equally picking lines or fields out of a file's or a
+command's output by a pattern or a query (a line filter on a pipe, a JSON
+query, a pattern-matching field extractor): the refusal says to read the
+whole output, or to ask the product's own command for exactly that answer.</p>
 <p>A gate whose answer is more than one choice writes its own schema and asks
 <code>model_judgement::object(prompt, name, schema, check)</code>, which reads
 the answer as the type the gate names and hands it to the gate's
@@ -97,7 +132,7 @@ answer.</p>
 <h2 id="unanswered">When a shell or write gate's question goes unanswered</h2>
 <p>A rule a model enforces is not off while the model is. Every gate that judges a shell command or a
 write by model — <code>pre-bash</code>, <code>block-inline-execution</code>,
-<code>block-one-off-repairs</code>, <code>block-unregistered-build-or-restart</code>,
+<code>block-unregistered-build-or-restart</code>,
 <code>block-keychain-prompt-commands</code>, <code>block-background-execution</code>,
 <code>block-local-model-training</code>, <code>block-subagent-spawn</code>,
 <code>block-external-source-edits</code>, <code>block-device-level-tests-without-consent</code>,
@@ -109,10 +144,10 @@ write by model — <code>pre-bash</code>, <code>block-inline-execution</code>,
 <p>The cause is the judge's recorded state (<code>Oko last saw the judge refuse at …: …</code>), the
 held question, the missing Oko program or the gateway's own failure; a write or merge gate adds
 <code>(judging &lt;file&gt;)</code>. <code>oko tasks judge --probe</code> asks the judge one question
-and lifts the record when it answers. Two calls pass instead, each saying so on stderr:</p>
+and lifts the record when it answers. Gates using this optional-review policy allow two calls instead, each saying so on stderr:</p>
 <ul>
 <li>any call on a machine whose operator declared no model with
-<code>tama model-provider set --none</code>: <code>&lt;hook&gt;: no model is asked on this machine, the
+<code>tama model set --none</code>: <code>&lt;hook&gt;: no model is asked on this machine, the
 call passes: …</code>;</li>
 <li>a shell line whose every command runs a program the judge stands on — this Tama, the Oko it asks
 (<code>TAMA_OKO_CLI</code>, else <code>oko</code>) and every product <code>stado product catalog</code>
@@ -121,13 +156,39 @@ declares that Oko depending on, at any depth — so the judge can be repaired:
 When that catalog cannot be read the call is refused with both causes:
 <code>…: review unavailable: …; and which programs the judge stands on cannot be read: …</code>.</li>
 </ul>
+<p><code>block-one-off-repairs</code> requires a judgement. It uses
+<code>model_judgement::unanswered::required_refusal</code>: neither the no-model declaration nor a command
+operating a dependency of the judge is an exemption. Its infrastructure refusal retains the actual cause,
+including a deliberately undeclared model. An unanswered review does not prove an operation unsafe or safe;
+the command cannot run until its review is available. The same rule applies to otherwise read-only commands
+that have not been judged. The real CLI journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test one_off_repairs_judged</code> includes
+<code>required::no_model_is_not_permission_for_an_unreviewed_repair</code>, which persists a no-model
+declaration in its own home and requires refusals of a service cycle, an installed-file copy and a
+dependency-product command without performing those operations.</p>
+<p>A mandatory review does not recursively review its own question consumer:
+<code>tama judgement ask &lt;request&gt;</code> may run only as one literal invocation of the executable
+evaluating the hook, or a byte-identical installed copy. Device/inode identity avoids reading a shared
+file; distinct copies are compared as streams, not loaded whole. This is checked with the Bash syntax
+tree, not from a general
+exemption for a program name. A command chain, substitution, redirection or a different executable does
+not qualify. The real question-consumer CLI still validates the retained request; it never performs
+the proposed operation. The journey also runs a missing-request refusal and rejects those composed forms.</p>
 <p>The stop gates that judge a closing answer keep their own rule. The journey
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test model_judgement_judge_repairs</code>
 runs the built hook with the judge recorded as not answering and the real catalog: a line of
 <code>oko</code> and <code>stado</code> passes saying why, and the same line with
 <code>python3 -c</code> is refused naming the judge's state. Each gate's own journey requires
 the refusal with the judge down.</p>
-<p><code>pre-write-edit</code> never asks the numeric reviewer from the edit
+<p>A numeric candidate is a line the write introduces that holds a constant's
+shape: a line the file already held before the write (read from disk; each such
+line stands for one written line that reads the same) is not one, however often
+it is written back, and in a code file the shapes are looked for with comments
+blanked (<code>scan::strip_comments</code>, which keeps strings and every line in
+place), so a tools version or a protocol a comment names is no candidate. A file
+that cannot be read before the write is refused naming it, since which numbers
+the write introduces could not be told.
+<code>pre-write-edit</code> never asks the numeric reviewer from the edit
 callback. When numeric candidates need review, it retains the exact prompt
 and refuses immediately with
 <code>tama hook check-unsubstantiated-constants --review &lt;request&gt;</code>.
@@ -156,7 +217,11 @@ source passed: the repeated write applies the numeric findings.</p>
 persisted request and a genuinely missing Oko executable. It retains the
 declared candidate, binary digest, command, input, exit status, output and
 elapsed time under Cargo's ignored build directory, through its pending, failed,
-changed-input and malformed-justification cases.</p>
+changed-input and malformed-justification cases. Its case
+<code>introduced.rs</code> writes a Swift manifest back with its tools-version
+comment and existing numeric line unchanged plus a new comment naming a number:
+the write passes with no review requested; the same write adding a numeric line
+of code is refused naming the review it waits on.</p>
 <p><code>check-substantiation-with-model</code> uses the model gateway.
 That is also the route for a judgment about prose that cannot be decided
 from the input's structure; an embedded word list is not a substitute.</p>

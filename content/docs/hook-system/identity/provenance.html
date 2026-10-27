@@ -9,7 +9,13 @@ of a stored transcript (a session id: OMP names each session's transcript under
 <code>~/.omp/agent/sessions</code> after it), when a file the written path's own git checkout
 already tracks carries it (a product's published identifier — a journey version id in a seed, a
 row id — asked of <code>git grep</code>, which reads only the index), when an artifact outside any
-conversation carries it (a token cache, a cloud profile, the machine registry), when the operator
+conversation carries it (a token cache, a cloud profile, the machine registry), when Oko issued it as
+the <code>id</code> of an entry in its harsh-review queue (<code>OKO_HARSH_REVIEW_QUEUE</code>, else
+<code>~/Library/Application Support/Oko/harsh-review-queue.json</code>; a UUID quoted in an entry's
+message is the author's text and sources nothing), when Oko issued it as a defect's
+<code>id</code> in its <code>defects</code> array (<code>OKO_DEFECT_REGISTER</code>, else
+<code>~/Library/Application Support/Oko/defects.json</code>; evidence and notes issue no identities),
+when the operator
 used it in two or more stored sessions, or when <code>identity_provenance.json</code> records his
 verbatim quote declaring it. The transcript names and the checkout are asked first, so a write that
 names a session or an identifier the repository already holds does not wait on a read of every
@@ -38,6 +44,52 @@ real git checkout it creates. The last copies the real long page named by
 It requires <code>TAMA_TEST_SOURCE_REVISION</code> and retains the candidate,
 binary and page digests, page byte count, commands, durations and actual decisions
 under the ignored build directory; it never edits the original page.</p>
+<p>An absent review queue issued nothing. A queue that cannot be read, is not JSON, or holds no
+<code>entries</code> array or an entry without an <code>id</code> is the gate's own failure to ask:
+a value nothing else settles is refused as
+<code>&lt;path&gt;: cannot establish provenance for &lt;value&gt;: Oko's review queue &lt;file&gt; …</code>
+with the read or parse cause, never as an invented identity. The real journey
+<code>native_review_ids_are_sourced_but_request_prose_is_not</code> in
+<code>tests/identity-literals/issued_reviews/journey.rs</code> (part of the
+<code>identity_literals_mentions</code> target, run with <code>--ignored</code>) has the real Oko
+CLI issue an entry into an isolated queue for an existing candidate tree, requires the actual hook to
+admit that entry's id and refuse a different UUID carried only in the entry's message, then damages
+and replaces the queue to observe both failure causes. It needs <code>TAMA_TEST_SOURCE_REVISION</code>,
+<code>TAMA_TEST_CANDIDATE_TREE</code>, <code>TAMA_TEST_REVIEW_AUTHOR</code>,
+<code>TAMA_TEST_OKO_EXECUTABLE</code> and <code>TAMA_TEST_REVIEW_MESSAGE</code>, and retains binary
+digests, commands, the issued queue and every decision under the checkout's ignored build directory.</p>
+<p>The defect issuer reads only <code>defects[].id</code>, never a UUID quoted in evidence,
+notes, assignments or other prose. Its path follows Oko's native register contract: an explicit
+<code>OKO_DEFECT_REGISTER</code> is a native path, not a tilde-expanded shell expression; without
+one, HOME must be readable and absolute. A genuinely absent register issued no identities.
+An unreadable register, malformed JSON, missing defects array or missing entry id names the
+actual source path and read or decoding cause. One independent issuer's actual identity is
+sufficient; an unavailable unrelated issuer must not conceal it. When no source settles the
+identity, unavailable issuing sources retain their actual causes rather than accusing the
+caller of inventing the value.</p>
+<p>The maintained <code>native_defect_ids_are_sourced_but_note_prose_is_not</code> journey in
+<code>tests/identity-literals/issued_defects/journey.rs</code> belongs to the
+<code>identity_literals_mentions</code> target. Run
+<code>cargo test -p tama-cli --test identity_literals_mentions native_defect_ids_are_sourced_but_note_prose_is_not -- --ignored --nocapture</code>
+with <code>TAMA_TEST_SOURCE_REVISION</code>, the absolute real
+<code>TAMA_TEST_OKO_EXECUTABLE</code> and the actual <code>TAMA_TEST_FINDER_SESSION</code>.
+It uses the real Oko CLI to issue and annotate a record under a fresh isolated HOME and register,
+then invokes the actual native hook. It checks genuine identity admission, refusal of another UUID
+carried only in a note, an independently valid issuer beside an unavailable one, retained causes
+when both fail, malformed and unreadable registers, genuine absence and restored persisted state.
+For empty, blank and padded register overrides, it also asks the actual Oko CLI to read
+the genuinely issued row, then requires the native identity hook to admit that same identity.
+The default-location case uses an isolated copy of the real issued register, not a fabricated
+record or an operator credential store.
+The issued fixture declares its observable completion criterion. Its record and note commands
+carry separate explicit local statements about those isolated mutations, using Oko's supported
+attestation path if no model supplies a judgment. Those statements neither override a negative
+judgment nor attest a repair or a passing test. The command's actual refusal remains a failed
+qualification; the journey does not borrow an operator credential or change the model route.
+It retains commands, statuses, both executable digests and actual decisions under
+<code>.build/identity-issued-defects</code>. The operator's registers are not changed.
+An unavailable issuer dependency or an unexecuted source test is not a passing qualification;
+this journey does not prove installed enforcement or the rendered desktop.</p>
 <p>When transcript content is required, hook subprocesses share per-file identity
 snapshots under Tama's state directory in <code>identity-mentions</code>.
 Each snapshot is bound to the source file's device, inode, byte length,

@@ -5,9 +5,12 @@ scripts require explicit environment inputs before they act. The command
 surface is documented in <a href="../docs/cli.md">docs/cli.md</a>; the two integrity
 scripts are executed end-to-end with pasted output in the walkthroughs.</p>
 <p>Read-only scripts assume the sealed <code>tama</code> CLI on PATH
-(<code>getting-started/install-cli.sh</code> links it from an installed
-<code>Tama.app</code>); the integrity scripts run from a checkout and default to the
-release inside <code>.build/Tama.app</code>.</p>
+(<code>getting-started/install-cli.sh</code> links it from the installed
+<code>Tama.app</code> named by <code>TAMA_APP</code>). A script that needs an input
+names it and stops until it is set: <code>core/hooks-list.sh</code> inspects the hook
+<code>HOOK_ID</code> names, and <code>integrity/runtime-status.sh</code> asks the CLI
+<code>TAMA_CLI</code> names (in a checkout, the release inside <code>.build/Tama.app</code>)
+about the home <code>TAMA_HOME</code> names. None of them picks a value for you.</p>
 <table>
 <thead><tr><th>Script</th><th>Reads or mutates</th><th>Outcome</th></tr></thead>
 <tbody>

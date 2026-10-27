@@ -83,12 +83,20 @@ included, and the file then counts as this session's too, so it may commit it.</
 <tr><td>A broad <code>git add</code> (<code>-A</code>, <code>--all</code>, <code>.</code> or a directory) over an
 untracked file another session wrote, unless that session is known to have stopped</td>
 <td>Refused, naming the file and the writing session: a session's unfinished work stays its own until it ends.
-Stage this session's own changes with <code>tama stage --session &lt;session&gt;</code>. A file whose writer is a
-recorded session whose process no longer runs may be staged: that session's unfinished work is taken over. The
-commit gates admit it only when the staged bytes are what that session's recorded edits made of the file and its
-transcript is found; a file changed after its writer stopped is refused at the commit. A writer that still runs, or
-that no session record names, keeps the refusal; when the
-stopped sessions cannot be read, the add is refused as unreadable.</td></tr>
+Stage this session's own changes with <code>tama stage --session &lt;session&gt;</code>. A file whose writer is known
+to have stopped may be staged: that session's unfinished work is taken over. A writer is known to have stopped when
+its session record names a process that no longer runs, or when its record is gone (a harness removes it when the
+session ends; the OMP adapter does on exit) and no process holds its transcript open, as <code>lsof</code> reads it:
+an OMP session keeps its transcript open for as long as it runs. A session whose agent process still runs is also
+known to have stopped while the newest turn record of its transcript is its provider's failure: an assistant message
+that ended with <code>stopReason: "error"</code> (a rate limit, a refused or broken request), or the unexecuted tool
+result OMP writes with <code>details.source</code> <code>assistant_stop_error</code> when the provider's stream broke
+after the model asked for a call. Such a process sits at its prompt running nothing until something prompts it again,
+which a rate limit can put days away; once a continuation or any other turn record follows the failure, the session
+works again and its work is its own. A transcript that cannot be read refuses, naming it. A writer without a record
+whose transcript cannot be found, or that still works, keeps the refusal. The commit gates admit taken-over work only when the staged bytes are
+what that session's recorded edits made of the file; a file changed after its writer stopped is refused at the
+commit. When the sessions cannot be read, the add is refused as unreadable.</td></tr>
 <tr><td>A <code>git commit</code> from a repository outside the declaration</td>
 <td>Refused like any other change there. What a commit takes is judged by pre-bash's
 <a href="/docs/shell-commands/">commit guard</a>: a commit naming paths, or taking every tracked change
@@ -101,12 +109,48 @@ when they were made.</td></tr>
 <td>Refused whatever its scope, naming the executors recorded under it (<code>oko sessions role</code>) to hand
 the change to, or that none is recorded yet, with the commands that hand it over: <code>oko defects record</code>,
 <code>oko defects assign &lt;id&gt; --owner &lt;executor&gt;</code> and <code>oko sessions send &lt;executor&gt;
---defect &lt;id&gt;</code>. Reads, Oko's registers and sends pass: a supervisor reads, records, assigns and sends. A
+--defect &lt;id&gt;</code>. Reads, Oko's registers and sends pass: a supervisor reads, records, assigns and sends. The
+role is read from Oko's role register where Oko writes it: <code>session-roles.json</code> in the directory
+<code>OKO_SESSION_ROLES_DIR</code> names, else in <code>~/.oko</code>; the supervisor stop gate reads the same file. A
 role register that cannot be read refuses with its cause.</td></tr>
+<tr><td>A change in a session the operator told to stop coding (his "nie koduj, tylko plan" to that conversation,
+recorded in Oko as the ruling <code>no-edit@session:&lt;id&gt;</code>)</td>
+<td>Refused before the file changes, whatever its scope: every file an edit, write, patch or structural-rewrite tool
+of this session would change, in any harness's spelling of the tool, and a <code>git commit</code> publishing from the
+repository. A shell command is read while a ruling withholds this session's edits (a standing <code>no-edit</code>
+subject held to it or to every session): where it reaches a withheld repository is read from its structure — its
+operands, git's <code>-C</code>, <code>--git-dir</code> and <code>--work-tree</code>, the directory <code>cd</code>
+moves to and the directory it runs in, as for <a href="/docs/hook-system/gates/writes/external-source/">external
+source</a> — and a redirection into it is refused by the shell's grammar; any other reach is put to a model through
+Oko's model call (<code>ports/shell_changes/judge-prompt.md</code>, kept under <code>withheld_repository_change</code>),
+so a command that only reads, lists, searches or diffs it passes and one that writes, moves, deletes, commits or runs
+code out of it is refused with the ruling's refusal followed by <code>the command changes it: &lt;the model's
+sentence&gt;</code>. With no such ruling a shell command is not read for it at all.
+<code>BLOCKED: block-off-task-work: the operator's ruling &lt;ruling id&gt; (&lt;subject&gt;, said &lt;time&gt;)
+withholds changing &lt;repository&gt; in this session; his words: "&lt;his words&gt;". Reading and planning stay
+possible; a later ruling of his on edit@session:&lt;id&gt; lets this session change files again.</code> The rulings are
+read from Oko's ruling register as a file (<code>rulings.json</code> where <code>OKO_RULING_REGISTER</code> or Oko's
+application data keeps it, the file the capability and credit-floor gates read), once per call, in Oko's own subject
+grammar. The newest standing ruling whose subject applies decides: <code>edit</code>,
+<code>edit:&lt;repository&gt;</code> and their <code>@session:&lt;id&gt;</code> forms consent, the same with
+<code>no-</code> withdraw, and a ruling held to one session leaves every other session's work alone. When the newest
+that applies is a consent scoped to a defect (<code>edit@&lt;defect&gt;</code>) or a withdrawal a category releases
+(<code>no-edit~&lt;category&gt;</code>), which depend on Oko's defect register, the gate asks <code>oko admit edit
+--product &lt;repository&gt; --session &lt;id&gt;</code> for that call alone and answers as Oko does, quoting the
+ruling; an admission that cannot be read then refuses naming the ruling and the cause. Every other call starts no Oko
+process. A ruling Tama cannot read is never dropped in silence: one whose subjects can still be read and withdraw this
+change refuses it (<code>a ruling of the operator withholds changing &lt;repository&gt; in this session by
+&lt;subject&gt;, and it cannot be read (&lt;cause&gt;), so it stands until Oko's register reads it again</code>); every
+other unread entry, or a register that cannot be read at all, decides nothing, is named after a refusal the readable
+rulings give (<code>(not read in the operator's ruling register: &lt;each cause&gt;)</code>), and a change that passes
+is told in the hook's context: <code>block-off-task-work: this change passed on the operator's rulings that can be
+read; these could not be, and a ruling of his among them is not applied until they read again: &lt;each
+cause&gt;</code>. So an Oko that cannot answer never stops every session's edits, the ones that would repair it among
+them. With no register nothing rules on edits.</td></tr>
 </tbody>
 </table>
 <h2>What passes</h2>
-<p>Every read. Every change inside the declared repositories. Everything outside
+<p>Every read. Every change inside the declared repositories that no ruling of the operator withholds. Everything outside
 <code>~/Documents/CodingProjects/Wisent</code> — an installed program, the operator's own state, a build directory —
 which is other gates' subject: <a href="/docs/one-off-repairs">one-off repairs</a> owns those.</p>
 <h2>Where the refusal comes from</h2>
@@ -122,4 +166,8 @@ set</code> and <code>show</code> with a home and workspace of its own and a defe
 change to a workspace repository is refused while no scope is declared for the current prompt and a read is not; once
 the scope names the defect and <code>tama</code>, a change in <code>tama</code> passes and one in <code>oko</code> is
 refused naming the defect and the declared repositories; a new prompt leaves the scope serving nothing and the next
-change is refused again.</p>
+change is refused again. A second case records the case's session as a supervisor through the installed
+<code>oko sessions role set &lt;id&gt; supervisor --by operator</code> (Oko records roles only for a session whose
+harness file the machine holds, so the case opens one under its home) and checks the register Oko wrote: the same
+change in <code>tama</code>, inside the declared scope, is then refused as an executor's, saying no executor is recorded
+under it yet, and a read still passes.</p>
