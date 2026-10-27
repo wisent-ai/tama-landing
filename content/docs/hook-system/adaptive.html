@@ -23,6 +23,14 @@ contest anything, the replay corpus would stay empty and
 <a href="cli/adaptive/repair.md"><code>tama adaptive repair</code></a> would refuse
 every candidate for want of labeled cases. If that is what you see, check that
 the installed hook release is built from a revision carrying the shared-runtime feed.</p>
+<p>Naming the hook needs no model; reading whether an unnamed correction disputes
+the only block, and whether the prompt shows frustration, are Brama decisions.
+When Brama cannot be reached, only those two readings are lost: a prompt that
+names a blocked hook still records its contest, the frustration record carries
+<code>"frustrated": null</code>, and the run's telemetry segment (closed under
+<code>telemetry-segments/ready/</code> in the adaptive state, then carried to
+Transcript Lake) keeps a <code>warning</code> frame naming the reading that was
+not read and the cause.</p>
 <h2>Prompts the harness wrote itself</h2>
 <p>An owner prompt is a prompt a person typed. A harness that writes prompts of
 its own — a Pursuit stage, an autonomy run, an automatic continuation — says so
