@@ -1,5 +1,11 @@
 <h1><code>tama adaptive drift</code></h1>
-<p>Compares the SHA-256 content of every mapped live hook script with its source in the Tama archive.</p>
+<p>Compares the SHA-256 content of every mapped live hook script with its source in the Tama archive.
+A hook's live script is the first word of its command, <code>~</code> and <code>$HOME</code> expanded,
+that is a path to a file whose first line names its interpreter (<code>#!</code>). Only a word
+holding a <code>/</code> is looked up: a bare word such as <code>run.sh</code> is resolved by the
+shell or the interpreter where the hook runs, not where drift runs, so it names no live script
+here. A command that runs a compiled program, such as <code>tama hook &lt;id&gt;</code>, has none
+either; both are reported <code>MISSING</code> with <code>live=(no live script found)</code>.</p>
 <h2>Invocation</h2>
 <pre><code>tama adaptive drift [--json]
 </code></pre>
@@ -7,5 +13,9 @@
 <h2>Output and state</h2>
 <p>For each catalog hook with an archived source path, Tama prints <code>OK &lt;hook-id&gt;</code>, <code>DRIFT &lt;hook-id&gt; live=... archive=...</code>, or <code>MISSING &lt;hook-id&gt; live=... archive=...</code>. With <code>--json</code> the document is <code>{hooks: [{id, verdict, live, archive}], drifted}</code>. It does not repair or copy any file. Exit <code>0</code> means every compared source exists and matches; any drift or missing side exits <code>1</code>.</p>
 <h2>Refusals and failures</h2>
-<p>Missing live or archived files are reported as <code>MISSING</code> results rather than read errors. Other hashing or catalog failures are written with the <code>doctor: </code> prefix and exit <code>1</code>.</p>
+<p>Missing live or archived files are reported as <code>MISSING</code> results rather than read errors.
+A command word that names a file Tama cannot read refuses the run with
+<code>doctor: cannot tell whether &lt;path&gt; is the script the hook command runs: &lt;cause&gt;</code>
+or <code>doctor: cannot open &lt;path&gt; to read whether it names its interpreter: &lt;cause&gt;</code>
+and exit <code>1</code>. Other hashing or catalog failures are written with the <code>doctor: </code> prefix and exit <code>1</code>.</p>
 <p>Return to <a href="../">the adaptive command group</a> or the <a href="../../">complete CLI tree</a>.</p>
