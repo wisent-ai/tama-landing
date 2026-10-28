@@ -129,7 +129,7 @@ declared as a constant or converted back (<code>"8".parse()</code>,
 array literal, and <code>true</code> or <code>false</code> converted to a number.
 These spellings are read in code only: a comment that names one, as a document
 explaining it does, runs nothing and is not refused. The same journey writes the
-spelling once in a comment, which passes, and once in code, which is refused.</p>
+spelling once in a comment, which passes, and once in code, which is refused. A signed NonZero type's <code>MIN</code> (<code>NonZeroI64::MIN</code>, and so for every width) is refused wherever code writes it: it is the type's most negative value, not one, which only the unsigned NonZero types start at, so <code>NonZeroUsize::MIN</code> still passes; a program that means the most negative value writes <code>i64::MIN</code>. Real journey: <code>tests/numeric-literals/scanning/signed_minimum.rs</code> (<code>numeric_literals_signed_minimum</code>).</p>
 <p>An HTTP status code compared for equality with a read of a response's
 status is the protocol's own identity, not a chosen number: <code>response.status === 200</code>,
 <code>res.statusCode !== 407</code>, <code>404 === response.status</code> and Rust's
