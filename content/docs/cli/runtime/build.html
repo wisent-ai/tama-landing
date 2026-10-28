@@ -149,8 +149,14 @@ tama build close --kind build --target skarbiec [--json]
 tama build close --kind build --target stado --not-started "Skarbiec request failed before any job existed"</code></pre>
 <p><code>list</code> prints each entry with its kind, target, reason, revision and completed task.
 An accepted build is shown as used and authorizes no second build; an expired entry authorizes
-nothing. <code>close</code> removes one entry without refunding its allowance. JSON output
+nothing. An entry that holds no reason, which <code>record</code> never writes, is shown with
+<em>(the entry records no reason)</em> rather than a blank. <code>close</code> removes one entry
+without refunding its allowance. JSON output
 includes <code>approval_history</code>, including approvals whose entry was closed or replaced.
+Every subcommand that reads or writes an entry's window refuses on a system clock set before 1970
+with <em>the system clock reads … before 1970</em>, naming how far before, rather than stopping
+with a panic; <code>record</code> also refuses a <code>TAMA_SESSION_ID</code> that is not text
+instead of leaving the recording session off the entry.
 For builds, <code>record</code>, <code>list</code> and the Desktop <strong>Builds</strong> screen
 report the fleet's count when <code>stado queue budget</code> answers — <em>the fleet has N build
 jobs left today</em>, JSON <code>fleet_remaining</code> — because that count is the one that
