@@ -182,8 +182,10 @@ launches <code>tama-run-hook</code>, listed as <code>&lt;file&gt;: &lt;text&gt;<
 outside any agent session and reseals it:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hook migrate-registry-to-rust --registry shared-hooks/registry.json --apply
 node shared-hooks/seal-registry.mjs</code></pre>
-<p>Without <code>--apply</code> the migration prints how many entries it would
-rewrite and every hook the program does not have, and changes nothing.</p>
+<p>The migration reads each entry's hook from its own <code>id</code>, never from the command's file name or interpreter; an entry whose <code>source</code> still names a file outside <code>rust/crates</code> (a legacy script) is pointed at the hook's Rust port when the checkout holds one, and a source already inside the crates is left alone.
+Without <code>--apply</code> it prints how many entries it would rewrite, every hook the program does not have, and every entry that names no id
+(<code>entry names no id, so its hook cannot be told: &lt;command&gt;</code>), and changes nothing;
+with <code>--apply</code> it refuses while the program lacks a hook the registry names.</p>
 <p>A release also brings launch agents to what the registry says. An editor
 adapter recorded as <code>installed-not-active</code> whose <code>source</code>
 is a plist under <code>$HOME/Library/LaunchAgents</code> and still exists is
