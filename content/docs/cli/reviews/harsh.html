@@ -28,7 +28,9 @@ other tree is refused before the round is kept, naming each path and each commit
 what these commits since its parent changed, so committing it would take them back: &lt;path&gt;: &lt;subjects&gt; …
 stage the change again on HEAD (or say Revert "&lt;subject&gt;" for each in its message when it reverts them) and queue
 it again</code>. Commits that do not merge onto the tree at all are refused with Git's own cause and the same
-instruction.</p>
+instruction. A HEAD the parent descends from has not moved past it: a reviewer's checkout whose <code>main</code> lags
+behind the commit the author staged on holds no commit since the parent, so the round is kept without a merge
+(<code>git merge-base --is-ancestor HEAD &lt;parent&gt;</code>).</p>
 <h2>Invocation</h2>
 <pre><code>tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; (--message &lt;file&gt; [--tree &lt;tree read&gt;] | --queue &lt;id&gt;) [--repository &lt;path&gt;]
 tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; --attestation (session|build):&lt;session id&gt;
