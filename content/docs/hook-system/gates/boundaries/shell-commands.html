@@ -110,6 +110,23 @@ shell and stderr says <code>shell reading: /etc/shells cannot be read: …</code
 <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test shell_reading_system_shells</code> hides a cloud
 provider command in each shell shape and requires <code>block-cloud-instances</code> to refuse it, and to pass the
 same line handed to <code>python3</code> or written in a commit message.</p>
+<h2>Inline programs read from structure</h2>
+<p>Before any model is asked, <code>block-inline-execution</code> reads every program a line starts from the Bash
+syntax tree, through wrappers, command substitutions and the lines shells are handed, with where its standard input
+comes from: text the line carries (a here-document, a here-string, a process substitution redirected in), the
+command before it in a pipe, a file, or nothing the line supplies. Which programs run source they are handed is the
+gate's declaration, <code>interpreters</code> in <code>hook-declarations/shell-discipline/block-inline-execution.json</code>:
+each names the interpreter (a versioned spelling such as <code>python3.12</code> counts), the manual its grammar comes
+from, its <code>sourceOptions</code> (<code>-c</code>, <code>-e</code>, <code>--eval</code>), its
+<code>programOptions</code> (<code>python3 -m</code>, <code>php -f</code>: the program is kept elsewhere), its
+<code>valueOptions</code> and its <code>sourceSubcommands</code> (<code>deno eval</code>). Bundled short options are
+read letter by letter (<code>perl -lne</code>), and a value option takes the rest of its word or the next one. A
+shell the system declares is read the same way with no options. A program is refused, naming it and how, when it
+is handed its source through a source option, a source subcommand or a process substitution, or when it names no
+program file (none, <code>-</code> or <code>/dev/stdin</code>) while the line feeds its standard input text or a pipe:
+<code>BLOCKED: inline code execution is forbidden. … Detected: inline program in a command: `python3` is handed its
+program through `-c`</code>. A script file, a module run with <code>-m</code>, a file redirected in and a bare
+interactive start are not inline and go on to the model reading below.</p>
 <h2>What a model reads</h2>
 <p>What a command does is read by a model through Oko's model call, and only after every structural rule passed it.
 <code>block-inline-execution</code> asks only when the command's syntax can carry source at all (quoting, a
