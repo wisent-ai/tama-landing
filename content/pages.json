@@ -109,6 +109,7 @@
   {"route":"build-restart-registry","source":"content/docs/hook-system/gates/build-restart-registry.html","content":"content/docs/hook-system/gates/build-restart-registry.html","category":"Reference"},
   {"route":"git-authorship","source":"content/docs/hook-system/gates/history/git-authorship.html","content":"content/docs/hook-system/gates/history/git-authorship.html","category":"Reference"},
   {"route":"keychain-prompts","source":"content/docs/hook-system/gates/credentials/keychain-prompts.html","content":"content/docs/hook-system/gates/credentials/keychain-prompts.html","category":"Reference"},
+  {"route":"openai-api-key","source":"content/docs/hook-system/gates/credentials/openai-api-key.html","content":"content/docs/hook-system/gates/credentials/openai-api-key.html","category":"Reference"},
   {"route":"operator-grants","source":"content/docs/hook-system/gates/operator-grants.html","content":"content/docs/hook-system/gates/operator-grants.html","category":"Reference"},
   {"route":"oko-weles-boundary","source":"content/docs/hook-system/gates/boundaries/oko-weles.html","content":"content/docs/hook-system/gates/boundaries/oko-weles.html","category":"Reference"},
   {"route":"shell-commands","source":"content/docs/hook-system/gates/boundaries/shell-commands.html","content":"content/docs/hook-system/gates/boundaries/shell-commands.html","category":"Reference"},
