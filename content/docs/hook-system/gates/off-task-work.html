@@ -42,6 +42,10 @@ in the same session. Oko's pending independent verdict remains pending; selectio
 <p>Every scope names an entry in Oko's register. An unknown task, a task already done, an unknown defect, or a defect
 closed by a revision is refused. The agent must select an open task whose work it is actually doing, not declare
 unrelated work under a convenient repository name.</p>
+<p>A declaration covers only the session it names. Every refusal prints the declaration command with the id of
+the session the refused call runs under (<code>tama task scope set --session &lt;THIS SESSION&gt; …</code>, followed by
+<code>this call runs under session &lt;THIS SESSION&gt;; a scope declared for another session does not cover it</code>), so
+a scope declared under an id read elsewhere is seen as the cause, not as the gate ignoring the scope.</p>
 <p>Another session's <code>--defect</code> declaration does not lock the defect. Sessions work on one piece of code
 together, so <code>set</code> declares the scope and, when another live session declared the same defect, prints on
 stderr: <code>defect &lt;ID&gt; is also declared by session &lt;SESSION&gt;; work on it together: read its notes
