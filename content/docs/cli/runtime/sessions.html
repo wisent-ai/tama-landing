@@ -5,7 +5,20 @@
 tama sessions reload --session &lt;ID&gt; [--json]
 tama sessions capability show --session &lt;ID&gt; --agent &lt;omp|claude|codex&gt; [--json]
 tama sessions capability revoke --session &lt;ID&gt; --agent &lt;omp|claude|codex&gt; [--json]
+tama sessions self [--json]
 </code></pre>
+<p><code>sessions self</code> names the agent session the calling process runs under. The session OMP names
+in the tool shell's environment, <code>PI_SESSION_ID</code>, is the answer when a session record carries it or
+the transcript <code>PI_SESSION_FILE</code> names has that session's header. Otherwise it is the session whose
+recorded agent process is the caller or its nearest ancestor. One OMP process hosts a supervisor and every
+subagent it starts, so several records can name one process: with no session named by the environment the
+answer is no session, and <code>--json</code> carries
+<code>"ambiguous": "ambiguous: N sessions share process P (…) and PI_SESSION_ID names none of them"</code>
+beside <code>"agent": null</code>, <code>"session": null</code> and the processes <code>walked</code>; text mode
+prints <code>no session named: …</code>. A process no record holds answers no session with
+<code>"ambiguous": null</code>. Owner consent, the commit-review checks, model-judgement attestations and
+harsh-review rounds read the calling session the same way, so none of them acts for a session the process
+merely shares.</p>
 <p><code>capability show</code> prints the capability the session's override holds, as the build gate
 reads it; <code>capability revoke</code> withdraws it at once (see
 <a href="/docs/concepts/capability/">capability</a>). Both require <code>--agent</code>: a

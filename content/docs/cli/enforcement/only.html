@@ -14,4 +14,31 @@
 <p><code>Hook '&lt;id&gt;' cannot run on this machine, so nothing was selected and the enforcement selection was not changed. It answered: &lt;the hook's own line&gt;</code></p>
 <p>Tama asks each requested hook once with the activation payload the session path uses, expanding the home directory the registry records literally. A hook whose binary is not installed yet is accepted: it is absent, not broken. Only a hook that runs and answers with an infrastructure failure is refused. <a href="../preflight/"><code>tama enforcement preflight</code></a> shows that exchange for one hook without changing anything.</p>
 <p>Other registry or write failures print <code>enforcement: &lt;OS/core error&gt;</code> to stderr and exit <code>1</code> without claiming success.</p>
+<h2>What a machine in <code>only</code> runs</h2>
+<p>The selected hooks, and nothing else of Tama refuses a call:</p>
+<ul>
+<li>The core's own admissions around the hooks — the known-operation admission over Oko's open defects, the
+repeated-call and commit-standing refusals, the verification reservation — and Oko's open-work settling after a
+prompt or stop, and the adaptive layer's prompt bridge, run only when the selection is <code>all</code>
+(<code>tama_hooks::enforcement::every_hook_enforced</code>).</li>
+<li>The OMP adapter asks the core only for an event a selected (or session-enabled) hook answers; every other tool
+call, tool result, prompt and compaction passes without a core round trip.</li>
+<li>With no selected stop hook the end of a turn is not assessed, and with no selected
+<code>before_provider_request</code> hook the text gate neither forces a tool call nor cuts an answer off.</li>
+<li>A core that cannot answer (it cannot start, crashed, or answers for another catalogue), an unset Git editor
+environment, and a stop assessment that failed all let the call or the ending go on, with
+<code>TAMA_HOOK_INFRASTRUCTURE: …; the machine selects only some gates, so … goes on unchecked</code> on the session's
+status line. Under <code>all</code> each of these still refuses.</li>
+<li>A hook that crashes or exits nonzero without a decision document is reported and the call goes on, in both
+modes; only a hook's own refusal blocks.</li>
+</ul>
+<p>A hook is waited for, not timed, so a selected hook must be one that answers by itself: a gate that asks a model
+(<code>block-keychain-prompt-commands</code>, <code>check-merge-deletion-loss</code>) refuses a command not yet judged
+once a model is declared, and belongs in an <code>only</code> selection only on a machine that wants that.</p>
+<h2>Taking it back</h2>
+<p>From the operator's own shell: <code>tama enforcement all</code> or another <code>tama enforcement only</code>
+changes what every running session enforces at its next call; the
+<a href="/docs/concepts/enforcement/emergency-disable/">emergency disable</a> bypasses every hook at once; and
+<code>omp config set extensions '[]'</code> removes the OMP adapter from sessions started after it
+(<code>tama hooks release</code> puts it back).</p>
 <p>Return to the <a href="../../">complete CLI command tree</a>.</p>

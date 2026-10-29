@@ -1,0 +1,92 @@
+<h1>Operator grants: deletion, host change and vault write</h1>
+<p>Three gates refuse an action by default and let it run only on the operator's own words:
+<code>block-unauthorized-deletion</code>, <code>block-unauthorized-host-change</code> and
+<code>block-unauthorized-vault-write</code>. Each decides without a model, without the network and without a lock
+another session can hold: it reads the tool payload, a few local files and, only when a grant could cover the call,
+the operator's messages in the session transcript.</p>
+
+<h2><code>block-unauthorized-deletion</code></h2>
+<p>A gate on <code>bash</code>, <code>eval</code> and <code>edit</code> calls that refuses a deletion outside a
+checkout's Git-ignored <code>.build/</code> or <code>target/</code> folder. A deletion is read from:</p>
+<ul>
+<li>the operands of <code>rm</code>, <code>unlink</code>, <code>rmdir</code>, <code>shred</code>, <code>srm</code> and
+<code>trash</code>, every command of the line as the shell runs it (through <code>sh -c</code> and wrappers);</li>
+<li><code>git rm</code> (not <code>--cached</code>) and <code>git clean</code> (not <code>-n</code>), read in the folder
+<code>-C</code> names; a <code>git clean</code> naming no path deletes in its whole folder;</li>
+<li>the starting points of a <code>find</code> with <code>-delete</code> or <code>-exec rm</code>;</li>
+<li>the local destination of <code>rsync --delete</code> and the sources of <code>rsync --remove-source-files</code>;</li>
+<li>a hashline section's <code>REM</code> and a patch's <code>*** Delete File:</code>;</li>
+<li>in evaluated code, <code>os.remove</code>, <code>os.unlink</code>, <code>os.rmdir</code>, <code>shutil.rmtree</code>,
+<code>fs.rm</code>, <code>fs.unlink</code> and their kin with a written string path, and a shell line run as
+<code>!rm …</code>.</li>
+</ul>
+<p>A path is judged where it really lies: its folder with links and <code>..</code> resolved, then its own name. It
+needs no grant when it, or a folder above it, is named <code>.build</code> or <code>target</code> and
+<code>git check-ignore -q</code> answers that its checkout ignores that folder. A path that does not exist deletes
+nothing and passes. A glob is judged by the folder before its first expanded part. A relative path on a line that
+also runs <code>cd</code> or <code>pushd</code> is judged in every folder the line may run it in. Every tracked file,
+every test file among them, lies outside an ignored folder, so its deletion is always refused.</p>
+<p>A target that cannot be read is refused like one outside: a path the shell computes (<code>rm "$X"</code>), a
+deleting method of an object (<code>path.unlink()</code>), operands <code>xargs</code> hands over, a
+<code>cd -</code>. Only a grant naming the exact command lets such a call run.</p>
+<p>The refusal begins <code>BLOCKED: unauthorized deletion: this call deletes &lt;paths&gt; outside a checkout's
+Git-ignored .build/ or target/ folder</code>, or names <code>what it deletes cannot be read: &lt;cause&gt;</code>, and
+ends with how the operator's words become a grant.</p>
+
+<h2><code>block-unauthorized-host-change</code></h2>
+<p>A gate on <code>bash</code> calls that refuses a command changing what runs on a host:</p>
+<ul>
+<li><code>stado product install</code>, <code>stado release local install</code>;</li>
+<li><code>stado service restart|ensure|deploy|bootout</code>;</li>
+<li><code>launchctl bootout|bootstrap|kickstart|load|unload|stop|kill|remove|enable|disable</code>;</li>
+<li><code>systemctl restart|stop|start|reload|try-restart|reload-or-restart|kill|enable|disable|mask</code>;</li>
+<li><code>kill</code>, <code>pkill</code> and <code>killall</code> of any process that does not descend from the
+session's agent process (<code>TAMA_SESSION_OWNER_PID</code>), read from <code>ps -A -o pid= -o ppid=</code> and, for a
+selection by name, <code>pgrep</code>; a job (<code>kill %1</code>), signal 0 and a listing pass;</li>
+<li>any of these handed to another host through <code>stado host exec</code>, where every signal counts.</li>
+</ul>
+<p>The refusal begins <code>BLOCKED: unauthorized host change:</code> and names each change, for example
+<code>`stado product install` changes what runs on the host</code> or <code>`kill`: process 4242 was not started by this
+session (it does not descend from agent process 911)</code>.</p>
+
+<h2><code>block-unauthorized-vault-write</code></h2>
+<p>A gate on <code>bash</code>, <code>edit</code>, <code>multiedit</code> and <code>notebook</code> calls that refuses a
+change to a live secret store: a file tool writing a <code>*.vault.json</code>,
+<code>*acquisition-scopes.conf</code>, <code>*-skarbiec-token</code> or <code>*skarbiec.audit.jsonl</code> outside a
+temporary folder; a <code>skarbiec</code> subcommand that changes stored material (<code>set</code>,
+<code>delete</code>, <code>token-mint</code>, <code>seal-directory</code> and the rest), on the store its
+<code>--vault</code>, <code>-f</code>, <code>--vault-file</code> or <code>SKARBIEC_VAULT_FILE</code> names; and a
+<code>stado credentials</code> command that stores, deletes, moves, mints or grants (<code>put</code>, <code>rm</code>,
+<code>migrate</code>, <code>item put|delete|restore|reclaim|rename|upgrade</code>, <code>item retag --tags</code>,
+<code>token mint|sync|register</code>, <code>scopes sync</code>,
+<code>grant add|consolidate|rebind|revoke|renew</code>, <code>vault sync</code>, <code>vault retire|move --apply</code>,
+<code>seed enrol</code>). Reading a store is never gated. The refusal begins
+<code>BLOCKED: unauthorized vault write:</code>.</p>
+
+<h2>The grant</h2>
+<p>All three read <code>~/.shared-hooks/operator_action_grants.json</code> (schema
+<code>ai.wisent.tama.operator-action-grant.v1</code>; <code>TAMA_ACTION_GRANTS</code> names another file), written by
+<a href="/docs/cli/justify/"><code>tama justify record --kind deletion|host-change|vault-write</code></a>. A grant counts
+for a call only when all of these hold:</p>
+<ul>
+<li>it names the gate and the session the call runs in;</li>
+<li>its <code>subject</code> is a word of its quote and of every action it lists;</li>
+<li>its <code>actions</code> hold the call's exact command, or every path the gate found in it;</li>
+<li>its quote stands word for word in an operator message: a <code>role: user</code> record the operator wrote
+(attribution <code>user</code>) in the session's own transcript when the session is the operator's, else in the
+transcript its <code>parentSession</code> chain ends at. A subagent's own <code>user</code> messages are its
+supervisor's words and never count; its supervisor's operator does. The OMP adapter names each session's transcript
+in the payload as <code>transcript_path</code>; without it the transcript is found by the session id in its file name
+or its header.</li>
+</ul>
+<pre><code>tama justify record --kind deletion --session &lt;this session id&gt; \
+  --quote 'usun ~/old-notes/scratch.txt' --subject scratch \
+  --action /Users/me/old-notes/scratch.txt
+</code></pre>
+
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_unauthorized_deletion/</code>,
+<code>block_unauthorized_host_change/</code>, <code>block_unauthorized_vault_write/</code> and the shared
+<code>operator_grant/</code>; declarations under <code>hook-declarations/</code>. Agents deleted the operator's test
+approvals and tracked test files, installed an uncommitted Stado over running ones and restarted services, and wrote
+a live vault, with nothing to stop them; these gates are mechanical so that cannot happen without his word.</p>

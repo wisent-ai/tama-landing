@@ -125,6 +125,12 @@ the pinned Node executable and preflight;</li>
 <code>hooks-runtime/current</code>, then any preserved <code>&lt;name&gt;.before-tama</code> backup;</li>
 <li>approved <code>repo-githooks</code> into each matching project's <code>.githooks/</code>.</li>
 </ul>
+<p><code>tama hooks release</code> reconnects the Git dispatchers only where Git's global
+<code>core.hooksPath</code> is set. Where the operator took it away
+(<code>tama uninstall --unset-git-config</code>) the release keeps it away and prints
+<code>Git hooks left unconnected: core.hooksPath is unset; `tama install --set-git-config` connects them</code>;
+a <code>core.hooksPath</code> that cannot be read refuses with
+<code>Hook runtime installed, but whether Git runs its dispatchers cannot be read: &lt;cause&gt;</code>.</p>
 <p>The <code>hooks-runtime/current</code> symlink is replaced atomically only inside the
 transaction; on failure the previous symlink and every original file come
 back, and an OMP extensions change (registering
