@@ -191,6 +191,14 @@ JSON: <code>since</code>, <code>commits</code>, <code>reopened</code>, and <code
 Oko's own answer for each task it would not reopen, for example a task whose session transcript is
 not on this machine. Without <code>--revision</code> or <code>--failure</code> the command is refused
 and reopens nothing; when Oko cannot be run or answers no JSON, the command fails and names the call.</p>
+<h2>Exit status</h2>
+<p>A verb given no action, an unknown action, or without an argument it cannot run without
+(<code>--kind</code> and <code>--target</code> for <code>record</code> and <code>close</code>,
+<code>--target</code> and <code>--revision</code> for <code>approval</code>, <code>--target</code>
+for <code>pending</code>, <code>--target</code>, <code>--revision</code> and <code>--failure</code>
+for <code>fail</code>) exits 2 with the missing argument and the usage on stderr, before anything is
+read or changed. A refusal of a well-formed request (no consent, an unreadable registry, an
+exhausted ration) exits 1 naming its cause; success exits 0.</p>
 
 
 <h2>What the refusal looks like</h2>
