@@ -275,7 +275,11 @@ tama hooks status --repo ~/code/my-service</code></pre>
 <p>Status reports the configured user-global directory, each dispatcher, whether
 the Rust gate is referenced and present, and the preserved original hook path.
 The same descriptions appear in Desktop's installation plan. This is a wiring
-inspection, not a successful push claim.</p>
+inspection, not a successful push claim. With no global <code>core.hooksPath</code>
+configured, Git runs no dispatcher at all: status says so, names
+<code>tama install --set-git-config</code>, which writes the dispatchers and sets
+it again, and exits <code>1</code>, so a machine whose commits and pushes pass
+unreviewed is never reported as wired.</p>
 <p>Git reads one hooks directory per repository, and a repository's own
 <code>core.hooksPath</code> wins over the global one. A repository that sets it
 runs that directory instead of the dispatcher, so the Rust format check, the
