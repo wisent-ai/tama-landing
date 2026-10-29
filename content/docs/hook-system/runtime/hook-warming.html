@@ -43,7 +43,12 @@ missing or unrunnable, because a live event would have nothing to run.
 <code>warmed</code> and <code>unusable</code> counts and the
 <code>slowest</code> hook with its <code>slowestMs</code>; a report that cannot
 be encoded is refused with its cause. An id the registry does not name is
-refused by name and exits <code>2</code>.</p>
+refused by name and exits <code>2</code>. The engine runs the <code>tama</code> in the sealed
+release under <code>~/Library/Application Support/Tama/hooks-runtime/current/bin</code>, so every
+hook is warmed through that copy too; a sealed release that holds no <code>tama</code> there is
+refused naming the path and the system's cause, and <code>tama hooks release</code> refuses to
+report an install as warmed for the same reason, instead of reporting the release warm while
+nothing of it ran.</p>
 <p>The run is inert: each binary receives an empty JSON object on standard
 input, which every hook reads as "no input, decide nothing", and
 <code>HOME</code> points at a scratch directory inside the checkout's ignored
