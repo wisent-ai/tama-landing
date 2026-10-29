@@ -7,6 +7,28 @@ round by someone other than the author, over the exact staged tree and message, 
 change suggests. Every round states the two parts of the operator's standard for finished work: what it finds to
 improve in the change, and what new the change suggests would further improve the codebase (the same shape
 elsewhere, the root cause, its visibility, the real case left untested).</p>
+<p>Before a round is recorded on a staged candidate (<code>record --message</code>), and before <code>review-commit</code>
+reads any round, the staged tree is written out beside the checkout's <code>.build/tama-quality</code> and every gate its
+<code>.wisent-release.json</code> declares except those of kind <code>test</code> runs on it: the <code>format</code> gates
+first, which compile nothing, then the <code>lint</code> gates, where a product declares its compile check
+(<code>cargo check</code>, <code>cargo clippy</code>, a compile script). Each is told what the tree changes against the
+published main in <code>WISENT_CHANGED_PATHS</code> as <code>stado quality check</code> tells it, and Cargo builds into
+<code>.build/tama-quality/target</code> (<code>CARGO_TARGET_DIR</code>), kept between trees, so a compile gate starts from
+the last tree's build. stderr names each gate as it starts: <code>quality: running the declared gate &lt;name&gt; on the
+staged tree &lt;tree&gt;</code>. A tree a gate refuses gets no round and no commit: <code>the staged tree &lt;tree&gt;
+does not pass the declared gate &lt;name&gt; (&lt;exit&gt;); its output is above; no round is recorded on, and no commit
+admits, a tree the product's own gates refuse: repair what it reports in the staged change and stage it again</code>,
+with the gate's own output above it. Test gates run with the build. A product with no manifest, or no gate but test
+gates, is judged by the rounds alone.</p>
+<p>A round over a queued entry (<code>record --queue</code>) whose parent is no longer HEAD is kept only when the tree
+carries every commit that landed since that parent: Git merges those commits onto the tree with the parent as the merge
+base (<code>git merge-tree --write-tree --merge-base</code>), and a tree that already holds them merges to itself. Any
+other tree is refused before the round is kept, naming each path and each commit since the parent it would take back:
+<code>tree &lt;tree&gt; was staged on &lt;parent&gt; and HEAD has moved to &lt;head&gt; since; the tree does not carry
+what these commits since its parent changed, so committing it would take them back: &lt;path&gt;: &lt;subjects&gt; …
+stage the change again on HEAD (or say Revert "&lt;subject&gt;" for each in its message when it reverts them) and queue
+it again</code>. Commits that do not merge onto the tree at all are refused with Git's own cause and the same
+instruction.</p>
 <h2>Invocation</h2>
 <pre><code>tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; (--message &lt;file&gt; [--tree &lt;tree read&gt;] | --queue &lt;id&gt;) [--repository &lt;path&gt;]
 tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; --attestation (session|build):&lt;session id&gt;
@@ -47,12 +69,45 @@ candidate with <code>show --queue &lt;id&gt;</code>: the entry's message and the
 read from the repository's objects, so a candidate staged in an index of its own is read as it was staged. It records its
 round with <code>record --queue &lt;id&gt; --findings &lt;file&gt; --improvements &lt;file&gt;</code>, which keeps the round in the parent's register
 and marks the entry reviewed in Oko. The author is refused as the reviewer of its own entry (<code>entry &lt;id&gt; was
-staged by session &lt;id&gt;, who cannot review it</code>). The author's next commit attempt then finds the round.</p>
+staged by session &lt;id&gt;, who cannot review it</code>), and an entry another reviewer's round already answered is
+refused before any round is kept (<code>entry &lt;id&gt; was already reviewed by &lt;session&gt;, whose round Oko
+keeps, so no round of &lt;session&gt; was kept</code>). When Oko does not mark the entry, the command fails with the
+round kept and says that the same record run again marks it and keeps no second round. The author's next commit
+attempt then finds the round.</p>
+<p>A reviewer that reads the candidate where it is staged instead, with <code>record --message &lt;file&gt;</code>,
+records the very round an entry waits for. The round is kept first. Then every entry of another author that no round
+has reviewed yet (waiting, or assigned to a reviewer by the supervision pass: Oko keeps the first round whoever records
+it), queued from a checkout whose rounds go to the same register, and naming the same staged tree, parent and message
+(the message as the Rounds section below defines the one a round covers) is marked reviewed with it, and the answer
+ends with <code>; Oko marks queue entry &lt;id&gt;[ (assigned to &lt;session&gt;)][, …] reviewed</code>, naming the
+session an assigned entry was handed to. An open entry of the same tree and parent whose message differs is not
+covered and is named: <code>; queue entry &lt;id&gt;[, &lt;id&gt;…] names this tree over this parent with another
+message, so this round does not cover it and it stays open</code>. When Oko refuses to mark an entry, the entry is read
+again: one another round marked since it was listed is named, <code>; queue entry &lt;id&gt; (reviewed by
+&lt;session&gt;) was marked by another round meanwhile, which Oko keeps</code>, and one this round's own mark reached
+is counted as marked. When no open entry matches, the answer is the round's line alone.</p>
 <p>A staged round names the tree its reviewer read with <code>--tree &lt;tree&gt;</code> (<code>git write-tree</code>
 when the reading began). An index restaged after that writes another tree, which nobody read, so the round is refused
 before anything is kept: <code>the round names tree &lt;read&gt;, but the index of &lt;repository&gt; now writes tree
 &lt;now&gt;: it was restaged after the review read it, so no round was kept; review the tree it holds now</code>. A
 <code>--queue</code> round is always kept over the tree its queue entry names.</p>
+<p>Recording a round is safe to repeat: when the newest round over the same candidate in the register is this very
+round (the same reviewer, findings and improvements), no second copy is kept and the line begins <code>found this very
+round already kept</code>. So every failure after the round is kept fails the command with the round standing, and the
+same record run again finishes the job. When the queue cannot be listed (Oko cannot be run, exits nonzero or answers
+no JSON) nothing is marked: <code>&lt;the round's line&gt;; no harsh-review queue entry was marked, since Oko's queue
+could not be listed: &lt;cause&gt;; the round stands, and only once &lt;oko&gt; lists its harsh-review queue (an Oko
+without that queue never does) does running this record again mark an entry, keeping no second round</code>, naming
+the Oko program Tama runs; a listing
+with no entries list, or an entry lacking a field, says <code>since Oko's listing is not its queue</code> instead.
+Otherwise every covered entry is tried, and the answer fails after saying everything else when Oko refused an entry
+no round has marked, or one cannot be read again (<code>; Oko did not mark harsh-review queue entry &lt;id&gt;:
+&lt;refusal&gt;[, and it cannot be read again to tell whether a round marked it: &lt;cause&gt;][; entry …]; running
+this record again marks it and keeps no second round</code>), or when an entry queuing this very candidate comes
+from a checkout that cannot be read to tell which register its author's commit reads (<code>; queue entry &lt;id&gt;
+(queued from &lt;path&gt;, which cannot be read: &lt;cause&gt;; `tama reviews harsh record --queue &lt;id&gt;`
+records a round where it was queued) queues this very candidate, but whether its author's commit reads this round's
+register cannot be told</code>). The author's own round over its staged tree marks nothing.</p>
 <h2>Who reviews</h2>
 <ul>
 <li><strong>A reviewer session.</strong> A session that is not the author reads <code>git diff --cached</code> and the
