@@ -32,6 +32,7 @@ tama doctor [--json]
 <li><code>the API key is read from standard input, and standard input was empty</code> — exit 2.</li>
 <li><code>no model provider is declared in &lt;file&gt;; Tama already asks Brama</code> — <code>unset</code> with nothing declared, exit 1.</li>
 <li><code>&lt;file&gt; names no complete model provider (origin, model and key); declare it again with `tama model set` or remove it with `tama model unset`</code> — a damaged declaration; every model call refuses with the same sentence until it is repaired.</li>
+<li><code>&lt;file&gt; declares that this machine has no model (`tama model set --none`), so no model may be asked here; a gate reads the attestation alone on such a machine, or declare a model with `tama model set --origin URL --model MODEL`</code> — any model call reached on a machine that declared none. The gates that read a commit or an answer (<code>review-commit</code>, the harsh review, the stop gates) ask for the none declaration first and judge by the attestation alone, so they never reach this sentence.</li>
 <li>With nothing declared, <code>show</code> exits 1 with the route resolver's own sentence when Brama's route cannot be resolved, instead of printing an empty <code>model</code>.</li>
 <li><code>the model provider declaration &lt;file&gt; cannot be read: &lt;cause&gt;</code> or <code>&lt;file&gt; is not a model provider declaration: &lt;cause&gt;</code> — every verb, and every hook that reads the choice, refuses with the cause.</li>
 <li><code>takes show, set, unset or check; got &lt;verb&gt;</code> — exit 2.</li>
