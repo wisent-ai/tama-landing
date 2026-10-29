@@ -83,7 +83,14 @@ item, why the queue puts it first and the <code>oko tasks claim</code> or <code>
 takes it; the order changes in the register (priority, blockers), not by working on something else. While a
 moment of the operator's frustration in the session (<code>oko frustration list --session &lt;session&gt;</code>)
 has no cause named, every call is refused naming each moment and <code>oko frustration cause &lt;id&gt; --cause
-…</code>, an Oko command, which passes. Each admitted call is kept with its items (each owned
+…</code>, an Oko command, which passes. A named moment stays open until a pushed revision answers it
+(<code>oko frustration answer &lt;id&gt; --revision &lt;repository@commit&gt; --detail …</code>); until then the
+session works only on the defect linked to remove its cause. A named moment with no defect linked is refused
+with <code>BLOCKED: block-unclaimed-calls: the operator's frustration in this session is explained but not
+answered, and no defect is linked to remove its cause …</code>, naming <code>oko frustration cause &lt;id&gt;
+--cause … --defect &lt;defect-id&gt;</code>; one linked to a defect the session does not hold is refused naming
+that defect and how to take it. While the session holds it, that defect comes before the queue's head. Each
+admitted call is kept with its items (each owned
 defect, then the declared entry with the operator's words it was declared for), tool, purpose and time in
 <code>calls.&lt;session&gt;.jsonl</code> beside the session's control files. A shell line made only of commands
 of the configured Oko CLI or this Tama program — claiming, declaring the scope, reading an item, writing a
@@ -143,8 +150,11 @@ session; a harness continuation is not one. Making one of those looks again is r
 <code>BLOCKED: this exact call already ran at … and nothing this session did since could change its
 answer … It was answered: …</code>, quoting the earlier answer whole. No count and no window decide it:
 the first look passes, the same look after a commit, an edit or a person's message passes, and the same
-look in between is refused. <code>block-idle-answer</code> counts work after a stop refusal by the same
-ledger: a change, or a look not made since the last change. A repeated look does not buy an ending.
+look in between is refused. <code>block-idle-answer</code> counts work after a stop refusal, or after the
+text gate cut an answer off (OMP's <code>tama-text-cut</code> record), by the same ledger: a change, or a
+look not made since the last change. An ending with no such work after either, one that carries only the
+agent's own reasoning included, is refused with the session's owed tasks (<code>oko tasks owed</code>) and
+then the defects as the next item. A repeated look does not buy an ending.
 Both read the transcript record by record: a complete line that is no JSON record refuses the call
 with <code>BLOCKED: the session transcript &lt;path&gt; cannot be read as records, so whether this
 call repeats a look cannot be told: the line starting at byte &lt;n&gt; is not a JSON record: …</code>
