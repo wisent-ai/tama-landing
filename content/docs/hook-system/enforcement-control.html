@@ -216,16 +216,14 @@ holds <code>call:brama#&lt;route&gt;</code>, which separates a missing local gra
 from a gateway that answers to another authority.</p>
 <h2>Global emergency disable</h2>
 <p>The bundled <code>emergency_disable_hooks</code> script is the switch; the desktop runs
-it from <strong>Posture</strong> (confirmed as <em>Disable every Tama hook on this machine</em>)
+it from <strong>Posture</strong> (confirmed as <em>Disable all policies on this machine</em>)
 and re-runs it with <code>TAMA_EMERGENCY_ACTION=enable</code> for re-enable. Disable:</p>
 <ol>
-<li>pauses every supervised session through
-<code>agent-session-supervisor.py control pause --require-all</code>; an exit trap
-resumes them after success, failure, or interruption;</li>
 <li>reinstalls the session controllers (<code>--session-control-only</code>) so session
 visibility survives the bypass;</li>
 <li>backs up <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> into
-<code>emergency-backup/</code> and empties their <code>hooks</code> maps;</li>
+<code>emergency-backup/</code> and empties their <code>hooks</code> maps, unless every hook
+command there is Tama's <code>run-hook.mjs</code> dispatcher;</li>
 <li>moves entrypoints aside to <code>&lt;name&gt;.tama-disabled</code>: the OMP agent hooks
 directory and every Git hook source the installed registry declares;</li>
 <li>stops the editor watcher (<code>~/.shared-hooks/editor-hooks.pid</code>, then the
@@ -235,7 +233,9 @@ directory and every Git hook source the installed registry declares;</li>
 <code>ai.wisent.tama.hook-emergency-state.v1</code>, <code>disabled: true</code>,
 <code>changedAt</code>).</li>
 </ol>
-<p>Repeating disable is idempotent (<code>Tama hooks are already disabled.</code>). The
+<p>No running agent session is stopped, paused or signalled: each loaded
+runtime reads <code>hook-emergency-state.json</code> and bypasses its hooks at once.
+Repeating disable is idempotent (<code>Tama hooks are already disabled.</code>). The
 desktop treats the machine as disabled only when both the manifest and the
 disabled state file exist, and after the script returns it re-reads that
 durable state — a switch that did not persist is reported as a failure, not

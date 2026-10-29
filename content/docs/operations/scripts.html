@@ -43,13 +43,11 @@ arguments; everything is environment:</p>
 <tbody>
 <tr><td><code>TAMA_EMERGENCY_ACTION</code></td><td><code>disable</code></td><td><code>disable</code> or <code>enable</code>; anything else prints <code>Unsupported Tama emergency action: &lt;value&gt;</code> and exits <code>2</code></td></tr>
 <tr><td><code>TAMA_HOME</code></td><td><code>$HOME</code></td><td>Target home</td></tr>
-<tr><td><code>TAMA_SKIP_SESSION_RESTART</code></td><td><code>0</code></td><td><code>1</code> skips the supervised-session pause/resume</td></tr>
 <tr><td><code>TAMA_HOOK_RELEASE_ROOT</code></td><td>bundled <code>hooks-release</code> (falls back to <code>.build/Tama.app/...</code> in a checkout)</td><td>Release root</td></tr>
 <tr><td><code>TAMA_HOOK_INSTALLER</code></td><td>the release's own <code>bin/tama</code> (run as <code>tama hooks install-release</code>)</td><td>Installer override</td></tr>
-<tr><td><code>TAMA_SESSION_SUPERVISOR</code></td><td><code>$TAMA_HOOK_RELEASE_ROOT/shared-hooks/agent-session-supervisor.py</code></td><td>Supervisor override; if missing (and sessions are not skipped) the script prints <code>Tama session supervisor is missing: &lt;path&gt;</code> and exits <code>66</code></td></tr>
 </tbody>
 </table>
-<p>Disable ends with <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code>; a repeat prints <code>Tama hooks are already disabled.</code> and exits <code>0</code>. Enable ends with <code>Enabled approved hook release &lt;first-12-of-id&gt;. Supervised agent sessions will resume without an editor restart.</code>; enable without a manifest fails with <code>Tama has no emergency backup manifest to restore.</code>. The step-by-step behavior is in
+<p>Disable ends with <code>Disabled hooks. Running agent sessions read the emergency state at once and keep running.</code>; a repeat prints <code>Tama hooks are already disabled.</code> and exits <code>0</code>. Enable ends with <code>Enabled approved hook release &lt;first-12-of-id&gt;. Running agent sessions read the cleared emergency state at once and keep running.</code>; enable without a manifest fails with <code>Tama has no emergency backup manifest to restore.</code>. Neither action stops, pauses or signals a running agent session. The step-by-step behavior is in
 <a href="enforcement-control.md">enforcement-control</a> and
 <a href="concepts/emergency-disable.md">concepts/emergency-disable</a>.</p>
 <h2>Read-only integrity report</h2>

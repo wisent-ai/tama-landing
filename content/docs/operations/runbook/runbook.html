@@ -104,7 +104,7 @@ removing it.</p>
 <tr><td>one without the other</td><td>—</td><td>Interrupted transition: treat as disabled and run re-enable, which restores from the manifest and removes both</td></tr>
 </tbody>
 </table>
-<p>The script's own sentences: a repeat disable prints <code>Tama hooks are already disabled.</code>; enable without evidence refuses with <code>Tama has no emergency backup manifest to restore.</code>; success prints <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code> or <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> The desktop trusts only re-read durable state: <code>Tama could not persist the emergency hook state.</code> means the switch did not stick.
+<p>The script's own sentences: a repeat disable prints <code>Tama hooks are already disabled.</code>; enable without evidence refuses with <code>Tama has no emergency backup manifest to restore.</code>; success prints <code>Disabled hooks. Running agent sessions read the emergency state at once and keep running.</code> or <code>Enabled approved hook release &lt;first-12&gt;. Running agent sessions read the cleared emergency state at once and keep running.</code> The switch never stops, pauses or signals a running agent session: each one reads <code>hook-emergency-state.json</code> on its next hook call. The desktop trusts only re-read durable state: <code>Tama could not persist the emergency hook state.</code> means the switch did not stick.
 During the bypass, the retained machine selection does not run;
 <code>tama sessions</code> prints each session's explicit allowlist
 (<code>allowlist: empty</code> when nothing was re-enabled)
@@ -150,19 +150,21 @@ bundled script is missing; the app bundle is incomplete, reinstall the
 verified artifact.</li>
 <li><code>The Tama bundle does not contain the agent session-controller installer.</code>
 / <code>The Tama bundle does not contain an approved hook release for agent session control.</code> — same class, for the installer and release.</li>
-<li><code>The local policy command exceeded its bounded runtime and was terminated. Inspect local policy state before retrying.</code> — the 300 s bound
-fired; the process tree got SIGTERM then SIGKILL. Check the global-disable
-state table above before retrying.</li>
-<li><code>The local policy command exceeded Tama's bounded output limit. Inspect local policy state before retrying.</code> — more than 64 KiB of output; same
-inspection.</li>
-<li><code>Tama could not read bounded local policy output: &lt;reason&gt;</code> — the output
-pipe failed; the command's own result is unknown, inspect state.</li>
+<li><code>Tama could not read local policy output: &lt;reason&gt;</code> — the output
+pipe failed; the command's own result is unknown, inspect the evidence table
+above before retrying.</li>
+<li><code>Tama cannot read the local policy state &lt;path&gt;: &lt;cause&gt;</code> — the
+emergency state or the installed release record exists but cannot be read or
+decoded; Posture shows protection as unconfirmed, never as on.</li>
 <li><code>Tama could not update the installed hook configuration.</code> — the script
-exited non-zero without printing anything.</li>
+exited non-zero without printing anything; otherwise its own output is the
+failure.</li>
 </ul>
 <p>From the script itself: <code>Unsupported Tama emergency action: &lt;value&gt;</code> (exit
-2), <code>Tama session supervisor is missing: &lt;path&gt;</code> (exit 66), <code>Tama could not resume one or more supervised agent sessions.</code> (the exit trap's resume
-failed — sessions may still be paused; resume them via the supervisor).</p>
+2), <code>Both active and disabled hook entrypoints exist: &lt;path&gt;</code>,
+<code>Tama hook release installer is missing: &lt;path&gt;</code>,
+<code>Tama approved hook release is missing: &lt;path&gt;</code>, and the installer's own
+sentence when <code>tama hooks install-release</code> refuses (exit 1).</p>
 <h2>The backend refuses a repository</h2>
 <p>The Violations surface validates before anything runs, each sentence from
 <code>ViolationsClient</code>:</p>

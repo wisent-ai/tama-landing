@@ -11,14 +11,13 @@ deliberately the only way to weaken policy: sessions can
 <strong>Posture</strong> and re-runs with <code>TAMA_EMERGENCY_ACTION=enable</code> for re-enable
 (<a href="../scripts.md#emergency_disable_hooks">scripts</a>). Disable, in order:</p>
 <ol>
-<li>pauses every supervised session
-(<code>agent-session-supervisor.py control pause --require-all</code>); an exit trap
-resumes them after success, failure, or interruption;</li>
 <li>reinstalls the session controllers
 (<code>tama hooks install-release --session-control-only</code>) so session visibility
 survives the bypass;</li>
 <li>backs up <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> into
-<code>emergency-backup/</code> and empties their <code>hooks</code> maps;</li>
+<code>emergency-backup/</code> and empties their <code>hooks</code> maps, unless every hook
+command there is Tama's <code>run-hook.mjs</code> dispatcher, which reads the
+emergency state itself;</li>
 <li>moves entrypoints aside to <code>&lt;name&gt;.tama-disabled</code>: the OMP agent hooks
 directory and every Git hook source the installed
 <a href="registry.md">registry</a> declares;</li>
@@ -28,18 +27,22 @@ then the <code>com.wisent.editor-hooks.plist</code> LaunchAgent);</li>
 <code>hook-emergency-state.json</code>
 (<code>ai.wisent.tama.hook-emergency-state.v1</code>, <code>disabled: true</code>, <code>changedAt</code>).</li>
 </ol>
-<p>Success prints <code>Disabled hooks. Supervised agent sessions will resume without an editor restart.</code>; repeating it prints <code>Tama hooks are already disabled.</code> and changes nothing.</p>
+<p>No running agent session is stopped, paused or signalled: each session's
+loaded runtime reads <code>hook-emergency-state.json</code> and bypasses its hooks at
+once, so every terminal keeps its session in the foreground.</p>
+<p>Success prints <code>Disabled hooks. Running agent sessions read the emergency state at once and keep running.</code>; repeating it prints <code>Tama hooks are already disabled.</code> and changes nothing.</p>
 <h2>What it costs</h2>
 <p>The desktop's confirmation states the price before the button exists —
-title <code>Disable every Tama hook on this machine</code>, then verbatim:</p>
+title <code>Disable all policies on this machine</code>, then verbatim:</p>
 <ul>
-<li><code>Agent, editor and Git dispatchers will bypass all &lt;N&gt; policies until the approved release is verified and reinstalled.</code></li>
-<li><code>&lt;N&gt; blocking hooks will stop refusing unsafe work, including in sessions that are running right now.</code></li>
-<li><code>Supervised sessions keep running. Their per-session overrides survive, and Tama restores them when the release is reinstalled.</code></li>
+<li><code>Unsafe actions will no longer be blocked.</code></li>
+<li><code>Current sessions will keep running.</code></li>
+<li><code>Re-enable the policies to restore protection.</code></li>
 </ul>
-<p>with reason code <code>hook-emergency-state.v1 disabled=true</code>, the full listing
-of blocking hook ids, the footnote <code>recovery files are preserved under Application Support/Tama/emergency-backup</code>, and three actions: <code>Read the blocking decision</code> (jumps to <a href="../desktop/session.md">Session</a>),
-destructive <code>Disable all hooks</code>, primary <code>Keep policy active</code>.</p>
+<p>with the full listing of blocking hook ids and its actions:
+<code>Read the blocking decision</code> (shown when a hook has blocked, it jumps to
+<a href="../desktop/session.md">Session</a>), destructive <code>Disable all policies</code>,
+primary <code>Keep policy active</code>.</p>
 <h2>How state is judged</h2>
 <p>Tama treats the machine as disabled only when <strong>both</strong> the manifest and the
 state file exist, and it re-reads that durable state after the script
@@ -54,7 +57,7 @@ re-enable succeeds. During the bypass, only a session's generation-bound
 <a href="seal.md">seal</a> gates. It performs the full transactional installation with
 <code>--emergency-manifest</code> — restoring every moved entrypoint, regenerating
 provider configs from the backups, re-bootstrapping the editor LaunchAgent —
-and only then removes the emergency state and manifest, printing <code>Enabled approved hook release &lt;first-12&gt;. Supervised agent sessions will resume without an editor restart.</code> A failed enable preserves the recovery evidence. After successful re-enable, the retained all-hooks or selected-hooks machine policy resumes.</p>
+and only then removes the emergency state and manifest, printing <code>Enabled approved hook release &lt;first-12&gt;. Running agent sessions read the cleared emergency state at once and keep running.</code> A failed enable preserves the recovery evidence. After successful re-enable, the retained all-hooks or selected-hooks machine policy resumes.</p>
 <h2>Where it lives</h2>
 <table>
 <thead><tr><th>Path</th><th>Content</th></tr></thead>
@@ -66,9 +69,9 @@ and only then removes the emergency state and manifest, printing <code>Enabled a
 </tbody>
 </table>
 <p>The desktop wrapper (<code>HookEmergencySwitch</code>) waits for the script's own exit and for its
-output to close, and reports the script's exit status and what it printed; output beyond
-64 KiB is refused rather than cut. Its own failures
-(<code>The local policy command exceeded Tama's bounded output limit. Inspect local policy state before retrying.</code>, <code>The Tama bundle does not contain the emergency hook controller.</code>, …) are listed in the
+output to close, and reports the script's exit status and what it printed. Its own failures
+(<code>The Tama bundle does not contain the emergency hook controller.</code>,
+<code>Tama could not read local policy output: &lt;reason&gt;</code>, …) are listed in the
 <a href="../runbook.md#the-emergency-switch-refuses">runbook</a>.</p>
 <h2>Not to be confused with</h2>
 <ul>
