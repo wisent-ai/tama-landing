@@ -130,42 +130,37 @@ each naming the command, choosing <code>PASS</code> or <code>BLOCK</code> and
 giving its reason, and an answer that leaves a command without a verdict is no
 answer.</p>
 <h2 id="unanswered">When a shell or write gate's question goes unanswered</h2>
-<p>A rule a model enforces is not off while the model is. Every gate that judges a shell command or a
-write by model — <code>pre-bash</code>, <code>block-inline-execution</code>,
-<code>block-unregistered-build-or-restart</code>,
+<p>Every gate that judges a shell command or a write by model — <code>pre-bash</code>,
+<code>block-inline-execution</code>, <code>block-unregistered-build-or-restart</code>,
 <code>block-keychain-prompt-commands</code>, <code>block-background-execution</code>,
 <code>block-local-model-training</code>, <code>block-subagent-spawn</code>,
-<code>block-external-source-edits</code>, <code>block-device-level-tests-without-consent</code>,
+<code>block-one-off-repairs</code>, <code>block-device-level-tests-without-consent</code>,
 <code>block-oko-trajectory-edits</code>, <code>block-hook-scan-narrowing</code>,
 <code>check-humanized-actions</code>, <code>check-legacy-activation-bypass</code> and
-<code>check-merge-deletion-loss</code> — hands an <code>Unavailable</code> judgement to
-<code>model_judgement::unanswered::refusal</code>, which refuses the call:</p>
-<pre><code>TAMA_HOOK_INFRASTRUCTURE: &lt;hook&gt;: review unavailable: &lt;why nobody answered&gt;</code></pre>
-<p>The cause is the judge's recorded state (<code>Oko last saw the judge refuse at …: …</code>), the
-held question, the missing Oko program or the gateway's own failure; a write or merge gate adds
-<code>(judging &lt;file&gt;)</code>. <code>oko tasks judge --probe</code> asks the judge one question
-and lifts the record when it answers. Gates using this optional-review policy allow two calls instead, each saying so on stderr:</p>
-<ul>
-<li>any call on a machine whose operator declared no model with
-<code>tama model set --none</code>: <code>&lt;hook&gt;: no model is asked on this machine, the
-call passes: …</code>;</li>
-<li>a shell line whose every command runs a program the judge stands on — this Tama, the Oko it asks
+<code>check-merge-deletion-loss</code> — hands an unanswered judgement to
+<code>model_judgement::unanswered::refusal</code>. Every product works on its own, so a judge that
+was not reached (no model declared with <code>tama model set --none</code>, Oko's record that the
+judge does not answer, a missing Oko program or the gateway's own failure) does not stop the call:
+it passes and stderr names the cause:</p>
+<pre><code>TAMA_HOOK_INFRASTRUCTURE: &lt;hook&gt;: the judge was not reached, so this gate's judged rule did not decide the call: &lt;why&gt;</code></pre>
+<p>A question a gate keeps for later on purpose (asked outside the hook with
+<code>tama judgement ask &lt;request&gt;</code>) is kept only while the judge answers: when Oko's
+record says the judge does not answer, the question is not kept, because
+<code>tama judgement ask</code> would ask the same judge, and the call is decided as unreached
+above. A kept question that has no answer yet refuses the call:</p>
+<pre><code>TAMA_HOOK_INFRASTRUCTURE: &lt;hook&gt;: review unavailable: &lt;why, and the tama judgement ask or tama judgement attest command that answers it&gt;</code></pre>
+<p>A shell line whose every command runs a program the judge stands on — this Tama, the Oko it asks
 (<code>TAMA_OKO_CLI</code>, else <code>oko</code>) and every product <code>stado product catalog</code>
-declares that Oko depending on, at any depth — so the judge can be repaired:
-<code>&lt;hook&gt;: no judgement (…); the command only runs what the judge stands on, and passes</code>.
+declares that Oko depending on, at any depth — passes even then, so the judge can be repaired:
+<code>&lt;hook&gt;: not judged yet (…); the command only runs what the judge stands on, and passes</code>.
 When that catalog cannot be read the call is refused with both causes:
-<code>…: review unavailable: …; and which programs the judge stands on cannot be read: …</code>.</li>
-</ul>
-<p><code>block-one-off-repairs</code> requires a judgement. It uses
-<code>model_judgement::unanswered::required_refusal</code>: neither the no-model declaration nor a command
-operating a dependency of the judge is an exemption. Its infrastructure refusal retains the actual cause,
-including a deliberately undeclared model. An unanswered review does not prove an operation unsafe or safe;
-the command cannot run until its review is available. The same rule applies to otherwise read-only commands
-that have not been judged. The real CLI journey
-<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test one_off_repairs_judged</code> includes
-<code>required::no_model_is_not_permission_for_an_unreviewed_repair</code>, which persists a no-model
-declaration in its own home and requires refusals of a service cycle, an installed-file copy and a
-dependency-product command without performing those operations.</p>
+<code>…: review unavailable: …; and which programs the judge stands on cannot be read: …</code>.</p>
+<p><code>block-one-off-commands</code> keeps its declared no-model alternative instead of passing:
+while no model is declared, or Oko's record says the judge does not answer and no kept verdict
+decides the commands a write declares, the file's recorded justification (<code>tama justify record
+--kind file</code>) decides them, stderr says <code>block-one-off-commands: the judge does not answer
+(…); &lt;file&gt; is decided by its recorded justification instead</code>, and a file with none is
+refused naming the commands and the registry that was read.</p>
 <p>A mandatory review does not recursively review its own question consumer:
 <code>tama judgement ask &lt;request&gt;</code> may run only as one literal invocation of the executable
 evaluating the hook, or a byte-identical installed copy. Device/inode identity avoids reading a shared
