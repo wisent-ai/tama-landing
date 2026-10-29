@@ -44,7 +44,9 @@ A record that names no <code>agentId</code> or <code>sessionId</code> is not lis
 report reads <code>no count</code>, and an allowlist it did not record reads
 <code>allowlist: not recorded</code>.</p>
 <p>Before the closing line, one row per OMP process on this machine that no session-control record names by its
-pid: <code>omp&#9;&lt;session or "no session"&gt;&#9;pid &lt;pid&gt;&#9;UNGATED: &lt;route&gt;</code>. Tama's adapter
+pid and the session it holds open: <code>omp&#9;&lt;session or "no session"&gt;&#9;pid &lt;pid&gt;&#9;UNGATED: &lt;route&gt;</code>.
+A record of the same pid for another session does not gate it, because OMP switches and resumes sessions in one
+process and the session it holds now is the one without a record. Tama's adapter
 writes that record when OMP loads it, and OMP loads an extension only when it starts, so a process started
 before the adapter was declared or released, or without it, runs every call of its session ungated and
 <code>reload</code> has nothing to reach in it. The session is read from the transcript the process holds open

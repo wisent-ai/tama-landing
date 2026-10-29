@@ -182,7 +182,10 @@ wait on other open work does not stand an item aside: only Oko recording a task 
 withdrawn, or a defect fixed, removes it. A task Oko relates as <code>duplicate-of</code>
 another is counted once, as the original.</p>
 <p>The refusal counts the open work instead of copying its identities: it says how many open
-tasks and defects Oko holds, how many carry no pushed repair and how many this session owns.
+tasks and defects Oko holds, how many carry no pushed repair and how many this session owns, and
+names the open set by its digest (<code>open set &lt;sha256&gt;</code>, of the sorted task lines and defect
+identities it counted), so two refusals with one digest counted one set and a changed digest says the
+set changed without copying it.
 Only the selected <em>Take now</em> action names an item, even when the session owns the whole
 queue. Selection and completion enforcement still read the full ledger; omitted identities
 remain open work. The refusal names the commands that print the
