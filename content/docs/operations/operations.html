@@ -38,7 +38,7 @@
 <li>Ordinary catalog inspection requires only read access to the app bundle and the user's Application Support directory.</li>
 <li>Installing the per-user runtime writes to <code>~/.shared-hooks</code>, <code>~/.claude/hooks</code>, <code>~/.codex/hooks</code>, <code>~/.local/bin</code>, Git hook locations recorded by the catalog, and <code>~/Library/Application Support/Tama</code>.</li>
 <li>Registering the policy backend requests macOS approval for a privileged daemon, System Extension, Network Extension configuration, and Full Disk Access where required.</li>
-<li>Repository scan is read-only. Cleanup requires write access to the selected working tree and launches the explicitly selected local agent.</li>
+<li>Repository scan is read-only. Cleanup requires write access to the selected working tree and asks Brama's model route (the one <code>tama model check</code> reports) for each repair round; it starts no local agent executable and needs none installed.</li>
 <li>Tama never requires an administrator credential for catalog inspection or per-user session override files.</li>
 </ul>
 <h2>Observability</h2>
