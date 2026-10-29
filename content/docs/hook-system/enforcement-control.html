@@ -41,22 +41,32 @@ per-tool grants), <code>runtime</code> status (<code>installedReleaseId</code>, 
 <code>semanticRuntime</code> — the sequence of recent events with each <code>decision</code>, the
 <code>blockedHookId</code>, and the <code>reason</code> string. Tama only reads these records;
 invalid, legacy-v1, or stale ones are ignored.</p>
-<h2>Reminders after every tool call</h2>
-<p>The <code>remind-open-work</code> PostToolUse hook follows each tool result with a
-sentence the operator set, which the agent reads as context after every call.
-<code>tama sessions remind --session SESSION_ID --text "SENTENCE"</code> sets one
-session's sentence, given after every call while it is set;
-<code>tama sessions remind --default --text "SENTENCE"</code> sets the machine-wide
-sentence, given only while Oko holds an open task or defect for the session.
-<code>--clear</code> removes either; the command without <code>--text</code> or
-<code>--clear</code> prints the current sentence, and <code>--json</code> prints
-<code>{"scope", "sentence"}</code>. Both live in
-<code>session-control/reminders.json</code>, schema
-<code>ai.wisent.tama.reminders.v1</code>. No sentence is compiled into Tama: with
-none set the hook adds nothing. Naming both or neither of
-<code>--session</code> and <code>--default</code>, or both <code>--text</code> and
-<code>--clear</code>, is a usage error (exit 2). The hook gives the agent the
-sentence; whether the agent repeats it in its own words is not checked.</p>
+<h2>Reminder phrases after every tool call</h2>
+<p>The operator's reminder phrases are his exact sentences, each bound to the
+Oko defect whose enforcing functionality is not built yet, and to one session
+or the whole machine. The <code>remind-open-work</code> PostToolUse hook puts
+every phrase that applies to the session after each tool result, so the agent
+reads the rule it must still follow while its gate does not exist. An entry
+stops applying by itself the moment Oko records its defect repaired, and a
+register that cannot be read keeps every phrase applying, saying why in the
+phrase's place.</p>
+<p><code>tama reminder-phrase add --text "SENTENCE" --defect ID
+[--session ID]</code> adds an entry (the defect must be one Oko holds open),
+<code>tama reminder-phrase list [--json]</code> prints every entry with its
+scope, defect and whether it applies now, and <code>tama reminder-phrase remove
+--id ID</code> takes one out. Tama Desktop answers the same operations through
+<code>tama request reminder-phrase/…</code>. The list lives in
+<code>session-control/reminder-phrases.json</code>, schema
+<code>ai.wisent.tama.reminder-phrases.v1</code>; the sentence the older
+<code>tama sessions remind</code> kept is migrated into it. No sentence is
+compiled into Tama: with none applying, the hook adds nothing.</p>
+<p>The <code>block-missing-reminder-phrase</code> PreToolUse gate checks the
+agent's own words: the text it writes since the previous tool result must
+contain each applying sentence verbatim — case, white space and Polish
+diacritics aside — or the next call is refused with the sentences to repeat.
+The window is read from the harness transcript the payload names, in every
+harness's shape (OMP, Claude Code, Codex, Jeden); a transcript that cannot
+be read refuses naming why, except in the operator's own terminal.</p>
 
 <h2>The operator's rules after every compaction</h2>
 <p>A compaction replaces a session's earlier conversation with a summary, and the

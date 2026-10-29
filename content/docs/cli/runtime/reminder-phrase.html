@@ -1,0 +1,41 @@
+<h1><code>tama reminder-phrase</code></h1>
+<p>The operator's reminder phrases: his exact sentences, each bound to the Oko defect whose
+repair makes it no longer needed. The <code>remind-open-work</code> hook puts every applying
+phrase after each tool result, and the <code>block-missing-reminder-phrase</code> gate refuses
+a call whose window of the agent's own text since the previous tool result holds a missing
+phrase, with the phrases to repeat.</p>
+<h2>Invocation</h2>
+<pre><code>tama reminder-phrase add --text &lt;SENTENCE&gt; [--defect &lt;ID&gt;] [--session &lt;ID&gt;] [--json]
+tama reminder-phrase list [--json]
+tama reminder-phrase remove --id &lt;ID&gt; [--json]
+</code></pre>
+<h2>Adding</h2>
+<p><code>add</code> takes the operator's exact sentence — it is repeated and demanded verbatim,
+case, white space and Polish diacritics aside — and binds it to the Oko defect named with
+<code>--defect</code>, which must be one Oko holds open (a full id or the short form Oko
+prints), so the entry stops applying by itself when Oko records that defect repaired.
+<code>--session</code> limits the phrase to that session; without it the phrase applies on the
+whole machine. The same sentence twice for one scope is refused rather than kept twice.</p>
+<p>Every entry carries the authority it stands on. The operator's phrase names his words with
+<code>--operator-quote</code> (the sentence itself when none is named); a rule Oko generates
+for a recurring defect class is added with <code>--by-oko --generated-by &lt;WHAT GENERATED
+IT&gt;</code>, standing on its defect, so an Oko-added rule is told from the operator's own
+words at a glance and cannot be added without its defect. The sentence the older
+<code>tama sessions remind</code> kept in <code>session-control/reminders.json</code> is
+migrated into the list the first time it is read: one machine entry for the default sentence
+and one session entry per session's own.</p>
+<p><code>list</code> prints one row per entry: its id, its scope (<code>machine</code> or
+<code>session &lt;ID&gt;</code>), the defect it is bound to, its source (the operator's quote,
+or what generated an Oko rule), the sentence, and whether it applies now — <code>applies</code>,
+or <code>repaired: no longer applies</code> once Oko records its defect repaired. While Oko's
+open-defect register cannot be read, every entry applies and the row saying so names the cause.
+<code>--json</code> prints
+<code>{"entries": [{"id", "sentence", "defect", "session", "source", "applies"}], "unread"}</code>.
+<code>remove --id</code> takes one entry out; an id no entry holds is refused with exit
+<code>1</code>.</p>
+<h2>State</h2>
+<p>The list lives in <code>session-control/reminder-phrases.json</code>, schema
+<code>ai.wisent.tama.reminder-phrases.v1</code>. Tama Desktop answers the same operations
+through <code>tama request reminder-phrase/list|add|remove</code> with the same refusals.
+See <a href="/docs/hook-system/enforcement-control/">enforcement control</a> for how the
+hook and the gate read it.</p>

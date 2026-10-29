@@ -85,6 +85,16 @@ fields declare a defect, a task and repositories for the selected session, and
 <a href="../../cli/task/scope/">tama task scope</a> through
 <code>tama request task-scope/…</code>, and a refusal is shown in the command's own words.
 Another session that declared the same defect is shown as <code>Also declared</code>.</p>
+<h2>Reminder phrases</h2>
+<p>Below the Task scope panel, the Reminder phrases panel lists the operator's
+sentences put after every tool result and demanded in the agent's own text, each
+with its scope, the Oko defect whose repair drops it, the authority it stands on
+(his words, or an Oko rule generated for a recurring defect class) and whether it
+applies now. Its fields add a sentence (bound to an open Oko defect, for the
+selected session or the whole machine) and remove one by its id, through
+<code>tama request reminder-phrase/…</code> — the same reading and refusals as
+<a href="../../../docs/cli/reminder-phrase">tama reminder-phrase</a>, shown in
+the command's own words.</p>
 <h2>Session capability</h2>
 <p>The signed authorisation the session holds for privileged tool use
 (<a href="../concepts/capability.md">concepts/capability</a>): Lifetime, Expires at
