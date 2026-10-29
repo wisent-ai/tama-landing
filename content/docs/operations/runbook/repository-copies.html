@@ -100,6 +100,18 @@ git push
 <p>The merge leaves unrelated uncommitted files where they are and refuses, naming the file, only
 when both sides changed the same one. Reading or restoring a stash that already exists passes:
 <code>git stash list</code>, <code>git stash show -p stash@{N}</code>, <code>git stash apply stash@{N}</code>.</p>
+<h2><code>BLOCKED: a branch or a pull request opens a second line of work beside main, and bringing it back is a merge made blind to what other sessions did meanwhile. …</code></h2>
+<p>From the same hook, when the command is <code>git branch &lt;name&gt;</code> that starts a branch
+(a name under no list, delete, rename or upstream option, or <code>-c</code>, <code>-C</code>,
+<code>--copy</code>), <code>git checkout -b|-B|--orphan</code>, <code>git switch
+-c|-C|--create|--force-create|--orphan</code>, or <code>gh pr create</code>. No branch was made and
+nothing was published.</p>
+<p>The ban exists because a repository has one line of work, <code>main</code>, in its one checkout.
+Work parked on a branch drifts from <code>main</code>, and bringing it back is a merge made without
+reading what other sessions did meanwhile; a bulk merge of that kind destroyed their work. Commit
+your own paths on <code>main</code> and deliver as above. Switching to a branch that already exists,
+listing branches, renaming and deleting one still pass, so stray branches can be brought back
+change by change and removed.</p>
 <h2><code>tama worktrees does not know the worktree &lt;path&gt;; --except takes the path of a worktree this pass would otherwise remove.</code></h2>
 <p>From <code>tama worktrees remove</code>, exit <code>2</code>, when a value you passed to
 <code>--except</code> matches no worktree the pass would otherwise consider.

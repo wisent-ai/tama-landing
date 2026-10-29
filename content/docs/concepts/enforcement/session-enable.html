@@ -104,6 +104,15 @@ hook ran once its process existed) and <code>startMs</code> (how long it took to
 supervisor spawned and its lifetime and dispatch registered). A dispatch whose
 <code>runningMs</code> is far above every <code>ms</code> is slow in starting its hooks, and
 <code>startMs</code> says which ones; one slow <code>ms</code> names the slow gate.</p>
+<p>Each dispatch is timed on the adapter's side by stage: <code>queued</code>, waiting behind whatever
+holds the shared runtime, and <code>core</code>, the round trip to Tama's core. A dispatch is listed in
+<code>inFlightDispatches</code> from the moment it is asked, a queued one included, with
+<code>stages</code> (each stage's <code>tookMs</code>), the <code>stage</code> it is in,
+<code>inStageForMs</code> and <code>slowestStage</code>; <code>lastDecision.timing</code> carries the
+same for the last dispatch that finished. Inside the core, <code>runningHooks.dispatchStages</code>
+names each core stage (request read, runtime lock, registry refresh, session state, hooks started
+and ended) and its <code>slowestStage</code>, so the stage that took the time between dispatch and
+decision is named on both sides.</p>
 <h2>Where it surfaces</h2>
 <ul>
 <li>The <strong>Session</strong> screen renders the live record and can request one-hook or

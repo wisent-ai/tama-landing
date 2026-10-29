@@ -1,0 +1,54 @@
+<h1>Conduct gates: clipboard and screen, quotations, hung tools, uncleanable writes</h1>
+<p>Four gates hold rules the operator gave in words and sessions walked through. Each reads the call
+or the session transcript without a model, a network request or a lock, and each passes when what it
+reads cannot be read, saying why on standard error. Three of them admit one exact call on the
+operator's own words, recorded with
+<a href="/docs/cli/justify/"><code>tama justify record</code></a> as an
+<a href="/docs/operator-grants/">operator grant</a>.</p>
+
+<h2><code>block-operator-screen</code></h2>
+<p>A blocking <code>pre_tool_use:bash</code> gate. It refuses a shell line that runs
+<code>pbcopy</code> (writes the clipboard), <code>open</code> (hands a file, folder, URL or application to
+the desktop to show) or <code>qlmanage</code> (shows a Quick Look preview), read by the words the shell
+runs and through any shell handed a line (<code>bash -c '…'</code>). Text that only names those programs
+— an argument, a quoted sentence — is no call.</p>
+<p>The clipboard and the screen are the operator's. What a session needs from him goes through
+<code>oko asks ask</code>, where his answer is recorded; what it made for him stays a file in the
+checkout. Grant kind: <code>screen</code>, for the exact command.</p>
+<pre><code class="language-text">BLOCKED: the operator's clipboard and screen are not the session's: this line runs `pbcopy`. …</code></pre>
+
+<h2><code>block-unfound-quotes</code></h2>
+<p>A blocking <code>stop</code> gate. Every quoted passage of the ending answer — two or more words
+between <code>"…"</code>, <code>„…”</code>, <code>“…”</code> or <code>«…»</code>, with code blocks and
+inline code set aside — must stand in the session transcript outside the agent's own messages: in the
+operator's messages, the assignment, or a tool result that read them. Comparison is in lower case with
+whitespace collapsed; a passage with an elision (<code>…</code>) is checked fragment by fragment.</p>
+<p>A quotation claims the words were written as quoted. Words attributed to the operator are quoted
+from his message as it stands, after reading it, or not attributed at all; text the agent proposes goes
+in backticks. The gate cannot see a decision attributed to him without quotation marks; the same rule
+covers it.</p>
+<pre><code class="language-text">BLOCKED: block-unfound-quotes: this answer puts in quotation marks words that stand nowhere in this session outside your own messages: „…”. …</code></pre>
+
+<h2><code>block-repeat-hung-call</code></h2>
+<p>A blocking gate on <code>pre_tool_use:eval</code> (every tool a harness does not name otherwise,
+such as the context advisor and web search) and <code>pre_tool_use:lookup</code>. It refuses calling a
+question-answering tool again when one of its calls in this session ended in error after running
+longer than every call the session completed without error. No duration is configured: the
+session's own call and result times are the measure, so a quick failure never counts as a hang. Shell,
+evaluation, process, file and wait tools are never held by it.</p>
+<p>A tool that hung once hangs again for the same reason; reach the answer another way (read the code
+directly) and repair the hang as its own defect. Grant kind: <code>hung-call</code>, with the tool's
+name as the action.</p>
+<pre><code class="language-text">BLOCKED: block-repeat-hung-call: `context_recommend` already hung in this session: …</code></pre>
+
+<h2><code>block-uncleanable-writes</code></h2>
+<p>A blocking gate on the file tools (<code>pre_tool_use:write</code>, <code>edit</code>,
+<code>notebook</code>, <code>multiedit</code>). It refuses creating a file under
+<code>~/Documents</code> that no session could remove again: outside every checkout, or at a path the
+checkout's Git ignores outside its <code>.build/</code> and <code>target/</code> — the only places
+<a href="/docs/operator-grants/"><code>block-unauthorized-deletion</code></a> lets an
+agent delete. A new file belongs at a path its checkout keeps, to be committed, or in the ignored build
+output. An existing file is edited where it stands; a path outside <code>~/Documents</code> is other
+gates' concern. Git answers both questions (<code>git rev-parse --show-toplevel</code>,
+<code>git check-ignore</code>). Grant kind: <code>uncleanable-write</code>, for the exact path.</p>
+<pre><code class="language-text">BLOCKED: block-uncleanable-writes: /…/Documents/notes.md lies in Documents outside every checkout. …</code></pre>

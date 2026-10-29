@@ -1,0 +1,13 @@
+<h1>The operator's language: <code>block-foreign-language-reply</code></h1>
+<p>An agent answers the operator in his language, in plain human sentences. <code>tama hook block-foreign-language-reply</code> is a Stop gate that refuses an answer in English to an operator who writes Polish.</p>
+<h2>How the language is read</h2>
+<p>No word list and no model decide which language a text is in; the alphabet does. English is written in ASCII letters alone, and Polish, like every language spelled with letters beyond ASCII, cannot be written at any length without them.</p>
+<ul>
+<li>The operator writes such a language when a word of his own messages in his session carries a letter beyond ASCII. He often types without them, but not in every message of a session.</li>
+<li>The answer is in it when a word of its own prose does. Its prose leaves out fenced code, code spans, every token that holds anything but letters (a path, an identifier, a number) and every line the operator wrote himself, so his own sentence repeated back is not read as the agent's language.</li>
+</ul>
+<p>An answer whose prose has words and none of them carries such a letter, to an operator whose words do, is refused:</p>
+<pre><code>block-foreign-language-reply: BLOCKED: this answer is not written in the operator's language: his words carry letters beyond ASCII and none of the &lt;n&gt; words the answer writes itself has one, so it answers in another language than his (English to a man who writes Polish). Write it again in the language of his messages, in plain human sentences; code, paths and names stay as they are.</code></pre>
+<p>A subagent's session, whose answers go to its supervisor and not to the operator, is not judged; neither is a session whose operator never used such a letter. A transcript that cannot be read refuses nothing and says so on stderr. No model, no network, no lock.</p>
+<h2>Selection</h2>
+<p>The gate is declared and registered but not selected: it runs once the operator adds it to the enforcement selection (<a href="/docs/enforcement-control/">enforcement control</a>).</p>

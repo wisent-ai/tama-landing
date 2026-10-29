@@ -233,12 +233,12 @@ the new module is imported first, then the old adapter's
 <code>session_shutdown</code> handlers run, the new adapter registers itself and its
 <code>session_start</code> handlers run with the reload's context. The reload then
 reports <code>Loaded the installed OMP adapter &lt;digest&gt; in place of
-&lt;digest&gt;</code> before the engine's own answer, so a gate added in a new Tama
-release (such as <code>block-text-outside-tool-calls</code> on
-<code>before_provider_request</code>) runs in an open session without restarting OMP.
-An adapter that fails to import or register is refused with
-<code>Tama could not reload its OMP adapter: &lt;reason&gt;</code>, and the adapter
-already loaded keeps running.</p>
+&lt;digest&gt;</code> before the engine's own answer. Every operator prompt runs the
+same comparison before the adapter sees the prompt and shows that sentence in the
+session's window, so a gate added in a new Tama release (such as
+<code>block-text-outside-tool-calls</code> on <code>before_provider_request</code>)
+runs in every open session from its next prompt, with no tool call and no restart.
+An adapter that fails to import or register is refused with <code>Tama could not reload its OMP adapter: &lt;reason&gt;</code>, and the adapter already loaded keeps running.</p>
 <p>The shell also exposes the same adoption to the adapter's validated
 <code>reload-adapter</code> session-control operation. Use
 <code>tama sessions reload --session ID --json</code> or
@@ -278,16 +278,22 @@ checks these turns, but it does not prevent streamed prose from appearing.
 Provider acceptance, prevention of prose, and completion enforcement are
 separate outcomes; a successful model request does not prove all three.</p>
 <p>The same handler gives every model request the contracts Jeden installed most
-recently. <code>jeden contracts install --omp</code> writes them between the lines
+recently. <code>jeden contracts install --file ~/.omp/agent/APPEND_SYSTEM.md</code>
+writes them between the lines
 <code>&lt;!-- jeden contracts: start --&gt;</code> and <code>&lt;!-- jeden contracts: end --&gt;</code>
-in <code>~/.omp/agent/APPEND_SYSTEM.md</code>, and OMP appends that file to a session's
+in that file, and OMP appends it to a session's
 system prompt once, when the session starts, so a contract changed later reached no
 running session. The adapter (<code>shared-hooks/omp/installed-contract.mjs</code>)
 reads the file's marked block on each request and puts it in place of the marked
-block the request carries, wherever that block sits in the payload; a request with
-no marked block, or a file without one, goes unchanged. A file that exists and cannot
+block the request's system text carries: the <code>system</code>,
+<code>instructions</code> and <code>systemInstruction</code> fields (the last also
+under <code>config</code>), and the <code>system</code> and <code>developer</code>
+turns of <code>messages</code> and <code>input</code>. A tool result or message that
+quotes both markers, such as a read of the source that writes them, reaches the
+model unchanged. A request with
+no marked block in its system text, or a file without one, goes unchanged. A file that exists and cannot
 be read sends the request under the session's own copy and prints
 <code>Tama cannot read the installed contracts &lt;path&gt;: &lt;reason&gt;; this model
 request keeps the contracts its session started with</code> on stderr.
-<code>jeden contracts status --omp</code> names the sessions that started before the
-file was last written.</p>
+<code>jeden contracts status --file ~/.omp/agent/APPEND_SYSTEM.md</code> says whether
+the installed block is the one the Jeden binary renders now.</p>

@@ -27,11 +27,21 @@ screen renders it as <code>every action</code> in the TOOL/ACTIONS table.</p>
 <p>The session, from inside itself. In an OMP session the bundled adapter
 (<code>~/.shared-hooks/omp-shared-hooks.js</code>) exposes
 <code>tama_request_session_capability</code>, described in its own tool text as
-authorizing &quot;exact tool/action grants for one invocation, a stated
-expiration, or the current OMP session&quot;. The request is part of the hook
-runtime's control plane, not of Tama: the supervisor and its policy decide
-whether a grant is issued, and the resulting capability appears in the next
-session record Tama polls.</p>
+authorizing &quot;exact tool/action grants for one invocation or for the whole
+current OMP session&quot;. An agent asks for <code>single-use</code> or
+<code>current-session</code> only: it never picks an expiry time, since a session
+that asked for &quot;tomorrow 18:30&quot; put a deadline nobody stated on a consent the
+operator gave for good. A held grant with an expiry still reads as before. The
+request is part of the hook runtime's control plane, not of Tama: the supervisor
+and its policy decide whether a grant is issued, and the resulting capability
+appears in the next session record Tama polls.</p>
+<p>The operator answers the request in the session's own window or in an Oko ask
+sent at the same moment (Oko Desktop, his phone, his watched terminals), whichever
+he reaches first: the ask offers <code>approved</code> and <code>declined</code>, and
+<code>oko asks answer &lt;id&gt; --approve</code> records <code>approved</code>. The place he
+did not answer is closed — the window's question dismissed, or the ask withdrawn —
+and the tool result says where he answered. An Oko that cannot record or wait on
+the ask leaves the window as the only place, and the result names why.</p>
 <h2>Issued by the operator's ruling</h2>
 <p>The operator can issue a capability to one session he names by a ruling, with no window and no
 ask: <code>oko rulings record --session S --subject capability:&lt;tool&gt;[:&lt;action&gt;]@session:&lt;ID&gt;

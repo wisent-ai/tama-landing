@@ -14,6 +14,12 @@ itself unblocks — an open blocker that names it and waits (<code>oko blockers 
 --waits-on</code>) on a defect whose repair is pushed — is not waited on;
 <code>oko blockers held</code> lists those items, and the stop gate
 (<code>block-stop-with-open-work</code>) holds exactly the same ones.</p>
+<h2>A build serves the session's task</h2>
+<p>When the session declared the repositories its task touches (<code>tama task scope set
+--repository</code>), a build of any other product is refused unless the operator's own word admits
+it: his build consent in this conversation or a standing ruling consenting to that product. The
+refusal names the products outside the task and the repositories the task touches; a session builds
+what its task changes, and never asks the operator for a build of another product.</p>
 <h2>The session's own build attestation comes first</h2>
 <p>Before any consent or ruling is read, every build, compile, format or test the gate knows —
 <code>cargo build</code>, <code>cargo test</code>, <code>cargo check</code>, <code>cargo

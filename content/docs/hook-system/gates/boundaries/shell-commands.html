@@ -20,6 +20,18 @@ detected</code>; journey <code>pre_bash_remote_constants</code>).</li>
 </ul>
 <p>Hook bypass on commit and push (<code>--no-verify</code>, <code>commit -n</code>) is
 <code>block-git-hook-bypass</code>'s, which runs beside <code>pre-bash</code> on every shell call.</p>
+<h2>Programs the operator forbade</h2>
+<p>A program the operator forbade every session is his standing ruling <code>no-run:&lt;program&gt;</code> in Oko's
+ruling register, never a list here; it stands only when the words the ruling quotes name the program
+(<code>no-run:grep</code>, <code>no-run:jq</code>). <code>pre-bash</code>
+refuses a command that runs one wherever on the line it runs: in a pipeline, a substitution, the line a wrapper or a
+shell's <code>-c</code> hands on, and as a Git subcommand, which runs the program Git names it by
+(<code>git grep word</code>, <code>git -C &lt;path&gt; grep word</code> under <code>no-run:grep</code>; <code>git log
+--grep word</code> runs <code>log</code>). It runs on the harness's search tools too and refuses a tool named as
+such a program (the <code>grep</code> tool under <code>no-run:grep</code>): <code>BLOCKED: the operator forbade the
+tool `grep` (ruling &lt;id&gt;: "&lt;his words&gt;")</code>, then the route — read the file whole, or ask the
+product's own command for what it holds. A register that cannot be read refuses with its cause. Journey:
+<code>pre_bash_forbidden_programs</code>.</p>
 <h2>Another session's uncommitted work</h2>
 <p>Every repository has one checkout and several sessions edit it at once. A Git command that discards what stands
 in the working tree, <code>git restore &lt;path&gt;</code> (without <code>--staged</code> alone),

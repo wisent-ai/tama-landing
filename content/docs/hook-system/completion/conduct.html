@@ -59,6 +59,13 @@ the write gate reads a file in that language with, so a sleep is named once for 
 with the shell sleep refusal followed by <code>Line &lt;n&gt; of this eval cell: &lt;the write gate's refusal&gt;</code>.
 A cell whose code cannot be read in its language refuses with <code>BLOCKED: whether this eval cell only passes
 time cannot be read: &lt;cause&gt;</code>.</p>
+<p>A shell line that only watches another process end is a wait too: <code>gh run watch</code>,
+<code>gh pr checks --watch</code> and <code>stado job watch</code>, declared beside <code>oko asks wait</code> in the
+gate's <code>operator_waits.json</code> with <code>until: process</code>. Such a line is refused with
+<code>BLOCKED: this call only blocks until &lt;what it watches&gt;: watching another process end is a wait, not
+work, and the operator called it fake waiting. …</code>; one status read of the same thing
+(<code>gh run view</code>, <code>stado job status</code>) passes. Real journey
+<code>tests/operator-waits/watchers.rs</code>.</p>
 <h3>Every call serves a task</h3>
 <p><code>block-unclaimed-calls</code> refuses a tool call while the session holds no work: no open defect
 Oko's register records it as owning, and no task or defect it declared it serves with

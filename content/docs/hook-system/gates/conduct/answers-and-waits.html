@@ -1,0 +1,59 @@
+<h1>Answering first, measured time, deadlines and local model servers</h1>
+<p>These gates hold rules the operator gave about how an agent works: his question is answered before anything
+else runs, a duration is read and never guessed, no call carries a deadline, a wait on another process is not work,
+a change is checked by reading it back, and no local model server stands in for a reviewer. Each decides without a
+model, without the network and without a lock; each lets one exact shell command through on the operator's own words,
+recorded with <a href="/docs/cli/justify/"><code>tama justify record</code></a>. None is selected by
+default: the operator selects them.</p>
+
+<h2><code>block-calls-before-answer</code></h2>
+<p>A gate on every tool. It reads what the operator's newest message is from Oko's current open-work snapshot of the
+session (<code>newestMessage.kind</code>, the reading <code>block-text-outside-tool-calls</code> already lets an answer
+through on) and never classifies his words itself:</p>
+<ul>
+<li><code>question</code>: every call is refused until an assistant message carrying words stands after his message in
+the session's transcript. Once the session has answered him, the work goes on.</li>
+<li><code>order</code> — a message that stops or restricts the work for this turn, such as <em>nie koduj</em> or a tool
+ban: every call is refused until he writes again. The turn's answer is words, which the text gate lets through.</li>
+<li><code>defect</code> — he reports that something delivered is broken or wrong: every call but Oko's own is refused
+until a successful call after his message ran <code>oko defects</code> on one defect — <code>record</code> a new one, or
+<code>show</code>, <code>assign</code> or <code>reopen</code> the one it already is; a listing alone is not that. His
+report is taken as a defect before the session's own plan, never denied or carried past.</li>
+</ul>
+<p>A snapshot that is missing, not current or unreadable, a message Oko reads as anything else, and a transcript that
+cannot be read decide nothing. The refusal quotes the first line of his message. Grant kind:
+<code>before-answer</code>.</p>
+
+<h2><code>inject-measured-time</code></h2>
+<p>A <code>UserPromptSubmit</code> hook that adds, before every turn, how long the session's last stretch of work took,
+read from the times its own transcript records: from the operator's newest message with any record after it to the
+last record before his next message, and the session's whole span. Asked how long something took, the agent reads the
+figure in front of it instead of guessing. It refuses nothing; a transcript with no times adds nothing.</p>
+
+<h2>Deadlines and waits on another process (<code>block-wait-polling</code>)</h2>
+<p>Besides sleeps and repeated looks, <code>block-wait-polling</code> refuses a shell call that sets itself a deadline:
+<code>timeout</code> or Homebrew's <code>gtimeout</code> in front of a command (inside <code>bash -c</code> lines too),
+<code>sudo --command-timeout</code>, or a positive number in the call's own <code>timeout</code> field. Zero and an
+absent field pass. The operator's rule is that no deadline exists, removed and not set to zero. Grant kind:
+<code>deadline</code>.</p>
+<p>A shell line that only blocks until another process ends is refused as a wait, as <code>gh run watch</code> already
+was: <code>caffeinate -w &lt;pid&gt;</code> and <code>tail --pid</code>. <code>caffeinate</code> keeping the machine awake
+while a command does work passes.</p>
+
+<h2><code>block-local-model-server</code></h2>
+<p>A gate on <code>bash</code> calls that refuses fetching, installing or starting a model server on this machine:
+<code>ollama serve|run|pull</code>, <code>llama-server</code>, <code>vllm serve</code>, <code>mlx_lm.server</code>,
+<code>lms server start</code>, <code>text-generation-launcher</code>, <code>brew install ollama</code> and
+<code>pip install vllm</code>, as its <code>servers.json</code> declares their command paths. A push held for want of a
+model reviewer is answered by the commit's Tama attestation, which <code>tama hook review-push</code> and
+<code>tama attestation check --commit</code> read with no model. Grant kind: <code>model-server</code>.</p>
+
+<h2>A direct browser engine on the operator's word (<code>block-browser-usage</code>)</h2>
+<p>A browser still runs through Weles. The operator lifted that rule for the LSI2 checks and told the agent to run
+Playwright on this computer, so one exact shell command he granted (<code>--kind browser</code>) runs a direct engine;
+a different command, and a browser tool or device, stay refused.</p>
+
+<h2>Checking a change by reading it (<code>block-stop-without-verification</code>)</h2>
+<p>A turn that changed files ends once every changed file was read back after its own last change, besides an
+execution-class call or a recorded external blocker. The refusal asks for the change to be read and checked and never
+orders a build: the operator's rule is that nobody compiles, builds or installs their own code.</p>
