@@ -148,10 +148,14 @@ process's own when it names none).</p>
 
 <h2>What passes</h2>
 <p>Reads of the same programs (<code>stado build status</code>, <code>launchctl list</code>), help requests,
-formatting, linting, type-checking and tests that produce no product are not build commands for this gate,
+formatting, linting and type-checking that compile no product are not build commands for this gate,
 and neither is a command that only mentions a build in data, such as <code>grep 'cargo build' notes.md</code>
-or a commit message. Other gates may still refuse hand-run compilation or tests; passing this gate is not
-permission to bypass the shared build process.</p>
+or a commit message. A test run is a build: <code>cargo test</code>, <code>swift test</code>,
+<code>xcodebuild test</code>, <code>npm test</code> and a project's own test script compile the product
+and spend the machine as a build does, so each needs its registry entry and falls under the same daily
+ration and smallest-change rule (<code>builds_per_day</code>, <code>minimum_changed_lines</code>); a
+marginal change gets neither a build nor a test run. Other gates may still refuse hand-run compilation or
+tests; passing this gate is not permission to bypass the shared build process.</p>
 
 <h2>Where the refusal comes from</h2>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_unregistered_build_or_restart/mod.rs</code>,
