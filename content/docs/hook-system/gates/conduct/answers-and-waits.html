@@ -34,7 +34,7 @@ figure in front of it instead of guessing. It refuses nothing; a transcript with
 <p>Besides sleeps and repeated looks, <code>block-wait-polling</code> refuses a shell call that sets itself a deadline:
 <code>timeout</code> or Homebrew's <code>gtimeout</code> in front of a command (inside <code>bash -c</code> lines too),
 <code>sudo --command-timeout</code>, or a positive number in the call's own <code>timeout</code> field. Zero and an
-absent field pass. The operator's rule is that no deadline exists, removed and not set to zero. Grant kind:
+absent field pass: a deadline is removed, not set to zero. Grant kind:
 <code>deadline</code>.</p>
 <p>A shell line that only blocks until another process ends is refused as a wait, as <code>gh run watch</code> already
 was: <code>caffeinate -w &lt;pid&gt;</code> and <code>tail --pid</code>. <code>caffeinate</code> keeping the machine awake
@@ -49,11 +49,10 @@ model reviewer is answered by the commit's Tama attestation, which <code>tama ho
 <code>tama attestation check --commit</code> read with no model. Grant kind: <code>model-server</code>.</p>
 
 <h2>A direct browser engine on the operator's word (<code>block-browser-usage</code>)</h2>
-<p>A browser still runs through Weles. The operator lifted that rule for the LSI2 checks and told the agent to run
-Playwright on this computer, so one exact shell command he granted (<code>--kind browser</code>) runs a direct engine;
-a different command, and a browser tool or device, stay refused.</p>
+<p>A browser still runs through Weles. One exact shell command the operator granted (<code>--kind browser</code>) runs
+a direct engine; a different command, and a browser tool or device, stay refused.</p>
 
 <h2>Checking a change by reading it (<code>block-stop-without-verification</code>)</h2>
 <p>A turn that changed files ends once every changed file was read back after its own last change, besides an
 execution-class call or a recorded external blocker. The refusal asks for the change to be read and checked and never
-orders a build: the operator's rule is that nobody compiles, builds or installs their own code.</p>
+orders a build.</p>
