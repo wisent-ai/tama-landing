@@ -17,7 +17,7 @@ itself unblocks — an open blocker that names it and waits (<code>oko blockers 
 <h2>A build serves the session's task</h2>
 <p>When the session declared the repositories its task touches (<code>tama task scope set
 --repository</code>), a build of any other product is refused unless the operator's own word admits
-it: his build consent in this conversation or a standing ruling consenting to that product. The
+it: a standing ruling consenting to that product. The
 refusal names the products outside the task and the repositories the task touches; a session builds
 what its task changes, and never asks the operator for a build of another product.</p>
 <h2>The session's own build attestation comes first</h2>
@@ -61,10 +61,10 @@ this certification against the work it certifies</code>, and a round with findin
 each.</p>
 <h2>What the gate answers</h2>
 <ul>
-<li>A consent the operator gave in this conversation (the build capability of this session) is read
-first; a build it admits only asks <code>oko admit
-build</code> without a session, so a standing withdrawal still refuses it but no open work is
-read, and stderr says <code>build admitted by</code> that consent. No build is ever asked of him.</li>
+<li>No answer to a build question and no session capability <code>build</code> admits a build: no
+build is ever asked of the operator, <code>tama_request_session_capability</code> refuses a build grant
+before anything reaches his window or an Oko ask, and what he says in the conversation is read into
+his rulings.</li>
 <li>A standing withdrawal (<code>no-build</code> or <code>no-build:&lt;product&gt;</code>): the
 build is refused quoting the ruling Oko answers with, whatever else consents.</li>
 <li>A standing consent (<code>build</code> or <code>build:&lt;product&gt;</code>): the build is
@@ -84,8 +84,8 @@ Oko CLI has no register and no rulings, so nothing holds the build there.</li>
 before it waits and when it ends, so a reading that stands still names the command it stands
 on.</p>
 <h2>Qualification</h2>
-<p><code>tests/build-gate/attested.rs</code> runs the built gate with a whole-session build
-capability: a build, <code>rustfmt</code> and <code>cargo fmt</code> without an attestation are
+<p><code>tests/build-gate/attested.rs</code> runs the built gate with no session capability and
+empty registers of its own: a build, <code>rustfmt</code> and <code>cargo fmt</code> without an attestation are
 refused naming how to record one; an attestation with short explanations, or without
 <code>building_is_not_marginal</code>, is not kept and admits nothing; <code>stado product install
 &lt;product&gt; --plan</code> is not held for an attestation; a standing one admits one build and is
@@ -96,8 +96,8 @@ built <code>tama hook block-one-off-repairs</code> the way OMP's PreToolUse disp
 a signed-in host, against the installed Oko CLI with defect, blocker and ruling registers of the
 run's own (<code>OKO_DEFECT_REGISTER</code>, <code>OKO_BLOCKER_REGISTER</code>,
 <code>OKO_RULING_REGISTER</code>) holding one open defect recorded through <code>oko defects
-record</code> with no repair: without consent the build is refused naming that item; a
-whole-session build capability and a standing <code>build:&lt;product&gt;</code> ruling admit it;
-a newer <code>no-build:&lt;product&gt;</code> ruling refuses it quoting the withdrawal, even with
-the capability. Oko's own journey <code>oko/tests/constraints/open_work.rs</code> covers the rule
+record</code> with no repair: without a ruling the build is refused naming that item, and a
+whole-session build capability does not change that; a standing <code>build:&lt;product&gt;</code>
+ruling admits it; a newer <code>no-build:&lt;product&gt;</code> ruling refuses it quoting the
+withdrawal. Oko's own journey <code>oko/tests/constraints/open_work.rs</code> covers the rule
 itself, the held items and a run naming no session.</p>

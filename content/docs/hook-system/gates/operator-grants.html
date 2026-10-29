@@ -50,7 +50,7 @@ selection by name, <code>pgrep</code>; a job (<code>kill %1</code>), signal 0 an
 session (it does not descend from agent process 911)</code>.</p>
 
 <h2><code>block-unauthorized-vault-write</code></h2>
-<p>A gate on <code>bash</code>, <code>edit</code>, <code>multiedit</code> and <code>notebook</code> calls that refuses a
+<p>A gate on <code>bash</code>, <code>eval</code>, <code>ssh</code>, <code>edit</code>, <code>multiedit</code> and <code>notebook</code> calls that refuses a
 change to a live secret store: a file tool writing a <code>*.vault.json</code>,
 <code>*acquisition-scopes.conf</code>, <code>*-skarbiec-token</code> or <code>*skarbiec.audit.jsonl</code> outside a
 temporary folder; a <code>skarbiec</code> subcommand that changes stored material (<code>set</code>,
@@ -60,8 +60,38 @@ temporary folder; a <code>skarbiec</code> subcommand that changes stored materia
 <code>migrate</code>, <code>item put|delete|restore|reclaim|rename|upgrade</code>, <code>item retag --tags</code>,
 <code>token mint|sync|register</code>, <code>scopes sync</code>,
 <code>grant add|consolidate|rebind|revoke|renew</code>, <code>vault sync</code>, <code>vault retire|move --apply</code>,
-<code>seed enrol</code>). Reading a store is never gated. The refusal begins
-<code>BLOCKED: unauthorized vault write:</code>.</p>
+<code>seed enrol</code>). The commands are read on every route a call runs one by: a <code>bash</code> line, the
+remote line an <code>ssh</code> tool call runs on another host, and the shell lines an <code>eval</code> program hands a
+shell (<code>bash -c '…'</code> inside the code), so neither route carries a change the shell would be refused
+(journey <code>tests/vault-write/routes.rs</code>, target <code>vault_write_routes</code>). Reading a store is never
+gated. The refusal begins <code>BLOCKED: unauthorized vault write:</code>.</p>
+
+<h2>More gates on the operator's word</h2>
+<p>Three gates, declared and not selected, admit one exact call on a grant of the same registry:</p>
+<ul>
+<li><code>block-osascript</code> (<code>--kind osascript</code>) refuses a <code>bash</code>, <code>eval</code>,
+<code>hub</code> or REPL call that runs <code>osascript</code>, read from the words the call runs and through any
+shell handed a line: AppleScript drives the operator's applications outside every other gate, and driving one goes
+through the CUA route he grants. Text that only names the program passes. Journey
+<code>tests/osascript/refusal.rs</code>.</li>
+<li><code>block-consent-switches</code> (<code>--kind consent-switch</code>) refuses a call that sets a variable Tama
+reads as the operator's own consent or as turning its gates off — <code>DEVICE_HOOK_EDIT_APPROVED</code>,
+<code>DEVICE_LEVEL_TESTS_APPROVED</code>, <code>DEVICE_SUBAGENT_SPAWN_APPROVED</code>,
+<code>DEVICE_LEVEL_AUDITS_APPROVED</code>, <code>LOCAL_MODEL_TRAINING_APPROVED</code>,
+<code>TAMA_CLEAN_DISABLED</code>, <code>AGENT_STRUCTURED_CAPABILITY</code>, <code>TAMA_DISABLED_HOOKS</code>,
+<code>TAMA_ONLY_HOOK_ID</code> — as a command prefix, an <code>env</code> operand, through
+<code>export</code>, <code>declare</code>, <code>typeset</code>, <code>setenv</code> or <code>launchctl</code>, or
+named in an evaluated program. The variables stay the operator's, set in his own shell; an agent's consent is his
+word recorded as a session capability or a grant. Reading one (<code>echo $NAME</code>) passes. Journey
+<code>tests/consent-switches/refusal.rs</code>.</li>
+<li><code>block-unowned-failures</code> (<code>--kind unowned-failure</code>, its action the failed command line), a
+Stop gate, refuses ending a turn while a call of a Wisent product (a program named as a workspace repository or the
+product its <code>.wisent-release.json</code> declares) failed or never answered since the operator's newest
+message, has not succeeded since, and no open defect in Oko's snapshot binds it. The way out is the repair, or
+<code>oko defects record … --blocks</code> and <code>tama task scope set --defect</code>. The hook runner keeps such
+a failure after the session changes a file (marked <code>changed</code>, and no longer refused as a repeat), so a
+write no longer forgets it. Journey <code>tests/unowned-failures/stop.rs</code>.</li>
+</ul>
 
 <h2>The grant</h2>
 <p>All three read <code>~/.shared-hooks/operator_action_grants.json</code> (schema

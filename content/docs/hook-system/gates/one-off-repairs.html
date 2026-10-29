@@ -6,7 +6,7 @@ Each refusal appears as a <code>{"decision":"block","reason":"…"}</code> docum
 and repeats its reason on stderr. The dispatcher ends normally after that decision;
 a nonzero exit without a decision is a hook failure, not a policy refusal.
 The harness prevents the proposed command from running. An ordinary allowed command
-prints nothing; an admitted build may report consumption of its recorded capability.</p>
+prints nothing.</p>
 <h2>Why it exists</h2>
 <p>Oko's one-off repair detector (<code>oko transcripts one-offs</code>) reads the native harness files
 and counts commands that changed live state by hand instead of through a product path: service cycles,
@@ -48,10 +48,12 @@ no answer of its own and does not execute the command being judged.</p>
 needs the session's own build attestation and asks Oko's one admission
 decision, <code>oko admit build --product &lt;product&gt; --session &lt;id&gt;
 --json</code>, for each product the command builds. A standing withdrawal
-refuses the build quoting the ruling; a standing consent or a recorded
-<code>build</code> session capability admits it; where neither decides, Oko
-holds it until every open item carries its repair. No build is ever asked of
-the operator. <a href="/docs/enforcement-control/completion/build-gate/">How the
+refuses the build quoting the ruling; a standing consent admits it; where
+none decides, Oko holds it until every open item carries its repair. No
+answer to a build question and no <code>build</code> session capability
+admits a build: no build is ever asked of the operator, and
+<code>tama_request_session_capability</code> refuses a build grant before
+anything reaches his window or an Oko ask. <a href="/docs/enforcement-control/completion/build-gate/">How the
 build gate decides a build</a> gives the whole decision and its refusals.</p>
 <p>Checking whether any defect remains open reads no Git history. The text
 gate, stop gate and open-work listing read Oko's open selection directly. Each
@@ -161,8 +163,8 @@ then build once over all of it. One item is not waited on: an item whose repair 
 refuses while the refuser's own repair is pushed, so the build is what unblocks it. Record that with an open
 blocker naming the item that waits on the refuser's defect (<code>oko blockers record --blocks '&lt;item&gt;: …'
 --waits-on &lt;defect&gt;</code>); <code>oko blockers held</code> lists the items held so. A standing ruling of
-the operator decides before the open-work rule; his consent in this conversation, recorded as the Tama session
-capability <code>{"tool": "build"}</code>, admits a build that rule holds. There is no build-consent ask, and
+the operator decides before the open-work rule; nothing else admits a build that rule holds, no session
+capability <code>{"tool": "build"}</code> included. There is no build-consent ask, and
 the refusal tells the agent never to ask the operator for a build, neither through his window nor
 through an Oko ask: what he says in the conversation is read into his rulings, and a build no ruling admits
 waits; while the installed Oko cannot answer the admission, the build waits as well.</td></tr>

@@ -270,13 +270,23 @@ once) whose answer decides the next request. For an OpenAI function-tool payload
 a refusal sets <code>tool_choice: "required"</code>. Before the first answer,
 that supported request shape is also forced. A request decided while work just
 closed can therefore require a tool once more.</p>
-<p>Anthropic Messages requests are not forced: models that reject
-<code>tool_choice</code> types <code>any</code> and <code>tool</code> would
-otherwise fail before doing any work. Unrecognized tool shapes also remain
+<p>An Anthropic Messages request is forced only for a model OMP declares able to
+take a forced tool call (<code>compat.supportsForcedToolChoice</code> of the
+request's model, read from the handler's context): a refusal sets
+<code>tool_choice: {"type": "any"}</code> and removes <code>thinking</code>, which
+Anthropic refuses beside a forced tool call, and every <code>clear_thinking_*</code>
+context edit, which it refuses once thinking is off; the other context edits
+stay. A model OMP declares unable to take one — Claude Fable and Mythos 5 answer
+HTTP 400 <code>tool_choice: type tool and any are not supported for this model</code>
+— keeps its request unchanged, so its session is not stopped by the provider,
+and stderr names the model and why; in a session with a window its prose is cut
+off at the first streamed words. Unrecognized tool shapes also remain
 unchanged, with the limitation reported on stderr. The completion gate still
 checks these turns, but it does not prevent streamed prose from appearing.
 Provider acceptance, prevention of prose, and completion enforcement are
-separate outcomes; a successful model request does not prove all three.</p>
+separate outcomes; a successful model request does not prove all three.
+<code>tests/text-gate/forced-request.mjs</code>, run with Bun, checks the forced
+request against every Anthropic model OMP bundles.</p>
 <p>The same handler gives every model request the contracts Jeden installed most
 recently. <code>jeden contracts install --file ~/.omp/agent/APPEND_SYSTEM.md</code>
 writes them between the lines

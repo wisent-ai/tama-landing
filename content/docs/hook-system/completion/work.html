@@ -163,11 +163,24 @@ generation cannot authorize prose. The ledger read does not consume the
 harness's provider-handler budget. One answer passes whatever is open: while the operator's newest message reads as a question in Oko's current open-work snapshot (<code>newestMessage.kind</code>), the gate lets the answer through; an unread message, another kind, or a snapshot that is missing or not current leaves it refusing as before.
 For supported OpenAI function-tool payloads, an open-work refusal sets
 <code>tool_choice: "required"</code>; this shape is also forced before the first answer.
-Anthropic requests and unsupported or absent tool shapes are not forced: they are
-sent unchanged with the limitation on stderr. Their Stop gate still checks completion,
+An Anthropic request is forced with <code>tool_choice: {"type": "any"}</code>, thinking and
+<code>clear_thinking</code> edits removed, for a model OMP declares able to take a forced tool call;
+the request of a model that refuses one (Claude Fable and Mythos 5), and unsupported or absent tool
+shapes, are sent unchanged with the limitation on stderr. Their Stop gate still checks completion,
 but it runs after text may already have streamed and cannot retract that text.
 Provider acceptance, prevention of streamed prose and refusal of completion are separate outcomes;
 none is established merely by a published source revision. See <a href="/docs/enforcement-control/runtime/adapters/">the adapter contract and its limitations</a>.</p>
+<p>A refusal over open defects names the next one no session works on: the first open defect, in
+the order Oko's open-defect snapshot keeps them, with no repair recorded and no owner but the
+session, with the <code>oko defects assign &lt;id&gt; --owner &lt;session&gt;</code> that takes it,
+and says that items waiting on a build, an install, a commit or a review are no reason to stop and
+no reason to ask the operator for a build; when that defect's notes (<code>oko defects show
+&lt;id&gt;</code>) say another session already wrote its repair, the session assigns it there with
+<code>--take</code> and takes the next. A session whose own items all waited looped on the refusal
+instead of writing code. Its one-line repeat on Stop names the same <code>oko defects assign</code>
+command, or <code>oko defects list</code> when every open defect has its repair or another owner.
+<code>tests/text-gate/unwritten.rs</code> drives the built hook over a copy of this machine's Oko
+snapshot.</p>
 <p>For sessions outside the executor role policy above, any executable task
 still marked <code>not done</code> in any session blocks completion,
 and every defect that records no fixing revision blocks it too: of every product, unless the
@@ -236,14 +249,13 @@ list --kind build</code> lists the consents that stand from <code>oko rulings co
 conversation (SSH, a local browser, hook edits) is never read from rulings. The real journey is
 <code>tests/build-gate/standing.rs</code>. No build is ever asked of the operator: there is no build-consent
 ask, and the refusal tells the agent never to ask him through his window or an Oko ask
-(<code>tests/build-gate/consent_ask.rs</code>). When he gives his consent in the conversation himself, the
-agent records it as the Tama session capability <code>{"tool": "build", "actions": ["&lt;product&gt;"]}</code>
-(or <code>{"tool": "build"}</code> for any product) with the lifetime he named —
-<code>single-use</code>, <code>expires-at</code> or <code>current-session</code> — and the gate lets
-a build through whose arguments name a granted product. For <code>cargo</code> the product is the
+(<code>tests/build-gate/consent_ask.rs</code>), and no session capability <code>build</code> admits a
+build either: <code>tama_request_session_capability</code> refuses that grant before anything reaches
+him, and a ruling he gives in the conversation is the one word that admits a build. For a standing
+ruling naming a product, the product a build is of is read this way. For <code>cargo</code> the product is the
 checkout the command builds in — the one holding its <code>--manifest-path</code>, else the directory
 it runs in — named as that checkout's <code>.wisent-release.json</code> names it, else by its directory,
-so a consent to build Tama admits <code>cargo check</code> in any crate of the Tama checkout; its
+so a ruling consenting to build Tama admits <code>cargo check</code> in any crate of the Tama checkout; its
 <code>-p</code> selections are package names and decide nothing, and a command outside any checkout or
 naming two manifests establishes no product. For <code>swift build|test|run</code> and
 <code>stado product swift</code> the product is named the same way from the checkout holding its
