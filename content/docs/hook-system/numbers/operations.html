@@ -85,11 +85,19 @@ a directly called <code>findIndex</code> result or its
 preceding same-scope <code>const</code> binding with <code>-1</code> use the
 language's absent-element sentinel.</p>
 <p>Rust tuple selectors such as <code>pair.0</code> and <code>pair.1</code>
-identify fields, not configuration quantities. Equality or inequality of a
-Rust <code>len()</code>, <code>child_count()</code> or
-<code>named_child_count()</code> result with zero checks an empty collection
-or syntax-tree leaf. A comparison with a nonzero chosen count and a bare
-policy variable compared with zero remain subject to numeric provenance.</p>
+identify fields, not configuration quantities.</p>
+<p>A comparison of a quantity with zero, or with one where one is a count, is
+plain arithmetic and is written as it reads, in Rust, JavaScript and
+TypeScript: <code>n == 0</code>, <code>n != 0</code>, <code>count === 0</code>,
+<code>n &gt; 0</code>, <code>0 &lt; n</code>, any quantity ordered against one
+(<code>n &gt;= 1</code>, <code>share &lt;= 1</code>, <code>items.len() &gt; 1</code>)
+and a count equal or unequal to one (<code>items.len() == 1</code>,
+<code>values.length === 1</code>, <code>seen.size === 1</code>,
+<code>state.count != 1</code>). Equality of anything else with one
+(<code>version == 1</code>, <code>status === 1</code>) and every comparison with
+another number (<code>child_count() == 7</code>) remain subject to numeric
+provenance. Real journey:
+<code>tests/numeric-literals/scanning/zero_comparisons.rs</code>.</p>
 <p>A zero lower bound directly initializing a Rust <code>for</code> range is
 an enumeration start, not a guessed quantity. Its upper bound is still judged:
 <code>for index in 0..count</code> may use the caller's count, but
@@ -102,9 +110,13 @@ identity.</p>
 ever adds to is the start of a running sum or count, not a chosen number:
 <code>let mut total = 0;</code> with <code>total += value</code>, a class field
 <code>step = 0</code> with <code>this.step++</code>, or <code>sent = sent + n</code>.
-Every write to that name in the same source must add to it; one write that
-gives it anything else (<code>sent = other</code>, <code>step--</code>), or no write
-at all, keeps the zero judged. The same journey covers both outcomes.</p>
+Every resolved write to that declaration must add to it; a reset or no write
+keeps the zero judged. Same-named bindings in other scopes are independent.
+Class fields distinguish instance and static <code>this</code> receivers;
+a bare name resolves lexical bindings, never an implicit field.
+Arrows retain the enclosing method, field initializer or static-block receiver.
+A nested object method owns another receiver and neither establishes nor resets
+the outer counter. The journey covers same-named static and instance fields.</p>
 <p>Typed bindings and class fields use the TypeScript grammar; TSX uses its
 JSX-aware grammar. For example, <code>private step: number = 0</code> with
 <code>this.step += amount</code> starts a running count. A later plain assignment
@@ -124,12 +136,24 @@ journey: <code>tests/numeric-literals/operations.rs</code>.</p>
 <p>A number written without a digit is reported like a literal: a quoted number
 declared as a constant or converted back (<code>"8".parse()</code>,
 <code>Number('0')</code>), a type's bound or width (an unsigned type's
-<code>MIN</code>, a type's <code>BITS</code>, arithmetic on a type's
-<code>MAX</code>), a numeric type's default or zero, the length of a string or
+<code>MIN</code>, an unsigned NonZero type's <code>MIN</code>, a type's
+<code>BITS</code>, arithmetic on a type's <code>MAX</code>), a zero test routed
+through a NonZero type (<code>NonZeroUsize::new(n).is_none()</code> is
+<code>n == 0</code>, <code>.and_then(NonZeroU32::new).is_some()</code> is
+<code>!= 0</code>), a numeric type's default or zero, the length of a string or
 array literal, and <code>true</code> or <code>false</code> converted to a number.
+Every disguise of a zero or one the gate admits plainly is refused naming the
+plain spelling to write instead: a zero test through a NonZero type
+(<code>new(n).is_none()</code>, <code>.map(NonZero…::get)</code>) or through
+<code>n.checked_sub(1).is_none()</code> names <code>n == 0</code>; an unsigned
+type's <code>MIN</code> names the comparison with zero; a NonZero type's
+<code>MIN</code> and <code>Math.sign(Infinity)</code> name the plain
+<code>1</code> of a counting step or bound; an empty <code>Number()</code>, a
+<code>Number.MIN_VALUE</code> bound and a value compared with its own absolute
+value name <code>&gt; 0</code> or <code>&gt;= 0</code>.
 These spellings are read in code only: a comment that names one, as a document
 explaining it does, runs nothing and is not refused. The same journey writes the
-spelling once in a comment, which passes, and once in code, which is refused. A signed NonZero type's <code>MIN</code> (<code>NonZeroI64::MIN</code>, and so for every width) is refused wherever code writes it: it is the type's most negative value, not one, which only the unsigned NonZero types start at, so <code>NonZeroUsize::MIN</code> still passes; a program that means the most negative value writes <code>i64::MIN</code>. Real journey: <code>tests/numeric-literals/scanning/signed_minimum.rs</code> (<code>numeric_literals_signed_minimum</code>).</p>
+spelling once in a comment, which passes, and once in code, which is refused. A signed NonZero type's <code>MIN</code> (<code>NonZeroI64::MIN</code>, and so for every width) is refused wherever code writes it: it is the type's most negative value, not one; a program that means the most negative value writes <code>i64::MIN</code>. Real journeys: <code>tests/numeric-literals/scanning/identifiers.rs</code> and <code>tests/numeric-literals/scanning/zero_comparisons.rs</code>.</p>
 <p>An HTTP status code compared for equality with a read of a response's
 status is the protocol's own identity, not a chosen number: <code>response.status === 200</code>,
 <code>res.statusCode !== 407</code>, <code>404 === response.status</code> and Rust's
@@ -147,8 +171,8 @@ redirection. The real numeric-operation journey includes accepted descriptor
 uses and refused unrelated quantities.</p>
 <p><code>assert.equal</code> and <code>assert.strictEqual</code> comparisons of
 process <code>status</code>, <code>code</code> or <code>exitCode</code> with zero
-check successful termination. Sign comparisons against zero and positive-integer
-boundaries against one validate inputs. This is not permission for
+check successful termination. Comparisons with zero and one follow the rule
+above. This is not permission for
 <code>const DEFAULT_RETRIES = 0</code>, an invented group identifier, an arbitrary
 removal count, or an unrelated comparison with <code>-1</code>. Other languages
 and malformed syntax retain the normal numeric policy.</p>
@@ -260,8 +284,8 @@ stderr. Exit success alone is not policy acceptance; a crashed process is not
 a policy denial. Numeric operation, raw-string, identifier and existing-file
 journeys distinguish these outcomes rather than treating a process status as
 the decision.</p>
-<p>The operation, raw-string, identifier and existing-file journeys share an
-isolated Git fixture under the ignored build directory, never temporary files
+<p>The operation, hashline, raw-string, identifier and existing-file journeys share
+source-identity validation and an isolated Git fixture under the ignored build directory, never temporary files
 beside tracked test source or the operator's working directory. The inner Git
 root prevents the outer build-directory ignore rule from exempting the tested
 source. Every fixture requires <code>TAMA_TEST_SOURCE_REVISION</code>, checks
@@ -269,8 +293,8 @@ the actual clean tracked candidate and retains the built binary digest before
 initialization. Candidate and setup reports and append-only hook exchange
 logs survive fixture cleanup; repeated calls do not overwrite earlier outcomes.
 The corresponding targets are <code>numeric_literals_operations</code>,
-<code>numeric_literals_raw_strings</code>, <code>numeric_literals_identifiers</code>
-and <code>numeric_literals_existing_file</code>.</p>
+<code>numeric_literals_hashline_context</code>, <code>numeric_literals_raw_strings</code>,
+<code>numeric_literals_identifiers</code> and <code>numeric_literals_existing_file</code>.</p>
 <p>The hashline target also includes
 <code>tests/numeric-literals/provenance/failures.rs</code>: a real directory
 where a transcript should be, an absent index, and a damaged SQLite file each
