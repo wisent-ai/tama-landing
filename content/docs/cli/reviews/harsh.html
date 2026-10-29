@@ -8,7 +8,7 @@ change suggests. Every round states the two parts of the operator's standard for
 improve in the change, and what new the change suggests would further improve the codebase (the same shape
 elsewhere, the root cause, its visibility, the real case left untested).</p>
 <h2>Invocation</h2>
-<pre><code>tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; (--message &lt;file&gt; | --queue &lt;id&gt;) [--repository &lt;path&gt;]
+<pre><code>tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; (--message &lt;file&gt; [--tree &lt;tree read&gt;] | --queue &lt;id&gt;) [--repository &lt;path&gt;]
 tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; --attestation (session|build):&lt;session id&gt;
 tama reviews harsh dispose --quote &lt;text&gt; --defect &lt;oko defect id&gt; [--repository &lt;path&gt;]
 tama reviews harsh settle --quote &lt;text&gt; --reason &lt;where it was repaired&gt; [--repository &lt;path&gt;]
@@ -48,6 +48,11 @@ read from the repository's objects, so a candidate staged in an index of its own
 round with <code>record --queue &lt;id&gt; --findings &lt;file&gt; --improvements &lt;file&gt;</code>, which keeps the round in the parent's register
 and marks the entry reviewed in Oko. The author is refused as the reviewer of its own entry (<code>entry &lt;id&gt; was
 staged by session &lt;id&gt;, who cannot review it</code>). The author's next commit attempt then finds the round.</p>
+<p>A staged round names the tree its reviewer read with <code>--tree &lt;tree&gt;</code> (<code>git write-tree</code>
+when the reading began). An index restaged after that writes another tree, which nobody read, so the round is refused
+before anything is kept: <code>the round names tree &lt;read&gt;, but the index of &lt;repository&gt; now writes tree
+&lt;now&gt;: it was restaged after the review read it, so no round was kept; review the tree it holds now</code>. A
+<code>--queue</code> round is always kept over the tree its queue entry names.</p>
 <h2>Who reviews</h2>
 <ul>
 <li><strong>A reviewer session.</strong> A session that is not the author reads <code>git diff --cached</code> and the
