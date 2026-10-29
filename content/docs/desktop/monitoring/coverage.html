@@ -23,7 +23,7 @@ sentence and Retry.</p>
 <code>reading now</code>, <code>read &lt;time&gt;</code>, or <code>not read yet</code>; the one action is <code>Re-read coverage</code>. The <code>Provider</code> facet lists <code>Every provider</code> (total mappings) and
 each provider with its mapping count — warning-toned when it maps nothing.
 Counters: <code>Providers</code> (declared in this release), <code>Assignments</code> (covered
-event pairs), <code>Policies covered</code> (distinct covered policies), <code>Without coverage</code> (providers without coverage; warns when nonzero), and <code>Not installed</code> (configs missing declared mappings; warns when nonzero).</p>
+event pairs), <code>Policies covered</code> (distinct covered policies), <code>Without coverage</code> (providers without coverage; warns when nonzero), <code>Not installed</code> (configs missing declared mappings; warns when nonzero), and <code>Not inspected</code> (configs Tama could not read; warns when nonzero).</p>
 <h2>States and table</h2>
 <p>No providers at all: <code>No provider coverage</code> — <code>No providers are covered in this release.</code> A provider with no mappings: <code>No coverage for &lt;provider&gt;</code>,
 with the registry's own note when it declares one, else <code>This provider has no covered events.</code>, and a <code>Show every provider</code> action. Loading reads
@@ -31,8 +31,9 @@ with the registry's own note when it declares one, else <code>This provider has 
 TRIGGER, PROVIDER.</p>
 <h2>Inspector</h2>
 <p>Selecting a provider (or any of its rows) shows: badges for the coverage
-kind (<code>declared</code>), <code>No mappings</code> when uncovered, and <code>Not installed</code> when
-the config installs fewer mappings than the registry declares; fields
+kind (<code>declared</code>), <code>No mappings</code> when uncovered, <code>Not installed</code> when
+the config installs fewer mappings than the registry declares, and <code>Not inspected</code>
+when the config could not be inspected; fields
 <code>Declared mappings</code>, <code>Policies</code>, <code>Events</code>, <code>Installed in its config</code>,
 <code>Adapter path</code> (<code>No adapter declared</code>), and <code>Live coverage required</code> —
 <code>yes</code> / <code>no</code> / <code>not declared</code>, the release's own statement of whether it
@@ -45,10 +46,11 @@ when native configuration inspection returns a count. The shared
 configurations, Devin's JSONC configuration and Kimi's complete TOML document.
 A mapping counts only when
 its native event, matcher and generated dispatch command match.</p>
-<p>A null installed count means inspection is unavailable, not zero installed
+<p>A null installed count means inspection failed, not zero installed
 hooks and not evidence that the provider has no supported configuration. The
-inspector omits the installed-count field and shows the accompanying warning
-note with the configuration path and actual read, parse or shape error.
+field then reads <code>Not known: inspection failed (see the note below)</code>, the
+<code>Not inspected</code> badge and counter warn, and the warning note below names
+the configuration path and the actual read, parse or shape error.
 An inspected configuration without matching commands
 reports zero. Neither a count nor its configuration declares live enforcement;
 the <a href="/docs/cli/provider/config/">provider configuration reference</a>
