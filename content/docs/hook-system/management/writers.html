@@ -29,8 +29,8 @@ passed, a commit by pathspec with an apostrophe in its message and in the call's
 same call copying onto the registry was refused naming it, and a command naming the emergency state file
 refused.</p>
 <p>What still refuses: the writer as the command's program or script argument,
-including a quoted path (<code>node 'shared-hooks/generate-configs.mjs'
---apply</code>); <code>tama install</code>, <code>tama enforcement only|all</code>
+including a quoted path (<code>node 'shared-hooks/seal-registry.mjs'</code>);
+<code>tama install</code>, <code>tama enforcement only|all</code>
 and <code>oko hooks install|pull</code> read from the program the command
 starts, with <code>env</code>, <code>sudo</code>, <code>nohup</code> and any other
 wrapper that only starts it stepped over; the same command inside an executor's argument
@@ -42,7 +42,7 @@ such as <code>cd … &amp;&amp;</code> or <code>env</code>: it shows the runtime
 target paths and creates no directory, writes no configuration and activates no
 hook; the verb is the word right after <code>install</code>, as the CLI reads it, so
 <code>tama install --home ~ plan</code> is still the installer),
-<code>generate-configs.mjs</code> without <code>--apply</code>,
+<code>tama hook generate-configs</code> without <code>--apply</code>,
 <code>seal-registry.mjs --check</code>, <code>oko hooks install
 --preview</code>. The command is cut only after its quotes are read, so a
 semicolon inside a quoted evidence message stays one argument instead of

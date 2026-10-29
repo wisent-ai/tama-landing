@@ -22,8 +22,12 @@ window the adapter watches the streamed answer: the first non-blank text it stre
 while the gate's newest answer for the work generation is not a pass, or while the gate
 has not answered for it, aborts the run, and a hidden message carrying the gate's reason
 starts the next turn, so the operator sees at most those first words. Subagents' text is
-not watched, and a session without a window (print or RPC) keeps the stop refusal alone,
-so a run nobody watches is not continued without end.</p>
+not watched, and a session without a window (print or RPC) keeps the stop refusal alone.
+A print-mode run (<code>omp -p</code>, <code>omp --print</code>) has nobody to continue
+a refused answer for: its refusal is written to standard error as
+<code>Tama refused this answer and ended the print-mode run: &lt;reason&gt;</code>, and
+the process exits with status 1 (<code>EXIT_FAILURE</code>) instead of being continued
+turn after turn.</p>
 <p>The OMP adapter forwards an event's AbortSignal, cancels outstanding work
 on a new input, session activation or shutdown, and streams hook stderr to
 the terminal and the Tama hook status indicator. Judge requests announce

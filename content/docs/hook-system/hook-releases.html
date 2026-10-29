@@ -22,7 +22,7 @@ selected by <code>TAMA_HOOK_ROOT</code>:</p>
 <tr><td><code>package.json</code></td><td>The hook package version</td></tr>
 </tbody>
 </table>
-<p>Generator files (<code>generate-configs.mjs</code>, <code>providers.json</code>,
+<p>Generator files (<code>providers.json</code>,
 <code>run-one-session-hook.js</code>) and Python bytecode are pruned before sealing.
 An installed <code>tama</code> reads them, like the registry, from the checkout
 <code>tama hooks release</code> recorded in <code>~/.tama/installed-from</code>:
@@ -172,7 +172,7 @@ TAMA_HOOK_RELEASE_ROOT=$PWD/.build/hook-release TAMA_EMERGENCY_ACTION=enable  sh
 <code>tama validate</code> then reports no <code>ERROR install drift</code>: the provider configs
 an install writes come from the sealed CLI and the registry beside it, so they
 carry every catalogued hook for every event the provider supports. Running
-<code>shared-hooks/generate-configs.mjs --apply</code> afterwards is not part of this
+<code>tama hook generate-configs --apply</code> afterwards is not part of this
 route; it writes a checkout's own narrower wiring over what the install just
 produced.</p>
 <p>The real native-provider installation journey is the repository's
