@@ -2,11 +2,12 @@
 <p>Records, reads and retires the justifications the write guards require, so a registry that a hook demands is written by a command instead of by hand.</p>
 <h2>Invocation</h2>
 <pre><code>tama justify &lt;record|show|remove|move|list&gt; [--file &lt;path&gt;] [--to &lt;path&gt;] [--justification &lt;text&gt;] [--trajectory-evidence &lt;text&gt;]
-             [--kind file|cua|ssh|deletion|host-change|vault-write] [--quote &lt;text&gt;] [--quote-match &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]
+             [--kind file|cua|ssh|&lt;action kind&gt;] [--quote &lt;text&gt;] [--quote-match &lt;text&gt;] [--expires-at &lt;iso&gt;] [--home &lt;path&gt;] [--json]
 tama justify move --file &lt;old path&gt; --to &lt;new path&gt; [--kind file]
-tama justify record --kind deletion|host-change|vault-write --session &lt;id&gt; --quote &lt;the operator's exact words&gt;
-             --subject &lt;a word of the quote naming the target&gt; --action &lt;exact command or absolute path&gt;... [--transcript &lt;path&gt;]
-tama justify &lt;list|remove&gt; --kind deletion|host-change|vault-write [--quote &lt;the recorded sentence&gt;]
+tama justify record --kind &lt;action kind&gt; --session &lt;id&gt; --quote &lt;the operator's exact words&gt;
+             --subject &lt;a word of the quote naming the target&gt; --action &lt;exact command or absolute path&gt;... [--transcript &lt;session transcript&gt;]
+tama justify &lt;list|remove&gt; --kind &lt;action kind&gt; [--quote &lt;the recorded sentence&gt;]
+&lt;action kind&gt;: deletion|host-change|vault-write|rollback|side-index
 </code></pre>
 <p><code>--kind file</code> selects <code>~/.shared-hooks/file_justifications.json</code>, keyed by absolute target path. <code>--kind cua</code> selects <code>~/.shared-hooks/cua_justifications.json</code> and records application/action grants rather than file justifications. <code>--kind ssh</code> selects <code>~/.shared-hooks/ssh_justification.json</code> and records the target, operation and exact path or command grants <code>block-unauthorized-ssh</code> reads. When <code>TAMA_CUA_JUSTIFICATIONS</code> or <code>TAMA_SSH_JUSTIFICATION</code> names another file — the variable <code>block-unauthorized-cua</code> or <code>block-unauthorized-ssh</code> reads its registry from — the command, and <code>tama attestation list|verify|revoke</code>, use that file, so they write, list and withdraw the very grants the gate admits through. <code>--home</code> changes the registry destination only; it does not select a different consent transcript. Whether test code may be written is not a justification: it is the operator's own approval, recorded with <a href="/docs/cli/tests/"><code>tama tests approve</code></a>, and <code>--kind test</code> is refused as an unknown kind.</p>
 <h2>Why it exists</h2>
@@ -67,28 +68,16 @@ tama justify remove --kind ssh --quote-match "zgadzam sie na ssh" --json
 <li><code>the gate would not admit &lt;operation&gt; to &lt;target&gt; from this entry (an operation the gate does not know, or paths where it reads commands, or commands where it reads paths); nothing was recorded</code></li>
 </ul>
 <p>Missing consent on show/remove returns <code>no SSH grant is recorded for that quote</code>; a <code>--quote-match</code> no recorded quote or several recorded quotes contain is refused naming the count. A usage error — an unknown option, a missing <code>--session</code> or <code>--operation</code>, or both or neither of <code>--quote</code> and <code>--quote-match</code> on show and remove — exits <code>2</code>.</p>
-<h2>Record the operator's grant for a deletion, a host change or a vault write</h2>
-<pre><code>tama justify record --kind host-change --session &lt;current-OMP-session-id&gt; \
-  --quote 'zainstaluj tame przez produkt' --subject tam \
-  --action 'stado product install tama --surface cli --source-commit &lt;full commit&gt;'
-tama justify list --kind host-change
-tama justify remove --kind host-change --quote 'zainstaluj tame przez produkt'
+<h2>Record the operator's grant for one gated action</h2>
+<p><code>--kind deletion</code>, <code>host-change</code>, <code>vault-write</code>, <code>rollback</code> and <code>side-index</code> write one registry, <code>~/.shared-hooks/operator_action_grants.json</code> (<code>TAMA_ACTION_GRANTS</code> moves it), read by <code>block-unauthorized-deletion</code>, <code>block-unauthorized-host-change</code>, <code>block-unauthorized-vault-write</code>, <code>block-unauthorized-rollback</code> and <code>block-side-index</code>. A grant is kept only when its <code>--quote</code> stands word for word in a message the operator wrote — in the session's own transcript, or for a subagent in the transcript its <code>parentSession</code> chain ends at — and its <code>--subject</code> is a word of that quote and of every <code>--action</code>. The gate then admits exactly the listed command (or, for a deletion or a vault write, exactly the listed absolute paths) in that session; any other command is still refused.</p>
+<pre><code>tama justify record --kind rollback --session &lt;current-OMP-session-id&gt; \
+  --quote "&lt;his exact words asking for the revert&gt;" --subject revert \
+  --action "git revert --no-edit &lt;commit&gt;"
+tama justify list --kind rollback --json
+tama justify remove --kind rollback --quote "&lt;the recorded sentence&gt;"
 </code></pre>
-<p><code>--kind deletion</code>, <code>host-change</code> and <code>vault-write</code> write one registry,
-<code>~/.shared-hooks/operator_action_grants.json</code> (<code>TAMA_ACTION_GRANTS</code> names another), read by
-<code>block-unauthorized-deletion</code>, <code>block-unauthorized-host-change</code> and
-<code>block-unauthorized-vault-write</code> (<a href="/docs/operator-grants/">operator grants</a>). Each
-<code>--action</code> is the exact command the call runs or an absolute path it deletes or writes; the
-<code>--subject</code> must be a word of the quote and of every action. Before writing, the recorder asks the gates'
-own reading: the quote must stand word for word in an operator message of the session — for a subagent, of the
-session its <code>parentSession</code> chain ends at, whose transcript <code>--transcript</code> may name — and the
-subject must tie it to each action. A grant recorded again for the same gate, session, quote and actions replaces
-the earlier one. Refusals, exit <code>2</code>, nothing written:</p>
-<ul>
-<li><code>--session must be the exact OMP session identifier</code></li>
-<li><code>the quote is not word for word in an operator message of session &lt;id&gt; (for a subagent, of the session its parentSession chain ends at); nothing was recorded</code></li>
-<li><code>the gate would not admit `&lt;action&gt;` from this grant: the subject must be a word of the quote and of every action; nothing was recorded</code></li>
-</ul>
+<p><code>block-unauthorized-rollback</code> refuses, without such a grant, <code>stado product rollback</code>, <code>stado release rollback</code>, <code>stado release local restore</code>, <code>git revert</code> (but <code>--abort</code> and <code>--quit</code>), <code>git reset</code> with <code>--hard</code>, <code>--keep</code> or <code>--merge</code> or onto a revision, <code>git checkout</code> of paths or of a revision, <code>git restore</code> of the working tree or from a <code>--source</code> (unstaging with <code>--staged</code> passes), <code>git switch</code> onto a revision, and any of these through <code>stado host exec</code>. A revision is read from its shape — <code>~</code>, <code>^</code>, <code>@{</code>, an object name, <code>ORIG_HEAD</code>, <code>FETCH_HEAD</code>, <code>@</code> — so switching to a branch passes.</p>
+<p><code>block-side-index</code> refuses, without such a grant (<code>--kind side-index</code>), a line that stages work in an index other than the checkout's own: a <code>GIT_INDEX_FILE=&lt;path&gt;</code> assignment (alone, after <code>export</code> or <code>env</code>), <code>export GIT_INDEX_FILE</code> or <code>declare -x GIT_INDEX_FILE</code>, and <code>git read-tree --index-output</code>. The line is read by the words the shell runs, so quoted data (a prompt, a message) that names the variable is no staging; <code>unset GIT_INDEX_FILE</code> passes. Work is staged in the checkout's own index, where every session and check sees it, and is never parked where it goes stale against main.</p>
 <h2>Desktop requests</h2>
 <p><a href="/docs/desktop/justifications/">Justifications → CUA consent</a> records, lists and removes these same grants through <a href="/docs/cli/request/">tama request</a>, one process per operation. The native view displays the original quote, application, executable, actions, session and lifetime, and shows the product's refusal. No JSON has to be pasted into a protected directory.</p>
 <h2>Refusals and failures</h2>

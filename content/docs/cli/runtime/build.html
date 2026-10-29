@@ -55,8 +55,10 @@ allowance is spent without a recorded user exception, or when its change is too 
 in that window (skarbiec, brama, tama, stado, oko). The local daily allowance
 has a slot in 412 min if no further intents are recorded. Gather the work
 into one build instead, or have the operator raise the limit with
-`tama build policy --builds-per-day &lt;n&gt;` and DEVICE_HOOK_EDIT_APPROVED set
-outside the agent session.
+`tama build policy --builds-per-day &lt;n&gt;`. Either say in the conversation that
+you agree, and the agent records it as the Tama session capability {"tool":
+"tama", "actions": ["hook-edit"]}, or run this in your own shell, outside any
+agent session: …
 
 this build carries 2 changed lines against &lt;revision&gt;…, the revision the last
 recorded build of skarbiec carried, and the policy calls a build serious at 30
@@ -137,11 +139,13 @@ minutes</em>, with the numbers the file states. <code>builds_per_day</code> the 
 the operator's own number, <code>builds_per_day</code> in <code>numeric-provenance.json</code> with his
 words. The other three have no value in code: while the file does not state one, the command and every
 intent are refused with <code>&lt;file&gt; sets no &lt;field&gt;: the operator states it with `tama
-build policy &lt;option&gt; &lt;n&gt;`, which needs DEVICE_HOOK_EDIT_APPROVED=1 set outside the agent
-session</code>. Tightening a limit needs nothing. Setting one the file did not state, or loosening one
-— more builds a day, a smaller minimum change, a longer window — is refused unless
-<code>DEVICE_HOOK_EDIT_APPROVED=1</code> is set outside the agent session, because an agent that can
-raise its own allowance has none. A policy or ledger that cannot be parsed refuses the build and names
+build policy &lt;option&gt; &lt;n&gt;`, which needs his consent</code>, followed by how he gives it.
+Tightening a limit needs nothing. Setting one the file did not state, or loosening one — more builds a
+day, a smaller minimum change, a longer window — needs the same consent as any hook configuration
+change: the operator's word in the conversation, which the agent records as the session capability
+<code>{"tool": "tama", "actions": ["hook-edit"]}</code> only after he confirms it in his own session
+window, or <code>DEVICE_HOOK_EDIT_APPROVED=1</code> in his own shell. An agent cannot grant the
+capability to itself, so it still cannot raise its own allowance. A policy or ledger that cannot be parsed refuses the build and names
 the file, rather than counting the day as unspent.</p>
 <h2>Read and close</h2>
 <pre><code>tama build list [--json]
