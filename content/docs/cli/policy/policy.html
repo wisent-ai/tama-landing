@@ -18,6 +18,26 @@ tama policy remove --source &lt;path|key&gt; [--json] [--home &lt;path&gt;]
 <h2>What <code>import</code> answers</h2>
 <p>One transaction validates the whole bundle and then writes it, or writes nothing. Its <code>status</code> is one of <code>imported</code>, <code>replaced</code> (an earlier bundle from the same source was overwritten under <code>--replace</code>), <code>unchanged</code> (the same content is already retained), <code>conflict</code> (a different bundle from the same source is retained and <code>--replace</code> was not given) or <code>rejected</code> (the bundle is not valid; the result names what is wrong). The desktop's Settings screen runs the same transaction. <code>tama request policy-bundles/import</code> answers the same document.</p>
 <p><code>list</code> prints one line per retained bundle — source path, source digest, hook count, file count, <code>inactive</code> — or <code>No inactive policy bundles imported.</code>; <code>remove</code> prints <code>Removed the inactive policy bundle imported from &lt;path&gt;.</code> or <code>No imported policy bundle came from &lt;source&gt;; nothing changed.</code>, and under <code>--json</code> <code>{"source":String,"removed":Boolean}</code>.</p>
+<h2 id="reservations">Reservations a bundle declares</h2>
+<p>Tama reserves nothing itself. What one installation keeps out of agents' hands — another owner's checkout, files only the operator edits, a command only he runs — is that installation's policy, declared in the <code>shared-hooks/reserved.json</code> of a bundle it imports. The installed <code>block-reserved-changes</code> gate reads that file from every imported bundle from the moment of import, and <code>remove</code> takes the reservations away with the bundle; the import itself still installs and enables no hook.</p>
+<pre><code>{
+  "reserved": [
+    {
+      "subject": "example-model",
+      "why": "the model and its inputs are edited only when the operator asks",
+      "said": "the operator's own sentence, copied from the conversation",
+      "directories": ["example-model"],
+      "files": ["assumptions.json"],
+      "repositories": ["example-grant-repository"],
+      "newFileWords": ["notes"],
+      "commands": [["example-cli", "workbook", "build"]],
+      "commandsOnlyInside": false
+    }
+  ]
+}
+</code></pre>
+<p>Every field is required. <code>directories</code> refuses a file written under a directory of that name; <code>files</code> a file of that name; <code>repositories</code> with <code>newFileWords</code> a new file in a checkout of that name whose name holds one of those words; <code>commands</code> a shell command that runs the program with those words in that order, only where it names or runs in a reserved directory when <code>commandsOnlyInside</code> is true. The refusal reads <code>BLOCKED (block-reserved-changes): `&lt;path or command&gt;` is reserved (&lt;subject&gt;: &lt;why&gt;; the operator: "&lt;said&gt;"). Leave what is reserved as it is and do the work that was asked.</code>, followed by how the operator grants one exact change (<code>tama justify record --kind reserved-change</code>). A bundle whose <code>reserved.json</code> cannot be read is named on stderr (<code>block-reserved-changes: &lt;path&gt; cannot be read: &lt;cause&gt;; this bundle's reservations are not held</code>) and the other bundles' reservations still hold; a store that cannot be listed refuses nothing and says <code>block-reserved-changes: the imported policy bundles cannot be listed: &lt;cause&gt;; nothing is refused</code>.</p>
+<p>A bundle that only declares reservations still carries the <code>shared-hooks/registry.json</code> the import validates: it registers <code>block-reserved-changes</code> on the events it configures (<code>pre_tool_use:bash</code>, <code>edit</code>, <code>write</code>, <code>multiedit</code>, <code>notebook</code>), each entry with <code>"command": "$HOME/.local/bin/tama hook block-reserved-changes"</code> and <code>"source": "shared-hooks/reserved.json"</code>.</p>
 <h2>Exit status</h2>
 <p><code>import</code> exits one on <code>conflict</code> or <code>rejected</code> and zero otherwise; <code>list</code> and <code>remove</code> exit zero, a removal of nothing included. A wrong invocation exits two:</p>
 <pre><code>policy import requires --source &lt;dir&gt;
