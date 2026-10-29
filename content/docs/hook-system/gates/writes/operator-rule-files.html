@@ -1,0 +1,56 @@
+<h1>The operator's rule files: <code>block-operator-rule-files</code></h1>
+<p>A gate on the file tools (<code>write</code>, <code>edit</code>, <code>multiedit</code>, <code>notebook</code>),
+<code>bash</code>, <code>eval</code> and the REPL device (<code>tama hook block-operator-rule-files</code>) that refuses a
+call writing, editing, moving or deleting one of the operator's rule files. The rule files are his statement of how
+agents work, so an agent that rewrites them rewrites its own instructions; he edits them himself, in his own terminal,
+which runs no hook. The gate is declared and registered, not selected: the operator turns it on with
+<a href="/docs/cli/enforcement/add-remove/"><code>tama enforcement add block-operator-rule-files</code></a>.</p>
+
+<h2>Which files</h2>
+<p>The list is the operator's data, <code>ruleFiles</code> in the gate's declaration
+<code>hook-declarations/autonomy-boundary/block-operator-rule-files.json</code>, read when <code>tama</code> is built;
+no file name is spelled in the code. Each entry is a path under the home, and one <code>*</code> in a name stands for
+any run of characters inside that name:</p>
+<pre><code>"ruleFiles": ["AGENTS.md", "ARCHITECTURE.md", "NAMES.md", "STANDARD.md", "agents/*.md"]</code></pre>
+<p>A path is compared as written, made absolute against the call's directory with <code>~</code>, <code>$HOME</code>
+and <code>${HOME}</code> read as the home and <code>.</code> and <code>..</code> resolved, and again as the filesystem
+resolves it, so a link to a rule file is that rule file. A new file the list covers (<code>~/agents/new.md</code>)
+counts, and so does a folder holding a rule file when it is deleted or moved.</p>
+
+<h2>What it refuses</h2>
+<ul>
+<li>A file tool whose path is a rule file (every path the tool names, a hashline header included).</li>
+<li>A shell line, read by the shell's grammar and through every line it hands a shell (<code>bash -c '…'</code>), that
+redirects output into one (<code>&gt;</code>, <code>&gt;&gt;</code>, <code>&gt;|</code>, <code>&amp;&gt;</code>,
+<code>&amp;&gt;&gt;</code>, <code>&lt;&gt;</code>); runs <code>rm</code>, <code>unlink</code>, <code>rmdir</code>,
+<code>shred</code>, <code>srm</code>, <code>trash</code>, <code>truncate</code> or <code>mv</code> on one or on a
+folder holding one; puts something where one stands with <code>cp</code>, <code>install</code>, <code>ln</code>,
+<code>ditto</code>, <code>rsync</code> or <code>mv</code> (the destination, the name a source takes inside a destination
+folder, and every name a folder's contents take when its contents are copied); edits one in place with
+<code>sed</code>, <code>perl</code> or <code>ruby</code> <code>-i</code>; writes one with <code>tee</code> or
+<code>dd of=</code>; or opens one in <code>ed</code>, <code>ex</code>, <code>vi</code>, <code>vim</code>,
+<code>nvim</code>, <code>nano</code>, <code>pico</code> or <code>emacs</code>.</li>
+<li>A program — an <code>eval</code> or REPL call, or the code a shell line hands <code>python</code>,
+<code>perl</code>, <code>ruby</code>, <code>node</code>, <code>bun</code>, <code>deno</code>, <code>php</code> or
+<code>osascript</code> — that names a rule file under the home (after <code>~/</code>, the home variable or the home's
+own path, or as quoted names in a text that asks for the home, as <code>Path.home() / 'STANDARD.md'</code> does) and
+calls something that writes, moves or deletes a file or runs a program (<code>open(…, 'w')</code>,
+<code>write_text</code>, <code>writeFile</code>, <code>os.replace</code>, <code>subprocess</code>, the harness's
+<code>write(…)</code>, and their kin).</li>
+</ul>
+<p>Reading passes: <code>cat ~/AGENTS.md</code>, <code>grep … ~/agents/*.md</code>, a copy of a rule file to somewhere
+else, and a program that only reads one. A file of the same name inside a repository is not a rule file.</p>
+
+<h2>The refusal</h2>
+<p>The refusal names every rule file the call changes, by its absolute path, comma-separated:</p>
+<pre><code>BLOCKED (block-operator-rule-files): this call writes, moves or deletes `&lt;absolute path&gt;`, which this gate's declaration (ruleFiles) lists as the operator's rule files. An agent never changes them; he edits them himself, in his own terminal. Read them, follow them, and say in the conversation what you would change and why. Only the operator's own words grant it: …</code></pre>
+<p>One exact change passes on the operator's words, recorded with
+<a href="/docs/cli/justify/"><code>tama justify record --kind rule-file</code></a>, its action the exact command or the
+absolute path (see <a href="/docs/operator-grants/">operator grants</a>).</p>
+
+<h2>What it does not refuse</h2>
+<p>The gate reads its payload and nothing else: no model, no network, no lock. A declaration, payload or shell line it
+cannot read (a quote never closed, a program only the running shell knows) refuses nothing and says so on stderr,
+beginning <code>block-operator-rule-files:</code> and ending <code>; nothing is refused</code>. A program run from a
+file it is given by name is not read.</p>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_operator_rule_files/</code>.</p>

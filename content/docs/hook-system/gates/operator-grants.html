@@ -67,7 +67,7 @@ shell (<code>bash -c '…'</code> inside the code), so neither route carries a c
 gated. The refusal begins <code>BLOCKED: unauthorized vault write:</code>.</p>
 
 <h2>More gates on the operator's word</h2>
-<p>Three gates, declared and not selected, admit one exact call on a grant of the same registry:</p>
+<p>Five gates, declared and not selected, admit one exact call on a grant of the same registry:</p>
 <ul>
 <li><code>block-osascript</code> (<code>--kind osascript</code>) refuses a <code>bash</code>, <code>eval</code>,
 <code>hub</code> or REPL call that runs <code>osascript</code>, read from the words the call runs and through any
@@ -91,6 +91,13 @@ message, has not succeeded since, and no open defect in Oko's snapshot binds it.
 <code>oko defects record … --blocks</code> and <code>tama task scope set --defect</code>. The hook runner keeps such
 a failure after the session changes a file (marked <code>changed</code>, and no longer refused as a repeat), so a
 write no longer forgets it. Journey <code>tests/unowned-failures/stop.rs</code>.</li>
+<li><code>block-operator-rule-files</code> (<code>--kind rule-file</code>, its action the exact command or the absolute
+path) refuses a file tool, shell line or program that writes, edits, moves or deletes one of the operator's rule
+files, which <code>ruleFiles</code> in its declaration lists; see <a href="/docs/operator-rule-files/">the operator's
+rule files</a>.</li>
+<li><code>block-keychain-dialogs</code> (<code>--kind keychain-dialog</code>, its action the exact command) refuses a
+shell command that puts a keychain or authentication dialog in front of the operator, read from its program and
+arguments as the manuals state it; see <a href="/docs/keychain-dialogs/">keychain dialogs</a>.</li>
 </ul>
 
 <h2>The grant</h2>

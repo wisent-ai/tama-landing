@@ -28,7 +28,8 @@ sentence says: make the change in the existing checkout, on a branch, in place.<
 <p>From the same hook, when the refused command is a <code>git clone</code> whose source
 is a local path rather than a remote URL. <code>&lt;source&gt;</code> is that local path —
 the checkout you already have, which the hook names so you do not have to
-look for it. Cloning a remote is untouched; this is only about copying a
+look for it. A clone of a remote is refused only when the workspace already
+holds a checkout of it (its sentence is below); this one is about copying a
 repository that is already on the disk.</p>
 <p>The ban exists because a local clone is the same divergence as a worktree
 without git even knowing the two are related: the copy has its own <code>.git</code>
@@ -79,6 +80,35 @@ putting paths into variables is ordinary, so failing open would leave the ban de
 <p>Passing the real literal path is the way through: the copy is then checked and judged on what is actually
 there. That is deliberate — the guard cannot prove that a source it cannot examine is not a checkout, so it
 refuses rather than guessing. If the literal path is a checkout, the other three sentences apply: work in it, in place.</p>
+<h2><code>BLOCKED: &lt;source&gt; is already checked out at &lt;checkout&gt;, and a second clone of a repository is a second checkout of it. Work in that checkout: 'git -C &lt;checkout&gt; pull --no-rebase --no-edit' brings it up to date.</code></h2>
+<p>From the same hook, when the refused command is a <code>git clone</code> from a remote URL, or a
+<code>gh repo clone</code>, of a repository the workspace already holds a checkout of. The hook reads every folder
+directly under the workshop root that has a <code>.git</code> folder, and the remote URLs its
+<code>.git/config</code> names; a URL matches when its host and path agree, whatever the scheme, user, port or
+<code>.git</code> suffix (<code>https://github.com/owner/name.git</code> and <code>git@github.com:owner/name</code> are
+one repository). <code>gh repo clone owner/name</code> is <code>github.com/owner/name</code>; a bare
+<code>gh repo clone name</code> matches a checkout whose remote ends in that name. Nothing was cloned.</p>
+<p>First command:</p>
+<pre><code class="language-bash">git -C &lt;checkout&gt; pull --no-rebase --no-edit
+</code></pre>
+<p>Then work in <code>&lt;checkout&gt;</code>, and read another revision through git
+(<code>git show &lt;rev&gt;:&lt;path&gt;</code>). A folder or config the hook cannot read names no checkout, and the
+clone of a repository the workspace does not hold passes.</p>
+<h2><code>BLOCKED: recursively copying &lt;source&gt; copies the repository checkouts &lt;folder&gt; holds, and a copy of a checkout is a second checkout. Work in the existing checkout instead, and read another revision through git.</code></h2>
+<p>From the same hook, on a recursive <code>cp</code>, <code>rsync</code> or <code>ditto</code> whose source is not a
+checkout itself but holds one: the workshop root or a folder above it (<code>&lt;folder&gt;</code> is then the workshop
+root), or a folder inside the workspace with a <code>.git</code> anywhere below (<code>&lt;folder&gt;</code> is the
+folder that holds it). Relative sources are read against the call's directory. Nothing was copied.</p>
+<p>First command:</p>
+<pre><code class="language-bash">tama copies list --root &lt;folder&gt;
+</code></pre>
+<p>For an archive, write one file with <code>git archive</code>. A folder the hook cannot list names nothing.</p>
+<h2><code>BLOCKED: repository copies are forbidden. A task with 'isolated: true' runs its subagent in a copy of the checkout; start it without 'isolated', and it works in the one checkout.</code></h2>
+<p>From the same hook on its <code>pre_tool_use:task</code> binding, when a task tool call sets
+<code>isolated: true</code> for the whole call or for one item of its <code>tasks</code>. The harness would run that
+subagent in a copy of the checkout and integrate its changes afterwards; no subagent was started.</p>
+<p>First step: start the same task without <code>isolated</code>. The subagent then works in the one checkout, where
+every session sees its changes as they land.</p>
 <h2><code>BLOCKED: a stash in a shared checkout takes other sessions' uncommitted work out of the tree, and a refused rebase leaves it stranded. …</code></h2>
 <p>From the same hook, when the command is <code>git stash</code> that saves (bare, <code>push</code>,
 <code>save</code>, or led by an option such as <code>-u</code>) or carries <code>--autostash</code> on
