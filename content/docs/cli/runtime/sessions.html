@@ -7,18 +7,25 @@ tama sessions capability show --session &lt;ID&gt; --agent &lt;omp|claude|codex&
 tama sessions capability revoke --session &lt;ID&gt; --agent &lt;omp|claude|codex&gt; [--json]
 tama sessions self [--json]
 </code></pre>
-<p><code>sessions self</code> names the agent session the calling process runs under. The session OMP names
-in the tool shell's environment, <code>PI_SESSION_ID</code>, is the answer when a session record carries it or
-the transcript <code>PI_SESSION_FILE</code> names has that session's header. Otherwise it is the session whose
-recorded agent process is the caller or its nearest ancestor. One OMP process hosts a supervisor and every
-subagent it starts, so several records can name one process: with no session named by the environment the
-answer is no session, and <code>--json</code> carries
+<p><code>sessions self</code> names the agent session the calling process runs under, and
+<code>"via"</code> says how it was found. The session OMP names in the tool shell's environment,
+<code>PI_SESSION_ID</code> (in an eval kernel, which carries only <code>PI_SESSION_FILE</code>, the id in
+that transcript's <code>"type":"session"</code> header), is the answer with <code>"via": "record"</code>
+when a session record carries it. Otherwise the caller's ancestry is walked to the nearest recorded agent
+process. One OMP process hosts a supervisor and every subagent it starts, and a subagent's own record may
+not exist, so the named session is the answer with <code>"via": "parentSession"</code> when the transcript
+<code>PI_SESSION_FILE</code> names has that session's header and its <code>parentSession</code> chain
+reaches a session recorded at that process: the variable alone, or a transcript whose chain leads
+elsewhere, names nothing. Otherwise the one session recorded there is the answer with
+<code>"via": "process"</code>. Several records naming that process with none of them reached answers no
+session, and <code>--json</code> carries
 <code>"ambiguous": "ambiguous: N sessions share process P (…) and PI_SESSION_ID names none of them"</code>
-beside <code>"agent": null</code>, <code>"session": null</code> and the processes <code>walked</code>; text mode
-prints <code>no session named: …</code>. A process no record holds answers no session with
-<code>"ambiguous": null</code>. Owner consent, the commit-review checks, model-judgement attestations and
-harsh-review rounds read the calling session the same way, so none of them acts for a session the process
-merely shares.</p>
+beside <code>"agent": null</code>, <code>"session": null</code>, <code>"via": null</code> and the processes
+<code>walked</code>; text mode prints <code>no session named: …</code>, and a named session as
+<code>&lt;session&gt; (&lt;agent&gt;, via &lt;via&gt;)</code>. A process no record holds answers no session
+with <code>"ambiguous": null</code>. Owner consent, the commit-review checks, model-judgement attestations
+and harsh-review rounds read the calling session the same way, so none of them acts for a session the
+process merely shares.</p>
 <p><code>capability show</code> prints the capability the session's override holds, as the build gate
 reads it; <code>capability revoke</code> withdraws it at once (see
 <a href="/docs/concepts/capability/">capability</a>). Both require <code>--agent</code>: a
