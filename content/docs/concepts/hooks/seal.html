@@ -58,7 +58,8 @@ installed tree against its directory name
 <tr><td><code>&lt;release&gt;/release.json</code> → <code>releaseId</code></td><td>The sealed claim</td></tr>
 <tr><td><code>Tama.app/Contents/Resources/tama-build.json</code> → <code>hookRelease</code></td><td>The same object embedded in build provenance, so the app displays its bundled identity without reopening the release</td></tr>
 <tr><td><code>hooks-runtime/releases/&lt;release-id&gt;/</code></td><td>Content-addressed installed copy: the directory name is the claim</td></tr>
-<tr><td><code>hooks-runtime/installed.json</code> → <code>releaseId</code>, <code>catalogChecksum</code></td><td>What the last successful install recorded</td></tr>
+<tr><td><code>hooks-runtime/active</code> → <code>hooks-runtime/installs/&lt;state&gt;/</code></td><td>The installed state: <code>registry.json</code> and <code>installed.json</code>, both read-only, written together by one install and made current by one rename of this link</td></tr>
+<tr><td><code>~/.shared-hooks/registry.json</code>, <code>hooks-runtime/installed.json</code></td><td>Links through <code>active</code>: the registry the harnesses read and what the last successful install recorded (<code>releaseId</code>, <code>catalogChecksum</code>) always name the same release</td></tr>
 <tr><td>Session records → <code>runtime.loadedReleaseId</code>, <code>runtime.catalogChecksum</code></td><td>What each live session actually loaded</td></tr>
 </tbody>
 </table>
@@ -67,6 +68,28 @@ rewritten registry JSON with the checksum field removed, recomputed by the
 installer after path rewriting — it travels into every session record so the
 desktop compares catalogs by checksum rather than by trust
 (<a href="registry.md">concepts/registry</a>).</p>
+<h2>When the registry loses its seal</h2>
+<p>Only <code>tama hooks install-release</code> seals a registry. A registry whose content
+no longer hashes to its <code>catalogChecksum</code> was changed by something else: a hand
+edit, a script that rewrites it, or a copy from another release. Writing to the
+installed registry fails (the file is read-only); an editor that saves by
+replacing the file still breaks the seal. Tama then:</p>
+<ul>
+<li>keeps deciding every call by the last sealed catalog it loaded (a core that
+starts then runs the installed sealed copy under <code>hooks-runtime/active</code>), so no
+session is locked out;</li>
+<li>never refuses its own control tools (<code>tama_hook_runtime_status</code>,
+<code>tama_reload_hook_runtime</code> and the others), called directly or written to as
+<code>xd://</code> devices;</li>
+<li>says in the core's <code>lastReloadError</code>, in <code>tama_hook_runtime_status</code>, on
+stderr and in the reload refusal:</li>
+</ul>
+<pre><code>hook registry ~/.shared-hooks/registry.json checksum mismatch: it declares catalogChecksum &lt;expected&gt; for release &lt;release&gt;, but its content hashes to &lt;actual&gt;, so something other than `tama hooks install-release` changed it after it was sealed (last written at &lt;time&gt;). A hand edit, a script that rewrites the registry or a copy from another release does this. Recover with: tama hooks install-release --release "~/Library/Application Support/Tama/hooks-runtime/current" --home "~" --session-control-only
+</code></pre>
+<p>The recovery installs the release already active again, which writes its
+sealed registry back; <code>tama_reload_hook_runtime</code> then adopts it. A reload that
+finds the registry and <code>installed.json</code> naming different releases or catalogs is
+refused with both values and the same command.</p>
 <h2>Not to be confused with</h2>
 <ul>
 <li><strong>Code signing.</strong> The macOS signature authenticates the app bundle and its
