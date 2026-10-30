@@ -35,6 +35,7 @@
   {"route":"cli/list","source":"docs/cli/list.md","content":"content/docs/cli/inspection/list.html","category":"CLI reference"},
   {"route":"cli/show","source":"docs/cli/show.md","content":"content/docs/cli/inspection/show.html","category":"CLI reference"},
   {"route":"cli/validate","source":"docs/cli/validate.md","content":"content/docs/cli/inspection/validate.html","category":"CLI reference"},
+  {"route":"cli/errors","source":"content/docs/cli/inspection/errors.html","content":"content/docs/cli/inspection/errors.html","category":"CLI reference"},
   {"route":"cli/install/plan","source":"docs/cli/install-plan.md","content":"content/docs/cli/installation/install-plan.html","category":"CLI reference"},
   {"route":"cli/install","source":"docs/cli/install.md","content":"content/docs/cli/installation/install.html","category":"CLI reference"},
   {"route":"cli/uninstall","source":"content/docs/cli/installation/uninstall.html","content":"content/docs/cli/installation/uninstall.html","category":"CLI reference"},

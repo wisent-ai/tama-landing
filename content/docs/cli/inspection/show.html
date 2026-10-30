@@ -1,15 +1,22 @@
 <h1><code>tama show</code></h1>
 <p>Looks up one hook by its exact catalog id and reports its source, command, description, rationale, and event bindings.</p>
 <h2>Invocation</h2>
-<pre><code>tama show &lt;hook-id&gt; [--json]
+<pre><code>tama show &lt;hook-id&gt; [--json] [--root &lt;checkout&gt;]
 </code></pre>
 <p><code>&lt;hook-id&gt;</code> is required and must match a catalog hook id. <code>--json</code> prints the full structured hook entry; otherwise Tama prints human-readable fields and one <code>blocking=</code> line per event.</p>
 <h2>Output and state</h2>
 <p>The command writes one hook and does not modify the catalog, hook files, or runtime state. A successful lookup exits <code>0</code>.</p>
 <h2>Refusals and failures</h2>
+<p>Every refusal is a cause of the failure catalogue <code>cli.show</code>, which <code>tama errors show cli.show</code> prints. On stderr it is three lines: <code>tama: &lt;what failed&gt;: &lt;why&gt;; observed: &lt;state&gt;</code>, then <code>fix: &lt;what fixes it&gt;</code>, then <code>cause: &lt;id&gt;; `tama errors show cli.show` lists every cause of this command</code>. With <code>--json</code> the refusal is one failure envelope on stdout instead: <code>failure_point</code> <code>cli.show</code>, <code>error_code</code>, <code>retryable</code>, <code>detail</code> (the first line), <code>remedy</code> (the fix) and <code>context.cause</code> (the id). The words in braces are filled in with the values the refusal met. A refusal of the command line's own form exits <code>2</code>; every other exits <code>1</code>, and retrying unchanged will not help.</p>
 <ul>
-<li>Missing <code>&lt;hook-id&gt;</code>: Tama prints the top-level usage text and exits <code>2</code>.</li>
-<li>Unknown id: Tama writes <code>not found: &lt;hook-id&gt;</code> and exits <code>1</code>.</li>
-<li>Unreadable or invalid catalog input: Tama writes the underlying error and exits <code>1</code>.</li>
+<li id="cli-show-hook-id-missing"><code>hook-id-missing</code>, exit <code>2</code>: <code>tama: reading the hook id `tama show` looks up: no hook id was given; observed: the words after `show`: {rest}</code>; <code>fix: name one, as `tama show &lt;hook-id&gt;`; `tama list` prints every hook id</code></li>
+<li id="cli-show-argument-extra"><code>argument-extra</code>, exit <code>2</code>: <code>tama: reading the hook id `tama show` looks up: `tama show` looks up one hook, and more than one id was given; observed: the id `{id}`, then `{extra}`</code>; <code>fix: run `tama show` once per hook id</code></li>
+<li id="cli-show-option-unknown"><code>option-unknown</code>, exit <code>2</code>: <code>tama: reading the options of `tama show`: `{word}` is not an option of `tama show`; observed: `tama show` takes --json and --root &lt;checkout&gt;</code>; <code>fix: drop `{word}`, or spell the option as one of those</code></li>
+<li id="cli-show-registry-missing"><code>registry-missing</code> (<code>not_found</code>), exit <code>1</code>: <code>tama: reading the hook registry {registry}: the checkout {root} holds no shared-hooks/registry.json, so it declares no hook; observed: no file at {registry}</code>; <code>fix: name a Tama checkout with --root &lt;checkout&gt; or TAMA_ROOT; a Tama checkout holds shared-hooks/registry.json</code></li>
+<li id="cli-show-registry-unreadable"><code>registry-unreadable</code> (<code>config</code>), exit <code>1</code>: <code>tama: reading the hook registry {registry}: the registry cannot be read; observed: reading {registry} answers: &lt;the system's cause&gt;</code>; <code>fix: make {registry} a readable file (the observed state names the system's cause), then run the command again</code></li>
+<li id="cli-show-registry-not-json"><code>registry-not-json</code> (<code>config</code>), exit <code>1</code>: <code>tama: reading the hook registry {registry}: the registry is not JSON; observed: {registry} is not JSON: &lt;the parser's cause, line and column&gt;</code>; <code>fix: repair {registry} at the line and column named (`git -C {root} diff shared-hooks/registry.json` shows a hand edit), then run `tama validate`</code></li>
+<li id="cli-show-catalogue-invalid"><code>catalogue-invalid</code> (<code>config</code>), exit <code>1</code>: <code>tama: building the hook catalogue from {registry}: the registry, shared-hooks/catalog-metadata.json or the hook source directories hold something the catalogue cannot be built from; observed: &lt;the catalogue builder's sentence, such as "registry.json event PreToolUse does not say whether it blocks (no `blocking`)"&gt;</code>; <code>fix: correct the declaration or file the observed state names; `tama validate` reports every catalogue error at once</code></li>
+<li id="cli-show-hook-unknown"><code>hook-unknown</code> (<code>not_found</code>), exit <code>1</code>: <code>tama: looking up hook `{id}` in {registry}: the catalogue declares no hook with that id; observed: {count} hooks are declared; the ids nearest it: {nearest}</code>; <code>fix: pass one of the declared ids exactly; `tama list` prints every one</code></li>
 </ul>
+<p>Before <code>tama show</code> runs, the command line itself can be refused; those refusals are listed on <a href="../help/">tama help</a>.</p>
 <p>Return to the <a href="../">complete CLI command tree</a>.</p>
