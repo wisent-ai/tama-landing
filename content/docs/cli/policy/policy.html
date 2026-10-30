@@ -38,6 +38,18 @@ tama policy remove --source &lt;path|key&gt; [--json] [--home &lt;path&gt;]
 </code></pre>
 <p>Every field is required. <code>directories</code> refuses a file written under a directory of that name; <code>files</code> a file of that name; <code>repositories</code> with <code>newFileWords</code> a new file in a checkout of that name whose name holds one of those words; <code>commands</code> a shell command that runs the program with those words in that order, only where it names or runs in a reserved directory when <code>commandsOnlyInside</code> is true. The refusal reads <code>BLOCKED (block-reserved-changes): `&lt;path or command&gt;` is reserved (&lt;subject&gt;: &lt;why&gt;; the operator: "&lt;said&gt;"). Leave what is reserved as it is and do the work that was asked.</code>, followed by how the operator grants one exact change (<code>tama justify record --kind reserved-change</code>). A bundle whose <code>reserved.json</code> cannot be read is named on stderr (<code>block-reserved-changes: &lt;path&gt; cannot be read: &lt;cause&gt;; this bundle's reservations are not held</code>) and the other bundles' reservations still hold; a store that cannot be listed refuses nothing and says <code>block-reserved-changes: the imported policy bundles cannot be listed: &lt;cause&gt;; nothing is refused</code>.</p>
 <p>A bundle that only declares reservations still carries the <code>shared-hooks/registry.json</code> the import validates: it registers <code>block-reserved-changes</code> on the events it configures (<code>pre_tool_use:bash</code>, <code>edit</code>, <code>write</code>, <code>multiedit</code>, <code>notebook</code>), each entry with <code>"command": "$HOME/.local/bin/tama hook block-reserved-changes"</code> and <code>"source": "shared-hooks/reserved.json"</code>.</p>
+<h2 id="excuses">Answers to excuses a bundle declares</h2>
+<p>Tama answers no excuse itself. The answers one installation gives to the excuses agents use for leaving work undone or for writing to the operator are its policy, declared in the <code>shared-hooks/excuses.json</code> of a bundle it imports:</p>
+<pre><code>{
+  "answers": [
+    {
+      "excuse": "The work waits for the operator's decision.",
+      "answer": "No decision of his is a blocker: take the next open item."
+    }
+  ]
+}
+</code></pre>
+<p>Every imported bundle's answers are printed, in bundle order, under <em># The answers to the excuses agents give.</em> after the standing rules and rulings that <code>inject-operator-rules</code> puts in front of a session when it starts and after every compaction. A declaration that cannot be read makes that hook exit unsuccessfully naming the file and the cause; it is never read as no answers. <code>remove</code> takes the answers away with the bundle. With no bundle declaring answers, the block is absent.</p>
 <h2>Exit status</h2>
 <p><code>import</code> exits one on <code>conflict</code> or <code>rejected</code> and zero otherwise; <code>list</code> and <code>remove</code> exit zero, a removal of nothing included. A wrong invocation exits two:</p>
 <pre><code>policy import requires --source &lt;dir&gt;

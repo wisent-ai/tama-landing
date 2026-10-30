@@ -208,8 +208,8 @@ rest: <code>oko tasks owed</code>, <code>oko defects list --unrepaired</code>,
 count-only presentation for its own pending task ledger, not the Stop guard's owned task-and-defect queue. A session's own plan with open items is
 refused with their count and the first of them; the todo tool prints the rest. Copying every open
 defect and task into each refusal put tens of thousands of tokens into every refused turn, which the
-session then read again on every later call. The operator's answers to the excuses agents give are
-not repeated in the refusal: they reach the session at its start and after every compaction.
+session then read again on every later call. The answers to excuses an imported policy bundle declares
+(<a href="/docs/cli/policy/#excuses">tama policy</a>) are not repeated in the refusal: they reach the session at its start and after every compaction.
 The real journey is <code>tests/completion/summary.rs</code> (<code>cargo test -p tama-cli --test completion_summary</code>).
 Declare <code>TAMA_TEST_SOURCE_REVISION</code>, <code>TAMA_COMPLETION_SESSION</code> for a live non-executor session and <code>TAMA_COMPLETION_TRANSCRIPT</code> for its retained transcript without open local-plan items.
 <code>TAMA_COMPLETION_SUBJECT</code> names the selected owned task; <code>TAMA_COMPLETION_REFERENCED_SUBJECT</code> names another owned subject mentioned by its text. Both must have real standing rulings, and both Stop guards must select that task.
