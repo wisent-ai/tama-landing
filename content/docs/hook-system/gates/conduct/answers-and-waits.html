@@ -56,3 +56,31 @@ a direct engine; a different command, and a browser tool or device, stay refused
 <p>A turn that changed files ends once every changed file was read back after its own last change, besides an
 execution-class call or a recorded external blocker. The refusal asks for the change to be read and checked and never
 orders a build.</p>
+
+<h2>Asking the operator only at a gate's refusal (<code>block-ask-without-refusal</code>)</h2>
+<p>A Stop gate. The answer that ends a turn asks the operator to act when it hands him a command to run: a line of
+a fenced code block whose program this machine runs (on <code>PATH</code>, or an executable path) and which no shell
+call since his newest message ran, or an inline code span running <code>tama justify record</code>. Such an answer
+is refused, naming each command, unless a tool result since his newest message is a refusal whose banner names a
+hook the installed registry owns: the proven boundary. A failed call whose text names no hook is no refusal. A
+session whose transcript header names a <code>parentSession</code> answers that session and is not judged. No model
+and no word list; a transcript or registry that cannot be read refuses nothing and says on stderr which file and
+why.</p>
+<pre><code>BLOCKED (block-ask-without-refusal): this answer hands the operator a command to run that this turn never ran: `…`. …</code></pre>
+<p>The journey <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test ask_without_refusal_stop</code>
+refuses a fenced command and a <code>tama justify record</code> span with no refusal in the turn, passes them after a
+registered gate's refusal, refuses them after a plain failed call, passes a command the turn ran, a subagent's answer
+and an answer asking nothing, and names an unreadable registry on stderr.</p>
+
+<h2>Documentation, then a run, then building (<code>block-build-before-docs</code>)</h2>
+<p>A gate on the tools that write files. A change to a file of a checkout whose <code>.wisent-release.json</code>
+declares a product is refused until the session's own transcript, every turn of it, holds a look at that product's
+documentation (an address whose host's first label is the product and whose path starts with <code>/docs</code>, or
+a path below a <code>docs</code> folder of a checkout named for it, its site's repository included) and a shell run
+of a program named as the product. A product with no program of its name on <code>PATH</code> needs only its
+documentation, and stderr says so. The refusal names the file and each step the history lacks.</p>
+<p>The journey <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test build_before_docs_history</code>
+builds a product checkout and a <code>PATH</code> for each case: a change after reading only the README is refused
+naming both steps, one after the docs is refused naming the run, the docs site or the site repository's docs with a
+run pass, a product with no program passes on its docs alone, and a checkout that releases no product is not
+judged.</p>

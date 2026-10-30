@@ -66,7 +66,16 @@ contain each applying sentence verbatim — case, white space and Polish
 diacritics aside — or the next call is refused with the sentences to repeat.
 The window is read from the harness transcript the payload names, in every
 harness's shape (OMP, Claude Code, Codex, Jeden); a transcript that cannot
-be read refuses naming why, except in the operator's own terminal.</p>
+be read refuses naming the file, why it cannot be read and the way out
+(the harness's <code>transcript_path</code>, <code>tama sessions self</code>,
+<code>tama reminder-phrase list</code>), except in the operator's own
+terminal: a process no session record names. The journey
+<code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test
+reminder_phrase_hooks</code> runs both hooks against a fixture register and
+transcript: the sentence follows the result while its defect is open and
+not once it is repaired, a window without it is refused and the same window
+written without diacritics in another case passes, and an unreadable window
+is refused for a recorded agent process and passes the operator's terminal.</p>
 
 <h2>The operator's rules after every compaction</h2>
 <p>A compaction replaces a session's earlier conversation with a summary, and the

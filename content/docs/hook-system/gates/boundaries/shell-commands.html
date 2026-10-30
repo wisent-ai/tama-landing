@@ -154,10 +154,15 @@ same way.</p>
 <p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_inline_execution/</code> and
 <code>rust/crates/tama-hook-tools/src/ports/pre_bash/</code> (prompt: <code>vocabulary/throwaway-prompt.md</code>).
 Journeys, run against the built hook with the judge recorded as not answering:</p>
-<pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test inline_execution_judged
+<pre><code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test inline_execution_structure
+cargo test --manifest-path rust/Cargo.toml -p tama-cli --test inline_execution_judged
 cargo test --manifest-path rust/Cargo.toml -p tama-cli --test pre_bash_throwaway
 cargo test --manifest-path rust/Cargo.toml -p tama-cli --test pre_bash_trajectory_runs</code></pre>
-<p>With <code>TAMA_TEST_INLINE_JUDGE=1</code> or <code>TAMA_TEST_THROWAWAY_JUDGE=1</code> and <code>-- --ignored</code>
-the first two ask the real judge: <code>python3 -c</code> and a shell loop refused and a commit message passed; a
-keyword search, <code>gcloud compute instances list</code> and an executed quarantined file refused, and listing the
-quarantine or reading one file passed.</p>
+<p><code>inline_execution_structure</code> refuses <code>python3 -c</code>, <code>node -e</code>, bundled
+<code>perl -lne</code>, <code>deno eval</code>, a pipe and a here-document into an interpreter that names no script,
+a pipe into <code>sh</code> and a process substitution handed to <code>ruby</code>, each naming how the program was
+handed, while no judge answers; a version query, a script file, <code>python3 -m json.tool</code>, a
+<code>node</code> script and <code>perl -Mstrict script.pl</code> pass. With <code>TAMA_TEST_INLINE_JUDGE=1</code> or
+<code>TAMA_TEST_THROWAWAY_JUDGE=1</code> and <code>-- --ignored</code> the judged journeys ask the real judge: a shell
+loop refused and a commit message passed; a keyword search, <code>gcloud compute instances list</code> and an
+executed quarantined file refused, and listing the quarantine or reading one file passed.</p>

@@ -39,6 +39,20 @@ back-reference spliced into one (<code>'Chrome/$1</code> followed by <code>.0.0.
 quad as a URL's host (after <code>//</code>) or standing alone is still refused. The journey is
 <code>a_quad_in_a_version_token_names_no_host_and_one_in_a_url_does</code> in <code>tests/content/addresses.rs</code>.</p>
 <pre><code>pre-write-edit: BLOCKED: `&lt;address&gt;` is hardcoded data: an address or a fleet machine spelled into the file. …</code></pre>
+<h2>What the installation declares its own</h2>
+<p><code>block-internal-names</code> also refuses, in a product checkout, what the installation running Tama
+declares its own in the <code>shared-hooks/internal-names.json</code> of a policy bundle it imported
+(<code>tama policy import</code>): its <code>names</code> anywhere in a file, the ids of the rulings its
+<code>rulingRegisters</code> keep (whole, or their first group), and any run of <code>quoteWords</code> consecutive
+words of what its operator said there. A checkout whose remote names one of its <code>instanceRepositories</code> is
+not judged, since that is where the instance's own decisions belong. Tama compiles in no installation's names. A
+ruling register the declaration names that cannot be read ends the hook with
+<code>TAMA_HOOK_INFRASTRUCTURE: block-internal-names could not read the ruling register …</code>, naming the file and
+the cause, instead of judging the write as one that names nothing.</p>
+<p>The journey <code>cargo test --manifest-path rust/Cargo.toml -p tama-cli --test internal_names_bundle</code>
+imports a fixture bundle into a home under <code>.build</code> and refuses a declared host, a ruling id and a run of
+the operator's words in a product checkout, passes a sentence about behaviour there and the same ruling text in the
+instance's own repository, and names a missing ruling register.</p>
 <h2>The refusal</h2>
 <pre><code>pre-write-edit: BLOCKED: `session &lt;ID&gt;` points into the internal defect register or transcript store. …</code></pre>
 <p>Remove the reference and state what the product guarantees. Record the incident with
