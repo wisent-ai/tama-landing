@@ -1,0 +1,33 @@
+<h1>One implementation for all: <code>block-single-implementation</code></h1>
+<p>A gate on <code>pre_tool_use:edit</code>, <code>multiedit</code>, <code>notebook</code> and <code>write</code>
+(<code>tama hook block-single-implementation</code>) that refuses a write into a repository adding text written
+for one implementation where every implementation of its kind is served. A refusal starts
+<code>block-single-implementation: BLOCKED: &lt;file&gt;:</code>, quotes the model's reason and ends with how to
+write it for every implementation. It appears as a <code>{"decision":"block","reason":"…"}</code> document, and
+the harness does not make the write. An allowed write prints nothing.</p>
+<h2>Why it exists</h2>
+<p>A product that abstracts over many interchangeable implementations of one kind (agent harnesses, model
+providers and models, platforms, clouds, browsers, the workshop's products) serves all of them through the part
+they share. Documentation and code in that part were written in terms of one implementation alone: a page that
+explained how hooks reload only through one harness's extension file left every other harness undocumented. An
+agent that works with one implementation all day writes that way without noticing, and nothing stopped the
+next write.</p>
+<h2>How a write is read</h2>
+<p>Only files inside a repository are read, and a path declared in the repository's
+<code>.tama/violations-ignore</code> is not. The text the write adds and the file it goes to are read by a model,
+through Oko's model call, against the rule in <code>block_single_implementation/judge-prompt.md</code>: the model
+first decides which kinds of implementation the file serves, from its place and what the text does, and then
+whether the added text describes or decides the behaviour of one of them as if it were all of them. No kind and
+no implementation name is listed in Tama: a list would be the keyword logic <code>block-keyword-literals</code>
+refuses, would miss the next kind, and would refuse what is rightly one implementation's own.</p>
+<p>These pass: text in one implementation's own adapter, catalogue entry, configuration or test; one
+implementation named as one example among others or in a list of all of them; a statement true of every
+implementation that happens to mention one; code that reads an implementation's properties from the catalogue
+or declaration the product keeps for that kind.</p>
+<h2>Without a model</h2>
+<p>A question the model does not answer is decided as for every judged gate: on a machine that declared
+<code>tama model set --none</code> nothing is asked and nothing is refused for it; with a model declared, an
+unanswered question refuses the write with
+<code>TAMA_HOOK_INFRASTRUCTURE: block-single-implementation: review unavailable: …</code> and its actual
+cause. Oko answers the model call through Brama, or through the OpenAI-compatible service declared with
+<code>oko model set</code> on a machine without Brama.</p>
