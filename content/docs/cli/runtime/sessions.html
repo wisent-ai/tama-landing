@@ -116,8 +116,20 @@ changing files on disk: use their <code>tama_reload_hook_runtime</code> tool or
 slash command where supported. An entry loaded before the reload shell cannot
 adopt that shell in place. No refusal is reported as a recovered session.</p>
 <p>Tama Desktop exposes the same operation as <strong>Session → Reload adapter</strong>,
-alongside the loaded digest and the last reload failure. Adapter siblings
-already imported by OMP are not reloaded by this operation.</p>
+alongside the loaded digest and the last reload failure.</p>
+<p>A harness that runs Tama's hooks as a new process for each event reads
+the installed files at every event, so an install reaches its next call. A
+harness that imports Tama's adapter into its own process once, as an
+extension, keeps whatever modules that process imported; for such a harness
+the shell Tama installs copies the adapter and every module it can import to
+a folder of its own for each load, the first one and every reload
+(<code>~/.shared-hooks/.loads/&lt;digest&gt;.&lt;pid&gt;.&lt;n&gt;</code>), and imports
+from there, so every module of one load, imported directly or through
+another module, comes from one install. The copy is deleted once the
+adapter has registered, and a copy left by a process that ended during a
+load is deleted by the next load. A process whose shell was installed before
+this copy keeps the modules its first load imported beside a reloaded
+adapter; its session is continued in a new process.</p>
 <h2>Real reload journey</h2>
 <p><code>tests/enforcement/live-reload.mjs</code> in the Tama repository runs real
 OMP RPC processes with sealed releases installed into isolated homes under
