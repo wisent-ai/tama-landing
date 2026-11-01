@@ -13,6 +13,9 @@
 <p>A hook that cannot run on this machine is refused the same way, before any write, because a selected hook that answers every tool call with a credential error takes the machine away from its agent - including the command that would undo the selection:</p>
 <p><code>Hook '&lt;id&gt;' cannot run on this machine, so nothing was selected and the enforcement selection was not changed. It answered: &lt;the hook's own line&gt;</code></p>
 <p>Tama asks each requested hook once with the activation payload the session path uses, expanding the home directory the registry records literally. A hook whose binary is not installed yet is accepted: it is absent, not broken. Only a hook that runs and answers with an infrastructure failure is refused. <a href="../preflight/"><code>tama enforcement preflight</code></a> shows that exchange for one hook without changing anything.</p>
+<p>An agent session cannot narrow the selection that holds it. Run under an agent session's recorded process, <code>only</code> is refused before any write:</p>
+<p><code>`tama enforcement only` turns gates off, and it runs inside &lt;agent&gt; session &lt;id&gt;, which those gates hold: narrowing the selection is the operator's own act from his terminal, and nothing was changed. `tama enforcement add` and `tama enforcement all` turn gates on from anywhere</code></p>
+<p>When the process tree cannot be read, the refusal says <code>whether it runs inside an agent session cannot be read (&lt;cause&gt;)</code>: read as no session, every agent would pass as the operator. <a href="../add-remove/"><code>remove</code></a> is refused the same way; <code>add</code> and <code>all</code> are not.</p>
 <p>Other registry or write failures print <code>enforcement: &lt;OS/core error&gt;</code> to stderr and exit <code>1</code> without claiming success.</p>
 <h2>What a machine in <code>only</code> runs</h2>
 <p>The selected hooks, and nothing else of Tama refuses a call:</p>
