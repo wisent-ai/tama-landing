@@ -41,8 +41,9 @@ failure shows <code>MCP snippet could not be read</code> with the sentence.</p>
 <h2>Attestations</h2>
 <p>Below the model service rows, <em>Carried attestations</em> reads <code>tama request attestation/required</code>
 and shows every claim a commit message carries for <code>review-push</code>, with <em>Copy block</em> putting them on the
-clipboard one per line, the Git trailers its harsh review is written in (<em>At least one Harsh-Review-Attacked</em>,
-<em>No Harsh-Review-Finding</em>, each with why), and each turn-end stop hook's claims. Its form checks a commit in a chosen repository
+clipboard one per line, the Git trailers the message carries (<em>At least one Harsh-Review-Attacked</em>,
+<em>At least one Tests</em>, <em>No Harsh-Review-Finding</em>, <em>No Improvement-Suggested</em>, each with why, as
+<code>standards/commit.json</code> declares them), and each turn-end stop hook's claims. Its form checks a commit in a chosen repository
 (<em>Check commit</em>) or an answer typed for a chosen hook (<em>Check answer</em>) through
 <code>attestation/check</code>; the verdict reads <code>&lt;kind&gt; &lt;id&gt; carries every claim</code>, or
 <code>&lt;kind&gt; &lt;id&gt; does not carry its attestation; the gate refuses it</code> with one
