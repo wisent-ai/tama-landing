@@ -177,13 +177,16 @@ case.</p>
 process group. The core holds a kernel lifetime channel; cancellation closes
 it, and a killed core closes it automatically. On EOF the supervisor asks
 its own group, the hook and every child it started, to end with SIGTERM,
-which it ignores itself; once the hook has ended, whatever of the group is
+which it outlives itself through a handler that does nothing (an ignored
+signal would stay ignored in a hook started afterwards, which could then
+never be asked to end); once the hook has ended, whatever of the group is
 still running is ended with SIGKILL, the supervisor with it. A program can
 clean up after SIGTERM and not after SIGKILL: a <code>git</code> command a
 hook ran, ended by SIGKILL, left its <code>.lock</code> file in the checkout
 and every later git command needing that lock there was refused until
-someone removed it. A supervisor that cannot ignore SIGTERM says so and ends
-the group with SIGKILL at once. It does not query another
+someone removed it. A supervisor that cannot install the handler says so and
+ends the group with SIGKILL at once, and one whose core ended before its hook
+started does not start it. It does not query another
 process's birth through <code>ps</code>, so sandboxed runtimes need no external
 process-inspection permission.</p>
 <p>The supervisor records its own start and group before starting the hook.
