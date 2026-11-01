@@ -82,7 +82,20 @@ status, working directory, process id, liveness mode,
 <code>adapterDigest</code>, <code>adapterReloadSupported</code> and
 <code>lastReloadError</code>. Missing adapter fields mean the loaded adapter
 does not report them; a matching policy release does not prove that its
-JavaScript adapter is current. Listing sessions only reads state.</p>
+JavaScript adapter is current, so each record whose process reports an
+adapter digest also carries <code>adapterCurrent</code>, judged against the
+adapter installed for the record's own harness (<code>agentId</code>): the
+digest, by path and bytes, of every module under that harness's directory in
+the shared hooks and then every shared module beside it, which is what the
+harness's shell computes. <code>{"current": true}</code> when the process
+reports that digest; <code>{"current": false, "installed", "cause"}</code>
+when its record was written after the installed adapter and still names
+another digest, so the process runs replaced hooks and only a new process
+continuing the session loads the installed ones; <code>{"current": null,
+"cause"}</code> when it has not reported since the installed adapter was
+written, or the harness has no adapter directory (<code>cannot list
+&lt;directory&gt;</code>). No harness is named in Tama: the directory is the
+record's <code>agentId</code>. Listing sessions only reads state.</p>
 <h2>Reload an existing OMP adapter</h2>
 <p><code>tama sessions reload --session "$SESSION_ID" --json</code> sends a
 <code>reload-adapter</code> request to that session's control directory and
