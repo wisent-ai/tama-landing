@@ -150,7 +150,17 @@ session; a harness continuation is not one. Making one of those looks again is r
 <code>BLOCKED: this exact call already ran at … and nothing this session did since could change its
 answer … It was answered: …</code>, quoting the earlier answer whole. No count and no window decide it:
 the first look passes, the same look after a commit, an edit or a person's message passes, and the same
-look in between is refused. <code>block-idle-answer</code> counts work after a stop refusal, or after the
+look in between is refused. A shell look is compared by what it asks: a stage a pipe feeds only to shape
+the answer (<code>| cut -c1-40</code>, <code>| grep -c x</code>) is left out, so trimming or counting the
+same answer another way is the same look; a fed stage that names standard input as an argument of its own
+(<code>-</code>, as <code>--text-file -</code> or <code>cat -</code> write it, or a file the system opens as
+standard input: <code>/dev/stdin</code>, <code>/dev/fd/0</code>, <code>/proc/self/fd/0</code>; alone or
+joined to its option as <code>--text-file=-</code>) acts on what it is handed, so it stays in the look:
+<code>printf body | oko defects note one --text-file -</code> and the same text handed to
+<code>oko defects note two --text-file -</code> are two looks.
+A <code>-</code> named only inside a grouped or <code>sh -c</code> inner command of a fed stage is not
+read, so that stage is left out as reshaping. Which stage only reshapes is read from its words, not from
+a list of program names. <code>block-idle-answer</code> counts work after a stop refusal, or after the
 text gate cut an answer off (OMP's <code>tama-text-cut</code> record), by the same ledger: a change, or a
 look not made since the last change. An ending with no such work after either, one that carries only the
 agent's own reasoning included, is refused with the session's owed tasks (<code>oko tasks owed</code>) and
