@@ -32,11 +32,14 @@ instruction. A HEAD the parent descends from has not moved past it: a reviewer's
 behind the commit the author staged on holds no commit since the parent, so the round is kept without a merge
 (<code>git merge-base --is-ancestor HEAD &lt;parent&gt;</code>).</p>
 <h2>Invocation</h2>
-<pre><code>tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; (--message &lt;file&gt; [--tree &lt;tree read&gt;] | --queue &lt;id&gt;) [--repository &lt;path&gt;]
+<pre><code>tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; (--message &lt;file&gt; [--tree &lt;tree read&gt;] [--with &lt;repository&gt;:&lt;index&gt; --with-message &lt;file&gt;] | --queue &lt;id&gt;) [--repository &lt;path&gt;]
 tama reviews harsh record --findings &lt;file&gt; --improvements &lt;file&gt; --attestation (session|build):&lt;session id&gt;
-tama reviews harsh dispose --quote &lt;text&gt; --defect &lt;oko defect id&gt; [--repository &lt;path&gt;]
-tama reviews harsh settle --quote &lt;text&gt; --reason &lt;where it was repaired&gt; [--repository &lt;path&gt;]
-tama reviews harsh show [--message &lt;file&gt; | --queue &lt;id&gt;] [--repository &lt;path&gt;] [--json]</code></pre>
+tama reviews harsh dispose --quote &lt;text&gt; --defect &lt;oko defect id&gt; [--repository &lt;path&gt; | --attestation (session|build):&lt;session id&gt;]
+tama reviews harsh settle --quote &lt;text&gt; --reason &lt;where it was repaired&gt; [--repository &lt;path&gt; | --attestation (session|build):&lt;session id&gt;]
+tama reviews harsh show [--message &lt;file&gt; | --queue &lt;id&gt;] [--repository &lt;path&gt;] [--json]
+tama reviews harsh request --message &lt;file&gt; [--item &lt;id&gt;] [--within-minutes &lt;n&gt;] [--repository &lt;path&gt;]
+tama reviews harsh run --message &lt;file&gt; (--defect &lt;id&gt; | --task &lt;id&gt;) [--with &lt;repository&gt;:&lt;index&gt; --with-message &lt;file&gt;] [--repository &lt;path&gt;]
+tama reviews harsh run --attestation (session|build):&lt;session id&gt;</code></pre>
 <h2>A model that does not answer stops no commit</h2>
 <p>On a machine that declared a model, each commit attempt asks it for a round. When it does not answer (Brama down,
 the route refusing, any failure), the commit is not held for it: the hook keeps the round as owed in the register
@@ -63,7 +66,15 @@ repository, the parent it follows, the staged tree and the message, and its refu
 of its own; commit again once `tama reviews harsh show` lists it reviewed</code>. When Oko cannot take it, the refusal
 says so and why: <code>it could not be put in Oko's harsh-review queue, so no reviewer session is handed it:
 &lt;cause&gt;</code>. The same candidate refused again finds its own entry; a changed tree or message is a new entry,
-since a round covers one candidate only.</p>
+since a round covers one candidate only. An author queues its own candidate without a refused commit with
+<code>tama reviews harsh request --message &lt;file&gt; [--item &lt;id&gt;] [--within-minutes &lt;n&gt;]</code>:
+<code>oko work next</code> hands the entry to a free session by the rank of the item the commit repairs, then the
+oldest, and an entry held past the minutes declared goes to the next session that asks; it answers <code>queued
+harsh-review entry &lt;id&gt; for tree &lt;tree&gt; on &lt;parent&gt; in &lt;repository&gt;: &lt;state&gt;; `oko work next`
+hands it to a free session that did not stage it</code>, and refuses a missing <code>--message</code>, a message file
+that holds no text (<code>&lt;file&gt; holds no message; a round covers the message too</code>), a repository that
+cannot be resolved, and an entry Oko refuses, a <code>--within-minutes</code> that is no positive number among them,
+with <code>&lt;oko&gt; review harsh enqueue … failed: &lt;what Oko said&gt;</code>.</p>
 <p>Every supervision pass (<code>oko sessions supervision run</code>, or <code>oko review harsh assign</code> for this
 step alone) starts, for each entry with no running reviewer, a session of its own in the candidate's checkout, recorded
 as an executor under the author's supervisor, with a brief to review that entry and nothing else. The reviewer reads the
@@ -170,6 +181,74 @@ message it lists the rounds and gives no verdict. Under them it lists Oko's hars
 verdict fields null without a message; <code>queue</code> as <code>oko review harsh list</code> prints it). An
 unreadable register, a line in it that is no round, disposal or settlement, a Git step that fails, or an Oko that cannot list the
 queue refuses naming its cause.</p>
+<h2>A reviewer session the author starts</h2>
+<p><code>tama reviews harsh run --message &lt;file&gt; (--defect &lt;id&gt; | --task &lt;id&gt;)</code> starts a reviewer
+session of its own over the candidate staged in <code>--repository</code> (the index <code>GIT_INDEX_FILE</code> names,
+else the checkout's own) and follows it to its end, so an author's commit does not wait for another session to be free.
+The run gets a directory of its own, <code>&lt;git common dir&gt;/tama-harsh-review/runs/&lt;tree&gt;/&lt;start in
+ms&gt;</code>, holding <code>brief.md</code>, the reviewer's <code>events.jsonl</code> and <code>stderr.log</code>, the
+<code>findings.json</code> and <code>improvements.json</code> it writes, and <code>outcome.txt</code>; a copy of this Tama
+is put there for the record command and removed when the session ends. The brief names the index, the tree, the
+message, the item the author's work is for (which the reviewer scopes its session to with <code>tama task scope set</code>),
+a build hold when one stands on the checkout, and the quotes earlier rounds found that the author recorded as Oko
+defects; it tells the reviewer to repair what it finds in the staged files, stage the repairs in the same index, and
+record one round with <code>record</code>. The reviewer is one session of the OMP program <code>TAMA_OMP</code> names,
+else <code>omp</code> on <code>PATH</code> or in <code>~/.local/bin</code>, in print mode, in the candidate's checkout.
+The run ends when the session does; it answers <code>reviewer session over tree &lt;tree&gt; ended; it repaired nothing
+| it repaired what it found, so read its repairs with `git diff &lt;tree&gt; &lt;tree now&gt;` before committing; its
+brief, events and errors are in &lt;directory&gt;; it answered: &lt;last answer&gt;</code> and, on the next line, the
+verdict the rounds now give the staged tree, exiting nonzero when they do not admit it. A session that makes the same
+call again and is refused the same way, or answers again with no call between, records nothing from then on and is
+stopped: <code>the reviewer session made the call &lt;call&gt; again and was refused the same way, so it was stopped; the
+refusal: &lt;refusal&gt;</code>; one that ends without a round over the tree staged now is refused with <code>the
+reviewer session ended without recording a round over the staged tree &lt;tree&gt; in &lt;register&gt;</code>. Before
+any run directory exists it refuses a missing <code>--message</code>, an empty message (<code>the message &lt;file&gt; is
+empty</code>), an item named by neither or both of <code>--defect</code> and <code>--task</code> (<code>name the item the
+reviewed work is for with exactly one of --defect &lt;id&gt; or --task &lt;id&gt;</code>), a <code>TAMA_OMP</code> set to
+nothing, and a machine without OMP (<code>no OMP program to run the reviewer in: name it in TAMA_OMP, or put omp on PATH
+or in ~/.local/bin</code>). <code>run --attestation (session|build):&lt;session id&gt;</code> runs the same reviewer
+over a session's recorded task or build attestation instead of a staged commit (see Recorded attestations).</p>
+<h2>One change across two repositories</h2>
+<p>A product's code and its documentation live in two checkouts, so a change that alters a command and the page that
+describes it is two commits. Reviewed apart, the code's reviewer finds the page missing and the page's reviewer finds the
+code missing, and neither half is ever admitted. <code>run</code> and <code>record</code> take the other half with
+<code>--with &lt;repository&gt;:&lt;index&gt;</code> (its checkout and the index it is staged in) and
+<code>--with-message &lt;file&gt;</code> (the message it will carry). <code>run</code> briefs the reviewer with both patches
+as one change, to repair either half and record one round; <code>record</code> accepts a finding quoting either half's
+patch or message. The round is kept in both repositories' registers over each half's own tree, each naming the other
+half (<code>paired: {repository, index, tree, message, commitsFirst}</code>, <code>message</code> being the digest of
+that half's message as the round read it).</p>
+<p>The <code>--repository</code> half (the code) commits first: <code>review-commit</code> admits it only while the other
+half is still staged as the round read it, so the documentation that lands is the one reviewed; a half restaged since is
+refused with <code>this half was reviewed with its paired half in &lt;name&gt; as tree &lt;tree&gt;, but &lt;index&gt;
+now stages tree &lt;tree&gt;: the round read another half than the one that would land beside this change; review both
+halves again with `tama reviews harsh run --with &lt;repository&gt;:&lt;index&gt; --with-message &lt;its message file&gt;
+--message &lt;file&gt; (--defect &lt;id&gt; | --task &lt;id&gt;)`</code>, and an index
+Git cannot read a tree from any more with <code>this half was reviewed with its paired half in &lt;name&gt;, staged in
+&lt;index&gt;, which cannot be read now (&lt;cause&gt;); restage the other half as the round read it (tree &lt;tree&gt;)
+or review this half again</code>. The other half commits after it: it is admitted once a commit in that repository's
+<code>HEAD</code> history holds its pair's reviewed tree, so a later commit there does not hold it back, and refused
+before with <code>… which commits first: no commit in &lt;repository&gt;'s HEAD history holds its reviewed tree
+&lt;tree&gt;, so commit and push that half first, then commit this one</code>; a history Git cannot list is refused with
+<code>… which commits first, and &lt;repository&gt;'s HEAD history cannot be read (&lt;status&gt;: &lt;stderr&gt;);
+commit and push that half first, then commit this one</code>. Git is asked about the other checkout without the
+repository a commit hook names to it, so it reads that checkout and not the one being committed. Each admitted half's
+<code>Harsh-Review-Rounds:</code> line ends with <code>read with its paired half in &lt;name&gt; tree &lt;tree&gt;</code>,
+<code>&lt;name&gt;</code> being the other checkout's directory name, as in the refusals above.</p>
+<p>Refusals before any reviewer starts or any round is kept, in <code>record</code> and <code>run</code> alike:
+<code>--with names the other half of the change as &lt;repository&gt;:&lt;index&gt;</code> for a value with no separator,
+<code>--with names both the repository and the index of the other half</code> when either part is empty, <code>--with
+names the index &lt;path&gt;, which is no file</code>, <code>`git -C &lt;repository&gt; write-tree` with the index
+&lt;index&gt; wrote no tree (&lt;status&gt;: &lt;stderr&gt;)</code> for a file that is no index of that checkout,
+<code>--with-message is required</code>, <code>--with pairs a
+candidate staged in --repository with its other half, and --queue reviews one without it; name one of them</code>
+(<code>--attestation</code> the same), since a queued candidate or an attestation is reviewed alone, and <code>--with-message
+names the message of the other half --with &lt;repository&gt;:&lt;index&gt; names, and no --with is given; name both or
+neither</code> for a message with no half. <code>run</code> alone refuses <code>the other half's message &lt;file&gt; is
+empty</code>, as it refuses an empty <code>--message</code>; <code>record</code> reads the message as it is. A round is kept in
+the other register only after that half's staged tree passes its product's declared gates, as this half's does, and
+<code>record</code> marks the Oko harsh-review queue entries that queue either half; a register of the other half that
+cannot be read is refused as <code>the other half's register in &lt;repository&gt; cannot be read: &lt;cause&gt;</code>.</p>
 <h2>Recorded attestations</h2>
 <p>A session's recorded task attestation (<code>tama attestation record --session</code>, read by the stop gates on a
 machine that declares no model) and its build attestation (spent by the build gate) are certifications in the
@@ -186,7 +265,14 @@ refuses a finding quoting text the attestation does not hold, a round by the ses
 &lt;id&gt; wrote this attestation, so its own round is no review</code>), an <code>--attestation</code> that is not
 <code>session:&lt;id&gt;</code> or <code>build:&lt;id&gt;</code>, and an attestation that is not recorded. The rounds are
 kept in <code>&lt;Tama state&gt;/attestations/reviews/&lt;kind&gt;/&lt;session id&gt;.jsonl</code>, outside the record
-directories. <code>tests/task-attestation/no_model.rs</code> drives the stop gate through an unreviewed attestation, a
+directories; <code>dispose</code> and <code>settle</code> with <code>--attestation &lt;kind&gt;:&lt;session id&gt;</code>
+keep their entry in that register instead of the commit's. <code>run --attestation &lt;kind&gt;:&lt;session id&gt;</code>
+starts the reviewer session the way <code>run</code> does for a commit, with its run directory under
+<code>review-runs/&lt;kind&gt;/&lt;session id&gt;</code> beside the attestation records and a brief naming the record
+and the record command; it refuses an attestation that is not recorded with <code>show</code>'s own words before any
+reviewer starts, and answers <code>reviewer session over the attestation &lt;kind&gt;:&lt;session id&gt; ended; the
+attestation stands</code>, or <code>… does not stand: &lt;why&gt;</code> exiting nonzero, as the gates read it now.
+<code>tests/task-attestation/no_model.rs</code> drives the stop gate through an unreviewed attestation, a
 refused unquoted finding, a passing round and a newer round with a finding; <code>tests/build-gate/attested.rs</code>
 proves a standing build attestation admits no build until a reviewer's round passes it.</p>
 <h2>Native request and Desktop</h2>
@@ -209,4 +295,13 @@ machine declaring no model, with the installed Oko keeping the queue in the case
 queue entry, the author's round over its own entry is refused, another session reads the entry's patch with
 <code>show --queue</code> and records its round with <code>record --queue</code>, <code>show --json</code> lists the
 entry reviewed, and the author's next attempt makes the commit. Every case's queue is its own
-(<code>OKO_HARSH_REVIEW_QUEUE</code>), so no journey writes the operator's.</p>
+(<code>OKO_HARSH_REVIEW_QUEUE</code>), so no journey writes the operator's. <code>tests/harsh-review/rounds.rs</code>
+refuses <code>record --with-message</code> without <code>--with</code> and <code>--with</code> beside
+<code>--queue</code> before any round is kept, records one round over a code half and a docs half staged in two clones
+with <code>record --with</code>, reads it back from both registers naming the other half, refuses the docs half before
+the code half commits and the code half while the docs half is restaged, then commits the code half, a later code
+commit, and the docs half. <code>tests/harsh-review-run/refusals.rs</code> (<code>--test
+harsh_review_run_refusals</code>) refuses, before any run directory exists, a <code>--with</code> with no separator or
+naming an index that is no file, a <code>--with</code> without <code>--with-message</code>, an empty other message, a
+<code>--with-message</code> without <code>--with</code> and <code>--with</code> beside <code>--attestation</code>, and
+reads a paired run's brief naming both halves and its record command with <code>--with</code>.</p>
