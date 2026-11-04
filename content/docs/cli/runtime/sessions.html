@@ -117,6 +117,12 @@ not support remote reload. Older already-open entries are not upgraded by
 changing files on disk: use their <code>tama_reload_hook_runtime</code> tool or
 slash command where supported. An entry loaded before the reload shell cannot
 adopt that shell in place. No refusal is reported as a recovered session.</p>
+<p>The wait is announced on stderr as every Tama wait is (<code>czekam: … session &lt;ID&gt;
+to answer its adapter reload; gdzie: process &lt;pid&gt;</code>) and ends with its outcome. A
+session whose control queue fails writes no receipt; it publishes the cause as
+<code>lastReloadError</code> in its session record. When that field changes after the request
+was written, the command ends with <code>&lt;harness&gt; session &lt;ID&gt; answered no receipt and
+published this cause in &lt;record&gt;: &lt;cause&gt;</code> instead of waiting until it is interrupted.</p>
 <p>Tama Desktop exposes the same operation as <strong>Session → Reload adapter</strong>,
 alongside the loaded digest and the last reload failure.</p>
 <p>A harness that runs Tama's hooks as a new process for each event reads
