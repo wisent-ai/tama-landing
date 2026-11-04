@@ -249,8 +249,8 @@ capability <code>{"tool": "tests"}</code> recorded after the operator agrees in 
 conversation, under <code>tama tests approve &lt;path&gt;</code> run in his own
 terminal, or under <code>DEVICE_LEVEL_TESTS_APPROVED=1</code>. A session can never
 write the approval record or run <code>tama tests approve</code> itself.</p>
-<p><code>block-device-level-tests-without-consent</code> reads a write tool by the path it names and a shell
-command in two steps. Which test files the command reaches is structure: a test path (the runners' own
+<p><code>block-device-level-tests-without-consent</code> reads a write tool by the path it names; a write that only removes from a test path (a hashline <code>REM</code> or <code>CUT</code> with no body, a string edit to nothing) adds no test code and passes.
+It reads a shell command in two steps. Which test files the command reaches is structure: a test path (the runners' own
 conventions — a test directory, a <code>.test.</code>/<code>.spec.</code> file, an XCTest
 <code>…Tests.swift</code>) named outside quoted data, and the targets a patch file it names declares in its own
 <code>---</code>/<code>+++</code> or <code>*** … File:</code> headers. A redirection onto a test path is refused
