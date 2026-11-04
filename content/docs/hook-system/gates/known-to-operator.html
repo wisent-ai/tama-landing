@@ -69,11 +69,20 @@ would otherwise be judged as never said. A last line the harness is still writin
 the judge itself, a Stado release, a build the operator has not allowed yet — are exactly the ones he already ruled on.
 So <code>block-repeated-blocker</code> holds one rule that needs no judge: while Oko holds any open task of any session
 or any open defect of any product, the answer's <code>Blokady</code> (<code>Blockers</code>) section and its
-<code>Następne kroki</code> (<code>Next steps</code>) section must say <code>brak</code> (<code>none</code>). Anything
-else is refused with the count of open items and the instruction to take the next one, repair it and push the repair.
-The rule reads the two sections, not their words, so no rewording passes it. Open work is read the way
-<code>block-stop-with-open-work</code> reads it; an Oko that cannot be read refuses nothing here, because that gate
-already refuses the stop. Source: <code>rust/crates/tama-hook-tools/src/ports/block_repeated_blocker/while_open.rs</code>.</p>
+<code>Następne kroki</code> (<code>Next steps</code>) section are left empty; the operator ruled that a section with
+nothing in it stays empty, so a word saying so (<code>brak</code>, <code>none</code>) is refused like any other line.
+Under <code>Następne kroki</code> his one next-step sentence, the one <code>block-next-steps-other-than-work</code>
+holds, also passes. Anything else is refused with the count of open items and the instruction to take the next one,
+repair it and push the repair. The rule reads the two sections, not their words, so no rewording passes it. Open work
+is read the way <code>block-stop-with-open-work</code> reads it; an Oko that cannot be read refuses nothing here,
+because that gate already refuses the stop. Source:
+<code>rust/crates/tama-hook-tools/src/ports/block_repeated_blocker/while_open.rs</code>.</p>
+<p>The three gates on the answer's last parts accept the same two endings: an empty next-steps section, or the
+operator's sentence alone. <code>block-next-steps-other-than-work</code> refuses everything else there,
+<code>block-blocker-without-record</code> does not judge a next-steps part that is only his sentence, and
+<code>block-repeated-blocker</code> passes both; the sentence is compared through one function,
+<code>is_only_next_step</code> in
+<code>rust/crates/tama-hook-tools/src/programs/block/workflow/assignment/block_next_steps_other_than_work.rs</code>.</p>
 <h2>Items he already ruled on</h2>
 <p>The model judgement passes everything while no model answers, and the item agents retell most
 is exactly one he ruled on. <code>block-ruled-subject-retold</code> needs no model: it reads Oko's
@@ -96,7 +105,8 @@ communication contract's three headed parts, found by the answer's headings and 
 paragraph there must name an open record by its id, the eight characters <code>oko blockers list</code> prints or the
 whole UUID. An item naming none, or naming only records that are no longer open, is refused:
 <code>BLOCKED: every item of the blockers and next-steps parts must name an open record of Oko's blocker register by
-its id … - "&lt;item&gt;" names no blocker record</code>. A part of one word, the contract's none, passes, and an answer
+its id … - "&lt;item&gt;" names no blocker record</code>. A part with no blocker is left out rather than filled with a
+word saying it is empty, which is refused; a next-steps part that is only the operator's sentence is not judged, and an answer
 without the three headed parts is not read. The register is read with <code>oko blockers list --json</code>; a register
 that cannot be read refuses the answer by name. Source:
 <code>rust/crates/tama-hook-tools/src/ports/block_blocker_without_record/mod.rs</code>; declaration:
