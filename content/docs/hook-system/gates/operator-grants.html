@@ -87,7 +87,9 @@ word recorded as a session capability or a grant. Reading one (<code>echo $NAME<
 <li><code>block-unowned-failures</code> (<code>--kind unowned-failure</code>, its action the failed command line), a
 Stop gate, refuses ending a turn while a call of a Wisent product (a program named as a workspace repository or the
 product its <code>.wisent-release.json</code> declares) failed or never answered since the operator's newest
-message, has not succeeded since, and no open defect in Oko's snapshot binds it. The way out is the repair, or
+message, has not succeeded since, and no open defect in Oko's snapshot binds it. A call whose named working
+directory does not exist never started its program (the harness answered for it) and holds nothing; one whose
+directory cannot be read still does. The way out is the repair, or
 <code>oko defects record … --blocks</code> and <code>tama task scope set --defect</code>. The hook runner keeps such
 a failure after the session changes a file (marked <code>changed</code>, and no longer refused as a repeat), so a
 write no longer forgets it. Journey <code>tests/unowned-failures/stop.rs</code>.</li>
