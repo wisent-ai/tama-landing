@@ -86,7 +86,12 @@ through, saying <code>quality-check: Stado is not installed; running the declare
 <code>quality-check: the declared gate &lt;name&gt; refused this push: commit &lt;commit&gt; does not pass
 it (&lt;exit&gt;); its output is above; repair what it reports and push again</code>, and the gates after it
 do not run. The written-out tree is removed after each commit; a build directory Git does not ignore, or
-a tree that cannot be written or removed, refuses by its cause. A commit that declares no manifest, no
+a tree that cannot be written or removed, refuses by its cause. Each tree is named
+<code>&lt;commit&gt;-&lt;pid&gt;</code> after the process that wrote it, and a run ended before it removed its
+own (a caller's time limit, a kill, a restart) leaves it; the next run in the checkout removes every such tree
+whose process no longer runs, saying <code>quality-check: removed &lt;path&gt;, the written-out tree of process
+&lt;pid&gt;, which ended before it removed it</code>, keeps one whose process runs, and refuses by its cause
+when it cannot tell whether that process runs or cannot remove the tree. A commit that declares no manifest, no
 entry for this platform or no gate passes, saying so; a manifest that is there and cannot be read, or a
 gate without a name, without an argv or with an empty one, refuses by its cause, since nothing can then
 say what the gates are. The same absence lets <code>block-internal-names</code> judge by this account's
@@ -94,7 +99,8 @@ own names, saying that no fleet registry and no vault listing are here, instead 
 for a reader that is absent; a Stado that is installed and cannot answer stays a refusal by its cause.
 Real journeys <code>tests/review/quality/declared.rs</code> (real pushes to an isolated bare remote,
 judged by a real <code>rustfmt --check</code> with unformatted and formatted uncommitted work beside the
-commits) and <code>tests/internal-names/without_stado.rs</code>, each with a HOME holding no
+commits, and a push that removes the tree an ended process left while keeping a running one's) and
+<code>tests/internal-names/without_stado.rs</code>, each with a HOME holding no
 <code>stado</code>.</p>
 <p>The real <code>external_target_modules_keep_the_declaring_package_edition</code> journey runs the formatter hook against an isolated Git tree containing a root package and an external target with a different edition. It requires the external module to retain its declared edition despite a contradictory working manifest, then requires a committed formatting defect to name that module and edition. It retains source/binary identity and command results; the separate installed push journeys qualify review and Git LFS integration.</p>
 <h2>Review before creating a commit</h2>

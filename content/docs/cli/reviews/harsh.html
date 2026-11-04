@@ -14,7 +14,10 @@ first, which compile nothing, then the <code>lint</code> gates, where a product 
 (<code>cargo check</code>, <code>cargo clippy</code>, a compile script). Each is told what the tree changes against the
 published main in <code>WISENT_CHANGED_PATHS</code> as <code>stado quality check</code> tells it, and Cargo builds into
 <code>.build/tama-quality/target</code> (<code>CARGO_TARGET_DIR</code>), kept between trees, so a compile gate starts from
-the last tree's build. stderr names each gate as it starts: <code>quality: running the declared gate &lt;name&gt; on the
+the last tree's build. A written-out tree a run ended before removing (named <code>&lt;tree&gt;-&lt;pid&gt;</code>
+after the process that wrote it) is removed by the next run in the checkout once that process no longer runs:
+<code>quality: removed &lt;path&gt;, the written-out tree of process &lt;pid&gt;, which ended before it removed
+it</code>. stderr names each gate as it starts: <code>quality: running the declared gate &lt;name&gt; on the
 staged tree &lt;tree&gt;</code>. A tree a gate refuses gets no round and no commit: <code>the staged tree &lt;tree&gt;
 does not pass the declared gate &lt;name&gt; (&lt;exit&gt;); its output is above; no round is recorded on, and no commit
 admits, a tree the product's own gates refuse: repair what it reports in the staged change and stage it again</code>,
