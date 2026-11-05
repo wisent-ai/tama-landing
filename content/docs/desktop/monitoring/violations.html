@@ -24,15 +24,19 @@ absolute, not a directory, or no <code>.git</code>.</li>
 <p><code>Pass</code> chooses what the next scan asks, one entry per pass of
 <code>tama violations find</code>: <code>Every rule</code> replays the hooks;
 <code>File and folder size</code>, <code>Capabilities written again</code>,
-<code>Internal names</code>, <code>Waits and time limits</code> and
-<code>Fallbacks and dropped errors</code> run
+<code>Internal names</code>, <code>Waits and time limits</code>,
+<code>Fallbacks and dropped errors</code> and <code>Errors that name no failure</code> run
 <code>--size-only</code>, <code>--duplicates</code>, <code>--internal-names</code>,
-<code>--time-limits</code> and <code>--fallbacks</code> in process, sent as the <code>mode</code> of
+<code>--time-limits</code>, <code>--fallbacks</code> and <code>--generic-errors</code> in process, sent as the <code>mode</code> of
 <code>violations/scan</code>. Under <code>Fallbacks and dropped errors</code> each rule is
 one construct of one language (<code>Rust .ok() dropping the error</code>,
 <code>Python except that only passes</code>, …) and each finding reads
 <code>line N: &lt;the line&gt;</code>, the same list
 <a href="../../fallbacks/"><code>block-fallbacks</code></a> would refuse on the next
+edit of each file. Under <code>Errors that name no failure</code> each rule is one
+sentence of wisent-errors' catalogue <code>generic_sentences</code> and each finding reads
+<code>line N: "&lt;sentence&gt;" &lt;why&gt;: &lt;the line&gt;</code>, the same list
+<a href="../../generic-errors/"><code>block-generic-errors</code></a> would refuse on the next
 edit of each file. Choosing another pass clears the report on screen,
 because its findings answer a different question.
 <code>Rule</code> ranks rules by how many files they hit — the order an operator
