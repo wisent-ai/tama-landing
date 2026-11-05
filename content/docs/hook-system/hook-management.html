@@ -115,14 +115,8 @@ occasion. Describe the hook once, as data in the repository under
   "command": "$HOME/.local/bin/tama hook block-one-off-repairs",
   "events": [{ "event": "pre_tool_use:bash" }]
 }</code></pre>
-<p>A binding names only its event, because the engine waits for every hook's
-answer; a declaration whose binding names anything else is refused naming the
-field. Then the repository half, which records the catalogue entry,
-writes each registry binding it does not already have, reconciles the
-sources and reseals. The registry keeps its own copy of the catalogue entry;
-when every event is already bound, the registry writer runs once over a bound
-event so a changed description, reason or side effects reaches that copy too,
-printed as <code>registry: refreshed the catalogue entry: …</code>:</p>
+<p>A binding names only its event, because the engine waits for every hook's answer; a declaration whose binding names anything else is refused naming the field. A <code>command</code> that runs <code>tama hook &lt;name&gt;</code> with a name this <code>tama</code> does not serve (<code>tama hook</code> lists the names) is refused before any consent is asked: registered, it would answer every call with the usage refusal and judge nothing.
+Then the repository half, which records the catalogue entry, writes each registry binding it does not already have, reconciles the sources and reseals. The registry keeps its own copy of the catalogue entry; when every event is already bound, the registry writer runs once over a bound event so a changed description, reason or side effects reaches that copy too, printed as <code>registry: refreshed the catalogue entry: …</code>:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
 <p>A hook is withdrawn with the same declaration that declared it. The reverse
 runs in the reverse order: each event the registry still binds to the hook is
@@ -138,7 +132,7 @@ refuses before writing and prints the command for the owner's own shell.</p>
 installed registry (<code>~/.shared-hooks/registry.json</code>, or <code>--registry PATH</code>) as
 <code>registered   &lt;id&gt;</code>, <code>unregistered &lt;id&gt;: &lt;events&gt; not bound; under the owner's consent: tama hooks declare --file &lt;path&gt;</code>,
 <code>stale        &lt;id&gt;: the catalogue's &lt;fields&gt; does not say what &lt;path&gt; says; under the owner's consent: tama hooks declare --file &lt;path&gt;</code> for a registered hook whose <code>category</code>, <code>description</code>, <code>why</code> or <code>sideEffects</code> in the checkout's <code>shared-hooks/catalog-metadata.json</code> (what <code>tama show</code> and the published catalogue read) differ from its declaration,
-<code>differs      &lt;id&gt;: the registry's binding on &lt;event&gt; (&lt;fields&gt;) is not what &lt;path&gt; declares</code> for a binding whose command is not the declared one or whose type is not <code>command</code>, as <code>tama hooks declare</code> writes it, or <code>unreadable   &lt;path&gt;: &lt;cause&gt;</code> for a file that is no declaration, and exits with failure while any is unregistered, stale, differing or unreadable;
+<code>differs      &lt;id&gt;: the registry's binding on &lt;event&gt; (&lt;fields&gt;) is not what &lt;path&gt; declares</code> for a binding whose command is not the declared one or whose type is not <code>command</code>, as <code>tama hooks declare</code> writes it, or <code>unreadable   &lt;path&gt;: &lt;cause&gt;</code> for a file that is no declaration or whose command runs a <code>tama hook</code> name this <code>tama</code> does not serve, and exits with failure while any is unregistered, stale, differing or unreadable;
 <code>--json</code> prints <code>{registry, declarations: [{file, id, events: [{event, bound, differs}], registered, stale}]}</code>, <code>stale</code> listing the differing catalogue fields and <code>differs</code> each binding field that differs.
 Real journeys <code>tests/hook-declarations/declared.rs</code> and <code>differs.rs</code>.</p>
 <pre><code>tama hooks declared</code></pre>
