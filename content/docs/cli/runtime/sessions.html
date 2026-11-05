@@ -73,7 +73,12 @@ runtime published its counts, <code>allowlist: &lt;ids&gt;</code> while hooks ar
 globally disabled and the session enabled some by name, and
 <code>no runtime report</code> for a record whose runtime never published any hook
 state. A session that has not reported is not a session with broken hooks, and
-the row says which one it is.</p>
+the row says which one it is. Every harness reports its counts: the OMP adapter
+from its loaded runtime, and the one-shot engine (<code>tama run-hook &lt;event&gt; &lt;agent&gt;</code>,
+which Kimi and the other hook-config harnesses run) from the registry it loaded and
+the machine's selection, the emergency switch and the session's overrides, by the
+rule it runs hooks by; a selection it cannot read is named as the runtime's
+<code>selectionError</code>. Real journey <code>tests/session-records/counts.rs</code>.</p>
 <p>JSON is
 <code>{&quot;machineEnforcement&quot;: &lt;status&gt;, &quot;sessions&quot;: [...], &quot;ungated&quot;: [{&quot;pid&quot;, &quot;session&quot;, &quot;route&quot;}]}</code>;
 the machine object has the same fields as
