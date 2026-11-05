@@ -105,11 +105,17 @@ written, or the harness has no adapter directory (<code>cannot list
 record's <code>agentId</code>. Listing sessions only reads state.</p>
 <h2>Reload an existing OMP adapter</h2>
 <p><code>tama sessions reload --session "$SESSION_ID" --json</code> sends a
-<code>reload-adapter</code> request to that session's control directory and
-waits for the running process's receipt. It changes neither the session nor
-its process. It does not enable or disable policies. The directory comes from
+<code>reload-adapter</code> request to that session's own request directory,
+<code>session-control/requests/&lt;controlKey&gt;/&lt;requestId&gt;.request.json</code>, and
+waits for the running process's receipt beside it
+(<code>&lt;requestId&gt;.response.json</code>). It changes neither the session nor
+its process. It does not enable or disable policies. The control directory comes from
 <code>TAMA_SESSION_CONTROL_ROOT</code> when set, otherwise Tama's platform
-state directory; <code>--home</code> is a listing option, not a reload option.</p>
+state directory; <code>--home</code> is a listing option, not a reload option.
+A session lists only its own request directory, never the control directory
+every session's records, overrides and turn ends share: listing that one on
+every event held a session's dispatches queued for an hour on a machine that
+was paging. A request written to the control directory itself is not answered.</p>
 <p>A successful receipt carries <code>ok: true</code>, <code>changed</code>,
 and <code>state.runtime.adapterDigest</code>. The adapter publishes that digest
 after its replacement has registered and activated. Repeating the command
