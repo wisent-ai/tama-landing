@@ -164,10 +164,12 @@ subcommands, <code>tama hook &lt;name&gt;</code>; the hook engine is
 <code>tama run-hook</code>, the MCP server <code>tama mcp</code>. The registry
 runs each hook as <code>$HOME/.local/bin/tama hook &lt;id&gt;</code>, and
 <code>tama hook</code> with a name it does not know prints every name it
-answers to. A release removes the separate programs an earlier release
-installed — every recorded <code>tama-&lt;hook&gt;</code>,
-<code>tama-run-hook</code> and <code>tama-mcp-server</code> — and says
-<code>retired &lt;path&gt;: the hook runs as `tama hook`</code> for each.</p>
+answers to. A release removes every other program named <code>tama-&lt;name&gt;</code>
+in <code>~/.local/bin</code>, file, link or <code>.d</code> folder, whatever era installed it
+(<code>tama-run-hook</code>, <code>tama-mcp-server</code>, a <code>tama-&lt;hook&gt;</code>, a launcher like
+<code>tama-kimi</code>), and every other name an earlier release recorded, and says
+<code>retired &lt;path&gt;: Tama is one program, tama</code> for each; <code>--dry-run</code> names each path as
+<code>would retire &lt;path&gt;: …</code>. Real journey <code>tests/release/stray_programs.rs</code>.</p>
 <p>Before it installs anything, a release refuses two states that would leave a
 machine running nothing: a registry entry whose command still names a separate
 <code>tama-&lt;name&gt;</code> program, listed as <code>&lt;id&gt;:
