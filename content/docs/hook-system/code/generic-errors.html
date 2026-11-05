@@ -38,7 +38,11 @@ marks it as a test (<code>.test.</code>, <code>.spec.</code>, <code>_test.</code
 <code>Test.swift</code>), and build output and installed dependencies (<code>target</code>, <code>.build</code>,
 <code>dist</code>, <code>build</code>, <code>node_modules</code>, <code>vendor</code>, <code>.venv</code>, <code>Pods</code>,
 <code>DerivedData</code>, <code>.git</code>) are not read either: a test asserts the very sentences a refusal must not
-say.</p>
+say. A file its repository declares in <code>.tama/violations-ignore</code> (a path, or a folder written with a
+trailing <code>/</code> for everything below it), with the reason written beside it, is not read by the gate or by
+<code>tama violations find --generic-errors</code>: that is how a vendored bundle, unpacked as its publisher built it,
+stays out. <code>tama errors check</code> does not read the declarations: a directory given to it is judged whole.
+A declaration file that exists and cannot be read refuses the write, naming the file and the system's cause.</p>
 <h2>What is read</h2>
 <p>The whole file as the write leaves it: a hashline section or a string edit is replayed on the file, and a written
 file's content is read as written. A sentence the file already held is refused on its next edit until the edit
