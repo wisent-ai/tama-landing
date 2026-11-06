@@ -68,8 +68,9 @@ id from the machine selection;</li>
 <li>during a <a href="../emergency-disable/">global emergency disable</a>, the
 machine selection is bypassed. <code>enabledHookIds</code> is the session's explicit
 allowlist, but only when the override's <code>emergencyChangedAt</code> exactly equals
-the active emergency state's nonempty <code>changedAt</code>. Those are the only hooks
-that run.</li>
+the active emergency state's nonempty <code>changedAt</code>. Those hooks run, and so
+does <code>block-stop-with-open-work</code> when the machine selection holds it, so a
+turn still does not end while work is open. No other hook runs.</li>
 </ul>
 <p>The supervisor persists that generation binding beside the allowlist and in
 the OMP session's retained override entry. Reloading or resuming the same
@@ -90,6 +91,13 @@ the durable machine state (<code>[]</code> in all mode). These sit beside
 <code>enabledHookIds</code>, which remains
 the session's additive state. Under emergency disable, the machine ids stay
 visible as retained configuration but do not run.</p>
+<p><code>enforcedUnderEmergency</code> is the sorted list of hooks that still run while
+the emergency switch holds (<code>[]</code> when it does not): the session's allowlist and
+the kept <code>block-stop-with-open-work</code>, counted with the same rule the engine
+runs hooks by. <code>loadedHookCount</code> counts the same hooks. <code>tama sessions --json</code>
+carries it on each row, and the switch's sentence in a session's start, prompt and turn
+end names it, so a reader of the switch does not take it to mean that no gate checks
+the session.</p>
 <p>It also names what holds the runtime, so a session can see a stall instead of waiting
 behind it: <code>runtimeHolder</code> is the queued operation running now (<code>reload</code>,
 <code>reload enabling every hook</code> or <code>close</code>, with its start time) or
