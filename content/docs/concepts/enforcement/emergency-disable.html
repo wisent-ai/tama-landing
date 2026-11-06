@@ -62,7 +62,9 @@ it was set</code>), <code>names no time it ends, so nothing lifts it but the ope
 prompt and a turn end carries the same sentence in
 <code>hookSpecificOutput.additionalContext</code>, which the agent reads;</li>
 <li>the OMP adapter puts that sentence before every turn started from a prompt
-(<code>tama-emergency-switch</code>);</li>
+(<code>tama-emergency-switch</code>), and appends it to the message that starts a turn without one —
+Tama's late stop refusal and the text gate's continuation, which OMP sends with
+<code>triggerTurn</code> and which run no <code>before_agent_start</code>;</li>
 <li>the desktop's Posture alert says who set it, why, since and until when.</li>
 </ul>
 <p>The real tests are <code>tests/enforcement/emergency.rs</code> (a complete switch, a hand-written
