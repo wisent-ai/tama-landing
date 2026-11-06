@@ -164,9 +164,9 @@ bundled switch is.</p>
 back. Disable records what it set aside and installs the session controllers
 from that release; enable performs the full install with that manifest, restores
 both provider configs, and repoints <code>current</code>:</p>
-<pre><code class="language-bash">cd ~/Documents/CodingProjects/Wisent/tama-desktop
-TAMA_HOOK_RELEASE_ROOT=$PWD/.build/hook-release TAMA_EMERGENCY_ACTION=disable TAMA_EMERGENCY_SET_BY="$USER" TAMA_EMERGENCY_REASON="installing a staged release" TAMA_EMERGENCY_MINUTES=15 sh Scripts/emergency_disable_hooks
-TAMA_HOOK_RELEASE_ROOT=$PWD/.build/hook-release TAMA_EMERGENCY_ACTION=enable  sh Scripts/emergency_disable_hooks
+<pre><code class="language-bash">R=~/Documents/CodingProjects/Wisent/tama-desktop/.build/hook-release
+"$R/bin/tama" enforcement emergency on --reason "installing a staged release" --minutes 15 --release "$R" --home "$HOME"
+"$R/bin/tama" enforcement emergency off --release "$R" --home "$HOME"
 </code></pre>
 <p>Enable ends with <code>Enabled approved hook release &lt;first-12-of-id&gt;</code>, and
 <code>tama validate</code> then reports no <code>ERROR install drift</code>: the provider configs

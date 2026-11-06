@@ -101,12 +101,12 @@ removing it.</p>
 <tbody>
 <tr><td>absent</td><td>absent</td><td>Enforcing (or never installed)</td></tr>
 <tr><td>present</td><td>present, <code>disabled: true</code>, <code>expiresAt</code> not passed</td><td>Globally disabled; Tama shows the machine as bypassed, with who set it, why and until when</td></tr>
-<tr><td>present</td><td>present, <code>expiresAt</code> passed</td><td>The switch lifted itself: hooks run; re-enable restores the moved entrypoints and removes both files</td></tr>
-<tr><td>absent</td><td>present, <code>disabled: true</code></td><td>A switch written by hand: it holds, and every hook is off. <code>tama enforcement status</code> prints <code>emergency switch: …</code> naming what its record lacks (<code>setBy</code>, <code>reason</code>, an ISO-8601 <code>changedAt</code>, <code>expiresAt</code>); without <code>expiresAt</code> only the operator lifts it, with <strong>Re-enable all policies</strong> on Posture, which removes the switch because it set nothing aside</td></tr>
-<tr><td>present</td><td>absent</td><td>Interrupted transition: run re-enable, which restores from the manifest and removes it</td></tr>
+<tr><td>present</td><td>present, <code>expiresAt</code> passed</td><td>The switch lifted itself: hooks run; the expiry agent runs <code>tama enforcement emergency off</code> within a minute, which restores the moved entrypoints and removes both files (its output is in <code>emergency-expiry.log</code>)</td></tr>
+<tr><td>absent</td><td>present, <code>disabled: true</code></td><td>A switch written by hand: it holds, and every hook is off. <code>tama enforcement emergency status</code> names what its record lacks (<code>setBy</code>, <code>reason</code>, an ISO-8601 <code>changedAt</code>, <code>expiresAt</code>); without <code>expiresAt</code> only the operator lifts it, with <code>tama enforcement emergency off</code> or <strong>Re-enable all policies</strong> on Posture, which remove the switch because it set nothing aside</td></tr>
+<tr><td>present</td><td>absent</td><td>Interrupted transition: run <code>tama enforcement emergency off</code>, which restores from the manifest and removes it</td></tr>
 </tbody>
 </table>
-<p>The script's own sentences: a disable without its terms refuses with <code>Tama will not disable its hooks without &lt;NAME&gt;: …</code>; a repeat disable prints <code>Tama hooks are already disabled.</code>; enable without evidence refuses with <code>Tama has no emergency backup manifest to restore.</code>; success prints <code>Disabled hooks for &lt;N&gt; minutes. Running agent sessions read the emergency state at once and keep running; the hooks run again when it expires.</code> or <code>Enabled approved hook release &lt;first-12&gt;. Running agent sessions read the cleared emergency state at once and keep running.</code> The switch never stops, pauses or signals a running agent session: each one reads <code>hook-emergency-state.json</code> on its next hook call. The desktop trusts only re-read durable state: <code>Tama could not persist the emergency hook state.</code> means the switch did not stick.
+<p><code>tama enforcement emergency</code>'s own sentences: <code>on</code> without its terms refuses with <code>`tama enforcement emergency on` needs &lt;flag&gt;: …</code>; a repeat <code>on</code> prints <code>Tama hooks are already disabled.</code>; <code>off</code> with nothing to lift refuses with <code>Tama has no emergency switch set and no emergency backup manifest to restore.</code>; success prints <code>Disabled hooks for &lt;N&gt; minutes. Running agent sessions read the emergency state at once and keep running; the hooks run again when it expires.</code> or <code>Enabled approved hook release &lt;first-12&gt;. Running agent sessions read the cleared emergency state at once and keep running.</code> The switch never stops, pauses or signals a running agent session: each one reads <code>hook-emergency-state.json</code> on its next hook call. The desktop trusts only re-read durable state: <code>Tama could not persist the emergency hook state.</code> means the switch did not stick.
 During the bypass, the retained machine selection does not run;
 <code>tama sessions</code> prints each session's explicit allowlist
 (<code>allowlist: empty</code> when nothing was re-enabled)
@@ -147,26 +147,26 @@ re-pointed, the OMP extensions change reverted
 <h2>The emergency switch refuses</h2>
 <p>From the desktop wrapper (<code>HookEmergencySwitch</code>), each verbatim:</p>
 <ul>
-<li><code>The Tama bundle does not contain the emergency hook controller.</code> — the
-bundled script is missing; the app bundle is incomplete, reinstall the
+<li><code>The Tama bundle does not contain the bundled hook release's tama, which runs the emergency switch and installs agent session control.</code>
+/ <code>The Tama bundle does not contain an approved hook release for the emergency switch and agent session control.</code> — the
+bundled release or its <code>bin/tama</code> is missing; the app bundle is incomplete, reinstall the
 verified artifact.</li>
-<li><code>The Tama bundle does not contain the agent session-controller installer.</code>
-/ <code>The Tama bundle does not contain an approved hook release for agent session control.</code> — same class, for the installer and release.</li>
 <li><code>Tama could not read local policy output: &lt;reason&gt;</code> — the output
 pipe failed; the command's own result is unknown, inspect the evidence table
 above before retrying.</li>
 <li><code>Tama cannot read the local policy state &lt;path&gt;: &lt;cause&gt;</code> — the
 emergency state or the installed release record exists but cannot be read or
 decoded; Posture shows protection as unconfirmed, never as on.</li>
-<li><code>Tama could not update the installed hook configuration.</code> — the script
+<li><code>Tama could not update the installed hook configuration.</code> — the command
 exited non-zero without printing anything; otherwise its own output is the
 failure.</li>
 </ul>
-<p>From the script itself: <code>Unsupported Tama emergency action: &lt;value&gt;</code> (exit
-2), <code>Both active and disabled hook entrypoints exist: &lt;path&gt;</code>,
-<code>Tama hook release installer is missing: &lt;path&gt;</code>,
-<code>Tama approved hook release is missing: &lt;path&gt;</code>, and the installer's own
-sentence when <code>tama hooks install-release</code> refuses (exit 1).</p>
+<p>From <code>tama enforcement emergency</code> itself — every refusal with its cause and
+repair is in <a href="../cli/enforcement/emergency/#refusals-and-failures">cli/enforcement/emergency</a>:
+a missing <code>--reason</code>, <code>--minutes</code> or <code>--release</code>; minutes that are not a whole
+number above zero; <code>on</code> from inside an agent session;
+<code>Both active and disabled hook entrypoints exist: &lt;path&gt;; …</code>; and the installer's own
+sentence when the session-control or full install refuses (exit 1).</p>
 <h2>The backend refuses a repository</h2>
 <p>The Violations surface validates before anything runs, each sentence from
 <code>ViolationsClient</code>:</p>

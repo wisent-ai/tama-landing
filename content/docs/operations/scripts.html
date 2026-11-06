@@ -1,8 +1,8 @@
 <h1>Scripts reference</h1>
 <p>Every executable under <code>Scripts/</code>, with its arguments, environment, output,
-and exit behavior, and the <code>tama hooks</code> commands those scripts run. Two of them
-ship inside the app bundle and run on operator machines (<code>emergency_disable_hooks</code>
-and the sealed release with its own <code>bin/tama</code>); the rest are maintainer tools
+and exit behavior, and the <code>tama hooks</code> commands those scripts run. What ships inside
+the app bundle and runs on operator machines is the sealed release with its own <code>bin/tama</code>,
+which installs hooks and runs the emergency switch; the rest are maintainer tools
 that run only in a checkout. The sealed CLI itself is documented in <a href="cli.md">cli</a>; the
 integrity model these commands implement is <a href="concepts/seal.md">concepts/seal</a>.</p>
 <h2>Bundled on operator machines</h2>
@@ -34,24 +34,13 @@ overrides the <code>omp</code> executable used to register the OMP adapter.</p>
 <p>The success object has keys <code>installed</code> (the new <code>installed.json</code> content),
 <code>previous</code>, <code>managedSourceFiles</code>, <code>restoredEntrypoints</code>, and
 <code>sessionControlOnly</code>.</p>
-<h3>emergency_disable_hooks</h3>
-<p>The global kill switch, bundled at
-<code>Tama.app/Contents/Resources/emergency_disable_hooks</code>. No positional
-arguments; everything is environment:</p>
-<table>
-<thead><tr><th>Variable</th><th>Default</th><th>Effect</th></tr></thead>
-<tbody>
-<tr><td><code>TAMA_EMERGENCY_ACTION</code></td><td><code>disable</code></td><td><code>disable</code> or <code>enable</code>; anything else prints <code>Unsupported Tama emergency action: &lt;value&gt;</code> and exits <code>2</code></td></tr>
-<tr><td><code>TAMA_EMERGENCY_SET_BY</code></td><td>none — a disable refuses without it</td><td>Who throws the switch, recorded as <code>setBy</code></td></tr>
-<tr><td><code>TAMA_EMERGENCY_REASON</code></td><td>none — a disable refuses without it</td><td>Why, recorded as <code>reason</code></td></tr>
-<tr><td><code>TAMA_EMERGENCY_MINUTES</code></td><td>none — a disable refuses without it</td><td>Whole minutes above zero the switch holds; recorded as <code>expiresAt</code>, after which every reader treats it as lifted</td></tr>
-<tr><td><code>TAMA_HOME</code></td><td><code>$HOME</code></td><td>Target home</td></tr>
-<tr><td><code>TAMA_HOOK_RELEASE_ROOT</code></td><td>bundled <code>hooks-release</code> (falls back to <code>.build/Tama.app/...</code> in a checkout)</td><td>Release root</td></tr>
-<tr><td><code>TAMA_HOOK_INSTALLER</code></td><td>the release's own <code>bin/tama</code> (run as <code>tama hooks install-release</code>)</td><td>Installer override</td></tr>
-</tbody>
-</table>
-<p>A disable without one of its terms prints <code>Tama will not disable its hooks without &lt;NAME&gt;: the switch records who set it (TAMA_EMERGENCY_SET_BY), why (TAMA_EMERGENCY_REASON) and for how many minutes it holds (TAMA_EMERGENCY_MINUTES), after which the hooks run again.</code> and exits <code>2</code> before anything moves; minutes that are not a whole number above zero print <code>TAMA_EMERGENCY_MINUTES is &lt;value&gt;; it must be a whole number of minutes above zero.</code> and exit <code>2</code>. Disable ends with <code>Disabled hooks for &lt;N&gt; minutes. Running agent sessions read the emergency state at once and keep running; the hooks run again when it expires.</code>; a repeat prints <code>Tama hooks are already disabled.</code> and exits <code>0</code>. Enable ends with <code>Enabled approved hook release &lt;first-12-of-id&gt;. Running agent sessions read the cleared emergency state at once and keep running.</code> An enable that finds a switch but no manifest — a switch written without this script, which set nothing aside — removes the switch and prints <code>Lifted an emergency switch that set nothing aside (no emergency-backup/manifest.json): every hook runs again. …</code>; with neither it fails with <code>Tama has no emergency switch set and no emergency backup manifest to restore.</code>. Neither action stops, pauses or signals a running agent session. The step-by-step behavior is in
-<a href="enforcement-control.md">enforcement-control</a> and
+<h3>tama enforcement emergency</h3>
+<p>The global kill switch is a subcommand of the same bundled <code>tama</code>, no longer a
+script: the desktop runs
+<code>Tama.app/Contents/Resources/hooks-release/bin/tama enforcement emergency on --reason TEXT --minutes N --release &lt;hooks-release&gt; --home &lt;home&gt;</code>
+and <code>… emergency off --release &lt;hooks-release&gt; --home &lt;home&gt;</code>. Its arguments, outputs
+and every refusal are in <a href="cli/enforcement/emergency/">cli/enforcement/emergency</a>; the
+step-by-step behavior is in <a href="enforcement-control.md">enforcement-control</a> and
 <a href="concepts/emergency-disable.md">concepts/emergency-disable</a>.</p>
 <h2>Read-only integrity report</h2>
 <h3>tama hooks integrity</h3>

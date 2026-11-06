@@ -8,20 +8,16 @@ deliberately the only way to weaken policy: sessions can
 <a href="session-enable.md">enable</a>, only operators can disable, and only globally
 (<a href="../enforcement-control.md">enforcement-control</a>).</p>
 <h2>What it is</h2>
-<p><code>emergency_disable_hooks</code>, a bundled POSIX script the desktop runs from
-<strong>Posture</strong> and re-runs with <code>TAMA_EMERGENCY_ACTION=enable</code> for re-enable
-(<a href="../scripts.md#emergency_disable_hooks">scripts</a>). A disable takes its terms from
-the environment and refuses without any of them, exit <code>2</code>, before anything is moved:
-<code>TAMA_EMERGENCY_SET_BY</code> (who throws it; the desktop passes the macOS account),
-<code>TAMA_EMERGENCY_REASON</code> (why) and <code>TAMA_EMERGENCY_MINUTES</code> (a whole number above
-zero: how long it holds). A missing one answers <code>Tama will not disable its hooks without
-&lt;NAME&gt;: …</code>; minutes that are not a whole number above zero answer
-<code>TAMA_EMERGENCY_MINUTES is &lt;value&gt;; it must be a whole number of minutes above zero.</code>
-Disable, in order:</p>
+<p><code>tama enforcement emergency on|off|expire|status</code>
+(<a href="../cli/enforcement/emergency/">cli/enforcement/emergency</a>), which the desktop runs
+through its bundled release's own <code>tama</code> from <strong>Posture</strong> and
+<strong>Settings</strong>. <code>on</code> takes <code>--reason</code> and <code>--minutes</code> (a whole number
+above zero) and records the account running it; without either, or from inside an agent session,
+it refuses before anything is moved. On:</p>
 <ol>
-<li>reinstalls the session controllers
-(<code>tama hooks install-release --session-control-only</code>) so session visibility
-survives the bypass;</li>
+<li>installs the session controllers from <code>--release</code>
+(the same install as <code>tama hooks install-release --session-control-only</code>) so session
+visibility survives the bypass;</li>
 <li>backs up <code>~/.claude/settings.json</code> and <code>~/.codex/hooks.json</code> into
 <code>emergency-backup/</code> and empties their <code>hooks</code> maps, unless every hook
 command there is Tama's <code>run-hook.mjs</code> dispatcher, which reads the
@@ -34,7 +30,9 @@ then the <code>com.wisent.editor-hooks.plist</code> LaunchAgent);</li>
 <li>writes <code>emergency-backup/manifest.json</code> once and
 <code>hook-emergency-state.json</code>
 (<code>ai.wisent.tama.hook-emergency-state.v1</code>, <code>disabled: true</code>, <code>setBy</code>,
-<code>reason</code>, <code>changedAt</code> and <code>expiresAt</code>, both ISO-8601 UTC).</li>
+<code>reason</code>, <code>changedAt</code> and <code>expiresAt</code>, both ISO-8601 UTC);</li>
+<li>loads a LaunchAgent that runs <code>tama enforcement emergency expire</code> every minute, which
+restores every hook once <code>expiresAt</code> has passed and then removes itself.</li>
 </ol>
 <p>No running agent session is stopped, paused or signalled: each session's
 loaded runtime reads <code>hook-emergency-state.json</code> and bypasses its hooks at
@@ -44,11 +42,12 @@ once, so every terminal keeps its session in the foreground.</p>
 <p>The switch holds while <code>disabled</code> is <code>true</code> and <code>expiresAt</code> has not
 passed. Once it has, every reader — the hook engine, the session records, <code>tama enforcement
 status</code>, the OMP adapter and the desktop — reads the switch as lifted and the hooks run again,
-without anyone touching the file; the file stays as the operator's record until a re-enable
-removes it. A switch written by hand, without the script, still holds: Tama does not decide the
-operator's own file was a mistake. Every reader then names what its record lacks — <code>names no
-one who set it (setBy)</code>, <code>gives no reason (reason)</code>, <code>records no ISO-8601 time
-it was set (changedAt)</code>, <code>names no time it ends, so nothing lifts it but the operator
+without anyone touching the file, and the expiry agent then restores what was set aside and removes
+the file. A switch written by hand, without <code>tama enforcement emergency on</code>, still holds:
+Tama does not decide the operator's own file was a mistake. Every reader then names what its record
+lacks — <code>names no one who set it (setBy)</code>, <code>gives no reason (reason)</code>,
+<code>records its time as "…", which is no ISO-8601 time (changedAt)</code> (or <code>records no time
+it was set</code>), <code>names no time it ends, so nothing lifts it but the operator
 (expiresAt)</code>.</p>
 <p>While it holds, the switch is shown wherever a person or an agent reads:</p>
 <ul>
@@ -67,9 +66,10 @@ prompt and a turn end carries the same sentence in
 <li>the desktop's Posture alert says who set it, why, since and until when.</li>
 </ul>
 <p>The real tests are <code>tests/enforcement/emergency.rs</code> (a complete switch, a hand-written
-one, an expired one and none, through <code>tama enforcement status</code> and <code>tama run-hook</code>)
-and <code>tests/omp-adapter/emergency-notice.mjs</code> (the OMP entry through OMP's own extension
-runner).</p>
+one, an expired one and none, through <code>tama enforcement status</code> and <code>tama run-hook</code>),
+<code>tests/enforcement/emergency_command.rs</code> (every command and refusal of
+<code>tama enforcement emergency</code>) and <code>tests/omp-adapter/emergency-notice.mjs</code> (the OMP
+entry through OMP's own extension runner).</p>
 <h2>What it costs</h2>
 <p>The desktop's confirmation states the price before the button exists —
 title <code>Disable all policies on this machine</code>, then verbatim:</p>
@@ -86,7 +86,7 @@ off</code>) and a duration stepper (<code>Policies return by themselves after &l
 only once a reason is given —, primary <code>Keep policy active</code>.</p>
 <h2>How state is judged</h2>
 <p>Tama treats the machine as disabled while the state file holds the switch, exactly as the hooks
-read it, and the desktop re-reads that durable state after the script
+read it, and the desktop re-reads that durable state after the command
 returns — <code>Tama could not persist the emergency hook state.</code> is a failure,
 never claimed success. A machine-wide hook selection remains recorded, but
 the emergency bypass takes precedence: none of its selected ids run until
@@ -94,14 +94,15 @@ re-enable succeeds. During the bypass, only a session's generation-bound
 <code>enabledHookIds</code> allowlist can run
 (<a href="session-enable.md#composition-with-machine-enforcement">session-enable</a>).</p>
 <h2>Re-enable</h2>
-<p>A switch written without the script set nothing aside, so enable lifts it by removing it:
+<p><code>tama enforcement emergency off</code>. A switch written by hand set nothing aside, so
+<code>off</code> lifts it by removing it:
 <code>Lifted an emergency switch that set nothing aside (no emergency-backup/manifest.json): every hook runs again. …</code>;
 with no switch and no manifest it refuses with <code>Tama has no emergency switch set and no emergency backup manifest to restore.</code>
 With a manifest, the bundled release must pass its
 <a href="seal.md">seal</a> gates. It performs the full transactional installation with
-<code>--emergency-manifest</code> — restoring every moved entrypoint, regenerating
+the manifest — restoring every moved entrypoint, regenerating
 provider configs from the backups, re-bootstrapping the editor LaunchAgent —
-and only then removes the emergency state and manifest, printing <code>Enabled approved hook release &lt;first-12&gt;. Running agent sessions read the cleared emergency state at once and keep running.</code> A failed enable preserves the recovery evidence. After successful re-enable, the retained all-hooks or selected-hooks machine policy resumes.</p>
+and only then removes the emergency state, manifest and expiry agent, printing <code>Enabled approved hook release &lt;first-12&gt;. Running agent sessions read the cleared emergency state at once and keep running.</code> A failed restore keeps the switch and the recovery evidence. After successful re-enable, the retained all-hooks or selected-hooks machine policy resumes.</p>
 <h2>Where it lives</h2>
 <table>
 <thead><tr><th>Path</th><th>Content</th></tr></thead>
@@ -112,9 +113,10 @@ and only then removes the emergency state and manifest, printing <code>Enabled a
 <tr><td><code>~/Library/Application Support/Tama/emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code></td><td>Original provider configs, restored on enable</td></tr>
 </tbody>
 </table>
-<p>The desktop wrapper (<code>HookEmergencySwitch</code>) waits for the script's own exit and for its
-output to close, and reports the script's exit status and what it printed. Its own failures
-(<code>The Tama bundle does not contain the emergency hook controller.</code>,
+<p>The desktop wrapper (<code>HookEmergencySwitch</code>) runs the bundled release's own
+<code>tama enforcement emergency</code>, waits for its exit and for its output to close, and reports its
+exit status and what it printed. Its own failures
+(<code>The Tama bundle does not contain the bundled hook release's tama, …</code>,
 <code>Tama could not read local policy output: &lt;reason&gt;</code>, …) are listed in the
 <a href="../runbook.md#the-emergency-switch-refuses">runbook</a>.</p>
 <h2>Not to be confused with</h2>

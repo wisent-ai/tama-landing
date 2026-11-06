@@ -38,16 +38,13 @@ project <code>.githooks</code> entrypoints. Existing Git hooks are preserved as
 <code>&lt;name&gt;.before-tama</code>. The OMP adapter is registered through
 <code>omp config set extensions</code>.</p>
 <h2>Script and runtime environment variables</h2>
-<p>Honored by the bundled installer (<code>tama hooks install-release</code>), the emergency
-switch (<code>emergency_disable_hooks</code>), and the generated launchers:</p>
+<p>Honored by the bundled installer (<code>tama hooks install-release</code>) and the generated
+launchers. The emergency switch (<code>tama enforcement emergency</code>) reads no variable: its home,
+release, reason and minutes are arguments
+(<a href="../cli/enforcement/emergency/">cli/enforcement/emergency</a>).</p>
 <table>
 <thead><tr><th>Variable</th><th>Read by</th><th>Purpose</th></tr></thead>
 <tbody>
-<tr><td><code>TAMA_HOME</code></td><td>emergency switch</td><td>Target home directory; <code>$HOME</code> when it is not set</td></tr>
-<tr><td><code>TAMA_EMERGENCY_ACTION</code></td><td>emergency switch</td><td><code>disable</code> (when it is not set) or <code>enable</code></td></tr>
-<tr><td><code>TAMA_EMERGENCY_SET_BY</code>, <code>TAMA_EMERGENCY_REASON</code>, <code>TAMA_EMERGENCY_MINUTES</code></td><td>emergency switch</td><td>Who throws it, why, and for how many minutes; a disable refuses without any of them</td></tr>
-<tr><td><code>TAMA_HOOK_RELEASE_ROOT</code></td><td>emergency switch</td><td>Release root; the <code>hooks-release</code> beside the script, else the one in <code>.build/Tama.app</code></td></tr>
-<tr><td><code>TAMA_HOOK_INSTALLER</code></td><td>emergency switch</td><td>Installer path; the release's own <code>bin/tama</code> when it is not set</td></tr>
 <tr><td><code>TAMA_OMP</code></td><td>installer</td><td>The <code>omp</code> executable used to register the OMP adapter</td></tr>
 <tr><td><code>AGENT_HOOK_REGISTRY</code></td><td>every Tama program and the OMP adapter</td><td>Registry path; <code>~/.shared-hooks/registry.json</code> when it is not set</td></tr>
 <tr><td><code>TAMA_CLEAN_DISABLED</code></td><td><code>tama violations clean</code>, <code>tama request violations/clean</code></td><td><code>1</code> disables the cleanup command entirely</td></tr>

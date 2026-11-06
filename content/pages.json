@@ -60,6 +60,7 @@
   {"route":"cli/enforcement/add-remove","source":"content/docs/cli/enforcement/add-remove.html","content":"content/docs/cli/enforcement/add-remove.html","category":"CLI reference"},
   {"route":"cli/enforcement/preflight","source":"content/docs/cli/enforcement/preflight.html","content":"content/docs/cli/enforcement/preflight.html","category":"CLI reference"},
   {"route":"cli/enforcement/all","source":"content/docs/cli/enforcement/all.html","content":"content/docs/cli/enforcement/all.html","category":"CLI reference"},
+  {"route":"cli/enforcement/emergency","source":"content/docs/cli/enforcement/emergency.html","content":"content/docs/cli/enforcement/emergency.html","category":"CLI reference"},
   {"route":"cli/provider/config","source":"content/docs/cli/configuration/provider-config.html","content":"content/docs/cli/configuration/provider-config.html","category":"CLI reference"},
   {"route":"cli/request","source":"content/docs/cli/runtime/request.html","content":"content/docs/cli/runtime/request.html","category":"CLI reference"},
   {"route":"cli/assignment/show","source":"docs/cli/assignment/show.md","content":"content/docs/cli/assignment/show.html","category":"CLI reference"},
