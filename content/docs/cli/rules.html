@@ -61,9 +61,12 @@ returns when Oko records a correction it had not seen, even if an earlier
 correction has since been answered. Older count-only decisions remain hidden
 until their evidence count grows. Decisions are kept in
 <code>~/.shared-hooks/rule_decisions.json</code>. Which proposal
-the operator never sees again is his decision, so <code>dismiss</code> needs
-<code>DEVICE_HOOK_EDIT_APPROVED=1</code> set outside the agent session; Tama Desktop
-sets it for the one request its own button sends.</p>
+the operator never sees again is his decision, so <code>dismiss</code>, and <code>remove</code> of a rule
+drafted from his own words, need his consent, read as every hook change reads it: his word in the
+conversation recorded as the session capability <code>{"tool": "tama", "actions": ["hook-edit"]}</code>,
+or <code>DEVICE_HOOK_EDIT_APPROVED=1</code> set in his own shell outside any agent session
+(<a href="../../hook-management/#owner-consent-for-a-hook-change">owner consent</a>); Tama Desktop
+sets the variable for the one request its own button sends.</p>
 <p>A missing decisions file means no proposal has been dismissed. An unreadable,
 malformed or invalid <code>rule_decisions.json</code> is different: <code>digest</code>
 refuses to print proposals rather than reopening hidden decisions. The error names
@@ -72,9 +75,9 @@ damaged state. The Desktop digest request returns HTTP 500 with the same error,
 and the Learned screen shows the refusal instead of an empty history.</p>
 <h2>Refusals</h2>
 <ul>
-<li><code>refusing to dismiss &lt;id&gt;: which proposal the operator never sees again is his decision. Set DEVICE_HOOK_EDIT_APPROVED=1 outside the agent session to dismiss it.</code> — exit 2, nothing written.</li>
+<li><code>refusing to dismiss &lt;id&gt;: which proposal the operator never sees again is his decision, and his consent is not given here (&lt;cause&gt;). Either say in the conversation that you agree, … or run this in your own shell, outside any agent session: DEVICE_HOOK_EDIT_APPROVED=1 tama rules dismiss --id &lt;id&gt; …</code> — exit 2, nothing written; the cause names the session and the capability it lacks, or that no session runs the command.</li>
 <li><code>no open proposal &lt;id&gt; is in the digest</code> — exit 2; the id is not open (already dismissed, or never proposed).</li>
-<li><code>refusing to remove &lt;id&gt;: it was drafted from something the operator really said…</code> — <code>remove</code> of a rule whose quote is in a stored operator message, without the approval.</li>
+<li><code>refusing to remove &lt;id&gt;: it was drafted from something the operator really said, that quote is in the stored transcripts, and his consent is not given here (&lt;cause&gt;). …</code> — <code>remove</code> of a rule whose quote is in a stored operator message, without his consent; the same two routes are named.</li>
 </ul>
 <p>Missing <code>auto_rules.json</code> starts with no drafted rules. An existing
 file that cannot be read or has no rules array is never replaced with an empty
