@@ -1,15 +1,23 @@
 <h1>Emergency disable</h1>
 <p>When a hook blocks work that genuinely must proceed, what is the recovery —
 and what does it cost? One confirmed, operator-owned action that bypasses
-every Tama-managed dispatcher on the machine, records exactly what it moved,
-and stays visible until a verified re-enable restores everything. It is
+every Tama-managed dispatcher on the machine for a stated number of minutes,
+records who threw it, why and until when, says so in every session record
+and hook answer, and lifts itself when the time has passed. It is
 deliberately the only way to weaken policy: sessions can
 <a href="session-enable.md">enable</a>, only operators can disable, and only globally
 (<a href="../enforcement-control.md">enforcement-control</a>).</p>
 <h2>What it is</h2>
 <p><code>emergency_disable_hooks</code>, a bundled POSIX script the desktop runs from
 <strong>Posture</strong> and re-runs with <code>TAMA_EMERGENCY_ACTION=enable</code> for re-enable
-(<a href="../scripts.md#emergency_disable_hooks">scripts</a>). Disable, in order:</p>
+(<a href="../scripts.md#emergency_disable_hooks">scripts</a>). A disable takes its terms from
+the environment and refuses without any of them, exit <code>2</code>, before anything is moved:
+<code>TAMA_EMERGENCY_SET_BY</code> (who throws it; the desktop passes the macOS account),
+<code>TAMA_EMERGENCY_REASON</code> (why) and <code>TAMA_EMERGENCY_MINUTES</code> (a whole number above
+zero: how long it holds). A missing one answers <code>Tama will not disable its hooks without
+&lt;NAME&gt;: …</code>; minutes that are not a whole number above zero answer
+<code>TAMA_EMERGENCY_MINUTES is &lt;value&gt;; it must be a whole number of minutes above zero.</code>
+Disable, in order:</p>
 <ol>
 <li>reinstalls the session controllers
 (<code>tama hooks install-release --session-control-only</code>) so session visibility
@@ -25,27 +33,60 @@ directory and every Git hook source the installed
 then the <code>com.wisent.editor-hooks.plist</code> LaunchAgent);</li>
 <li>writes <code>emergency-backup/manifest.json</code> once and
 <code>hook-emergency-state.json</code>
-(<code>ai.wisent.tama.hook-emergency-state.v1</code>, <code>disabled: true</code>, <code>changedAt</code>).</li>
+(<code>ai.wisent.tama.hook-emergency-state.v1</code>, <code>disabled: true</code>, <code>setBy</code>,
+<code>reason</code>, <code>changedAt</code> and <code>expiresAt</code>, both ISO-8601 UTC).</li>
 </ol>
 <p>No running agent session is stopped, paused or signalled: each session's
 loaded runtime reads <code>hook-emergency-state.json</code> and bypasses its hooks at
 once, so every terminal keeps its session in the foreground.</p>
-<p>Success prints <code>Disabled hooks. Running agent sessions read the emergency state at once and keep running.</code>; repeating it prints <code>Tama hooks are already disabled.</code> and changes nothing.</p>
+<p>Success prints <code>Disabled hooks for &lt;N&gt; minutes. Running agent sessions read the emergency state at once and keep running; the hooks run again when it expires.</code>; repeating it prints <code>Tama hooks are already disabled.</code> and changes nothing.</p>
+<h2>Expiry and what every reader says</h2>
+<p>The switch holds while <code>disabled</code> is <code>true</code> and <code>expiresAt</code> has not
+passed. Once it has, every reader — the hook engine, the session records, <code>tama enforcement
+status</code>, the OMP adapter and the desktop — reads the switch as lifted and the hooks run again,
+without anyone touching the file; the file stays as the operator's record until a re-enable
+removes it. A switch written by hand, without the script, still holds: Tama does not decide the
+operator's own file was a mistake. Every reader then names what its record lacks — <code>names no
+one who set it (setBy)</code>, <code>gives no reason (reason)</code>, <code>records no ISO-8601 time
+it was set (changedAt)</code>, <code>names no time it ends, so nothing lifts it but the operator
+(expiresAt)</code>.</p>
+<p>While it holds, the switch is shown wherever a person or an agent reads:</p>
+<ul>
+<li>every session record carries <code>emergencySwitch</code> — <code>holds</code>, <code>set</code>,
+<code>setBy</code>, <code>reason</code>, <code>changedAt</code>, <code>expiresAt</code>, <code>expired</code>,
+<code>gaps</code> — beside <code>globallyDisabled</code>;</li>
+<li><code>tama enforcement status</code> prints <code>emergency switch: Tama's emergency switch is set by
+&lt;who&gt; since &lt;when&gt; because &lt;why&gt;; it lifts itself at &lt;end&gt;: …</code>, and
+<code>--json</code> carries <code>emergencySwitch</code> and <code>emergencyNotice</code>
+(<a href="../cli/enforcement/status.md">cli/enforcement/status</a>);</li>
+<li>every hook answer carries <code>emergencySwitch</code>, and the answer to a session start, a
+prompt and a turn end carries the same sentence in
+<code>hookSpecificOutput.additionalContext</code>, which the agent reads;</li>
+<li>the OMP adapter puts that sentence before every turn started from a prompt
+(<code>tama-emergency-switch</code>);</li>
+<li>the desktop's Posture alert says who set it, why, since and until when.</li>
+</ul>
+<p>The real tests are <code>tests/enforcement/emergency.rs</code> (a complete switch, a hand-written
+one, an expired one and none, through <code>tama enforcement status</code> and <code>tama run-hook</code>)
+and <code>tests/omp-adapter/emergency-notice.mjs</code> (the OMP entry through OMP's own extension
+runner).</p>
 <h2>What it costs</h2>
 <p>The desktop's confirmation states the price before the button exists —
 title <code>Disable all policies on this machine</code>, then verbatim:</p>
 <ul>
 <li><code>Unsafe actions will no longer be blocked.</code></li>
 <li><code>Current sessions will keep running.</code></li>
-<li><code>Re-enable the policies to restore protection.</code></li>
+<li><code>The policies return by themselves when the time below has passed.</code></li>
 </ul>
-<p>with the full listing of blocking hook ids and its actions:
+<p>with the full listing of blocking hook ids, a reason field (<code>Why every policy must be
+off</code>) and a duration stepper (<code>Policies return by themselves after &lt;N&gt; minutes</code>,
+5 to 1440, 60 at first), and its actions:
 <code>Read the blocking decision</code> (shown when a hook has blocked, it jumps to
-<a href="../desktop/session.md">Session</a>), destructive <code>Disable all policies</code>,
-primary <code>Keep policy active</code>.</p>
+<a href="../desktop/session.md">Session</a>), destructive <code>Disable all policies</code> — enabled
+only once a reason is given —, primary <code>Keep policy active</code>.</p>
 <h2>How state is judged</h2>
-<p>Tama treats the machine as disabled only when <strong>both</strong> the manifest and the
-state file exist, and it re-reads that durable state after the script
+<p>Tama treats the machine as disabled while the state file holds the switch, exactly as the hooks
+read it, and the desktop re-reads that durable state after the script
 returns — <code>Tama could not persist the emergency hook state.</code> is a failure,
 never claimed success. A machine-wide hook selection remains recorded, but
 the emergency bypass takes precedence: none of its selected ids run until
@@ -53,7 +94,10 @@ re-enable succeeds. During the bypass, only a session's generation-bound
 <code>enabledHookIds</code> allowlist can run
 (<a href="session-enable.md#composition-with-machine-enforcement">session-enable</a>).</p>
 <h2>Re-enable</h2>
-<p>Enable refuses without evidence: no manifest answers <code>Tama has no emergency backup manifest to restore.</code>, and the bundled release must pass its
+<p>A switch written without the script set nothing aside, so enable lifts it by removing it:
+<code>Lifted an emergency switch that set nothing aside (no emergency-backup/manifest.json): every hook runs again. …</code>;
+with no switch and no manifest it refuses with <code>Tama has no emergency switch set and no emergency backup manifest to restore.</code>
+With a manifest, the bundled release must pass its
 <a href="seal.md">seal</a> gates. It performs the full transactional installation with
 <code>--emergency-manifest</code> — restoring every moved entrypoint, regenerating
 provider configs from the backups, re-bootstrapping the editor LaunchAgent —
@@ -62,7 +106,7 @@ and only then removes the emergency state and manifest, printing <code>Enabled a
 <table>
 <thead><tr><th>Path</th><th>Content</th></tr></thead>
 <tbody>
-<tr><td><code>~/Library/Application Support/Tama/hook-emergency-state.json</code></td><td>The durable disabled flag</td></tr>
+<tr><td><code>~/Library/Application Support/Tama/hook-emergency-state.json</code></td><td>The switch: <code>disabled</code>, <code>setBy</code>, <code>reason</code>, <code>changedAt</code>, <code>expiresAt</code></td></tr>
 <tr><td><code>~/Library/Application Support/Tama/hook-enforcement.json</code></td><td>The independent all-hooks or selected-hooks baseline; retained while emergency state takes precedence</td></tr>
 <tr><td><code>~/Library/Application Support/Tama/emergency-backup/manifest.json</code></td><td><code>configs</code> emptied, <code>moved</code> entrypoint pairs, <code>editorWatcherStopped</code> — written once</td></tr>
 <tr><td><code>~/Library/Application Support/Tama/emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code></td><td>Original provider configs, restored on enable</td></tr>

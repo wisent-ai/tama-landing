@@ -62,17 +62,18 @@ dirty suffix, warning tone), Target (<code>&lt;platform&gt; · &lt;architecture&
 The two identities are deliberately separate
 (<a href="../releases.md">releases</a>).</p>
 <h2>Deactivate local policy enforcement on this machine</h2>
-<p>The confirmed dialog states the entire price, verbatim:</p>
+<p>The confirmed dialog, titled <code>Turn off policy protection on this machine</code>, states the entire price, verbatim:</p>
 <ol>
-<li><code>Every managed hook dispatcher is disabled, so &lt;n&gt; blocking policies stops refusing unsafe work.</code></li>
-<li><code>Tama unregisters its privileged daemon, System Extension and network filter. macOS may require a restart to finish removal.</code></li>
-<li><code>Supervised sessions that are running keep running without enforcement. Stop them first if that matters.</code></li>
+<li><code>Unsafe actions will no longer be blocked.</code></li>
+<li><code>Current sessions will keep running without policy checks.</code></li>
+<li><code>The hooks return by themselves when the time below has passed.</code></li>
+<li><code>macOS may require a restart.</code></li>
 </ol>
-<p>Reason code <code>hook-emergency-state.v1 disabled=true; SMAppService unregister</code>; the listing names the four things touched —
-<code>~/Library/Application Support/Tama/hook-emergency-state.json</code>,
-<code>~/Library/Application Support/Tama/emergency-backup/manifest.json</code>,
-<code>ai.wisent.tama.system-policy</code>, <code>ai.wisent.tama.network-filter</code> — and the
-footnote: <code>recovery files are preserved; reinstalling verifies the bundled release before restoring dispatchers</code>. Actions: destructive <code>Deactivate everything</code>, primary <code>Keep enforcement</code>.</p>
+<p>Under it, the emergency switch's terms: a reason field, <code>Why every policy must be off</code>, and a
+duration stepper, <code>Policies return by themselves after &lt;N&gt; minutes</code> (5 to 1440 in steps of 5,
+60 at first). Actions: destructive <code>Turn off protection</code>, inert until a reason is given, and
+primary <code>Keep protection</code>. The switch records the macOS account, the reason and the end time
+(<a href="../concepts/emergency-disable.md#expiry-and-what-every-reader-says">concepts/emergency-disable</a>).</p>
 <p>Deactivation is the emergency disable <em>plus</em> independent unregistration of
 the daemon, System Extension, and network filter
 (<a href="../concepts/emergency-disable.md#not-to-be-confused-with">concepts/emergency-disable</a>);

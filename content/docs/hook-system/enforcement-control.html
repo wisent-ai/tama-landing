@@ -235,8 +235,10 @@ holds <code>call:brama#&lt;route&gt;</code>, which separates a missing local gra
 from a gateway that answers to another authority.</p>
 <h2>Global emergency disable</h2>
 <p>The bundled <code>emergency_disable_hooks</code> script is the switch; the desktop runs
-it from <strong>Posture</strong> (confirmed as <em>Disable all policies on this machine</em>)
-and re-runs it with <code>TAMA_EMERGENCY_ACTION=enable</code> for re-enable. Disable:</p>
+it from <strong>Posture</strong> (confirmed as <em>Disable all policies on this machine</em>, with a
+reason and a number of minutes) and re-runs it with <code>TAMA_EMERGENCY_ACTION=enable</code> for
+re-enable. A disable refuses, exit <code>2</code>, without <code>TAMA_EMERGENCY_SET_BY</code>,
+<code>TAMA_EMERGENCY_REASON</code> and <code>TAMA_EMERGENCY_MINUTES</code>. Disable:</p>
 <ol>
 <li>reinstalls the session controllers (<code>--session-control-only</code>) so session
 visibility survives the bypass;</li>
@@ -250,15 +252,19 @@ directory and every Git hook source the installed registry declares;</li>
 <li>records everything once in <code>emergency-backup/manifest.json</code> and writes
 <code>hook-emergency-state.json</code> (schema
 <code>ai.wisent.tama.hook-emergency-state.v1</code>, <code>disabled: true</code>,
-<code>changedAt</code>).</li>
+<code>setBy</code>, <code>reason</code>, <code>changedAt</code>, <code>expiresAt</code>).</li>
 </ol>
 <p>No running agent session is stopped, paused or signalled: each loaded
 runtime reads <code>hook-emergency-state.json</code> and bypasses its hooks at once.
-Repeating disable is idempotent (<code>Tama hooks are already disabled.</code>). The
-desktop treats the machine as disabled only when both the manifest and the
-disabled state file exist, and after the script returns it re-reads that
-durable state — a switch that did not persist is reported as a failure, not
-claimed as success.</p>
+Repeating disable is idempotent (<code>Tama hooks are already disabled.</code>). Every
+reader — the hook engine, session records, <code>tama enforcement status</code>, the OMP
+adapter and the desktop — holds the switch while <code>disabled</code> is true and
+<code>expiresAt</code> has not passed, so the hooks run again at expiry with nobody touching
+the file; a hand-written switch with no <code>expiresAt</code> holds and every reader names
+what its record lacks. While it holds, session records and hook answers carry
+<code>emergencySwitch</code> (<a href="../concepts/enforcement/emergency-disable/#expiry-and-what-every-reader-says">emergency disable</a>).
+After the script returns, the desktop re-reads that durable state — a switch
+that did not persist is reported as a failure, not claimed as success.</p>
 <h2>Re-enable</h2>
 <p>Enable refuses to run without the emergency manifest and a valid bundled
 release. It performs the full transactional installation of

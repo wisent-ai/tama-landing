@@ -17,7 +17,7 @@ provisioning profiles, channels) are maintainer-only and tabled in
 <tr><td><code>hooks-runtime/releases/&lt;release-id&gt;/</code></td><td>Content-addressed installed hook releases</td></tr>
 <tr><td><code>hooks-runtime/current</code></td><td>Symlink to the active release, replaced atomically</td></tr>
 <tr><td><code>hooks-runtime/installed.json</code></td><td>Installed identity: release id, checksum, versions, managed files, pinned Node (<code>ai.wisent.tama.installed-hook-release.v1</code>)</td></tr>
-<tr><td><code>hook-emergency-state.json</code></td><td>Durable disabled flag (<code>ai.wisent.tama.hook-emergency-state.v1</code>)</td></tr>
+<tr><td><code>hook-emergency-state.json</code></td><td>The emergency switch (<code>ai.wisent.tama.hook-emergency-state.v1</code>): <code>disabled</code>, <code>setBy</code>, <code>reason</code>, <code>changedAt</code>, <code>expiresAt</code>; past <code>expiresAt</code> it no longer holds</td></tr>
 <tr><td><code>emergency-backup/manifest.json</code></td><td>What emergency disable moved and emptied, recorded once</td></tr>
 <tr><td><code>emergency-backup/claude-settings.json</code>, <code>codex-hooks.json</code></td><td>Original provider configs, restored on re-enable</td></tr>
 <tr><td><code>session-control/*.session.json</code></td><td>Supervisor-owned live session records (<code>ai.wisent.tama.session-control.v2</code>)</td></tr>
@@ -45,6 +45,7 @@ switch (<code>emergency_disable_hooks</code>), and the generated launchers:</p>
 <tbody>
 <tr><td><code>TAMA_HOME</code></td><td>emergency switch</td><td>Target home directory; <code>$HOME</code> when it is not set</td></tr>
 <tr><td><code>TAMA_EMERGENCY_ACTION</code></td><td>emergency switch</td><td><code>disable</code> (when it is not set) or <code>enable</code></td></tr>
+<tr><td><code>TAMA_EMERGENCY_SET_BY</code>, <code>TAMA_EMERGENCY_REASON</code>, <code>TAMA_EMERGENCY_MINUTES</code></td><td>emergency switch</td><td>Who throws it, why, and for how many minutes; a disable refuses without any of them</td></tr>
 <tr><td><code>TAMA_HOOK_RELEASE_ROOT</code></td><td>emergency switch</td><td>Release root; the <code>hooks-release</code> beside the script, else the one in <code>.build/Tama.app</code></td></tr>
 <tr><td><code>TAMA_HOOK_INSTALLER</code></td><td>emergency switch</td><td>Installer path; the release's own <code>bin/tama</code> when it is not set</td></tr>
 <tr><td><code>TAMA_OMP</code></td><td>installer</td><td>The <code>omp</code> executable used to register the OMP adapter</td></tr>

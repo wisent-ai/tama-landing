@@ -35,7 +35,7 @@ reason to exist.</p>
 <p>The bundled snapshot's structural validation: ok flag, errors, warnings,
 hook and orphan-source counts — with the standing caveat <code>Bundled snapshot only: high-entropy and live runtime drift checks are not run in Tama.</code>
 (<a href="../hook-model.md#the-desktops-catalog-snapshot">hook-model</a>). Alert panels
-surface <code>Catalog re-read failed</code>, <code>Catalog validation failed</code>, <code>All hooks are disabled</code>, and <code>Session control unavailable</code> states.</p>
+surface <code>Catalog re-read failed</code>, <code>Catalog validation failed</code>, <code>All hooks are disabled</code>, and <code>Session control unavailable</code> states. While the emergency switch holds, the <code>Policy protection is off</code> alert reads the switch as the hooks do and says who set it, since when, why and until when it holds — <code>Every Tama hook is off on this machine, set by &lt;who&gt;, since &lt;when&gt;, because &lt;why&gt;, until &lt;end&gt;, when it lifts itself.</code> — and names what a hand-written record lacks; its <code>Re-enable all policies</code> action lifts it (<a href="../concepts/emergency-disable.md#expiry-and-what-every-reader-says">concepts/emergency-disable</a>).</p>
 <h2>The last blocking decision</h2>
 <p>The most recent non-allow event across every live session — its hook id and
 verbatim <code>reason</code> — pulled from the session records' <code>semanticRuntime</code>.
@@ -44,11 +44,11 @@ This is the answer to &quot;why did my agent stop&quot;, one click before the
 <h2>Disable every Tama hook on this machine</h2>
 <p>The confirmed dialog states the entire price, verbatim
 (<a href="../concepts/emergency-disable.md#what-it-costs">concepts/emergency-disable</a>):
-the three body lines about dispatcher bypass, blocking hooks ceasing to
-refuse, and surviving per-session overrides; reason code
-<code>hook-emergency-state.v1 disabled=true</code>; the listing of every blocking hook
-id; the footnote <code>recovery files are preserved under Application Support/Tama/emergency-backup</code>; and three actions — <code>Read the blocking decision</code> (jumps to <a href="session.md">Session</a> when a blocking decision exists),
-destructive <code>Disable all hooks</code>, primary <code>Keep policy active</code>. After the
+the three body lines — <code>Unsafe actions will no longer be blocked.</code>, <code>Current sessions will keep running.</code>, <code>The policies return by themselves when the time below has passed.</code>; the listing of every blocking hook
+id; under it a reason field, <code>Why every policy must be off</code>, and a duration stepper,
+<code>Policies return by themselves after &lt;N&gt; minutes</code> (5 to 1440 in steps of 5, 60 at first);
+and three actions — <code>Read the blocking decision</code> (jumps to <a href="session.md">Session</a> when a blocking decision exists),
+destructive <code>Disable all policies</code>, inert until a reason is given (<code>The switch records why it was thrown; give a reason to continue.</code>), primary <code>Keep policy active</code>. The switch records the macOS account as <code>setBy</code>, the reason and the end time. After the
 switch runs, the app re-reads durable state; a switch that did not persist
 reports <code>Tama could not persist the emergency hook state.</code> rather than
 claiming success.</p>
