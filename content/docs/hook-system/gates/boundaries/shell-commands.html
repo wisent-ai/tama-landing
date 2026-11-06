@@ -3,6 +3,12 @@
 written inline instead of in a checked-in file; <code>tama hook pre-bash</code> refuses throwaway work and commands
 that cross a product boundary. Neither decides by a list of program names: an interpreter, wrapper or cloud CLI
 nobody listed walked past every list that did.</p>
+<p>A program started under a debugger is a command too. Before a debug tool's <code>launch</code> runs (the tool,
+or a write to <code>xd://debug</code>), the OMP adapter dispatches the launch's <code>program</code> and
+<code>args</code> as one quoted shell line, with its <code>cwd</code>, under the shell tool's name, so
+<code>pre-bash</code>, <code>block-one-off-repairs</code> and every other bash gate judge it exactly as they judge the
+same line typed into bash: <code>stado repair</code> through lldb-dap is refused as <code>stado repair</code> is. A
+debugger step, a breakpoint and a tool result are not command lines and are judged as what they are.</p>
 <h2>What is read from structure</h2>
 <p>Identity and shape stay structural, because they are facts a command carries:</p>
 <ul>
