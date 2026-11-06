@@ -92,8 +92,14 @@ read it, and the desktop re-reads that durable state after the command
 returns — <code>Tama could not persist the emergency hook state.</code> is a failure,
 never claimed success. A machine-wide hook selection remains recorded, but
 the emergency bypass takes precedence: none of its selected ids run until
-re-enable succeeds. During the bypass, only a session's generation-bound
-<code>enabledHookIds</code> allowlist can run
+re-enable succeeds, with one exception. <code>block-stop-with-open-work</code>, the gate that
+refuses to end a turn while work is open, keeps running whenever the selection names it (or the
+selection is <code>all</code>): a break-glass switch stops the gates that wedge work, not the one that
+keeps a session from walking away from it (tama-hooks <code>KEPT_UNDER_EMERGENCY</code>, the same id in
+<code>shared-hooks/enforcement-selection.mjs</code>; journey
+<code>tests/enforcement/emergency.rs</code>). Every reader's sentence says so: <code>every Tama hook is off
+on this machine but block-stop-with-open-work, …</code>. During the bypass, a session's
+generation-bound <code>enabledHookIds</code> allowlist can run as well
 (<a href="session-enable.md#composition-with-machine-enforcement">session-enable</a>).</p>
 <h2>Re-enable</h2>
 <p><code>tama enforcement emergency off</code>. A switch written by hand set nothing aside, so
