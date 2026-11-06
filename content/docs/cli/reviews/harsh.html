@@ -52,7 +52,34 @@ tama reviews harsh settle --quote &lt;text&gt; --reason &lt;where it was repaire
 tama reviews harsh show [--message &lt;file&gt; | --queue &lt;id&gt;] [--repository &lt;path&gt;] [--json]
 tama reviews harsh request --message &lt;file&gt; [--item &lt;id&gt;] [--within-minutes &lt;n&gt;] [--repository &lt;path&gt;]
 tama reviews harsh run --message &lt;file&gt; (--defect &lt;id&gt; | --task &lt;id&gt;) [--with &lt;repository&gt;:&lt;index&gt; --with-message &lt;file&gt;] [--repository &lt;path&gt;]
-tama reviews harsh run --attestation (session|build):&lt;session id&gt;</code></pre>
+tama reviews harsh run --attestation (session|build):&lt;session id&gt;
+tama reviews harsh unrecordable --reference &lt;repository&gt;@&lt;commit&gt; [--json]</code></pre>
+<h2>Entries no round can be recorded over</h2>
+<p><code>tama reviews harsh unrecordable --reference &lt;repository&gt;@&lt;commit&gt;</code> lists every open entry of
+Oko's queue (<code>waiting</code> or <code>assigned</code>; a reviewed or ended entry is handed to nobody) queued from a
+checkout whose path ends in <code>&lt;repository&gt;</code>, whose tree no round can be kept over: the judgment
+<code>record --queue</code> makes before keeping one, above, run over the entry's repository, parent, tree and message.
+Each is one line, <code>&lt;id&gt; &lt;repository&gt; tree &lt;tree&gt; on &lt;parent&gt; (author &lt;session&gt;,
+&lt;state&gt;): &lt;the first line of why&gt;</code>; <code>--json</code> prints <code>{"reference", "judgedBy",
+"unrecordable": [{"entry", "why", "line"}]}</code>, the entry as Oko keeps it and <code>judgedBy</code> the commit this
+tama was built from. An empty answer is a repository whose every open entry can be reviewed, so the command is the
+inventory a completion probe counts in every repository a sweep reads: <code>oko defects completion &lt;defect&gt;
+--probe-program tama --probe-arg reviews --probe-arg harsh --probe-arg unrecordable --probe-arg --reference --probe-arg
+'{reference}' --probe-scope 'open harsh-review queue entries' --probe-format lines</code>.</p>
+<p>The commit of the reference must be one the repository it runs in holds (the checkout, or the export a probe runs in,
+named by its <code>GIT_DIR</code>): <code>--reference &lt;reference&gt;: &lt;commit&gt; is no commit of the repository
+this runs in, so the reference measured nothing; run it in &lt;repository&gt;'s checkout or an export of it</code>. A
+branch or tag is refused (<code>… is not a commit id; a branch or tag moves, so name the commit</code>), and so is a
+reference with no repository (<code>--reference &lt;reference&gt; names no repository; write it as
+&lt;repository&gt;@&lt;commit&gt;</code>). The judgment is the binary's own, so its build records the commit it was built
+from, a clean checkout's HEAD or <code>WISENT_SOURCE_COMMIT</code> when the source is no checkout, and a build of a
+checkout with uncommitted or untracked files names none and refuses every reading: <code>this tama names no source
+commit, so its judgment is no commit's: &lt;cause&gt;</code>. An entry whose repository Git cannot read fails the whole
+inventory, <code>entry &lt;id&gt; in &lt;repository&gt; could not be judged: &lt;Git's cause&gt;</code>, never counted
+as one that can be reviewed; a queue Oko cannot list, or an entry lacking a field, fails with Oko's words. Each entry is
+read in its own repository with the caller's <code>GIT_DIR</code>, <code>GIT_WORK_TREE</code> and
+<code>GIT_INDEX_FILE</code> cleared, which a completion probe running in an export, or a Git hook, sets; <code>record
+--queue</code> reads the same way.</p>
 <h2>A model that does not answer stops no commit</h2>
 <p>On a machine that declared a model, each commit attempt asks it for a round. When it does not answer (Brama down,
 the route refusing, any failure), the commit is not held for it: the hook keeps the round as owed in the register
@@ -307,7 +334,13 @@ proves an attested commit no other reviewer reviewed is refused and that the mad
 machine declaring no model, with the installed Oko keeping the queue in the case's own register: the refusal names the
 queue entry, the author's round over its own entry is refused, another session reads the entry's patch with
 <code>show --queue</code> and records its round with <code>record --queue</code>, <code>show --json</code> lists the
-entry reviewed, and the author's next attempt makes the commit. Every case's queue is its own
+entry reviewed, and the author's next attempt makes the commit. Its module <code>tests/harsh-review/queue/unrecordable.rs</code>
+runs <code>unrecordable --reference clone@&lt;the clone's HEAD&gt;</code> over a queued candidate: no line while its
+parent is HEAD, then, once a commit lands after the parent that the tree does not carry, one line naming the entry with
+the landed commit in its reason, the entry still open, no line for another repository, and the same line when run in a
+directory of its own with <code>GIT_DIR</code>, <code>GIT_WORK_TREE</code> and <code>GIT_INDEX_FILE</code> naming the
+clone's repository as an export does; a commit the repository lacks, a branch name, a reference with no repository and
+a missing <code>--reference</code> are refused. Every case's queue is its own
 (<code>OKO_HARSH_REVIEW_QUEUE</code>), so no journey writes the operator's. <code>tests/harsh-review/rounds.rs</code>
 refuses <code>record --with-message</code> without <code>--with</code> and <code>--with</code> beside
 <code>--queue</code> before any round is kept, records one round over a code half and a docs half staged in two clones
