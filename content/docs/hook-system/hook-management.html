@@ -86,10 +86,12 @@ reads, so a declared vocabulary does not appear. It writes nothing;
 <li>Record the catalogue entry, then write the registry entry, in that order.
 <code>tama-record-hook-metadata</code> writes the <code>catalog-metadata.json</code> entry —
 category, purpose, rationale, and side effects:
-<pre><code>tama-record-hook-metadata [--check] --category C --description D --why W --side-effects S [--status S] &lt;catalog-metadata.json&gt; &lt;hook-id&gt;</code></pre>
+<pre><code>tama-record-hook-metadata [--check] --category C --description D --why W --side-effects S [--status S] [--source PATH] &lt;catalog-metadata.json&gt; &lt;hook-id&gt;</code></pre>
 <code>--status</code> defaults to <code>active</code>; the entry carries <code>status</code>,
 <code>category</code>, <code>description</code>, <code>why</code> and <code>sideEffects</code> in that
-order; a repeat run reports that the catalogue already records the id and writes
+order, and <code>source</code> when <code>--source</code> names the file that holds the hook,
+relative to the repository; without <code>--source</code> an entry's <code>source</code> is kept
+as it is. A repeat run reports that the catalogue already records the id and writes
 nothing; <code>--check</code> writes nothing and exits non-zero when the entry is
 absent or differs, naming the field that differs; refusals exit <code>2</code>. It
 never opens <code>registry.json</code>.
@@ -99,7 +101,7 @@ reseals it. That order is not a preference: before it writes anything
 <code>register-hook.mjs</code> reads the catalogue and refuses a hook with no entry
 there, printing <code>catalog-metadata.json has no entry for &lt;id&gt;</code> and exiting
 <code>2</code>. The registry catalogue takes its category, purpose, rationale, and
-side effects from the metadata entry, so those are written once. The direct writer accepts <code>node shared-hooks/register-hook.mjs &lt;id&gt; &lt;event&gt; &lt;command&gt; [--remove] [--registry &lt;path&gt;]</code> and no other argument; it refuses before changing the registry. Generated Claude and Codex hook configurations bound no hook's running time, because the engine waits for every hook's answer.</li>
+side effects from the metadata entry, so those are written once. The direct writer accepts <code>node shared-hooks/register-hook.mjs &lt;id&gt; &lt;event&gt; &lt;command&gt; [--remove | --rebind] [--registry &lt;path&gt;]</code> and no other argument; it refuses before changing the registry. A hook already bound with another command is refused (<code>hook &lt;id&gt; is already registered with a different command; tama hooks declare rebinds it to its declaration</code>); <code>--rebind</code> rewrites every binding of the hook to run <code>&lt;command&gt;</code> as a <code>command</code> hook, and <code>--remove</code> with <code>--rebind</code> is refused as two writes. The writer finds a hook's file from the catalogue's <code>source</code> first, then from a <code>source</code> a binding of the hook already records, then from a <code>.py</code>, <code>.sh</code>, <code>.mjs</code> or <code>.js</code> script beside it named for the command; a <code>tama hook &lt;name&gt;</code> program is found only through <code>source</code>, and a hook whose file is found nowhere is refused naming each place it looked. Generated Claude and Codex hook configurations bound no hook's running time, because the engine waits for every hook's answer.</li>
 <li>Exercise the real runtime path that claims enforcement. Synthetic payload replay, mocks, and dry-run-only evidence do not prove live blocking.</li>
 <li>Keep commits limited to hook source, structured catalogue/configuration, and applicable product checks. Exclude runtime state, credentials, logs, profiles, and caches.</li>
 </ol>
@@ -116,7 +118,7 @@ occasion. Describe the hook once, as data in the repository under
   "events": [{ "event": "pre_tool_use:bash" }]
 }</code></pre>
 <p>A binding names only its event, because the engine waits for every hook's answer; a declaration whose binding names anything else is refused naming the field. A <code>command</code> that runs <code>tama hook &lt;name&gt;</code> with a name this <code>tama</code> does not serve (<code>tama hook</code> lists the names) is refused before any consent is asked: registered, it would answer every call with the usage refusal and judge nothing.
-Then the repository half, which records the catalogue entry, writes each registry binding it does not already have, reconciles the sources and reseals. The registry keeps its own copy of the catalogue entry; when every event is already bound, the registry writer runs once over a bound event so a changed description, reason or side effects reaches that copy too, printed as <code>registry: refreshed the catalogue entry: …</code>:</p>
+Then the repository half, which records the catalogue entry, writes each registry binding it does not already have, reconciles the sources and reseals. For a <code>tama hook &lt;name&gt;</code> command the catalogue entry names the file of that program, read from the program table of the running <code>tama</code> and found among the files the checkout tracks; a program whose file the checkout does not track exactly once is refused naming it. A binding the registry already holds with another command, or without the type <code>command</code>, is rewritten to the declaration (<code>registry: &lt;id&gt; on &lt;event&gt; was bound with &lt;fields&gt;; rebinding it to the declaration</code>, and <code>--dry-run</code> prints <code>would rebind (&lt;fields&gt;)</code>): a binding with no type stops the whole catalogue loading. The registry keeps its own copy of the catalogue entry; when every event is already bound, the registry writer runs once over a bound event so a changed description, reason or side effects reaches that copy too, printed as <code>registry: refreshed the catalogue entry: …</code>:</p>
 <pre><code>DEVICE_HOOK_EDIT_APPROVED=1 tama hooks declare --file hook-declarations/&lt;id&gt;.json</code></pre>
 <p>A hook is withdrawn with the same declaration that declared it. The reverse
 runs in the reverse order: each event the registry still binds to the hook is

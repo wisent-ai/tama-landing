@@ -1,0 +1,28 @@
+<h1><code>tama index repair</code></h1>
+<p>Reads a checkout's Git index against its object store, its <code>HEAD</code> and its working tree, and names every entry that would break or falsify the next commit; with <code>--apply</code> it repairs each in place. An index that names an object the store does not hold makes <code>git status</code>, every diff and every commit of the checkout fail, and Tama's commit review replays a session's edits against that index, so one such entry stops every commit of the repository.</p>
+<h2>Invocation</h2>
+<pre><code>tama index repair [--repo &lt;checkout&gt;] [--apply] [--json]
+</code></pre>
+<p>Without <code>--repo</code> it reads the checkout the command runs in. The index read is Git's own, or the one <code>GIT_INDEX_FILE</code> names; when that variable is set the answer says so, because it need not be the checkout's own index.</p>
+<h2>What it reads, and what <code>--apply</code> does</h2>
+<ul>
+<li><strong>Missing objects.</strong> Each entry whose object the store does not hold. With <code>--apply</code> an object another checkout of the workspace holds under the same id is copied from there (read with <code>git cat-file blob</code>, written with <code>git hash-object -w</code>, the id checked equal); with none, the path is staged again from its working file, or removed from the index when the working file is gone, and the answer names the staged content as lost.</li>
+<li><strong>An emptied index.</strong> An index with no entry while <code>HEAD</code> tracks files reads every tracked file as staged for deletion, and one plain commit deletes the repository. With <code>--apply</code> it is read back from <code>HEAD</code> (the index only), so every working file keeps its changes.</li>
+<li><strong>Foreign entries.</strong> A staged path <code>HEAD</code> does not track and the working tree does not hold: no edit in this checkout produced it. With <code>--apply</code> it is taken out of the index; its object stays in the store and the answer names it.</li>
+<li><strong>Dropped entries.</strong> A path <code>HEAD</code> tracks, missing from the index, whose working file is present and not ignored. With <code>--apply</code> its entry is read back from <code>HEAD</code>, which loses nothing. A path stopped being tracked on purpose is ignored by then and is left alone.</li>
+</ul>
+<p>Foreign and dropped entries are repaired with one <code>git reset -q HEAD -- &lt;paths&gt;</code> with literal pathspecs, which writes the index only. Without <code>--apply</code> nothing is written.</p>
+<h2>Output</h2>
+<p>The first line is <code>&lt;checkout&gt;: &lt;n&gt; index entries, &lt;n&gt; naming an object the store does not hold</code>. Then, as each applies: <code>read the index &lt;file&gt; that GIT_INDEX_FILE=&lt;value&gt; names, not necessarily the checkout's own</code>; the emptied index, read back or with the <code>--apply</code> that reads it back; one line per foreign or dropped entry, <code>&lt;path&gt; [&lt;object&gt;]: &lt;foreign|dropped&gt;, read back from HEAD</code> or <code>…, run with --apply to read it back from HEAD</code>; and one line per missing object, <code>&lt;path&gt; &lt;object&gt;: copied from &lt;checkout&gt;</code>, <code>…: &lt;repair&gt;; its staged content is lost</code> or <code>…: missing (run with --apply to repair)</code>. With <code>--json</code> the same report as one document: <code>{repository, index, index_variable, entries, missing: [{path, object, copied_from, repair, lost}], emptied: {head_entries, restored}, strays: [{path, shape, object, repaired}], applied}</code>.</p>
+<p>Tama Desktop's <em>Index repair</em> panel, under Reviews, sends the same reading as the request <code>index/repair</code> with <code>{"repository": &lt;checkout&gt;, "apply": &lt;bool&gt;}</code>: <em>Read index</em> reads it and <em>Repair index</em> applies.</p>
+<h2>Refusals</h2>
+<ul>
+<li><code>tama index needs its verb; tama index repair [--repo &lt;checkout&gt;] [--apply] [--json]</code>, and <code>&lt;word&gt; is not a verb of tama index; …</code>.</li>
+<li><code>--repo needs a checkout; …</code>, and <code>&lt;word&gt; is not an option of tama index repair; …</code> for any other word or an option given twice.</li>
+<li><code>the current directory cannot be read: &lt;cause&gt;</code> without <code>--repo</code>.</li>
+<li>Git's own refusal, with the command it ran, when the index, the store or <code>HEAD</code> cannot be read, and <code>git ls-files -s gave an entry without a path: …</code> or <code>… without an object: …</code> for an entry it cannot read.</li>
+<li>A path whose state in the working tree cannot be read is refused naming the path.</li>
+</ul>
+<h2>Journey</h2>
+<p><code>tests/index-repair/emptied.rs</code> runs the built <code>tama</code> on a repository of its own. An emptied index is named with how many files <code>HEAD</code> tracks and stays empty without <code>--apply</code>; with <code>--apply</code> it is read back from <code>HEAD</code>, Git reports no staged change, the working file keeps an edit made after the commit, and a second reading names nothing. A repository whose <code>HEAD</code> names no commit is never read as emptied, and an index read through a <code>GIT_INDEX_FILE</code> naming another file is answered naming the variable and that file, the checkout's own index left whole.</p>
+<p>Return to the <a href="../../">complete CLI command tree</a>.</p>

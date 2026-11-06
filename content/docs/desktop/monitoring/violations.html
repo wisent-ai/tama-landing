@@ -25,14 +25,20 @@ absolute, not a directory, or no <code>.git</code>.</li>
 <code>tama violations find</code>: <code>Every rule</code> replays the hooks;
 <code>File and folder size</code>, <code>Capabilities written again</code>,
 <code>Internal names</code>, <code>Waits and time limits</code>,
-<code>Fallbacks and dropped errors</code> and <code>Implicit state machines</code> run
+<code>Fallbacks and dropped errors</code>, <code>Errors that name no failure</code> and
+<code>Implicit state machines</code> run
 <code>--size-only</code>, <code>--duplicates</code>, <code>--internal-names</code>,
-<code>--time-limits</code>, <code>--fallbacks</code> and <code>--state-machines</code> in process, sent as the <code>mode</code> of
+<code>--time-limits</code>, <code>--fallbacks</code>, <code>--generic-errors</code> and
+<code>--state-machines</code> in process, sent as the <code>mode</code> of
 <code>violations/scan</code>. Under <code>Fallbacks and dropped errors</code> each rule is
 one construct of one language (<code>Rust .ok() dropping the error</code>,
 <code>Python except that only passes</code>, …) and each finding reads
 <code>line N: &lt;the line&gt;</code>, the same list
 <a href="../../fallbacks/"><code>block-fallbacks</code></a> would refuse on the next
+edit of each file. Under <code>Errors that name no failure</code> each rule is one
+sentence of wisent-errors' catalogue <code>generic_sentences</code> and each finding reads
+<code>line N: "&lt;sentence&gt;" &lt;why&gt;: &lt;the line&gt;</code>, the same list
+<a href="../../generic-errors/"><code>block-generic-errors</code></a> would refuse on the next
 edit of each file. Under <code>Implicit state machines</code> each rule is one
 slot of one language (<code>Rust state `phase` spelled as literals</code>) and
 each finding names its states, the lines that move it and the lines that

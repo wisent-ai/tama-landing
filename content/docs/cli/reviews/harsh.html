@@ -22,7 +22,10 @@ staged tree &lt;tree&gt;</code>. A tree a gate refuses gets no round and no comm
 does not pass the declared gate &lt;name&gt; (&lt;exit&gt;); its output is above; no round is recorded on, and no commit
 admits, a tree the product's own gates refuse: repair what it reports in the staged change and stage it again</code>,
 with the gate's own output above it. Test gates run with the build. A product with no manifest, or no gate but test
-gates, is judged by the rounds alone.</p>
+gates, is judged by the rounds alone. In a checkout <code>.build/tama-quality</code> must be ignored by Git, and a
+round is refused with <code>the quality scratch directory &lt;path&gt; must be ignored by Git</code> when it is not; in a
+bare repository, such as the candidate repository <code>stado change run</code> reviews before landing, nothing written
+there can enter a commit and the check is not asked.</p>
 <p>A round over a queued entry (<code>record --queue</code>) whose parent is no longer HEAD is kept only when the tree
 carries every commit that landed since that parent: Git merges those commits onto the tree with the parent as the merge
 base (<code>git merge-tree --write-tree --merge-base</code>), and a tree that already holds them merges to itself. Any

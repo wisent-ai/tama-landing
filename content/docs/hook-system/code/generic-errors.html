@@ -1,0 +1,76 @@
+<h1>Errors that say which failure</h1>
+<p><code>block-generic-errors</code> is a write gate that refuses source code whose error messages say a failure
+happened without saying which one. A message such as "the upload did not succeed" names no step, no cause, no state
+that was observed and no fix, so whoever meets it has to find all four again. The rule is that every error says what
+failed, why, the state that was observed (the path, the item, the values that do exist) and what fixes it.</p>
+<h2>Quickstart</h2>
+<p>Install Tama and choose the gate for this machine:</p>
+<pre><code>stado product install tama --surface cli
+tama enforcement add block-generic-errors
+tama show block-generic-errors</code></pre>
+<p>Then ask your agent to report a failed upload in a TypeScript service. Where it would write a message that only
+says the upload failed, the write is refused before it lands, naming the file, the line, the sentence and why a reader
+cannot act on it:</p>
+<pre><code>block-generic-errors: BLOCKED: the file this write leaves holds an error message that says a failure happened without saying which, whoever wrote it:
+  web/upload.ts:14: "&lt;sentence&gt;" says the operation failed without the step, the cause or the fix: throw new Error("&lt;the message&gt;");
+Say in each message what failed, why, the state that was observed (the path, the item, the values that do exist) and what fixes it; …</code></pre>
+<p>The agent writes the version that tells the next person what to do instead:</p>
+<pre><code>throw new Error(`uploading ${file} to ${bucket}: the store answered ${status} ${body}; check that ${bucket} exists and this key may write to it`);</code></pre>
+<p>Before you turn the gate on for a codebase, list what it already holds, per repository:</p>
+<pre><code>tama violations find --generic-errors --tree ~/code
+tama violations find --generic-errors --repo ~/code/service --json</code></pre>
+<h2>What is refused</h2>
+<p>A sentence of the catalogue <code>generic_sentences</code> that <a href="https://github.com/wisent-ai/wisent-errors">wisent-errors</a>
+keeps, matched without regard to case inside a string literal of a source file. The catalogue says for each sentence
+why a reader cannot act on it, and the refusal quotes that reason. The sentences are not listed again here or in Tama's
+code: the catalogue is the one place they are written, and a sentence added there is refused everywhere.</p>
+<table>
+<thead><tr><th>Files</th><th>String literals read</th></tr></thead>
+<tbody>
+<tr><td><code>.rs</code>, <code>.swift</code>, <code>.go</code></td><td><code>"…"</code> and <code>`…`</code></td></tr>
+<tr><td><code>.ts</code>, <code>.tsx</code>, <code>.js</code>, <code>.mjs</code>, <code>.cjs</code>, <code>.py</code></td><td><code>"…"</code>, <code>'…'</code> and <code>`…`</code></td></tr>
+</tbody>
+</table>
+<p>A line that starts as a comment (<code>//</code>, <code>/*</code>, <code>*</code>, <code>#</code>, <code>--</code>) is not
+read: a comment that explains why a sentence says nothing is not an error message. A file under a directory named
+<code>tests</code>, <code>test</code>, <code>__tests__</code>, <code>Tests</code> or <code>fixtures</code>, a file whose name
+marks it as a test (<code>.test.</code>, <code>.spec.</code>, <code>_test.</code>, <code>Tests.swift</code>,
+<code>Test.swift</code>), and build output and installed dependencies (<code>target</code>, <code>.build</code>,
+<code>dist</code>, <code>build</code>, <code>node_modules</code>, <code>vendor</code>, <code>.venv</code>, <code>Pods</code>,
+<code>DerivedData</code>, <code>.git</code>) are not read either: a test asserts the very sentences a refusal must not
+say. A file its repository declares in <code>.tama/violations-ignore</code> (a path, or a folder written with a
+trailing <code>/</code> for everything below it), with the reason written beside it, is not read by the gate or by
+<code>tama violations find --generic-errors</code>: that is how a vendored bundle, unpacked as its publisher built it,
+stays out. <code>tama errors check</code> does not read the declarations: a directory given to it is judged whole.
+A declaration file that exists and cannot be read refuses the write, naming the file and the system's cause.</p>
+<h2>What is read</h2>
+<p>The whole file as the write leaves it: a hashline section or a string edit is replayed on the file, and a written
+file's content is read as written. A sentence the file already held is refused on its next edit until the edit
+rewrites it, whoever wrote it, and the refusal lists every one, not only the first. A write that names no file, and a
+file of a language that is not listed above, pass.</p>
+<h2>Refusals and what they mean</h2>
+<table>
+<thead><tr><th>Refusal</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>the file this write leaves holds an error message that says a failure happened without saying which …</code></td><td>One
+line per sentence: the file and line, the sentence, why a reader cannot act on it, and the line. Rewrite each message
+to say what failed, why, the state observed and the fix; where the product declares its failures
+(<code>wisent_errors::Operation</code>), raise a declared cause instead of a free sentence.</td></tr>
+<tr><td><code>the file this write leaves cannot be rebuilt to judge it: …</code></td><td>The edit could not be replayed
+on the file (the file is missing, or the edit does not apply); the cause follows.</td></tr>
+</tbody>
+</table>
+<h2>Listing what a codebase already holds</h2>
+<p><a href="../cli/violations/find/"><code>tama violations find --generic-errors</code></a> runs the same judgement over
+every file each repository owns (<code>--repo</code>, <code>--tree</code>, <code>--owner</code>, <code>--me</code>): the files
+Git tracks or would track, so build output a repository ignores is never counted. Each finding carries the sentence as
+its rule and <code>line N: "&lt;sentence&gt;" &lt;why&gt;: &lt;the line&gt;</code> as its message. Tama Desktop offers the same pass
+as <em>Errors that name no failure</em> on the Violations screen.
+<a href="../cli/errors/"><code>tama errors check --source &lt;dir&gt;</code></a> applies it to a source directory together
+with the check of the failure catalogues a product declares.</p>
+<h2>Where it comes from</h2>
+<p>Source: <code>rust/crates/tama-hook-tools/src/ports/block_generic_errors/mod.rs</code> (the files read, the
+judgement of one file and the gate); binary: <code>src/programs/block/failures/block_generic_errors.rs</code>;
+repository pass: <code>rust/crates/tama-violations/src/find_violations/generic_errors/mod.rs</code>; declaration:
+<code>hook-declarations/code-discipline/block-generic-errors.json</code>; the sentences:
+<code>catalogue/codes.json</code> of wisent-errors, read through <code>wisent_errors::operation::generic_sentences_in</code>.</p>
